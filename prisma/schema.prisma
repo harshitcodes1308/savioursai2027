@@ -1,0 +1,503 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  password           String
+  name               String
+  role               UserRole            @default(STUDENT)
+  emailVerified      DateTime?
+  image              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  aiUsageLogs        AiUsageLog[]
+  auditLogs          AuditLog[]
+  doubtConversations DoubtConversation[]
+  notes              Note[]
+  revisionPlans      RevisionPlan[]
+  revisionSchedules  RevisionSchedule[]
+  sessions           Session[]
+  studentProfile     StudentProfile?
+  studyPlans         StudyPlan[]
+  dailyPlans         DailyPlan[]
+  teacherProfile     TeacherProfile?
+  testAttempts       TestAttempt[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  metadata  Json?
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model StudentProfile {
+  id               String            @id @default(cuid())
+  userId           String            @unique
+  grade            Int
+  targetExamDate   DateTime?
+  dailyStudyHours  Float             @default(2.0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  learningPatterns LearningPattern[]
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testPerformances TestPerformance[]
+
+  @@map("student_profiles")
+}
+
+model LearningPattern {
+  id           String         @id @default(cuid())
+  profileId    String
+  subjectId    String
+  avgTimeSpent Float          @default(0)
+  consistency  Float          @default(0)
+  lastStudied  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  profile      StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  subject      Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, subjectId])
+  @@index([profileId])
+  @@map("learning_patterns")
+}
+
+model TestPerformance {
+  id             String         @id @default(cuid())
+  profileId      String
+  testId         String
+  score          Float
+  weakTopics     Json
+  conceptualGaps Json
+  createdAt      DateTime       @default(now())
+  profile        StudentProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  test           Test           @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([testId])
+  @@map("test_performances")
+}
+
+model TeacherProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  subjects  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tests     Test[]
+
+  @@map("teacher_profiles")
+}
+
+model Subject {
+  id               String            @id @default(cuid())
+  name             String
+  code             String            @unique
+  description      String?
+  icon             String?
+  order            Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  chapters         Chapter[]
+  learningPatterns LearningPattern[]
+  dailyPlans       DailyPlan[]
+
+  @@map("subjects")
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  subjectId   String
+  name        String
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  subject     Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topics      Topic[]
+  dailyPlans  DailyPlan[]
+
+  @@index([subjectId])
+  @@map("chapters")
+}
+
+model Topic {
+  id                 String              @id @default(cuid())
+  chapterId          String
+  name               String
+  description        String?
+  order              Int                 @default(0)
+  estimatedMinutes   Int                 @default(30)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  contents           Content[]
+  doubtConversations DoubtConversation[]
+  notes              Note[]
+  questions          QuestionBank[]
+  revisionChecklist  RevisionChecklist?
+  revisionSchedules  RevisionSchedule[]
+  chapter            Chapter             @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([chapterId])
+  @@map("topics")
+}
+
+model Content {
+  id        String      @id @default(cuid())
+  topicId   String
+  type      ContentType
+  title     String?
+  content   String
+  metadata  Json?
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  topic     Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+  @@map("contents")
+}
+
+model RevisionChecklist {
+  id        String   @id @default(cuid())
+  topicId   String   @unique
+  items     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@map("revision_checklists")
+}
+
+model StudyPlan {
+  id              String           @id @default(cuid())
+  studentId       String
+  startDate       DateTime
+  targetDate      DateTime
+  status          StudyPlanStatus  @default(ACTIVE)
+  subjects        Json
+  metadata        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  planAdjustments PlanAdjustment[]
+  student         User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("study_plans")
+}
+
+model DailyPlan {
+  id             String   @id @default(cuid())
+  userId         String
+  subjectId      String
+  chapterId      String
+  topicName      String   // Specific topic for the day (e.g., "Input Tax Credit")
+  planDate       DateTime
+  difficulty     Int      @default(3) // 1-5 scale
+  estimatedHours Float    @default(2.0)
+  completed      Boolean  @default(false)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  chapter        Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  subject        Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([planDate])
+  @@index([chapterId])
+  @@map("daily_plans")
+}
+
+model PlanAdjustment {
+  id        String    @id @default(cuid())
+  planId    String
+  reason    String
+  changes   Json
+  timestamp DateTime  @default(now())
+  plan      StudyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@map("plan_adjustments")
+}
+
+model Note {
+  id             String          @id @default(cuid())
+  studentId      String
+  topicId        String?
+  title          String
+  content        String
+  tags           Json?
+  color          String?
+  isPinned       Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  flashCards     FlashCard[]
+  student        User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  topic          Topic?          @relation(fields: [topicId], references: [id])
+  revisionSheets RevisionSheet[]
+
+  @@index([studentId])
+  @@index([topicId])
+  @@map("notes")
+}
+
+model FlashCard {
+  id          String               @id @default(cuid())
+  noteId      String
+  front       String
+  back        String
+  difficulty  FlashCardDifficulty?
+  nextReview  DateTime?
+  reviewCount Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  note        Note                 @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@map("flash_cards")
+}
+
+model RevisionSheet {
+  id          String            @id @default(cuid())
+  noteId      String
+  content     String
+  type        RevisionSheetType
+  generatedAt DateTime          @default(now())
+  note        Note              @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@map("revision_sheets")
+}
+
+model QuestionBank {
+  id          String             @id @default(cuid())
+  topicId     String
+  question    String
+  options     Json?
+  answer      String
+  explanation String?
+  hint        String?
+  type        QuestionType       @default(MCQ)
+  difficulty  QuestionDifficulty @default(MEDIUM)
+  tags        Json?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  topic       Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+  @@index([difficulty])
+  @@map("question_bank")
+}
+
+model Test {
+  id               String            @id @default(cuid())
+  createdBy        String
+  title            String
+  description      String?
+  type             TestType
+  questions        Json
+  duration         Int
+  totalMarks       Float
+  isPublished      Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  attempts         TestAttempt[]
+  testPerformances TestPerformance[]
+  creator          TeacherProfile    @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([createdBy])
+  @@map("tests")
+}
+
+model TestAttempt {
+  id          String   @id @default(cuid())
+  testId      String
+  studentId   String
+  answers     Json
+  score       Float
+  percentage  Float
+  analysis    Json?
+  timeSpent   Int
+  attemptedAt DateTime @default(now())
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  test        Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([testId])
+  @@index([studentId])
+  @@map("test_attempts")
+}
+
+model RevisionSchedule {
+  id            String       @id @default(cuid())
+  studentId     String
+  topicId       String
+  scheduledDate DateTime     @db.Date
+  type          RevisionType
+  completed     Boolean      @default(false)
+  completedAt   DateTime?
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  student       User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  topic         Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([topicId])
+  @@index([scheduledDate])
+  @@map("revision_schedules")
+}
+
+model RevisionPlan {
+  id        String           @id @default(cuid())
+  studentId String
+  examDate  DateTime         @db.Date
+  type      RevisionPlanType
+  tasks     Json
+  progress  Json?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  student   User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([examDate])
+  @@map("revision_plans")
+}
+
+model DoubtConversation {
+  id        String   @id @default(cuid())
+  studentId String
+  topicId   String?
+  title     String
+  messages  Json
+  resolved  Boolean  @default(false)
+  tags      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  topic     Topic?   @relation(fields: [topicId], references: [id])
+
+  @@index([studentId])
+  @@index([topicId])
+  @@map("doubt_conversations")
+}
+
+model AiUsageLog {
+  id        String    @id @default(cuid())
+  userId    String
+  feature   AiFeature
+  tokens    Int
+  cost      Float
+  metadata  Json?
+  timestamp DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([timestamp])
+  @@index([feature])
+  @@map("ai_usage_logs")
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum ContentType {
+  NOTE
+  LECTURE
+  SUMMARY
+  COMMON_MISTAKE
+  EXAMPLE
+}
+
+enum StudyPlanStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum FlashCardDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum RevisionSheetType {
+  SHORT_NOTES
+  LAST_DAY
+  SUMMARY
+}
+
+enum QuestionType {
+  MCQ
+  SHORT_ANSWER
+  LONG_ANSWER
+  TRUE_FALSE
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum TestType {
+  PRACTICE
+  SUBJECT_TEST
+  MOCK_EXAM
+}
+
+enum RevisionType {
+  SPACED_REPETITION
+  WEAK_TOPIC
+  EXAM_PREP
+  MANUAL
+}
+
+enum RevisionPlanType {
+  THIRTY_DAY
+  FIFTEEN_DAY
+  SEVEN_DAY
+}
+
+enum AiFeature {
+  STUDY_PLANNER
+  CONTENT_SUMMARY
+  NOTE_SIMPLIFICATION
+  FLASHCARD_GENERATION
+  REVISION_SHEET
+  DOUBT_SOLVING
+  PERFORMANCE_ANALYSIS
+  PLAN_ADJUSTMENT
+}

@@ -171,4 +171,38 @@ export const aiRouter = createTRPCRouter({
             recentLogs: logs.slice(0, 10),
         };
     }),
+
+    /**
+     * Generate Flashcards
+     */
+    generateFlashcards: protectedProcedure
+        .input(
+            z.object({
+                topics: z.string(),
+                subject: z.string().optional(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            const { generateFlashcards } = await import("@/lib/ai");
+            console.log("Generating flashcards for topics:", input.topics);
+
+            const result = await generateFlashcards({
+                topics: input.topics,
+                subject: input.subject,
+            });
+            console.log("Flashcard generation result:", result);
+
+            // Log AI usage
+            await ctx.prisma.aiUsageLog.create({
+                data: {
+                    userId: ctx.user.id,
+                    feature: "FLASHCARD_GENERATION",
+                    tokens: 500, // Estimate
+                    cost: 0,
+                    metadata: { topics: input.topics },
+                },
+            });
+
+            return result;
+        }),
 });

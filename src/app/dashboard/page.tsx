@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { useEffect, useMemo } from "react";
 import { typography } from "@/lib/typography";
+import { LazyCard } from "@/components/ui/LazyCard";
 
 export default function DashboardPage() {
     const router = useRouter();

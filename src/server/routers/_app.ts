@@ -4,6 +4,10 @@ import { dashboardRouter } from "./dashboard";
 import { plannerRouter } from "./planner";
 import { contentRouter } from "./content";
 import { aiRouter } from "./ai";
+import { testRouter } from "./test";
+import { profileRouter } from "./profile";
+import { strategyRouter } from "./strategy";
+import { focusRouter } from "./focus";
 
 /**
  * Main tRPC router
@@ -15,6 +19,10 @@ export const appRouter = createTRPCRouter({
     planner: plannerRouter,
     content: contentRouter,
     ai: aiRouter,
+    test: testRouter,
+    profile: profileRouter,
+    strategy: strategyRouter,
+    focus: focusRouter,
 });
 
 export type AppRouter = typeof appRouter;

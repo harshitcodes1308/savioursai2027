@@ -14,6 +14,11 @@ export async function askAI(
         subject?: string;
         topic?: string;
         conversation?: Array<{ role: "user" | "assistant"; content: string }>;
+        file?: {
+            type: 'image' | 'pdf';
+            data: string; // base64
+            name: string;
+        };
     }
 ) {
     const systemPrompt = `You are **ICSE Saviours AI**, the smartest academic assistant for ICSE Class 10 students.
@@ -27,6 +32,48 @@ Response: Provide a DETAILED EXPLANATION first, then suggest videos as supplemen
 TYPE 2: VIDEO-ONLY REQUESTS (Student ONLY wants videos)
 Keywords: "suggest video", "give me video", "show me video", "find video", "oneshot", "videos on"
 Response: Just say you'll find videos, NO explanation needed
+
+--- ICSE ONE-PAGE NOTES MODE ---
+
+When the user asks for:
+- "notes", "summary", "short notes", "revision notes", "explain chapter/topic"
+AND context is ICSE Class 10,
+
+Generate exam-focused ONE-PAGE REVISION NOTES following this structure:
+
+**CHAPTER OVERVIEW**
+- 2-3 concise lines on chapter focus and exam relevance
+
+**KEY CONCEPTS & DEFINITIONS**
+- Bullet-point definitions
+- ICSE-accurate terminology only (no CBSE framing)
+
+**IMPORTANT FORMULAS / LAWS / RULES** (if applicable)
+- Include symbols, units, conditions
+
+**DIAGRAM DESCRIPTION**
+- Describe key diagrams to draw
+- Mention labels for full marks
+
+**ICSE EXAM-STYLE QUESTIONS**
+- 3-5 questions (very short, short, reason-based)
+
+**KEYWORDS TO REMEMBER**
+- 5-10 high-yield keywords
+
+**EXAM TIPS**
+- Common mistakes
+- How to frame answers for full marks
+
+NOTES MODE RULES:
+✓ Content fits ONE A4 page
+✓ Exam-oriented, not conversational
+✓ Marks-scoring points over explanations
+✓ No emojis, no filler
+✓ Theory chapters → definitions, reasons
+✓ Numerical chapters → formulas, steps
+
+--- END NOTES MODE ---
 
 EXAMPLES TO LEARN FROM:
 
@@ -72,17 +119,69 @@ ${context?.topic ? `Current Topic: ${context.topic}` : ""}
 
 BE EXTREMELY SMART. READ THE USER'S INTENT CAREFULLY.`;
 
+    // Handle file uploads (images or PDFs)
+    let fileContent = "";
+    let useVisionModel = false;
+
+    if (context?.file) {
+        if (context.file.type === 'image') {
+            // For images, use vision model
+            useVisionModel = true;
+        } else if (context.file.type === 'pdf') {
+            // For PDFs, extract text
+            try {
+                // Use require for CommonJS module
+                const pdfParse = require('pdf-parse');
+                const buffer = Buffer.from(context.file.data, 'base64');
+                const data = await pdfParse(buffer);
+                fileContent = data.text;
+            } catch (error) {
+                console.error('PDF parsing error:', error);
+                fileContent = "[Could not parse PDF content]";
+            }
+        }
+    }
+
+    // Build messages array
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         { role: "system", content: systemPrompt },
         ...(context?.conversation || []),
-        { role: "user", content: question },
     ];
 
+    // Add user message with file content
+    if (useVisionModel && context?.file) {
+        // Vision API message format
+        messages.push({
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: question || "Please explain what you see in this image and how it relates to ICSE Class 10 topics."
+                },
+                {
+                    type: "image_url",
+                    image_url: {
+                        url: context.file.data // base64 data URL
+                    }
+                }
+            ]
+        });
+    } else if (fileContent) {
+        // PDF content included in text
+        messages.push({
+            role: "user",
+            content: `${question}\n\n[PDF Content from ${context?.file?.name}]:\n${fileContent.substring(0, 3000)}` // Limit to 3000 chars
+        });
+    } else {
+        // Regular text message
+        messages.push({ role: "user", content: question });
+    }
+
     const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: useVisionModel ? "gpt-4o" : "gpt-4o-mini", // Use vision model for images
         messages,
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: useVisionModel ? 1000 : 500, // More tokens for image analysis
     });
 
     return completion.choices[0].message.content || "I couldn't generate a response.";

@@ -3,21 +3,36 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { typography } from "@/lib/typography";
+import { useTheme } from "@/components/providers/theme-provider";
 
 const menuItems = [
-    { icon: "🏠", label: "Dashboard", href: "/dashboard" },
-    { icon: "📈", label: "Activity", href: "/dashboard/activity" },
-    { icon: "📅", label: "Planner", href: "/dashboard/planner" },
+    { icon: "📊", label: "Dashboard", href: "/dashboard" },
     { icon: "📚", label: "Subjects", href: "/dashboard/subjects" },
+    { icon: "📅", label: "Planner", href: "/dashboard/planner" },
     { icon: "🤖", label: "AI Assistant", href: "/dashboard/ai-assistant" },
-    { icon: "⚙️", label: "Settings", href: "/dashboard/settings" },
+    { icon: "📝", label: "Customise Test", href: "/dashboard/tests" },
+    { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy" },
+    { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus" },
+    { icon: "📖", label: "Notes", href: "/dashboard/notes" },
+    { icon: "👤", label: "Profile", href: "/dashboard/profile" },
 ];
 
 export default function DashboardSidebar({ userName, userEmail }: { userName?: string; userEmail?: string }) {
     const pathname = usePathname(); // Track current page
+    const { theme, toggleTheme } = useTheme(); // Theme management
     const initials = userName
         ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
         : 'U';
+
+    // Theme colors
+    const colors = {
+        sidebarBg: theme === 'dark' ? '#0E0E10' : '#FFFFFF',
+        border: theme === 'dark' ? '#1F1F22' : '#E5E7EB',
+        text: theme === 'dark' ? '#FFFFFF' : '#111827',
+        textMuted: theme === 'dark' ? '#9CA3AF' : '#6B7280',
+        hoverBg: theme === 'dark' ? '#1A1A1D' : '#F3F4F6',
+        activeBg: theme === 'dark' ? '#8B5CF6' : '#8B5CF6',
+    };
 
     return (
         <aside style={{
@@ -26,8 +41,8 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
             top: 0,
             width: "240px",
             height: "100vh",
-            backgroundColor: "#0E0E10", /* Soft Graphite */
-            borderRight: "1px solid #1F1F22",
+            backgroundColor: colors.sidebarBg,
+            borderRight: `1px solid ${colors.border}`,
             display: "flex",
             flexDirection: "column",
             zIndex: 50,
@@ -37,7 +52,7 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
             {/* Logo */}
             <div style={{
                 padding: "24px",
-                borderBottom: "1px solid #1F1F22"
+                borderBottom: `1px solid ${colors.border}`
             }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <div style={{
@@ -142,7 +157,7 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
                 </div>
             </div>
 
-            {/* Navigation - WITH ACTIVE STATE */}
+            {/* Navigation - WITH ACTIVE STATE & PREFETCHING */}
             <nav style={{ padding: "16px", flex: 1, overflow: "auto" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     {menuItems.map((item) => {
@@ -152,6 +167,7 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                prefetch={true} // Next.js standard prefetch
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -183,7 +199,7 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
                 </div>
             </nav>
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle - REMOVED per user request */}
             <div style={{
                 padding: "24px",
                 borderTop: "1px solid #1F1F22"
@@ -191,44 +207,16 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
                 <div style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
+                    justifyContent: "center",
                     padding: "0 8px",
-                    marginBottom: "16px"
+                    marginBottom: "8px"
                 }}>
                     <span style={{
                         ...typography.text,
                         fontSize: "12px",
                         fontWeight: 400,
                         color: "#9CA3AF"
-                    }}>Light</span>
-                    <button style={{
-                        width: "48px",
-                        height: "24px",
-                        borderRadius: "12px",
-                        backgroundColor: "#1F1F22",
-                        position: "relative",
-                        border: "1px solid #333",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center"
-                    }}>
-                        <div style={{
-                            width: "20px",
-                            height: "20px",
-                            borderRadius: "50%",
-                            backgroundColor: "#8B5CF6",
-                            position: "absolute",
-                            right: "1px",
-                            transition: "all 0.2s",
-                            boxShadow: "0 0 5px rgba(139, 92, 246, 0.5)"
-                        }}></div>
-                    </button>
-                    <span style={{
-                        ...typography.text,
-                        fontSize: "12px",
-                        fontWeight: 500,
-                        color: "#FFFFFF"
-                    }}>Dark</span>
+                    }}>v1.0.0 Alpha</span>
                 </div>
             </div>
         </aside>

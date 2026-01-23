@@ -11,6 +11,15 @@ const CHANNEL_IDS = {
     icseSaviours: "UCJdP8bdR35e0K0rJYnkNvFg",
 };
 
+// In-memory cache for YouTube search results
+interface CacheEntry {
+    videos: YouTubeVideo[];
+    timestamp: number;
+}
+
+const videoCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
 export interface YouTubeVideo {
     videoId: string;
     title: string;
@@ -30,6 +39,18 @@ export async function searchRelevantVideos(
 ): Promise<YouTubeVideo[]> {
     try {
         console.log("🔍 Searching videos for:", topic, subject);
+
+        // OPTIMIZATION: Check cache first
+        const cacheKey = `${topic.toLowerCase()}-${subject?.toLowerCase() || 'all'}`;
+        const cached = videoCache.get(cacheKey);
+
+        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+            console.log("✅ Cache HIT! Returning cached videos for:", cacheKey);
+            console.log(`⚡ Saved 200 YouTube API quota units`);
+            return cached.videos;
+        }
+
+        console.log("❌ Cache MISS. Fetching fresh videos...");
 
         // SMART KEYWORD EXTRACTION
         const keywords = {
@@ -98,6 +119,13 @@ export async function searchRelevantVideos(
         if (selectedVideos.length === 0) {
             console.log("⚠️ No videos found - try adjusting search terms");
         }
+
+        // OPTIMIZATION: Store in cache for future requests
+        videoCache.set(cacheKey, {
+            videos: selectedVideos,
+            timestamp: Date.now()
+        });
+        console.log("💾 Cached videos for:", cacheKey);
 
         console.log("✅ Returning videos:", selectedVideos.length);
         return selectedVideos;

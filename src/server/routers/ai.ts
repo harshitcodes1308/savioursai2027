@@ -20,16 +20,22 @@ export const aiRouter = createTRPCRouter({
                         })
                     )
                     .optional(),
+                file: z.object({
+                    type: z.enum(['image', 'pdf']),
+                    data: z.string(), // base64
+                    name: z.string(),
+                }).optional(), // <- NEW: file upload
             })
         )
         .mutation(async ({ input, ctx }) => {
             const { searchRelevantVideos } = await import("@/lib/youtube");
 
-            // Get AI response
+            // Get AI response (with file if provided)
             const response = await askAI(input.question, {
                 subject: input.subject,
                 topic: input.topic,
                 conversation: input.conversation,
+                file: input.file, // <- Pass file to AI
             });
 
             // Search for relevant YouTube videos

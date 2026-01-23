@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "@/server/trpc";
+import { refineNotes, generateFlashcards } from '@/lib/notes-ai';
 
 export const contentRouter = createTRPCRouter({
     /**
@@ -76,21 +77,14 @@ export const contentRouter = createTRPCRouter({
             })
         )
         .query(async ({ ctx, input }) => {
-            const profile = await ctx.prisma.studentProfile.findFirst({
-                where: { userId: ctx.user.id },
-            });
-
-            if (!profile) {
-                return [];
-            }
-
             const notes = await ctx.prisma.note.findMany({
                 where: {
-                    profileId: profile.id,
+                    studentId: ctx.user.id,
                     ...(input.topicId && { topicId: input.topicId }),
                 },
                 orderBy: { updatedAt: "desc" },
                 include: {
+                    flashCards: true,
                     topic: {
                         include: {
                             chapter: {
@@ -112,28 +106,57 @@ export const contentRouter = createTRPCRouter({
     createNote: protectedProcedure
         .input(
             z.object({
-                topicId: z.string(),
+                topicId: z.string().optional(),
+                subject: z.string().optional(),
                 title: z.string().min(1),
                 content: z.string(),
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const profile = await ctx.prisma.studentProfile.findFirst({
-                where: { userId: ctx.user.id },
-            });
+            // ... imports
 
-            if (!profile) {
-                throw new Error("Student profile not found");
+            // Refine with AI
+            let refinedContent = input.content;
+            try {
+                refinedContent = await refineNotes({
+                    rawContent: input.content,
+                    subject: input.subject, // Pass subject for better context
+                });
+            } catch (error) {
+                console.error('AI Refinement Error:', error);
             }
 
             const note = await ctx.prisma.note.create({
                 data: {
-                    profileId: profile.id,
-                    topicId: input.topicId,
+                    studentId: ctx.user.id,
+                    topicId: input.topicId || undefined, // Use undefined for optional relation
                     title: input.title,
-                    content: input.content,
+                    content: refinedContent,
+                    tags: input.subject ? [input.subject] : undefined, // Use undefined for optional JSON
                 },
             });
+
+            // Generate flashcards
+            try {
+                const flashcards = await generateFlashcards(refinedContent);
+
+                if (flashcards.length > 0) {
+                    await Promise.all(
+                        flashcards.map(fc =>
+                            ctx.prisma.flashCard.create({
+                                data: {
+                                    noteId: note.id,
+                                    front: fc.question,
+                                    back: fc.answer,
+                                    difficulty: fc.difficulty.toUpperCase() as any,
+                                },
+                            })
+                        )
+                    );
+                }
+            } catch (error) {
+                console.error('Flashcard generation failed:', error);
+            }
 
             return { success: true, note };
         }),

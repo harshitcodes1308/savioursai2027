@@ -1,42 +1,49 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Theme = "light" | "dark";
+type Theme = 'light' | 'dark';
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState<Theme>("light");
+interface ThemeContextType {
+    theme: Theme;
+    toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+    const [theme, setTheme] = useState<Theme>('dark'); // Default to dark
 
     useEffect(() => {
-        // Check for saved theme preference or default to system preference
-        const savedTheme = localStorage.getItem("theme") as Theme | null;
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-            .matches
-            ? "dark"
-            : "light";
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme') as Theme | null;
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
 
         const initialTheme = savedTheme || systemTheme;
         setTheme(initialTheme);
-        document.documentElement.classList.toggle("dark", initialTheme === "dark");
+        document.documentElement.classList.toggle('dark', initialTheme === 'dark');
     }, []);
 
     const toggleTheme = () => {
-        const newTheme = theme === "light" ? "dark" : "light";
+        const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
-        localStorage.setItem("theme", newTheme);
-        document.documentElement.classList.toggle("dark", newTheme === "dark");
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.classList.toggle('dark', newTheme === 'dark');
     };
 
     return (
-        <div className="theme-wrapper">
-            <button
-                onClick={toggleTheme}
-                className="fixed top-4 right-4 z-50 p-2 rounded-lg bg-white dark:bg-dark-700 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all"
-                aria-label="Toggle theme"
-            >
-                {theme === "light" ? "🌙" : "☀️"}
-            </button>
+        <ThemeContext.Provider value={{ theme, toggleTheme }}>
             {children}
-        </div>
+        </ThemeContext.Provider>
     );
+}
+
+export function useTheme() {
+    const context = useContext(ThemeContext);
+    if (context === undefined) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
 }

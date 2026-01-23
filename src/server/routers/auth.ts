@@ -87,26 +87,31 @@ export const authRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ input }) => {
-            const user = await authenticate(input.email, input.password);
+            try {
+                const user = await authenticate(input.email, input.password);
 
-            if (!user) {
-                throw new AuthenticationError("Invalid email or password");
+                if (!user) {
+                    throw new AuthenticationError("Invalid email or password");
+                }
+
+                // Create session token
+                const token = await createToken(user);
+                await setSessionCookie(token);
+
+                // Return only serializable data
+                return {
+                    success: true,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        role: user.role,
+                    },
+                };
+            } catch (error) {
+                console.error("Login error:", error);
+                throw error;
             }
-
-            // Create session token
-            const token = await createToken(user);
-            await setSessionCookie(token);
-
-            // Return only serializable data
-            return {
-                success: true,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                },
-            };
         }),
 
     /**

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { typography } from "@/lib/typography";
 import ReactMarkdown from "react-markdown";
@@ -21,9 +20,6 @@ interface Message {
 }
 
 export default function AIAssistantPage() {
-    const searchParams = useSearchParams();
-    const initialTopic = searchParams.get("topic");
-    const initialSubject = searchParams.get("subject");
 
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -47,13 +43,6 @@ export default function AIAssistantPage() {
     const [feedbackState, setFeedbackState] = useState<"idle" | "correct" | "wrong">("idle");
     const setupRef = useRef<HTMLInputElement>(null);
 
-    // If initial query params present, switch to flashcard mode (but don't auto-fill)
-    useEffect(() => {
-        if (initialTopic || initialSubject) {
-            setMode("flashcards_setup");
-            if (initialSubject) setSubject(initialSubject);
-        }
-    }, [initialTopic, initialSubject]);
 
     // Mutations
     const generateFlashcards = trpc.ai.generateFlashcards.useMutation({
@@ -484,7 +473,7 @@ export default function AIAssistantPage() {
                         </h3>
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                            {flashcards[currentCardIndex].options.map((option, idx) => {
+                            {flashcards[currentCardIndex].options.map((option: string, idx: number) => {
                                 const isSelected = selectedOption === option;
                                 const isCorrect = option === flashcards[currentCardIndex].correctAnswer;
                                 const isWrongSelection = isSelected && !isCorrect;

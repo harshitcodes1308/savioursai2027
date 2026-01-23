@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { useState, useEffect } from "react";
 
 export default function TimelineViewPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const chapterId = searchParams.get("chapter");
 
     const { data: plans, refetch } = trpc.planner.getMyPlans.useQuery({});
     const toggleComplete = trpc.planner.togglePlanComplete.useMutation({
@@ -15,13 +13,6 @@ export default function TimelineViewPage() {
     });
 
     const [selectedPlan, setSelectedPlan] = useState<any>(null);
-
-    useEffect(() => {
-        if (chapterId && plans) {
-            const plan = plans.find((p) => p.chapterId === chapterId);
-            if (plan) setSelectedPlan(plan);
-        }
-    }, [chapterId, plans]);
 
     if (!plans || plans.length === 0) {
         return (

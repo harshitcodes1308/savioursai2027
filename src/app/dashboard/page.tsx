@@ -139,11 +139,11 @@ export default function DashboardPage() {
             </div>
 
             <div style={{ maxWidth: "1400px", margin: "0 auto", overflow: "visible" }}>
-                {/* 3×2 Grid - 5 cards */}
+                {/* Responsive Grid - 3 columns on desktop, 2 on tablet, 1 on mobile */}
                 <div className="dashboard-grid" style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
-                    gap: "24px",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+                    gap: "16px",
                     overflow: "visible"
                 }}>
 

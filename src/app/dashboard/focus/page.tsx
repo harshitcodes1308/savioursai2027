@@ -144,7 +144,7 @@ export default function FocusPage() {
                                 No subjects available
                             </div>
                         ) : (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                            <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                                 {subjects.map(sub => (
                                     <button
                                         key={sub.id}
@@ -175,7 +175,7 @@ export default function FocusPage() {
                         <label style={{ ...typography.text, display: 'block', marginBottom: '12px', fontWeight: 600 }}>
                             Task Type:
                         </label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                        <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
                             {TASK_TYPES.map(type => (
                                 <button
                                     key={type.id}
@@ -237,7 +237,7 @@ export default function FocusPage() {
                         Choose your study duration
                     </p>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
+                    <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
                         {(Object.keys(MODES) as FocusModeType[]).map(modeKey => {
                             const mode = MODES[modeKey];
                             return (
@@ -308,12 +308,13 @@ export default function FocusPage() {
                         {formatTime(timeLeft)}
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex',  flexWrap: 'wrap', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
                         <button
                             onClick={() => setIsActive(!isActive)}
                             style={{
                                 ...typography.text,
-                                padding: '12px 32px',
+                                padding: '14px 28px',
+                                minWidth: '120px',
                                 backgroundColor: '#8B5CF6',
                                 color: '#FFF',
                                 border: 'none',

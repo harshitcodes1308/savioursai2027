@@ -30,18 +30,20 @@ export function ThemedDashboardContent({
         <div style={{ minHeight: '100vh', backgroundColor: colors.bg }}>
             <DashboardSidebar userName={userName} userEmail={userEmail} />
 
-            {/* Header - Fixed, positioned after sidebar */}
+            {/* Header - Fixed, positioned after sidebar on desktop, full width on mobile */}
             <div
                 style={{
                     position: 'fixed',
                     top: 0,
-                    left: '240px',
+                    left: 0,
                     right: 0,
                     height: '64px',
                     backgroundColor: colors.cardBg,
                     borderBottom: `1px solid ${colors.border}`,
                     zIndex: 40,
+                    paddingLeft: '60px', // Space for hamburger on mobile
                 }}
+                className="dashboard-header"
             >
                 <div
                     style={{
@@ -49,22 +51,22 @@ export function ThemedDashboardContent({
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         height: '100%',
-                        padding: '0 32px',
+                        padding: '0 16px',
                     }}
                 >
                     <h2 style={{ fontSize: '18px', fontWeight: '600', color: colors.text }}>
                         Statistics
                     </h2>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        {/* Search */}
-                        <div style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {/* Search - Hidden on mobile */}
+                        <div style={{ position: 'relative' }} className="mobile-hidden">
                             <input
                                 type="text"
-                                placeholder="Search something..."
+                                placeholder="Search..."
                                 style={{
-                                    width: '256px',
-                                    padding: '8px 16px 8px 40px',
+                                    width: '180px',
+                                    padding: '8px 16px 8px 36px',
                                     borderRadius: '8px',
                                     backgroundColor: colors.inputBg,
                                     border: `1px solid ${colors.inputBorder}`,
@@ -76,7 +78,7 @@ export function ThemedDashboardContent({
                             <span
                                 style={{
                                     position: 'absolute',
-                                    left: '12px',
+                                    left: '10px',
                                     top: '50%',
                                     transform: 'translateY(-50%)',
                                     color: colors.textMuted,
@@ -87,14 +89,15 @@ export function ThemedDashboardContent({
                             </span>
                         </div>
 
-                        {/* Upgrade Button */}
+                        {/* Upgrade Button - Hidden on small mobile */}
                         <button
+                            className="mobile-hidden"
                             style={{
-                                padding: '8px 20px',
+                                padding: '8px 16px',
                                 borderRadius: '8px',
                                 backgroundColor: '#8B5CF6',
                                 color: '#FFFFFF',
-                                fontSize: '14px',
+                                fontSize: '13px',
                                 fontWeight: '600',
                                 border: 'none',
                                 cursor: 'pointer',
@@ -107,8 +110,8 @@ export function ThemedDashboardContent({
                         {/* Notifications */}
                         <button
                             style={{
-                                width: '36px',
-                                height: '36px',
+                                width: '40px',
+                                height: '40px',
                                 borderRadius: '8px',
                                 backgroundColor: colors.inputBg,
                                 border: `1px solid ${colors.inputBorder}`,
@@ -126,18 +129,38 @@ export function ThemedDashboardContent({
                 </div>
             </div>
 
-            {/* Main Content - Offset from sidebar and header */}
+            {/* Main Content - Responsive padding */}
             <main
                 style={{
-                    marginLeft: '240px',
-                    paddingTop: '64px',
-                    padding: '32px',
+                    marginLeft: 0,
+                    paddingTop: '80px',
+                    padding: '80px 16px 16px 16px',
                     minHeight: '100vh',
                     backgroundColor: colors.bg,
                 }}
+                className="dashboard-main"
             >
                 {children}
             </main>
+
+            {/* Responsive Styles */}
+            <style jsx>{`
+                @media (min-width: 768px) {
+                    .dashboard-header {
+                        left: 240px !important;
+                        padding-left: 0 !important;
+                    }
+
+                    .dashboard-header > div {
+                        padding: 0 32px !important;
+                    }
+
+                    .dashboard-main {
+                        margin-left: 240px !important;
+                        padding: 96px 32px 32px 32px !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

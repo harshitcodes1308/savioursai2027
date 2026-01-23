@@ -286,4 +286,65 @@ select,
     background-size: 200% 200%;
     animation: gradient 3s ease infinite;
   }
+
+  /* Mobile Responsive Utilities */
+  .mobile-hidden {
+    display: none;
+  }
+
+  .mobile-visible {
+    display: block;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-hidden {
+      display: block;
+    }
+
+    .mobile-visible {
+      display: none;
+    }
+  }
+
+  /* Touch-friendly tap targets (min 44x44px) */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 767px) {
+  /* Mobile styles */
+  .dashboard-card {
+    margin: 8px;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  h3 {
+    font-size: 18px !important;
+  }
+
+  /* Stack grids on mobile */
+  .grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Tablet styles */
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }

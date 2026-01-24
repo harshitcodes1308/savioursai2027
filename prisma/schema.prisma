@@ -534,19 +534,28 @@ enum AiFeature {
 }
 
 model FocusSession {
-  id               String                @id @default(cuid())
-  userId           String
-  subject          String
-  taskType         FocusTaskType
-  mode             FocusModeType
-  plannedDuration  Int
-  actualDuration   Int
-  completionStatus FocusCompletionStatus
-  quality          FocusQuality
-  difficulty       String?
-  notes            String?
-  createdAt        DateTime              @default(now())
-  user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String                @id @default(cuid())
+  userId              String
+  subject             String
+  taskType            FocusTaskType
+  mode                FocusModeType
+  plannedDuration     Int
+  actualDuration      Int
+  completionStatus    FocusCompletionStatus
+  quality             FocusQuality
+  difficulty          String?
+  notes               String?
+  
+  // NEW: Dynamic timer control fields
+  totalPlannedMinutes Int?                  // Total time user requested (e.g., 90)
+  focusStyle          String?               // POMODORO, DEEP_45, DEEP_60, LIGHT, CUSTOM
+  customFocusMins     Int?                  // Custom focus block length
+  customBreakMins     Int?                  // Custom break length
+  blocksPlanned       Int?                  // Total focus blocks in session plan
+  blocksCompleted     Int                   @default(0) // How many focus blocks finished
+  
+  createdAt           DateTime              @default(now())
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("focus_sessions")

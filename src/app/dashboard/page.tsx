@@ -5,9 +5,11 @@ import { trpc } from "@/lib/trpc/client";
 import { useEffect, useMemo } from "react";
 import { typography } from "@/lib/typography";
 import { LazyCard } from "@/components/ui/LazyCard";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function DashboardPage() {
     const router = useRouter();
+    const isMobile = useIsMobile(); // Mobile detection
 
     // Auto-refetch every 30 seconds + on window focus (Fix #1)
     const { data: profile, isLoading: profileLoading } = trpc.dashboard.getProfile.useQuery(undefined, {
@@ -87,7 +89,7 @@ export default function DashboardPage() {
         <div style={{
             minHeight: "100vh",
             backgroundColor: "#030303",
-            padding: "24px",
+            padding: isMobile ? "16px" : "24px", // Mobile-first padding
             transition: "all 0.2s ease-in-out"
         }}>
             {/* Header with User Info + Date */}
@@ -138,26 +140,21 @@ export default function DashboardPage() {
                 </button>
             </div>
 
-            <div style={{ maxWidth: "1400px", margin: "0 auto", overflow: "visible" }}>
-                {/* Responsive Grid - 3 columns on desktop, 2 on tablet, 1 on mobile */}
-                <div className="dashboard-grid" style={{
+
+            <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+                {/* Simple responsive grid: 3 cols on desktop, 2 on tablet, 1 on mobile */}
+                <div style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
-                    gap: "16px",
-                    overflow: "visible"
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: "20px"
                 }}>
 
-                    {/* Row 1, Col 1: Today's Study Plan - Now Dark Graphite with Purple Accent */}
+                    {/* Today's Study Plan */}
                     <div className="dashboard-card" style={{
                         padding: "24px",
-                        height: "260px",
-                        overflow: "hidden",
+                        minHeight: "260px",
                         display: "flex",
-                        flexDirection: "column",
-                        boxSizing: "border-box",
-                        wordBreak: "break-word",
-                        overflowWrap: "break-word",
-                        position: "relative"
+                        flexDirection: "column"
                     }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", maxWidth: "100%", position: "relative", zIndex: 1 }}>
                             <h3 style={{

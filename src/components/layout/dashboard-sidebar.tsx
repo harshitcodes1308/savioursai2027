@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { typography } from "@/lib/typography";
+import { usePathname, useRouter } from "next/navigation";
 
 const menuItems = [
     { icon: "📊", label: "Dashboard", href: "/dashboard" },
@@ -19,190 +18,223 @@ const menuItems = [
 
 export default function DashboardSidebar({ userName, userEmail }: { userName?: string; userEmail?: string }) {
     const pathname = usePathname();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const router = useRouter();
+    const [isOpen, setIsOpen] = useState(false);
+    
+    // We can rely on CSS for mobile detection for the hamburger visibility
+    // to avoid hydration mismatch, but we still need state for the drawer itself.
     
     const initials = userName
         ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
         : 'U';
 
+    const handleNavigation = (href: string) => {
+        setIsOpen(false); // Close sidebar on nav
+        router.push(href);
+    };
+
     return (
         <>
-            {/* Hamburger Button - Mobile Only */}
+            {/* HAMBURGER - Visible ONLY on Mobile via CSS class 'mobile-only' */}
             <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="mobile-visible"
+                className="mobile-only"
+                onClick={() => setIsOpen(!isOpen)}
                 style={{
                     position: "fixed",
-                    top: "16px",
-                    left: "16px",
-                    zIndex: 100,
-                    width: "44px",
-                    height: "44px",
-                    backgroundColor: "#0E0E10",
-                    border: "1px solid #1F1F22",
-                    borderRadius: "8px",
-                    display: "flex",
+                    top: 16,
+                    left: 16,
+                    zIndex: 200,
+                    width: 44,
+                    height: 44,
+                    backgroundColor: isOpen ? "#8B5CF6" : "#1A1A1D",
+                    border: "1px solid #333",
+                    borderRadius: 12,
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
-                    color: "#FFF",
+                    color: isOpen ? "#FFF" : "#8B5CF6",
+                    fontSize: 24,
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                    transition: "all 0.3s ease",
+                    // display property is handled by globals.css classes: mobile-only / desktop-only
                 }}
             >
-                {isMobileMenuOpen ? "✕" : "☰"}
+                {isOpen ? "✕" : "☰"}
             </button>
 
-            {/* Overlay for mobile */}
-            {isMobileMenuOpen && (
-                <div
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        zIndex: 60,
-                    }}
-                    className="mobile-visible"
-                />
-            )}
+            {/* OVERLAY - Visible only when open on mobile */}
+            <div
+                className={isOpen ? "mobile-only" : ""}
+                onClick={() => setIsOpen(false)}
+                style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "rgba(0,0,0,0.8)",
+                    backdropFilter: "blur(4px)",
+                    zIndex: 140,
+                    opacity: isOpen ? 1 : 0,
+                    pointerEvents: isOpen ? "auto" : "none",
+                    transition: "opacity 0.3s ease",
+                    display: isOpen ? "block" : "none" // Force hide when closed to prevent interactions
+                }}
+            />
 
-            {/* Sidebar */}
-            <aside style={{
-                position: "fixed",
-                left: isMobileMenuOpen ? 0 : "-100%",
-                top: 0,
-                width: "280px",
-                maxWidth: "85vw",
-                height: "100vh",
-                backgroundColor: "#0E0E10",
-                borderRight: "1px solid #1F1F22",
-                display: "flex",
-                flexDirection: "column",
-                zIndex: 70,
-                overflow: "hidden",
-                transition: "left 0.3s ease-in-out",
-            }}
-            className="mobile-menu-sidebar">
-                {/* Logo/Brand */}
-                <div style={{ padding: "24px 20px", borderBottom: "1px solid #1F1F22" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {/* SIDEBAR CONTAINER */}
+            <aside
+                style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "280px",
+                    height: "100vh",
+                    backgroundColor: "#0E0E10",
+                    borderRight: "1px solid #1F1F22",
+                    display: "flex",
+                    flexDirection: "column",
+                    zIndex: 150,
+                    // Use CSS media query for transform logic if possible, or fallback to simple conditional
+                    transform: isOpen ? "translateX(0)" : "translateX(0)", // Desktop default
+                    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    boxShadow: isOpen ? "10px 0 30px rgba(0,0,0,0.5)" : "none",
+                }}
+                className={`sidebar-transition ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+            >
+                {/* Logo Section */}
+                <div style={{ padding: "24px 20px", borderBottom: "1px solid #1F1F22", flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <div style={{
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "8px",
+                            width: 36,
+                            height: 36,
+                            borderRadius: 8,
                             backgroundColor: "#8B5CF6",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: "18px",
+                            fontSize: 18,
+                            flexShrink: 0
                         }}>
                             ✨
                         </div>
                         <div>
-                            <div style={{ ...typography.display, fontSize: "16px", fontWeight: 700, color: "#FFF" }}>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: "#FFF" }}>
                                 ICSE Saviours
                             </div>
-                            <div style={{ ...typography.text, fontSize: "11px", color: "#666", marginTop: "2px" }}>
-                                v1.0.0 Alpha
-                            </div>
+                            <div style={{ fontSize: 11, color: "#666" }}>v1.0.0 Alpha</div>
                         </div>
                     </div>
                 </div>
 
-                {/* User Profile */}
-                <div style={{
-                    padding: "20px",
-                    borderBottom: "1px solid #1F1F22",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px"
+                {/* User Profile Section - FIXED */}
+                <div style={{ 
+                    padding: 20, 
+                    borderBottom: "1px solid #1F1F22", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: 12,
+                    flexShrink: 0,
+                    backgroundColor: '#0E0E10' 
                 }}>
                     <div style={{
-                        width: "40px",
-                        height: "40px",
+                        width: 40,
+                        height: 40,
+                        minWidth: 40, 
+                        maxWidth: 40,
                         borderRadius: "50%",
                         backgroundColor: "#8B5CF6",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        ...typography.display,
-                        fontSize: "16px",
+                        fontSize: 16,
                         fontWeight: 600,
-                        color: "#FFF"
+                        color: "#FFF",
+                        overflow: "hidden",
+                        flexShrink: 0,
                     }}>
-                        {initials}
+                        {/* We use a div background or img if available, here just text */}
+                        <span style={{ transform: 'translateY(1px)' }}>{initials}</span>
                     </div>
-                    <div style={{ flex: 1, overflow: "hidden" }}>
-                        <div style={{ ...typography.text, fontSize: "14px", fontWeight: 600, color: "#FFF", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                    <div style={{ 
+                        flex: 1, 
+                        overflow: "hidden", 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        justifyContent: 'center' 
+                    }}>
+                        <div style={{ 
+                            fontSize: 14, 
+                            fontWeight: 600, 
+                            color: "#FFF", 
+                            whiteSpace: "nowrap", 
+                            overflow: "hidden", 
+                            textOverflow: "ellipsis" 
+                        }}>
                             {userName || "User"}
                         </div>
-                        <div style={{ ...typography.text, fontSize: "12px", color: "#9CA3AF", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                            {userEmail || "student@example.com"}
+                        <div style={{ 
+                            fontSize: 12, 
+                            color: "#9CA3AF", 
+                            whiteSpace: "nowrap", 
+                            overflow: "hidden", 
+                            textOverflow: "ellipsis" 
+                        }}>
+                            {userEmail || "user@example.com"}
                         </div>
                     </div>
                 </div>
 
-                {/* Navigation */}
-                <nav style={{ padding: "16px", flex: 1, overflow: "auto" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        {menuItems.map((item) => {
-                            const isActive = pathname === item.href;
-
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    prefetch={true}
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "12px",
-                                        padding: "14px 16px",
-                                        borderRadius: "8px",
-                                        backgroundColor: isActive ? "rgba(139, 92, 246, 0.15)" : "transparent",
-                                        color: isActive ? "#8B5CF6" : "#9CA3AF",
-                                        textDecoration: "none",
-                                        transition: "all 0.2s ease-in-out",
-                                        overflow: "hidden",
-                                        border: isActive ? "1px solid rgba(139, 92, 246, 0.2)" : "1px solid transparent",
-                                        minHeight: "48px",
-                                    }}
-                                >
-                                    <span style={{ fontSize: "18px", flexShrink: 0 }}>{item.icon}</span>
-                                    <span style={{
-                                        ...typography.text,
-                                        fontSize: "14px",
-                                        fontWeight: isActive ? 600 : 500,
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        whiteSpace: "nowrap"
-                                    }}>
-                                        {item.label}
-                                    </span>
-                                </Link>
-                            );
-                        })}
-                    </div>
+                {/* Nav Links */}
+                <nav style={{ padding: 12, flex: 1, overflowY: 'auto' }}>
+                    {menuItems.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <button
+                                key={item.href}
+                                onClick={() => handleNavigation(item.href)}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    width: "100%",
+                                    padding: "12px 16px",
+                                    marginBottom: 4,
+                                    borderRadius: 12,
+                                    backgroundColor: isActive ? "rgba(139,92,246,0.15)" : "transparent",
+                                    color: isActive ? "#8B5CF6" : "#9CA3AF",
+                                    border: isActive ? "1px solid rgba(139,92,246,0.2)" : "1px solid transparent",
+                                    cursor: "pointer",
+                                    textAlign: "left",
+                                    fontSize: 14,
+                                    fontWeight: isActive ? 600 : 500,
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                <span style={{ fontSize: 20, minWidth: 24, textAlign: 'center' }}>{item.icon}</span>
+                                <span style={{ whiteSpace: "nowrap" }}>{item.label}</span>
+                            </button>
+                        );
+                    })}
                 </nav>
 
                 {/* Footer */}
-                <div style={{ padding: "16px", borderTop: "1px solid #1F1F22" }}>
-                    <div style={{ ...typography.text, fontSize: "11px", color: "#666", textAlign: "center" }}>
-                        © 2026 ICSE Saviours
-                    </div>
+                <div style={{ padding: 16, borderTop: "1px solid #1F1F22", textAlign: "center", flexShrink: 0 }}>
+                    <div style={{ fontSize: 11, color: "#555" }}>© 2026 ICSE Saviours</div>
                 </div>
             </aside>
-
-            {/* Desktop Sidebar Styles */}
-            <style jsx>{`
-                @media (min-width: 768px) {
-                    .mobile-menu-sidebar {
-                        left: 0 !important;
-                        width: 240px !important;
-                    }
+            
+            {/* INJECT STYLES FOR TRANSITION ASIDE */}
+            <style jsx global>{`
+                .sidebar-transition {
+                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                }
+                @media (max-width: 1023px) {
+                    .sidebar-transition.translate-x-0 { transform: translateX(0) !important; }
+                    .sidebar-transition.-translate-x-full { transform: translateX(-100%) !important; }
+                }
+                @media (min-width: 1024px) {
+                    .sidebar-transition { transform: translateX(0) !important; }
                 }
             `}</style>
         </>

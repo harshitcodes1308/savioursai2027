@@ -6,7 +6,7 @@ const openai = new OpenAI({
 });
 
 /**
- * Ask a question to the AI assistant
+ * Ask a question to the AI assistant with file upload support
  */
 export async function askAI(
     question: string,
@@ -16,37 +16,63 @@ export async function askAI(
         conversation?: Array<{ role: "user" | "assistant"; content: string }>;
         file?: {
             type: 'image' | 'pdf';
-            data: string; // base64
+            data: string; // base64 or data URL
             name: string;
         };
     }
 ) {
-    const systemPrompt = `You are **ICSE Saviours AI**, the smartest academic assistant for ICSE Class 10 students.
+    const systemPrompt = `You are ICSE Saviours, an AI tutor built for ICSE Class 9 & 10 students.
 
-CRITICAL: UNDERSTAND THE DIFFERENCE BETWEEN TWO TYPES OF REQUESTS:
+Your primary task is to:
+• Solve doubts clearly
+• Explain concepts step-by-step
+• Analyze uploaded images, PDFs, screenshots, or photos of notebooks/books
+• Extract text from attachments when needed
+• Interpret diagrams, graphs, equations, and handwritten notes
+• Respond ONLY after carefully examining any attached file or image
 
-TYPE 1: EXPLANATION REQUESTS (Student wants to LEARN/UNDERSTAND)
-Keywords: "explain", "what is", "how does", "help me understand", "I have doubt in", "can you teach", "clarify"
-Response: Provide a DETAILED EXPLANATION first, then suggest videos as supplementary material
+IMPORTANT RULES:
+1. If a user uploads a file or image, ALWAYS analyze it before answering
+2. Treat attachments as the main source of the question
+3. If the file is unclear or unreadable, politely ask the student to upload a clearer version
+4. When solving problems from images:
+   - First restate the question you see
+   - Then solve step-by-step
+   - Highlight formulas used
+   - End with the final answer clearly
+5. For theory questions:
+   - Explain in simple ICSE-level language
+   - Use examples
+   - Avoid unnecessary jargon
+6. If the student asks "solve this" or "explain this" and an attachment exists, never ignore it
+7. Be encouraging and student-friendly
 
-TYPE 2: VIDEO-ONLY REQUESTS (Student ONLY wants videos)
-Keywords: "suggest video", "give me video", "show me video", "find video", "oneshot", "videos on"
-Response: Just say you'll find videos, NO explanation needed
+RESPONSE FORMAT FOR PROBLEM SOLVING:
+📝 **Question:** [Restate the problem from image]
+
+🔢 **Given:** [List known values]
+
+📐 **Formula:** [State the formula being used]
+
+🧮 **Solution:**
+Step 1: ...
+Step 2: ...
+Step 3: ...
+
+✅ **Final Answer:** [Clear answer with units]
+
+💡 **Tip:** [Exam tip or common mistake to avoid]
 
 --- ICSE ONE-PAGE NOTES MODE ---
 
-When the user asks for:
-- "notes", "summary", "short notes", "revision notes", "explain chapter/topic"
-AND context is ICSE Class 10,
-
-Generate exam-focused ONE-PAGE REVISION NOTES following this structure:
+When user asks for "notes", "summary", "revision notes":
 
 **CHAPTER OVERVIEW**
 - 2-3 concise lines on chapter focus and exam relevance
 
 **KEY CONCEPTS & DEFINITIONS**
 - Bullet-point definitions
-- ICSE-accurate terminology only (no CBSE framing)
+- ICSE-accurate terminology only
 
 **IMPORTANT FORMULAS / LAWS / RULES** (if applicable)
 - Include symbols, units, conditions
@@ -65,82 +91,12 @@ Generate exam-focused ONE-PAGE REVISION NOTES following this structure:
 - Common mistakes
 - How to frame answers for full marks
 
-NOTES MODE RULES:
-✓ Content fits ONE A4 page
-✓ Exam-oriented, not conversational
-✓ Marks-scoring points over explanations
-✓ No emojis, no filler
-✓ Theory chapters → definitions, reasons
-✓ Numerical chapters → formulas, steps
+Tone: Supportive, patient, motivating — like a personal ICSE tutor.
 
---- END NOTES MODE ---
-
-EXAMPLES TO LEARN FROM:
-
-❌ WRONG:
-User: "I'm having doubt in periodic properties can you explain it"
-You: "I'll find videos for you!" [Shows only videos]
-Why wrong: User asked to EXPLAIN, you should explain first!
-
-✅ CORRECT:
-User: "I'm having doubt in periodic properties can you explain it"
-You: "Let me explain periodic properties!
-
-Periodic properties are characteristics of elements that show predictable patterns when arranged in the periodic table:
-
-1. **Atomic Size**: Decreases across a period (left to right), increases down a group
-2. **Metallic Character**: Decreases across period, increases down group
-3. **Electronegativity**: Increases across period, decreases down group
-4. **Ionization Energy**: Energy needed to remove an electron
-
-These patterns help us predict element behavior!
-
-Here are some helpful videos for visual learning:"
-[Then shows videos]
-
-✅ CORRECT:
-User: "suggest oneshot video on periodic table"
-You: "I'll find comprehensive oneshot videos on the periodic table for you!"
-[Shows videos only - no explanation needed]
-
-✅ CORRECT:
-User: "give me videos for chemical bonding 24 hours"
-You: "I'll find quick revision videos on chemical bonding perfect for last-minute prep!"
-[Shows videos only]
-
-YOU COVER ALL ICSE CLASS 10 TOPICS:
-Mathematics, Physics, Chemistry, Biology, History & Civics, Geography, English, Computer Applications
-
-NEVER REJECT VALID ICSE TOPICS:
-All standard ICSE topics are valid. Only reject: Calculus, Quantum Physics, College-level content
-
-${context?.subject ? `Current Subject: ${context.subject}` : ""}
-${context?.topic ? `Current Topic: ${context.topic}` : ""}
-
-BE EXTREMELY SMART. READ THE USER'S INTENT CAREFULLY.`;
+If an attachment is present, NEVER reply without referencing it.`;
 
     // Handle file uploads (images or PDFs)
-    let fileContent = "";
-    let useVisionModel = false;
-
-    if (context?.file) {
-        if (context.file.type === 'image') {
-            // For images, use vision model
-            useVisionModel = true;
-        } else if (context.file.type === 'pdf') {
-            // For PDFs, extract text
-            try {
-                // Use require for CommonJS module
-                const pdfParse = require('pdf-parse');
-                const buffer = Buffer.from(context.file.data, 'base64');
-                const data = await pdfParse(buffer);
-                fileContent = data.text;
-            } catch (error) {
-                console.error('PDF parsing error:', error);
-                fileContent = "[Could not parse PDF content]";
-            }
-        }
-    }
+    const useVisionModel = context?.file?.type === 'image';
 
     // Build messages array
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
@@ -150,27 +106,27 @@ BE EXTREMELY SMART. READ THE USER'S INTENT CAREFULLY.`;
 
     // Add user message with file content
     if (useVisionModel && context?.file) {
+        // Ensure data URL format
+        const imageUrl = context.file.data.startsWith('data:')
+            ? context.file.data
+            : `data:image/jpeg;base64,${context.file.data}`;
+
         // Vision API message format
         messages.push({
             role: "user",
             content: [
                 {
                     type: "text",
-                    text: question || "Please explain what you see in this image and how it relates to ICSE Class 10 topics."
+                    text: question || "Please analyze this image and explain what you see. If it contains a question, solve it step-by-step."
                 },
                 {
                     type: "image_url",
                     image_url: {
-                        url: context.file.data // base64 data URL
+                        url: imageUrl,
+                        detail: "high" // High detail for better text recognition
                     }
                 }
             ]
-        });
-    } else if (fileContent) {
-        // PDF content included in text
-        messages.push({
-            role: "user",
-            content: `${question}\n\n[PDF Content from ${context?.file?.name}]:\n${fileContent.substring(0, 3000)}` // Limit to 3000 chars
         });
     } else {
         // Regular text message
@@ -178,10 +134,10 @@ BE EXTREMELY SMART. READ THE USER'S INTENT CAREFULLY.`;
     }
 
     const completion = await openai.chat.completions.create({
-        model: useVisionModel ? "gpt-4o" : "gpt-4o-mini", // Use vision model for images
+        model: useVisionModel ? "gpt-4o" : "gpt-4o-mini",
         messages,
         temperature: 0.7,
-        max_tokens: useVisionModel ? 1000 : 500, // More tokens for image analysis
+        max_tokens: useVisionModel ? 1500 : 800, // More tokens for image analysis
     });
 
     return completion.choices[0].message.content || "I couldn't generate a response.";
@@ -198,202 +154,120 @@ export async function generateStudyPlan(params: {
     weakTopics?: string[];
 }) {
     const prompt = `Create a detailed study plan for an ICSE student with the following:
-- Subjects: ${params.subjects.join(", ")}
-- Duration: ${params.startDate.toDateString()} to ${params.targetDate.toDateString()}
-- Daily study time: ${params.dailyHours} hours
-${params.weakTopics ? `- Weak topics to focus on: ${params.weakTopics.join(", ")}` : ""}
+- Subjects: ${params.subjects.join(', ')}
+- Start Date: ${params.startDate.toDateString()}
+- Target Date: ${params.targetDate.toDateString()}
+- Daily Study Hours: ${params.dailyHours}
+${params.weakTopics ? `- Weak Topics: ${params.weakTopics.join(', ')}` : ''}
 
-Provide a week-by-week breakdown with specific topics to cover each day. Format as JSON with this structure:
-{
-  "weeks": [
-    {
-      "number": 1,
-      "days": [
-        {
-          "day": "Monday",
-          "tasks": [
-            { "subject": "Mathematics", "topic": "Algebra", "duration": 60 }
-          ]
-        }
-      ]
-    }
-  ]
-}`;
+Generate a week-by-week breakdown with:
+1. Daily subject rotation
+2. Topic coverage
+3. Revision sessions
+4. Mock test schedule
+5. Rest days
+
+Format as markdown with clear structure.`;
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [
-            { role: "system", content: "You are an expert study planner for ICSE students." },
-            { role: "user", content: prompt },
-        ],
-        temperature: 0.5,
-        response_format: { type: "json_object" },
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
     });
 
-    return JSON.parse(completion.choices[0].message.content || "{}");
+    return completion.choices[0].message.content || "Could not generate plan.";
 }
 
 /**
- * Summarize content/topic
+ * Summarize content
  */
-export async function summarizeContent(content: string, topic?: string) {
-    const prompt = `Summarize the following ${topic ? `content about ${topic}` : "content"} into key points for ICSE students:
-
-${content}
-
-Provide:
-1. Main concepts (3-5 bullet points)
-2. Important formulas/definitions
-3. Quick revision tips`;
+export async function summarizeContent(content: string, context?: string) {
+    const prompt = `Summarize this ${context || 'content'} for an ICSE Class 10 student in concise bullet points:\n\n${content}`;
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [
-            { role: "system", content: "You are an expert at creating concise study summaries." },
-            { role: "user", content: prompt },
-        ],
-        temperature: 0.3,
-        max_tokens: 400,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.5,
     });
 
-    return completion.choices[0].message.content || "";
+    return completion.choices[0].message.content || "Could not summarize.";
 }
 
 /**
- * Generate practice questions
+ * Generate MCQ questions
  */
 export async function generateQuestions(params: {
     subject: string;
     topic: string;
-    count: number;
-    difficulty?: "easy" | "medium" | "hard";
+    count?: number;
+    difficulty?: string;
 }) {
-    const prompt = `Generate ${params.count} ${params.difficulty || "medium"} difficulty multiple choice questions for ICSE ${params.subject} on the topic: ${params.topic}.
+    const { subject, topic, count = 5, difficulty = "medium" } = params;
+    
+    const prompt = `Generate ${count} ICSE-style multiple choice questions on "${topic}" for Subject: ${subject} (Class 10).
+Difficulty Level: ${difficulty}.
 
-Format as JSON:
-{
-  "questions": [
-    {
-      "question": "Question text",
-      "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
-      "correctAnswer": "B",
-      "explanation": "Brief explanation"
-    }
-  ]
-}`;
+For each question provide:
+- Question text
+- 4 options (A, B, C, D)
+- Correct answer (0-3 index)
+- Brief explanation
+
+Format as a valid JSON array of objects with keys: question, options (array of strings), correctAnswer (number), explanation.`;
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [
-            { role: "system", content: "You are an expert ICSE question paper creator." },
-            { role: "user", content: prompt },
-        ],
-        temperature: 0.6,
-        response_format: { type: "json_object" },
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        response_format: { type: "json_object" }
     });
 
-    return JSON.parse(completion.choices[0].message.content || '{"questions": []}');
+    const content = completion.choices[0].message.content || "[]";
+    try {
+        const parsed = JSON.parse(content);
+        // Handle cases where the AI might wrap the array in a key like "questions"
+        if (parsed.questions && Array.isArray(parsed.questions)) return parsed.questions;
+        if (Array.isArray(parsed)) return parsed;
+        return [];
+    } catch (e) {
+        console.error("Failed to parse AI questions", e);
+        return [];
+    }
 }
 
 /**
- * Generate Flashcards (MCQs) for revision
+ * Generate Flashcards
  */
 export async function generateFlashcards(params: {
     topics: string;
     subject?: string;
+    count?: number;
 }) {
-    const prompt = `You are an expert ICSE Class 10 question paper creator. Create 10 multiple-choice questions (MCQs) to test understanding of the following topics: "${params.topics}"${params.subject ? ` in Subject: ${params.subject}` : ""}.
+    const { topics, subject = "General", count = 5 } = params;
 
-CRITICAL REQUIREMENTS:
-1. Questions MUST be from the official ICSE Class 10 syllabus ONLY
-2. Questions should be exam-standard difficulty (similar to board exam questions)
-3. Focus on conceptual understanding, not just memorization
-4. Include a mix of easy (3), medium (5), and hard (2) difficulty questions
-5. Cover different aspects: definitions, applications, problem-solving, and reasoning
-
-ICSE CLASS 10 SYLLABUS COVERAGE:
-- Mathematics: Algebra, Geometry, Trigonometry, Statistics, Mensuration
-- Physics: Force & Motion, Light, Sound, Electricity, Magnetism, Heat
-- Chemistry: Periodic Table, Chemical Bonding, Acids/Bases, Metals/Non-metals, Mole Concept
-- Biology: Cell Biology, Plant & Human Systems, Genetics, Evolution
-- Other subjects as per ICSE standards
-
-Format as JSON:
-{
-  "flashcards": [
-    {
-      "id": 1,
-      "question": "Question text (must be ICSE Class 10 level)",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": "Option B", 
-      "explanation": "Brief explanation with ICSE perspective"
-    }
-  ]
-}
-
-IMPORTANT: 
-- 'correctAnswer' must be an EXACT string match to one of the 'options'
-- Questions should be syllabus-accurate and exam-relevant
-- Avoid college-level or advanced topics not in ICSE Class 10`;
+    const prompt = `Generate ${count} concise flashcards for the topic(s): "${topics}" in Subject: ${subject} (ICSE Class 10).
+    
+    For each flashcard provide:
+    - Front (Question or Term)
+    - Back (Answer or Definition)
+    
+    Format as a valid JSON array of objects with keys: "front", "back".`;
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [
-            { role: "system", content: "You are an expert ICSE Class 10 question paper creator with deep knowledge of the official ICSE syllabus. Your questions must be accurate, exam-standard, and syllabus-appropriate." },
-            { role: "user", content: prompt },
-        ],
+        messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
-        response_format: { type: "json_object" },
+        response_format: { type: "json_object" }
     });
 
-    const rawContent = completion.choices[0].message.content || '{"flashcards": []}';
-    console.log("Raw Flashcard Response:", rawContent);
-
+    const content = completion.choices[0].message.content || "[]";
     try {
-        // Strip markdown if present
-        const cleanContent = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
-        return JSON.parse(cleanContent);
+        const parsed = JSON.parse(content);
+        if (parsed.flashcards && Array.isArray(parsed.flashcards)) return parsed.flashcards;
+        if (Array.isArray(parsed)) return parsed;
+        return [];
     } catch (e) {
-        console.error("Failed to parse flashcards JSON:", e);
-        // FALLBACK: Return mock data if AI fails
-        return {
-            flashcards: [
-                {
-                    id: 1,
-                    question: "Newton's First Law is also known as:",
-                    options: ["Law of Inertia", "Law of Momentum", "Law of Action-Reaction", "Law of Gravity"],
-                    correctAnswer: "Law of Inertia",
-                    explanation: "Newton's First Law states that an object remains at rest or in uniform motion unless acted upon by a force, defining Inertia."
-                },
-                {
-                    id: 2,
-                    question: "Which of the following is a scalar quantity?",
-                    options: ["Velocity", "Force", "Speed", "Displacement"],
-                    correctAnswer: "Speed",
-                    explanation: "Speed has magnitude but no direction, making it a scalar quantity."
-                },
-                {
-                    id: 3,
-                    question: "What is the SI unit of Force?",
-                    options: ["Joule", "Watt", "Newton", "Pascal"],
-                    correctAnswer: "Newton",
-                    explanation: "The Newton (N) is the derived unit of force in the International System of Units."
-                },
-                {
-                    id: 4,
-                    question: "The rate of change of momentum is directly proportional to:",
-                    options: ["Mass", "Velocity", "Applied Force", "Time"],
-                    correctAnswer: "Applied Force",
-                    explanation: "According to Newton's Second Law, force equals the rate of change of momentum."
-                },
-                {
-                    id: 5,
-                    question: "Which color of light deviates the most through a prism?",
-                    options: ["Red", "Green", "Yellow", "Violet"],
-                    correctAnswer: "Violet",
-                    explanation: "Violet light has the shortest wavelength and thus refracts (bends) the most."
-                }
-            ]
-        };
+        console.error("Failed to parse AI flashcards", e);
+        return [];
     }
 }

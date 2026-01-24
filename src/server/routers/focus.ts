@@ -19,6 +19,13 @@ export const focusRouter = createTRPCRouter({
                 quality: z.nativeEnum(FocusQuality),
                 difficulty: z.string().optional(),
                 notes: z.string().optional(),
+                // NEW: Dynamic timer fields
+                totalPlannedMinutes: z.number().optional(),
+                focusStyle: z.string().optional(),
+                customFocusMins: z.number().optional(),
+                customBreakMins: z.number().optional(),
+                blocksPlanned: z.number().optional(),
+                blocksCompleted: z.number().optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -34,6 +41,13 @@ export const focusRouter = createTRPCRouter({
                     quality: input.quality,
                     difficulty: input.difficulty,
                     notes: input.notes,
+                    // NEW fields
+                    totalPlannedMinutes: input.totalPlannedMinutes,
+                    focusStyle: input.focusStyle,
+                    customFocusMins: input.customFocusMins,
+                    customBreakMins: input.customBreakMins,
+                    blocksPlanned: input.blocksPlanned,
+                    blocksCompleted: input.blocksCompleted || 0,
                 },
             });
             return session;

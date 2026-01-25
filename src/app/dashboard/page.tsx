@@ -143,7 +143,7 @@ export default function DashboardPage() {
 
             <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
                 {/* Simple responsive grid: 3 cols on desktop, 2 on tablet, 1 on mobile */}
-                <div style={{
+                <div className="dashboard-grid" style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                     gap: "20px"

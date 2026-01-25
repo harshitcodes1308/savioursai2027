@@ -67,10 +67,10 @@ button, a, input, textarea, select, .card-hover-effect {
 
 /* Premium Card Interaction Layer */
 @layer components {
-  .dashboard-grid:hover > .dashboard-card:not(:hover) {
-    filter: blur(2px);
-    opacity: 0.5;
-    transform: scale(0.98);
+  .dashboard-grid:hover .dashboard-card:not(:hover) {
+    filter: blur(3px) !important;
+    opacity: 0.4 !important;
+    transform: scale(0.98) !important;
     transition: all 0.4s ease-in-out;
   }
 
@@ -224,6 +224,47 @@ html, body {
   [style*="repeat(3, 1fr)"] {
     grid-template-columns: 1fr !important;
   }
+
+  /* RULE 7: STRICT TEXT ALIGNMENT & SIZING FIXES */
+  /* Remove fixed heights and vertical centering from cards */
+  .dashboard-card {
+    height: auto !important;
+    min-height: 0 !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    text-align: left !important;
+    padding: 20px !important;
+  }
+
+  /* Force headers and body text to align left */
+  .dashboard-card h1, 
+  .dashboard-card h2, 
+  .dashboard-card h3, 
+  .dashboard-card p,
+  .dashboard-card div {
+    text-align: left !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+
+  /* Ensure flex containers (like headers with 'View All') maintain horizontal flow but full width */
+  .dashboard-card > div[style*="display: flex"] {
+    width: 100% !important;
+    /* Allow justify-between to work but ensure items are aligned */
+    align-items: center !important; 
+  }
+
+  /* Fix for specific centered stats/icons */
+  .dashboard-card [style*="justify-content: center"],
+  .dashboard-card [style*="textAlign: center"] {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  /* Ensure SVG/Charts don't get squashed but align left if needed */
+  .dashboard-card svg {
+    margin: 0 !important;
+  }
 }
 
 /* TABLET RULES */
@@ -237,4 +278,22 @@ html, body {
 @media (min-width: 1024px) {
   .mobile-only { display: none !important; }
   .desktop-only { display: block !important; }
+
+  /* CRITICAL: Force Sidebar Visibility on Desktop */
+  /* This overrides any state-based hiding from the React component */
+  aside.sidebar-transition {
+    transform: translateX(0) !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Sidebar Transition Helper */
+.sidebar-transition {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* On mobile, allow the class to control visibility */
+@media (max-width: 1023px) {
+  .sidebar-transition.translate-x-0 { transform: translateX(0) !important; }
+  .sidebar-transition.-translate-x-full { transform: translateX(-100%) !important; }
 }

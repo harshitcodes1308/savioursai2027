@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const menuItems = [
     { icon: "📊", label: "Dashboard", href: "/dashboard" },
@@ -20,6 +21,7 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
     const pathname = usePathname();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
+    const isMobile = useIsMobile(); // Check for mobile state
     
     // We can rely on CSS for mobile detection for the hamburger visibility
     // to avoid hydration mismatch, but we still need state for the drawer itself.
@@ -95,12 +97,12 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
                     display: "flex",
                     flexDirection: "column",
                     zIndex: 150,
-                    // Use CSS media query for transform logic if possible, or fallback to simple conditional
-                    transform: isOpen ? "translateX(0)" : "translateX(0)", // Desktop default
-                    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    // REMOVED inline transform to prevent conflicts. Relies purely on CSS.
                     boxShadow: isOpen ? "10px 0 30px rgba(0,0,0,0.5)" : "none",
                 }}
-                className={`sidebar-transition ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+                // LOGIC FIX: On desktop (!isMobile), ALWAYS show sidebar (translate-x-0).
+                // On mobile, rely on isOpen state.
+                className={`sidebar-transition ${!isMobile || isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* Logo Section */}
                 <div style={{ padding: "24px 20px", borderBottom: "1px solid #1F1F22", flexShrink: 0 }}>
@@ -224,19 +226,7 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
                 </div>
             </aside>
             
-            {/* INJECT STYLES FOR TRANSITION ASIDE */}
-            <style jsx global>{`
-                .sidebar-transition {
-                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                }
-                @media (max-width: 1023px) {
-                    .sidebar-transition.translate-x-0 { transform: translateX(0) !important; }
-                    .sidebar-transition.-translate-x-full { transform: translateX(-100%) !important; }
-                }
-                @media (min-width: 1024px) {
-                    .sidebar-transition { transform: translateX(0) !important; }
-                }
-            `}</style>
+            {/* Styles moved to globals.css for reliability */}
         </>
     );
 }

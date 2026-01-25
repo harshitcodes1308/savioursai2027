@@ -13,6 +13,7 @@ export interface SessionUser {
     email: string;
     name: string;
     role: UserRole;
+    isPaid: boolean;
 }
 
 export interface Session {
@@ -125,6 +126,7 @@ export async function authenticate(
         email: user.email,
         name: user.name,
         role: user.role,
+        isPaid: user.isPaid,
     };
 }
 
@@ -145,6 +147,7 @@ export async function createUser(
             password: hashedPassword,
             name,
             role,
+            isPaid: false, // Default to unpaid
         },
     });
 
@@ -153,5 +156,6 @@ export async function createUser(
         email: user.email,
         name: user.name,
         role: user.role,
+        isPaid: user.isPaid,
     };
 }

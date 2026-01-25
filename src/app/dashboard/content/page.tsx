@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { GenerationLoader } from "@/components/ui/GenerationLoader";
 
 export default function ContentPage() {
     const [activeTab, setActiveTab] = useState<"upload" | "library">("upload");
     const [uploadType, setUploadType] = useState<"text" | "file">("text");
     const [syllabusText, setSyllabusText] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -15,12 +17,19 @@ export default function ContentPage() {
     };
 
     const handleUpload = () => {
-        if (uploadType === "text" && syllabusText) {
-            console.log("Uploading text syllabus:", syllabusText);
-            alert("Syllabus uploaded successfully! (Mock)");
-        } else if (uploadType === "file" && selectedFile) {
-            console.log("Uploading file:", selectedFile.name);
-            alert("File uploaded successfully! (Mock)");
+        if ((uploadType === "text" && syllabusText) || (uploadType === "file" && selectedFile)) {
+            setIsGenerating(true);
+            // Simulate AI processing time
+            setTimeout(() => {
+                setIsGenerating(false);
+                if (uploadType === "text") {
+                    console.log("Uploading text syllabus:", syllabusText);
+                    alert("Syllabus processed successfully! (Mock)");
+                } else {
+                    console.log("Uploading file:", selectedFile?.name);
+                    alert("File processed successfully! (Mock)");
+                }
+            }, 3000);
         }
     };
 
@@ -222,6 +231,12 @@ export default function ContentPage() {
                     </div>
                 </div>
             )}
+            
+            <GenerationLoader 
+                isVisible={isGenerating} 
+                label="Processing Content..." 
+                subLabel="AI is analyzing your syllabus structure..." 
+            />
         </div>
     );
 }

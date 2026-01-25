@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc/client";
 import { typography } from "@/lib/typography";
 import ReactMarkdown from "react-markdown";
 import { ChevronRight, ChevronLeft, Brain, RotateCcw, Copy } from "lucide-react";
+import { GenerationLoader } from "@/components/ui/GenerationLoader";
 
 // --- Types ---
 type WizardStep = 0 | 1 | 2 | 3 | 4 | 5 | 6; // 6 is result
@@ -465,13 +466,6 @@ export default function StrategyPage() {
                 );
 
             case 6: // Result
-                if (generateMutation.isPending) {
-                    return (
-                        <div style={{ padding: '32px', textAlign: 'center', color: '#FFF' }}>
-                            <h2 style={{ ...typography.display, fontSize: '24px' }}>Consulting the Oracle...</h2>
-                        </div>
-                    );
-                }
                 return (
                     <div className="dashboard-card" style={{ padding: '48px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
@@ -517,7 +511,12 @@ export default function StrategyPage() {
 
     return (
         <div style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', backgroundColor: '#030303' }}>
-            {renderStep()}
+            <GenerationLoader 
+                isVisible={generateMutation.isPending} 
+                label="Crafting Strategy..." 
+                subLabel="Analyzing your strengths & schedule..." 
+            />
+            {!generateMutation.isPending && renderStep()}
         </div>
     );
 }

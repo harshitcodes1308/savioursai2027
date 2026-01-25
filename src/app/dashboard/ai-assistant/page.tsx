@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc/client";
 import { typography } from "@/lib/typography";
 import ReactMarkdown from "react-markdown";
 import "../markdown-styles.css";
+import { GenerationLoader } from "@/components/ui/GenerationLoader";
 
 interface Message {
     role: "user" | "assistant";
@@ -634,6 +635,12 @@ export default function AIAssistantPage() {
                     </div>
                 </div>
             )}
+            
+            <GenerationLoader 
+                isVisible={generateFlashcards.isPending} 
+                label="Generating Questions..." 
+                subLabel="AI is extracting key concepts from your topics..." 
+            />
         </div>
     );
 }

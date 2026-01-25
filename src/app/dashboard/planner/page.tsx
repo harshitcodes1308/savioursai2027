@@ -4,6 +4,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { useRouter } from "next/navigation";
 import { typography } from "@/lib/typography";
+import { GenerationLoader } from "@/components/ui/GenerationLoader";
 
 interface SelectedChapter {
     chapterId: string;
@@ -397,6 +398,12 @@ export default function SmartPlannerPage() {
                     </button>
                 </div>
             </div>
+            
+            <GenerationLoader 
+                isVisible={generatePlan.isPending} 
+                label="Building Your Plan..." 
+                subLabel="Optimizing timeline based on difficulty..." 
+            />
         </div>
     );
 }

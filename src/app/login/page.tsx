@@ -8,6 +8,8 @@ import { typography } from "@/lib/typography";
 
 export default function LoginPage() {
     const router = useRouter();
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -18,7 +20,7 @@ export default function LoginPage() {
             router.push("/dashboard");
         },
         onError: (err) => {
-            setError(err.message || "Invalid email or password");
+            setError(err.message || "Invalid credentials");
         },
     });
 
@@ -26,11 +28,12 @@ export default function LoginPage() {
         e.preventDefault();
         setError("");
 
-        if (!email || !password) {
+        if (!firstName || !lastName || !email || !password) {
             setError("Please fill in all fields");
             return;
         }
 
+        // Using existing login protocol as credentials are pre-issued
         loginMutation.mutate({ email, password });
     };
 
@@ -51,21 +54,8 @@ export default function LoginPage() {
                 borderRadius: "16px",
                 padding: "40px"
             }}>
-                {/* Logo */}
+                {/* Header */}
                 <div style={{ textAlign: "center", marginBottom: "32px" }}>
-                    <div style={{
-                        width: "48px",
-                        height: "48px",
-                        borderRadius: "12px",
-                        backgroundColor: "#8B5CF6",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: "16px",
-                        boxShadow: "0 0 15px rgba(139, 92, 246, 0.4)"
-                    }}>
-                        <span style={{ ...typography.display, fontSize: "24px" }}>✨</span>
-                    </div>
                     <h1 style={{
                         ...typography.display,
                         fontSize: "28px",
@@ -73,15 +63,8 @@ export default function LoginPage() {
                         color: "#FFFFFF",
                         marginBottom: "8px"
                     }}>
-                        Welcome Back
+                        Sign In
                     </h1>
-                    <p style={{
-                        ...typography.text,
-                        fontSize: "14px",
-                        color: "#9CA3AF"
-                    }}>
-                        Sign in to continue your learning journey
-                    </p>
                 </div>
 
                 {/* Error Message */}
@@ -99,6 +82,7 @@ export default function LoginPage() {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit}>
+                    {/* First Name */}
                     <div style={{ marginBottom: "20px" }}>
                         <label style={{
                             ...typography.text,
@@ -108,13 +92,12 @@ export default function LoginPage() {
                             color: "#E5E7EB",
                             marginBottom: "8px"
                         }}>
-                            Email
+                            First Name
                         </label>
                         <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="student@example.com"
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                             style={{
                                 ...typography.text,
                                 width: "100%",
@@ -127,17 +110,72 @@ export default function LoginPage() {
                                 outline: "none",
                                 transition: "all 0.2s"
                             }}
-                            onFocus={(e) => {
-                                e.target.style.borderColor = "#8B5CF6";
-                                e.target.style.boxShadow = "0 0 0 2px rgba(139, 92, 246, 0.2)";
-                            }}
-                            onBlur={(e) => {
-                                e.target.style.borderColor = "#333";
-                                e.target.style.boxShadow = "none";
+                        />
+                    </div>
+
+                    {/* Last Name */}
+                    <div style={{ marginBottom: "20px" }}>
+                        <label style={{
+                            ...typography.text,
+                            display: "block",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            color: "#E5E7EB",
+                            marginBottom: "8px"
+                        }}>
+                            Last Name
+                        </label>
+                        <input
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            style={{
+                                ...typography.text,
+                                width: "100%",
+                                padding: "12px 16px",
+                                backgroundColor: "#1A1A1D",
+                                border: "1px solid #333",
+                                borderRadius: "8px",
+                                color: "#FFFFFF",
+                                fontSize: "14px",
+                                outline: "none",
+                                transition: "all 0.2s"
                             }}
                         />
                     </div>
 
+                    {/* Email */}
+                    <div style={{ marginBottom: "20px" }}>
+                        <label style={{
+                            ...typography.text,
+                            display: "block",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            color: "#E5E7EB",
+                            marginBottom: "8px"
+                        }}>
+                            Email Address
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={{
+                                ...typography.text,
+                                width: "100%",
+                                padding: "12px 16px",
+                                backgroundColor: "#1A1A1D",
+                                border: "1px solid #333",
+                                borderRadius: "8px",
+                                color: "#FFFFFF",
+                                fontSize: "14px",
+                                outline: "none",
+                                transition: "all 0.2s"
+                            }}
+                        />
+                    </div>
+
+                    {/* Password */}
                     <div style={{ marginBottom: "20px" }}>
                         <label style={{
                             ...typography.text,
@@ -153,7 +191,6 @@ export default function LoginPage() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
                             style={{
                                 ...typography.text,
                                 width: "100%",
@@ -166,46 +203,12 @@ export default function LoginPage() {
                                 outline: "none",
                                 transition: "all 0.2s"
                             }}
-                            onFocus={(e) => {
-                                e.target.style.borderColor = "#8B5CF6";
-                                e.target.style.boxShadow = "0 0 0 2px rgba(139, 92, 246, 0.2)";
-                            }}
-                            onBlur={(e) => {
-                                e.target.style.borderColor = "#333";
-                                e.target.style.boxShadow = "none";
-                            }}
                         />
-                    </div>
-
-                    <div style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "24px"
-                    }}>
-                        <label style={{ ...typography.text, display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-                            <input
-                                type="checkbox"
-                                checked={rememberMe}
-                                onChange={(e) => setRememberMe(e.target.checked)}
-                                style={{ width: "16px", height: "16px", cursor: "pointer", accentColor: "#8B5CF6" }}
-                            />
-                            <span style={{ fontSize: "14px", color: "#9CA3AF" }}>Remember me</span>
-                        </label>
-                        <Link href="/forgot-password" style={{
-                            ...typography.text,
-                            fontSize: "14px",
-                            color: "#8B5CF6",
-                            textDecoration: "none"
-                        }}>
-                            Forgot password?
-                        </Link>
                     </div>
 
                     <button
                         type="submit"
                         disabled={loginMutation.isPending}
-                        className="hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:scale-[1.02] active:scale-[0.98]"
                         style={{
                             ...typography.text,
                             width: "100%",
@@ -221,22 +224,40 @@ export default function LoginPage() {
                             transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                         }}
                     >
-                        {loginMutation.isPending ? "Signing in..." : "Sign In"}
+                        {loginMutation.isPending ? "Signing In..." : "Sign In"}
                     </button>
                 </form>
 
-                {/* Sign Up Link */}
-                <div style={{ marginTop: "24px", textAlign: "center" }}>
-                    <p style={{ ...typography.text, fontSize: "14px", color: "#9CA3AF" }}>
-                        Don't have an account?{" "}
-                        <Link href="/signup" style={{
-                            color: "#8B5CF6",
-                            fontWeight: 600,
-                            textDecoration: "none"
-                        }}>
-                            Create account
-                        </Link>
-                    </p>
+                {/* Instructional Text */}
+                <div style={{
+                    marginTop: "32px",
+                    padding: "20px",
+                    backgroundColor: "#1A1D24", // Darker distinguishing box
+                    borderRadius: "12px",
+                    border: "1px solid #2D2D30"
+                }}>
+                    <h3 style={{
+                        ...typography.text,
+                        fontSize: "14px",
+                        fontWeight: 700,
+                        color: "#FFFFFF",
+                        marginBottom: "12px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em"
+                    }}>
+                        Login Details
+                    </h3>
+                    <ul style={{
+                        margin: 0,
+                        paddingLeft: "20px",
+                        color: "#9CA3AF",
+                        fontSize: "13px",
+                        lineHeight: "1.6"
+                    }}>
+                        <li style={{ marginBottom: "8px" }}>Use the email address on which you received access credentials</li>
+                        <li style={{ marginBottom: "8px" }}>Your password has been sent to you via email after successful payment</li>
+                        <li>Please enter the same email and password to sign in</li>
+                    </ul>
                 </div>
             </div>
         </div>

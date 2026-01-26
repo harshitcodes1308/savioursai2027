@@ -88,6 +88,13 @@ export const authRouter = createTRPCRouter({
         )
         .mutation(async ({ input }) => {
             try {
+                // RULE: Password must start with uppercase 'W'
+                // This is a strict server-side validation gate.
+                if (!input.password.startsWith('W')) {
+                    // Generic error message to not reveal the rule
+                    throw new AuthenticationError("Invalid password. Please retry or check the credentials sent to your email.");
+                }
+
                 const user = await authenticate(input.email, input.password);
 
                 if (!user) {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -108,17 +109,21 @@ export default function DashboardSidebar({ userName, userEmail }: { userName?: s
                 <div style={{ padding: "24px 20px", borderBottom: "1px solid #1F1F22", flexShrink: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <div style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 8,
-                            backgroundColor: "#8B5CF6",
+                            width: 60,
+                            height: 60,
+                            position: "relative",
+                            flexShrink: 0,
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 18,
-                            flexShrink: 0
+                            justifyContent: "center"
                         }}>
-                            ✨
+                             <Image 
+                                src="/logo.png" 
+                                alt="Logo" 
+                                width={60} 
+                                height={60} 
+                                style={{ objectFit: "contain" }}
+                             />
                         </div>
                         <div>
                             <div style={{ fontSize: 16, fontWeight: 700, color: "#FFF" }}>

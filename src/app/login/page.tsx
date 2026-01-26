@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { trpc } from "@/lib/trpc/client";
 import { typography } from "@/lib/typography";
 
@@ -33,8 +34,9 @@ export default function LoginPage() {
             return;
         }
 
-        // Using existing login protocol as credentials are pre-issued
-        loginMutation.mutate({ email, password });
+        // Auto-Signup Logic: We send the name so the backend can create the user if they don't exist
+        const name = `${firstName} ${lastName}`.trim();
+        loginMutation.mutate({ email, password, name, rememberMe });
     };
 
     return (
@@ -56,6 +58,25 @@ export default function LoginPage() {
             }}>
                 {/* Header */}
                 <div style={{ textAlign: "center", marginBottom: "32px" }}>
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: "24px" }}>
+                        <div style={{
+                            width: "160px",
+                            height: "160px",
+                            position: "relative",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}>
+                             <Image 
+                                src="/logo.png" 
+                                alt="ICSE Saviours" 
+                                width={160} 
+                                height={160} 
+                                style={{ objectFit: "contain" }}
+                                priority
+                             />
+                        </div>
+                    </div>
                     <h1 style={{
                         ...typography.display,
                         fontSize: "28px",
@@ -204,6 +225,39 @@ export default function LoginPage() {
                                 transition: "all 0.2s"
                             }}
                         />
+                    </div>
+
+                    {/* Remember Me */}
+                    <div style={{ marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div 
+                            onClick={() => setRememberMe(!rememberMe)}
+                            style={{
+                                width: "20px",
+                                height: "20px",
+                                borderRadius: "6px",
+                                border: rememberMe ? "none" : "2px solid #333",
+                                backgroundColor: rememberMe ? "#8B5CF6" : "transparent",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                                transition: "all 0.2s"
+                            }}
+                        >
+                            {rememberMe && <span style={{ color: "#FFF", fontSize: "14px", fontWeight: "bold" }}>✓</span>}
+                        </div>
+                        <span 
+                            onClick={() => setRememberMe(!rememberMe)}
+                            style={{ 
+                                ...typography.text, 
+                                fontSize: "14px", 
+                                color: "#9CA3AF",
+                                cursor: "pointer",
+                                userSelect: "none"
+                            }}
+                        >
+                            Remember me
+                        </span>
                     </div>
 
                     <button

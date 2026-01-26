@@ -108,7 +108,9 @@ export default function DashboardPage() {
                         color: "#FFFFFF",
                         marginBottom: "8px"
                     }}>
-                        Welcome back, {profile?.name}! 👋
+                        {profile?.createdAt && (new Date().getTime() - new Date(profile.createdAt).getTime() < 300000) 
+                            ? `Welcome, ${profile?.name}! 👋` 
+                            : `Welcome back, ${profile?.name}! 👋`}
                     </h1>
                     <p style={{
                         ...typography.text,

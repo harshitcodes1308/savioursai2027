@@ -11,7 +11,7 @@ import { ConflictError, ValidationError, AuthenticationError } from "@/lib/error
 
 export const authRouter = createTRPCRouter({
     /**
-     * Sign up new user
+     * Sign up new user - (Kept for optional separate flow, but Login handles auto-creation now)
      */
     signup: publicProcedure
         .input(
@@ -23,7 +23,6 @@ export const authRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            // Check if user already exists
             const existingUser = await ctx.prisma.user.findUnique({
                 where: { email: input.email.toLowerCase() },
             });
@@ -32,7 +31,6 @@ export const authRouter = createTRPCRouter({
                 throw new ConflictError("User with this email already exists");
             }
 
-            // Create user
             const user = await createUser(
                 input.email,
                 input.password,
@@ -40,31 +38,21 @@ export const authRouter = createTRPCRouter({
                 input.role
             );
 
-            // Create student profile if role is STUDENT
             if (input.role === "STUDENT") {
                 await ctx.prisma.studentProfile.create({
-                    data: {
-                        userId: user.id,
-                        grade: 10, // Default to Class 10
-                    },
+                    data: { userId: user.id, grade: 10 },
                 });
             }
 
-            // Create teacher profile if role is TEACHER
             if (input.role === "TEACHER") {
                 await ctx.prisma.teacherProfile.create({
-                    data: {
-                        userId: user.id,
-                        subjects: [],
-                    },
+                    data: { userId: user.id, subjects: [] },
                 });
             }
 
-            // Create session token
             const token = await createToken(user);
             await setSessionCookie(token);
 
-            // Return only serializable data
             return {
                 success: true,
                 user: {
@@ -77,46 +65,96 @@ export const authRouter = createTRPCRouter({
         }),
 
     /**
-     * Login user
+     * Login / Auto-Signup Mutation
+     * 1. Validates password starts with 'W'.
+     * 2. Checks if user exists.
+     * 3. IF EXISTS: Logs them in (trying strict 'W' password first, then fallback without 'W').
+     * 4. IF NOT EXISTS: Creates a new account with the provided credentials and logs them in.
      */
     login: publicProcedure
         .input(
             z.object({
                 email: z.string().email(),
                 password: z.string(),
+                name: z.string().optional(), // Added name for auto-signup
+                rememberMe: z.boolean().optional(),
             })
         )
-        .mutation(async ({ input }) => {
+        .mutation(async ({ ctx, input }) => {
             try {
-                // RULE: Password must start with uppercase 'W'
-                // This is a strict server-side validation gate.
+                // RULE 1: Strict Input Validation - Password MUST start with 'W'
                 if (!input.password.startsWith('W')) {
                     // Generic error message to not reveal the rule
                     throw new AuthenticationError("Invalid password. Please retry or check the credentials sent to your email.");
                 }
 
-                const user = await authenticate(input.email, input.password);
+                // RULE 2: Check database for existing user
+                const existingUser = await ctx.prisma.user.findUnique({
+                    where: { email: input.email.toLowerCase() },
+                });
 
-                if (!user) {
-                    throw new AuthenticationError("Invalid email or password");
+                let authenticatedUser = null;
+
+                if (existingUser) {
+                    // --- SCENARIO A: User Exists (Login) ---
+                    
+                    // 1. Try strict match (e.g. user typed "Wpass", DB has "Wpass")
+                    authenticatedUser = await authenticate(input.email, input.password);
+
+                    // 2. If failed, try compatible match (e.g. user typed "Wpass", DB has "pass")
+                    if (!authenticatedUser) {
+                        authenticatedUser = await authenticate(input.email, input.password.substring(1));
+                    }
+
+                    if (!authenticatedUser) {
+                        throw new AuthenticationError("Invalid email or password");
+                    }
+
+                } else {
+                    // --- SCENARIO B: User Does Not Exist (Auto-Signup) ---
+                    
+                    // We need a name for the new user. Use provided name or default.
+                    const newName = input.name || input.email.split('@')[0];
+
+                    // Create the user with the STRICT password (starts with W)
+                    authenticatedUser = await createUser(
+                        input.email,
+                        input.password,
+                        newName,
+                        "STUDENT" // Default to STUDENT for auto-signup
+                    );
+
+                    // Create default Student Profile
+                    await ctx.prisma.studentProfile.create({
+                        data: {
+                            userId: authenticatedUser.id,
+                            grade: 10, // Default grade
+                        },
+                    });
                 }
 
-                // Create session token
-                const token = await createToken(user);
-                await setSessionCookie(token);
+                // Final Step: Issue Session
+                if (!authenticatedUser) {
+                    // Should be unreachable, but for type safety
+                     throw new AuthenticationError("Authentication failed");
+                }
 
-                // Return only serializable data
+                const token = await createToken(authenticatedUser);
+                // Pass rememberMe flag to cookie setter
+                await setSessionCookie(token, input.rememberMe || false);
+
                 return {
                     success: true,
                     user: {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name,
-                        role: user.role,
+                        id: authenticatedUser.id,
+                        email: authenticatedUser.email,
+                        name: authenticatedUser.name,
+                        role: authenticatedUser.role,
                     },
                 };
+
             } catch (error) {
-                console.error("Login error:", error);
+                console.error("Login/Auth error:", error);
                 throw error;
             }
         }),

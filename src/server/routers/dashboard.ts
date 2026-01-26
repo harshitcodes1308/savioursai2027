@@ -23,6 +23,7 @@ export const dashboardRouter = createTRPCRouter({
             name: user.name,
             email: user.email,
             role: user.role,
+            createdAt: user.createdAt,
             studentProfile: user.studentProfile,
             teacherProfile: user.teacherProfile,
         };

@@ -189,14 +189,32 @@ export const aiRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ input, ctx }) => {
-            const { generateFlashcards } = await import("@/lib/ai");
-            console.log("Generating flashcards for topics:", input.topics);
-
-            const result = await generateFlashcards({
-                topics: input.topics,
-                subject: input.subject,
+            // Use generatingQuestions instead to match the "Quiz" UI on the frontend (options/question/etc)
+            const questions = await generateQuestions({
+                subject: input.subject || "General",
+                topic: input.topics,
+                count: 10, // Match the UI promise of 10 questions
+                difficulty: "medium",
             });
-            console.log("Flashcard generation result:", result);
+
+            // Transform response: Frontend compares string vs string, but AI returns index for safety
+            // We map the numeric index to the actual option string here.
+            const validQuestions = Array.isArray(questions) ? questions : [];
+            
+            const transformedFlashcards = validQuestions.map((q: any) => {
+                // Ensure options is an array
+                const options = Array.isArray(q.options) ? q.options : [];
+                // Get correct answer string safely
+                const correctString = options[q.correctAnswer] || options[0] || ""; // Fallback
+                
+                return {
+                    ...q,
+                    options,
+                    correctAnswer: correctString
+                };
+            });
+
+            console.log(`Generated ${transformedFlashcards.length} quiz cards for topics: ${input.topics}`);
 
             // Log AI usage
             await ctx.prisma.aiUsageLog.create({
@@ -205,10 +223,11 @@ export const aiRouter = createTRPCRouter({
                     feature: "FLASHCARD_GENERATION",
                     tokens: 500, // Estimate
                     cost: 0,
-                    metadata: { topics: input.topics },
+                    metadata: { topics: input.topics, count: transformedFlashcards.length },
                 },
             });
 
-            return result;
+            // Return wrapped in object as frontend expects data.flashcards
+            return { flashcards: transformedFlashcards };
         }),
 });

@@ -226,22 +226,18 @@ html, body {
   }
 
   /* RULE 7: STRICT TEXT ALIGNMENT & SIZING FIXES */
-  /* Remove fixed heights and vertical centering from cards */
+  /* Remove fixed heights but allow flex alignment to persist */
   .dashboard-card {
     height: auto !important;
     min-height: 0 !important;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
-    text-align: left !important;
     padding: 20px !important;
+    /* justify-content: flex-start !important; <-- REMOVED to allow centering */
+    /* align-items: stretch !important; <-- REMOVED */
+    /* text-align: left !important; <-- REMOVED */
   }
 
-  /* Force headers and body text to align left */
-  .dashboard-card h1, 
-  .dashboard-card h2, 
-  .dashboard-card h3, 
-  .dashboard-card p,
-  .dashboard-card div {
+  /* Force headers and body text to align left strictly for TEXT elements, not everything */
+  .dashboard-card p {
     text-align: left !important;
     margin-left: 0 !important;
     margin-right: auto !important;
@@ -254,16 +250,13 @@ html, body {
     align-items: center !important; 
   }
 
-  /* Fix for specific centered stats/icons */
-  .dashboard-card [style*="justify-content: center"],
-  .dashboard-card [style*="textAlign: center"] {
-    justify-content: flex-start !important;
-    text-align: left !important;
-  }
+  /* Fix for specific centered stats/icons - ONLY TARGET TEXT if needed, refrain from breaking charts */
+  /* REMOVED blocking rules */
 
   /* Ensure SVG/Charts don't get squashed but align left if needed */
   .dashboard-card svg {
-    margin: 0 !important;
+    margin: 0 auto !important; /* Allow centering of SVGs */
+    display: block !important;
   }
 }
 

@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         const options = {
             amount: amount * 100, // Amount in paise
             currency: "INR",
-            receipt: `order_${user.id}_${Date.now()}`,
+            receipt: `rcpt_${Date.now().toString().slice(-10)}_${user.id.slice(-5)}`,
             payment_capture: 1, // Auto capture
             notes: {
                 userId: user.id,
@@ -35,6 +35,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true, order });
     } catch (error) {
         console.error("Razorpay Order Error:", error);
-        return NextResponse.json({ success: false, error: "Failed to create order" }, { status: 500 });
+        return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Failed to create order" }, { status: 500 });
     }
 }

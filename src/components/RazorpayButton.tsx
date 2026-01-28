@@ -74,7 +74,7 @@ export function RazorpayButton({ amount = 99, email, name, onSuccess }: Razorpay
             
             if (!orderData.success) {
                 console.error("Order creation failed", orderData);
-                alert("Could not initiate payment. Please try again.");
+                alert(`Payment Error: ${orderData.error}`);
                 setLoading(false);
                 return;
             }

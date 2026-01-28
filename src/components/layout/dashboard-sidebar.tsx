@@ -16,6 +16,7 @@ const menuItems = [
     { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus" },
     { icon: "📖", label: "Notes", href: "/dashboard/notes" },
     { icon: "👤", label: "Profile", href: "/dashboard/profile" },
+    { icon: "📜", label: "Policies", href: "/dashboard/policies" },
 ];
 
 export default function DashboardSidebar({ userName, userEmail }: { userName?: string; userEmail?: string }) {

@@ -82,11 +82,8 @@ export const authRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             try {
-                // RULE 1: Strict Input Validation - Password MUST start with 'W'
-                if (!input.password.startsWith('W')) {
-                    // Generic error message to not reveal the rule
-                    throw new AuthenticationError("Invalid password. Please retry or check the credentials sent to your email.");
-                }
+                // RULE 1: Removed strict 'W' password check to allow normal login/signup
+                // if (!input.password.startsWith('W')) { ... }
 
                 // RULE 2: Check database for existing user
                 const existingUser = await ctx.prisma.user.findUnique({

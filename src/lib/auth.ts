@@ -125,12 +125,17 @@ export async function authenticate(
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) return null;
 
+    // GRANDFATHERING LOGIC
+    // Users created BEFORE Jan 29, 2026 (Launch Date) get Legacy Paid Status
+    const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30"); // IST
+    const isLegacyUser = user.createdAt < CUTOFF_DATE;
+
     return {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
-        isPaid: user.isPaid,
+        isPaid: user.isPaid || isLegacyUser, // Valid if explicitly paid OR legacy
     };
 }
 
@@ -160,6 +165,6 @@ export async function createUser(
         email: user.email,
         name: user.name,
         role: user.role,
-        isPaid: user.isPaid,
+        isPaid: user.isPaid, // Newly created users are always false (Unpaid)
     };
 }

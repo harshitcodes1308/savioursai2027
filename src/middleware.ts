@@ -17,14 +17,19 @@ export async function middleware(request: NextRequest) {
     // console.log(`Token present: ${!!token}`);
 
     let isAuthenticated = false;
+    let isPaid = false;
 
     if (token) {
         try {
             const secret = new TextEncoder().encode(
                 process.env.JWT_SECRET || 'your-secret-key-change-in-production'
             );
-            await jwtVerify(token, secret);
+            const { payload } = await jwtVerify(token, secret);
             isAuthenticated = true;
+            // Check Payment Status from Token
+            const user = payload.user as any;
+            isPaid = user?.isPaid || false;
+            
         } catch (error) {
             // Token is invalid or expired
             isAuthenticated = false;
@@ -41,16 +46,34 @@ export async function middleware(request: NextRequest) {
         pathname.startsWith(route)
     );
 
-    // Redirect to login if accessing protected route without auth
+    // 1. Redirect to login if accessing protected route without auth
     if (isProtectedRoute && !isAuthenticated) {
         const url = new URL('/login', request.url);
         url.searchParams.set('redirect', pathname);
         return NextResponse.redirect(url);
     }
 
-    // Redirect to dashboard if accessing auth routes while authenticated
+    // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid
+    // Exception: Allow /dashboard/profile to let users see their info or logout
+    if (isProtectedRoute && isAuthenticated && !isPaid) {
+        // You might want to allow some routes, but for "Hard Gated", we block dashboard
+        // We can allow them to go to /pricing
+        /* 
+           If the user is on /dashboard and NOT paid -> /pricing
+           If the user is on /pricing -> Allow (handled by default as it's not in protectedRoutes?)
+           Wait, protectedRoutes = ['/dashboard']. Pricing is public.
+        */
+        return NextResponse.redirect(new URL('/pricing', request.url));
+    }
+
+    // 3. Redirect to dashboard if accessing auth routes while authenticated
     if (isAuthRoute && isAuthenticated) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        // If paid -> Dashboard. If Unpaid -> Pricing
+        if (isPaid) {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        } else {
+            return NextResponse.redirect(new URL('/pricing', request.url));
+        }
     }
     
     return NextResponse.next();

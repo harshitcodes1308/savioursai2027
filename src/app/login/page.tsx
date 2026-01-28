@@ -9,8 +9,6 @@ import { typography } from "@/lib/typography";
 
 export default function LoginPage() {
     const router = useRouter();
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -24,19 +22,17 @@ export default function LoginPage() {
             setError(err.message || "Invalid credentials");
         },
     });
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
-        if (!firstName || !lastName || !email || !password) {
+        if (!email || !password) {
             setError("Please fill in all fields");
             return;
         }
 
-        // Auto-Signup Logic: We send the name so the backend can create the user if they don't exist
-        const name = `${firstName} ${lastName}`.trim();
-        loginMutation.mutate({ email, password, name, rememberMe });
+        // Login only needs email/pass. Name is optional in backend for legacy reasons.
+        loginMutation.mutate({ email, password, rememberMe });
     };
 
     return (
@@ -103,68 +99,6 @@ export default function LoginPage() {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit}>
-                    {/* First Name */}
-                    <div style={{ marginBottom: "20px" }}>
-                        <label style={{
-                            ...typography.text,
-                            display: "block",
-                            fontSize: "14px",
-                            fontWeight: 500,
-                            color: "#E5E7EB",
-                            marginBottom: "8px"
-                        }}>
-                            First Name
-                        </label>
-                        <input
-                            type="text"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                            style={{
-                                ...typography.text,
-                                width: "100%",
-                                padding: "12px 16px",
-                                backgroundColor: "#1A1A1D",
-                                border: "1px solid #333",
-                                borderRadius: "8px",
-                                color: "#FFFFFF",
-                                fontSize: "14px",
-                                outline: "none",
-                                transition: "all 0.2s"
-                            }}
-                        />
-                    </div>
-
-                    {/* Last Name */}
-                    <div style={{ marginBottom: "20px" }}>
-                        <label style={{
-                            ...typography.text,
-                            display: "block",
-                            fontSize: "14px",
-                            fontWeight: 500,
-                            color: "#E5E7EB",
-                            marginBottom: "8px"
-                        }}>
-                            Last Name
-                        </label>
-                        <input
-                            type="text"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                            style={{
-                                ...typography.text,
-                                width: "100%",
-                                padding: "12px 16px",
-                                backgroundColor: "#1A1A1D",
-                                border: "1px solid #333",
-                                borderRadius: "8px",
-                                color: "#FFFFFF",
-                                fontSize: "14px",
-                                outline: "none",
-                                transition: "all 0.2s"
-                            }}
-                        />
-                    </div>
-
                     {/* Email */}
                     <div style={{ marginBottom: "20px" }}>
                         <label style={{
@@ -227,37 +161,42 @@ export default function LoginPage() {
                         />
                     </div>
 
-                    {/* Remember Me */}
-                    <div style={{ marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
-                        <div 
-                            onClick={() => setRememberMe(!rememberMe)}
-                            style={{
-                                width: "20px",
-                                height: "20px",
-                                borderRadius: "6px",
-                                border: rememberMe ? "none" : "2px solid #333",
-                                backgroundColor: rememberMe ? "#8B5CF6" : "transparent",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                transition: "all 0.2s"
-                            }}
-                        >
-                            {rememberMe && <span style={{ color: "#FFF", fontSize: "14px", fontWeight: "bold" }}>✓</span>}
+                    {/* Remember Me & Create Account */}
+                    <div style={{ marginBottom: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div 
+                                onClick={() => setRememberMe(!rememberMe)}
+                                style={{
+                                    width: "20px",
+                                    height: "20px",
+                                    borderRadius: "6px",
+                                    border: rememberMe ? "none" : "2px solid #333",
+                                    backgroundColor: rememberMe ? "#8B5CF6" : "transparent",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                {rememberMe && <span style={{ color: "#FFF", fontSize: "14px", fontWeight: "bold" }}>✓</span>}
+                            </div>
+                            <span 
+                                onClick={() => setRememberMe(!rememberMe)}
+                                style={{ 
+                                    ...typography.text, 
+                                    fontSize: "14px", 
+                                    color: "#9CA3AF",
+                                    cursor: "pointer",
+                                    userSelect: "none"
+                                }}
+                            >
+                                Remember me
+                            </span>
                         </div>
-                        <span 
-                            onClick={() => setRememberMe(!rememberMe)}
-                            style={{ 
-                                ...typography.text, 
-                                fontSize: "14px", 
-                                color: "#9CA3AF",
-                                cursor: "pointer",
-                                userSelect: "none"
-                            }}
-                        >
-                            Remember me
-                        </span>
+                        <Link href="/signup" style={{ ...typography.text, fontSize: "14px", color: "#8B5CF6", fontWeight: 600, textDecoration: "none" }}>
+                            Create Account
+                        </Link>
                     </div>
 
                     <button
@@ -281,39 +220,8 @@ export default function LoginPage() {
                         {loginMutation.isPending ? "Signing In..." : "Sign In"}
                     </button>
                 </form>
-
-                {/* Instructional Text */}
-                <div style={{
-                    marginTop: "32px",
-                    padding: "20px",
-                    backgroundColor: "#1A1D24", // Darker distinguishing box
-                    borderRadius: "12px",
-                    border: "1px solid #2D2D30"
-                }}>
-                    <h3 style={{
-                        ...typography.text,
-                        fontSize: "14px",
-                        fontWeight: 700,
-                        color: "#FFFFFF",
-                        marginBottom: "12px",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em"
-                    }}>
-                        Login Details
-                    </h3>
-                    <ul style={{
-                        margin: 0,
-                        paddingLeft: "20px",
-                        color: "#9CA3AF",
-                        fontSize: "13px",
-                        lineHeight: "1.6"
-                    }}>
-                        <li style={{ marginBottom: "8px" }}>Use the email address on which you received access credentials</li>
-                        <li style={{ marginBottom: "8px" }}>Your password has been sent to you via email after successful payment</li>
-                        <li>Please enter the same email and password to sign in</li>
-                    </ul>
-                </div>
             </div>
         </div>
     );
 }
+

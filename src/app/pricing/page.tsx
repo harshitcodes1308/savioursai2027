@@ -69,7 +69,7 @@ export default function PricingPage() {
 
                 {/* Price Tag */}
                 <div style={{ marginBottom: "32px" }}>
-                    <span style={{ fontSize: "56px", fontWeight: 800, color: "#FFF" }}>₹99</span>
+                    <span style={{ fontSize: "56px", fontWeight: 800, color: "#FFF" }}>₹1</span>
                     <span style={{ fontSize: "18px", color: "#9CA3AF" }}> / lifetime</span>
                 </div>
 
@@ -102,7 +102,7 @@ export default function PricingPage() {
 
                 {/* Call to Action */}
                 <RazorpayButton 
-                    amount={99} 
+                    amount={1} 
                     email={session?.user?.email || "user@example.com"} 
                     name={session?.user?.name || "User"}
                 />

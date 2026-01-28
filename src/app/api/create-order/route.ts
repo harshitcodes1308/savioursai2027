@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const amount = body.amount || 99;
+        const amount = body.amount || 1;
 
         // Initialize Razorpay
         const razorpay = new Razorpay({

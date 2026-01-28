@@ -87,19 +87,26 @@ export function RazorpayButton({ amount = 99, email, name, onSuccess }: Razorpay
                 description: "Lifetime Access",
                 order_id: orderData.order.id,
                 handler: async function (response: any) {
-                    setLoading(true);
-                    // 2. Verify Payment on Backend (via Webhook preferred, or manual verify)
-                    // For simplicity & speed, we trust the success callback but let webhook handle the DB update
-                    // or we can call a verify endpoint here. 
-                    // To be safe, we'll wait 2 seconds then reload/redirect.
+                    setLoading(true); // Keep loading state
                     
-                    if(onSuccess) onSuccess();
-                    
-                    // Simple UX: Redirect to Dashboard. 
-                    // The webhook should have processed it by the time page loads, or we polling.
-                    // For now, simple redirect.
-                    router.push("/dashboard"); 
-                    router.refresh();
+                    try {
+                        // Call Server Action to Verify + Refresh Session
+                        const { verifyPaymentAction } = await import("@/actions/verify-payment");
+                        const result = await verifyPaymentAction(response);
+
+                        if (result.success) {
+                            if(onSuccess) onSuccess();
+                            router.push("/dashboard"); 
+                            router.refresh();
+                        } else {
+                            alert("Payment Verified Failed: " + result.error);
+                            setLoading(false);
+                        }
+                    } catch (err) {
+                        console.error("Verification Error", err);
+                        alert("Verification failed. Please contact support if money was deducted.");
+                        setLoading(false);
+                    }
                 },
                 prefill: {
                     name,

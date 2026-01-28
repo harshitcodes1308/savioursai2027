@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { askAI, generateStudyPlan, summarizeContent, generateQuestions } from "@/lib/ai";
+import { checkAiRateLimit } from "@/lib/rate-limit";
 
 export const aiRouter = createTRPCRouter({
     /**
@@ -28,6 +29,9 @@ export const aiRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ input, ctx }) => {
+            // Check Rate Limit
+            await checkAiRateLimit(ctx.user.id);
+
             const { searchRelevantVideos } = await import("@/lib/youtube");
 
             // Get AI response (with file if provided)
@@ -72,6 +76,9 @@ export const aiRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ input, ctx }) => {
+            // Check Rate Limit
+            await checkAiRateLimit(ctx.user.id);
+
             const plan = await generateStudyPlan({
                 subjects: input.subjects,
                 startDate: input.startDate,
@@ -105,6 +112,9 @@ export const aiRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ input, ctx }) => {
+            // Check Rate Limit
+            await checkAiRateLimit(ctx.user.id);
+
             const summary = await summarizeContent(input.content, input.topic);
 
             // Log AI usage

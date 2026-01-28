@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { generateStrategy } from "@/lib/strategy-ai";
+import { checkAiRateLimit } from "@/lib/rate-limit";
 
 export const strategyRouter = createTRPCRouter({
     generate: protectedProcedure
@@ -24,9 +25,24 @@ export const strategyRouter = createTRPCRouter({
                 mode: z.enum(["SURVIVAL", "BALANCED", "TOPPER"]),
             })
         )
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
+            // Check Rate Limit
+            await checkAiRateLimit(ctx.user.id);
+
             try {
                 const strategy = await generateStrategy(input);
+                
+                // Log Usage
+                await ctx.prisma.aiUsageLog.create({
+                    data: {
+                        userId: ctx.user.id,
+                        feature: "STUDY_PLANNER",
+                        tokens: 1000, // Estimate
+                        cost: 0,
+                        metadata: { mode: input.mode },
+                    }
+                });
+
                 return { strategy };
             } catch (error) {
                 throw new Error("Failed to generate strategy. Please check your inputs and try again.");

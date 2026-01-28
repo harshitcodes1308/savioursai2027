@@ -21,6 +21,17 @@ export const testRouter = createTRPCRouter({
                 count: input.totalQuestions,
             });
 
+            // Log AI usage (Bypass rate limit)
+            await ctx.prisma.aiUsageLog.create({
+                data: {
+                    userId: ctx.user.id,
+                    feature: "FLASHCARD_GENERATION",
+                    tokens: input.totalQuestions * 150, // Estimate
+                    cost: 0,
+                    metadata: { subject: input.subject, count: input.totalQuestions },
+                },
+            });
+
             // Create test attempt
             const attempt = await ctx.prisma.testAttempt.create({
                 data: {
@@ -29,7 +40,7 @@ export const testRouter = createTRPCRouter({
                     chapters: input.chapters,
                     totalQuestions: input.totalQuestions,
                     duration: input.duration,
-                    questions: questions,
+                    questions: questions as any,
                     answers: {},
                     status: "IN_PROGRESS",
                 },

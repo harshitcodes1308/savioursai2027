@@ -61,7 +61,7 @@ Return ONLY a JSON array (no markdown):
 Total topics: ${targetDays}`;
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4",
+            model: "gpt-4o-mini", // Standardized model
             messages: [{ role: "user", content: prompt }],
             temperature: 0.3,
             max_tokens: 1000,
@@ -125,7 +125,7 @@ Respond with ONLY a single number from 1 to 5:
 5 = Very Hard`;
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4",
+            model: "gpt-4o-mini", // Standardized model
             messages: [{ role: "user", content: prompt }],
             temperature: 0.3,
             max_tokens: 10,
@@ -168,7 +168,7 @@ Example:
 Respond for all ${chapters.length} chapters:`;
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4",
+            model: "gpt-4o-mini", // Standardized model
             messages: [{ role: "user", content: prompt }],
             temperature: 0.3,
             max_tokens: 500,

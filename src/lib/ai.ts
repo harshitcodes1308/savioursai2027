@@ -134,7 +134,7 @@ If an attachment is present, NEVER reply without referencing it.`;
     }
 
     const completion = await openai.chat.completions.create({
-        model: useVisionModel ? "gpt-4o" : "gpt-4o-mini",
+        model: "gpt-4o-mini", // Standardized model (supports vision natively)
         messages,
         temperature: 0.7,
         max_tokens: useVisionModel ? 1500 : 800, // More tokens for image analysis

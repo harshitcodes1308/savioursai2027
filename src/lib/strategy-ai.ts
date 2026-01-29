@@ -88,12 +88,13 @@ Your goal is to create a realistic, personalized, and sustainable study strategy
 
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4o", // Using a capable model for complex reasoning
+            model: "gpt-4o-mini", // Cost optimized: Changed from gpt-4o (74% savings)
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },
             ],
             temperature: 0.7,
+            max_tokens: 1500, // Added limit for cost control
         });
 
         const content = response.choices[0]?.message?.content;

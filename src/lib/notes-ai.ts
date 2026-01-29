@@ -61,7 +61,7 @@ Return ONLY the refined markdown notes. No extra commentary.`;
                 { role: "user", content: prompt }
             ],
             temperature: 0.3,
-            max_tokens: 2000,
+            max_tokens: 1200, // Optimized from 2000
         });
 
         return completion.choices[0].message.content || rawContent;
@@ -120,7 +120,7 @@ Return ONLY valid JSON array. No markdown, no extra text.`;
                 { role: "user", content: prompt }
             ],
             temperature: 0.5,
-            max_tokens: 1500,
+            max_tokens: 1000, // Optimized from 1500
         });
 
         const responseContent = completion.choices[0].message.content || "[]";

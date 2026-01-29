@@ -66,7 +66,7 @@ Generate exactly ${count} questions total.`;
                 { role: "user", content: prompt }
             ],
             temperature: 0.7,
-            max_tokens: 4000,
+            max_tokens: 2000, // Optimized from 4000 (50% cost reduction)
         });
 
         const content = completion.choices[0].message.content || "[]";

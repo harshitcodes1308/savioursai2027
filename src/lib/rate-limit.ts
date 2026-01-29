@@ -2,9 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { TRPCError } from "@trpc/server";
 
 // Configuration
-const FREE_DAILY_TOKENS = 20000; // ~40 queries (assuming ~500 tokens/query)
-const PRO_DAILY_TOKENS = 200000; // ~400 queries
-const AI_COOLDOWN_SECONDS = 5;
+const FREE_DAILY_TOKENS = 10000; // ~25 queries (cost optimized)
+const PRO_DAILY_TOKENS = 100000; // ~250 queries (cost optimized)
+const AI_COOLDOWN_SECONDS = 8; // Reduced spam, lower costs
 
 /**
  * Check if the user has exceeded their daily AI rate limit or is in cooldown.

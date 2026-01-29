@@ -53,27 +53,38 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid
-    // Exception: Allow /dashboard/profile to let users see their info or logout
+    // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid (from protected routes only)
     if (isProtectedRoute && isAuthenticated && !isPaid) {
-        // You might want to allow some routes, but for "Hard Gated", we block dashboard
-        // We can allow them to go to /pricing
-        /* 
-           If the user is on /dashboard and NOT paid -> /pricing
-           If the user is on /pricing -> Allow (handled by default as it's not in protectedRoutes?)
-           Wait, protectedRoutes = ['/dashboard']. Pricing is public.
-        */
         return NextResponse.redirect(new URL('/pricing', request.url));
     }
 
-    // 3. Redirect to dashboard if accessing auth routes while authenticated
-    if (isAuthRoute && isAuthenticated) {
-        // If paid -> Dashboard. If Unpaid -> Pricing
+    // 3. Pricing Page Guard: Control access to /pricing
+    if (pathname === '/pricing') {
+        if (!isAuthenticated) {
+            // Not logged in → redirect to signup
+            return NextResponse.redirect(new URL('/signup', request.url));
+        }
+        // Authenticated → allow if unpaid, redirect to dashboard if paid
+        if (isPaid) {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+        // Unpaid authenticated user → allow access to pricing
+    }
+
+    // 4. Handle Root Path: Redirect authenticated users appropriately
+    if (pathname === '/' && isAuthenticated) {
         if (isPaid) {
             return NextResponse.redirect(new URL('/dashboard', request.url));
         } else {
+            // Unpaid user visits home → send to pricing
             return NextResponse.redirect(new URL('/pricing', request.url));
         }
+    }
+
+    // 5. Redirect paid users from auth routes to dashboard
+    // Unpaid users CAN access /login and /signup (critical fix)
+    if (isAuthRoute && isAuthenticated && isPaid) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     
     return NextResponse.next();

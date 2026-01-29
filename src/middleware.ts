@@ -105,30 +105,43 @@ export async function middleware(request: NextRequest) {
         }
         
         // If we get here, user is genuinely unpaid
-        return NextResponse.redirect(new URL('/pricing', request.url));
+        const pricingRedirect = NextResponse.redirect(new URL('/pricing', request.url));
+        // Prevent browser caching of this redirect
+        pricingRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        pricingRedirect.headers.set('Pragma', 'no-cache');
+        pricingRedirect.headers.set('Expires', '0');
+        return pricingRedirect;
     }
 
     // 3. Pricing Page Guard: Control access to /pricing
     if (pathname === '/pricing') {
         if (!isAuthenticated) {
             // Not logged in → redirect to signup
-            return NextResponse.redirect(new URL('/signup', request.url));
+            const signupRedirect = NextResponse.redirect(new URL('/signup', request.url));
+            signupRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return signupRedirect;
         }
         // Authenticated → allow if unpaid, redirect to dashboard if paid
         if (isPaid) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
+            const dashboardRedirect = NextResponse.redirect(new URL('/dashboard', request.url));
+            dashboardRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return dashboardRedirect;
         }
         // Unpaid authenticated user → allow access to pricing
     }
 
-    // 4. Handle Root Path: Redirect authenticated users appropriately
-    if (pathname === '/' && isAuthenticated) {
-        if (isPaid) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        } else {
-            // Unpaid user visits home → send to pricing
-            return NextResponse.redirect(new URL('/pricing', request.url));
+    // 4. Handle Root Path: Redirect to login (avoid sticky /pricing redirects)
+    if (pathname === '/') {
+        if (isAuthenticated && isPaid) {
+            const dashboardRedirect = NextResponse.redirect(new URL('/dashboard', request.url));
+            dashboardRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return dashboardRedirect;
         }
+        // For unpaid or unauthenticated users → redirect to login
+        // This prevents sticky /pricing redirects that lock users out
+        const loginRedirect = NextResponse.redirect(new URL('/login', request.url));
+        loginRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        return loginRedirect;
     }
 
     // 5. Redirect paid users from auth routes to dashboard

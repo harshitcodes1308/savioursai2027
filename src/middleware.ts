@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
+import { jwtVerify, SignJWT } from 'jose';
+import { prisma } from '@/lib/prisma';
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard'];
@@ -54,7 +55,56 @@ export async function middleware(request: NextRequest) {
     }
 
     // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid (from protected routes only)
-    if (isProtectedRoute && isAuthenticated && !isPaid) {
+    if (isProtectedRoute && isAuthenticated && !isPaid && token) {
+        // CRITICAL FIX: Verify against DB in case isPaid was updated manually
+        // This prevents stale token issue where DB has isPaid=true but token has isPaid=false
+        try {
+            const secret = new TextEncoder().encode(
+                process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+            );
+            const { payload } = await jwtVerify(token, secret);
+            const userId = (payload.user as any)?.id;
+            
+            if (userId) {
+                const dbUser = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { isPaid: true, createdAt: true }
+                });
+
+                if (dbUser) {
+                    // Check if user is a legacy user (created before Jan 29, 2026)
+                    const isLegacyUser = dbUser.createdAt < new Date('2026-01-29');
+                    const actuallyPaid = dbUser.isPaid || isLegacyUser;
+
+                    if (actuallyPaid) {
+                        // DB says paid but token says unpaid → Refresh token
+                        const updatedUser = {
+                            ...(payload.user as any),
+                            isPaid: true
+                        };
+                        
+                        const newToken = await new SignJWT({ user: updatedUser })
+                            .setProtectedHeader({ alg: "HS256" })
+                            .setIssuedAt()
+                            .setExpirationTime("7d")
+                            .sign(secret);
+
+                        const response = NextResponse.next();
+                        response.cookies.set('auth-token', newToken, {
+                            httpOnly: true,
+                            secure: process.env.NODE_ENV === 'production',
+                            sameSite: 'lax',
+                            maxAge: 60 * 60 * 24 * 7, // 7 days
+                        });
+                        return response;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Token refresh error:", error);
+        }
+        
+        // If we get here, user is genuinely unpaid
         return NextResponse.redirect(new URL('/pricing', request.url));
     }
 

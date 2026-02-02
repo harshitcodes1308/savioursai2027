@@ -32,6 +32,7 @@ model User {
   teacherProfile     TeacherProfile?
   testAttempts       TestAttempt[]
   focusSessions      FocusSession[]
+  sprint15Days       Sprint15Day[]       // 15-day sprint plans
 
   @@map("users")
 }
@@ -587,3 +588,72 @@ enum FocusCompletionStatus {
   PARTIAL
   NOT_COMPLETED
 }
+
+// ===================================
+// 15-DAY ICSE SPRINT SYSTEM
+// ===================================
+
+model Sprint15Day {
+  id                    String              @id @default(cuid())
+  userId                String
+  
+  // Configuration
+  subjects              String[]
+  dailyStudyHours       Int
+  examDate              DateTime
+  
+  // AI-generated content (JSON storage)
+  diagnosticTest        Json                // Full diagnostic test structure
+  chapterAnalysis       Json                // Weak/medium/strong categorization
+  predictedScoreRange   String
+  dailyPlans            Json                // Array of 15 day plans
+  
+  // Progress tracking
+  currentDay            Int                 @default(0) // 0 = diagnostic pending
+  diagnosticCompleted   Boolean             @default(false)
+  status                Sprint15Status      @default(DIAGNOSTIC_PENDING)
+  
+  // Parent report (updated daily)
+  parentReport          Json?
+  
+  // Metadata
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testSubmissions       Sprint15TestSubmission[]
+  
+  @@index([userId])
+  @@index([status])
+  @@map("sprint_15_day")
+}
+
+model Sprint15TestSubmission {
+  id                    String              @id @default(cuid())
+  sprintId              String
+  dayNumber             Int                 // 0 = diagnostic, 1-15 = daily
+  
+  // Test data
+  questionsAsked        Json
+  studentAnswers        Json
+  score                 Float
+  timeSpentMinutes      Int
+  
+  // Analysis
+  topicScores           Json                // { "Chapter1": 0.8, "Chapter2": 0.5 }
+  
+  submittedAt           DateTime            @default(now())
+  
+  sprint                Sprint15Day         @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  
+  @@index([sprintId, dayNumber])
+  @@map("sprint_15_test_submissions")
+}
+
+enum Sprint15Status {
+  DIAGNOSTIC_PENDING
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+

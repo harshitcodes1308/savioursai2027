@@ -8,6 +8,7 @@ import { testRouter } from "./test";
 import { profileRouter } from "./profile";
 import { strategyRouter } from "./strategy";
 import { focusRouter } from "./focus";
+import { sprint15Router } from "./sprint15";
 
 /**
  * Main tRPC router
@@ -23,6 +24,7 @@ export const appRouter = createTRPCRouter({
     profile: profileRouter,
     strategy: strategyRouter,
     focus: focusRouter,
+    sprint15: sprint15Router,
 });
 
 export type AppRouter = typeof appRouter;

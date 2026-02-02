@@ -24,46 +24,71 @@ export const authRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const existingUser = await ctx.prisma.user.findUnique({
-                where: { email: input.email.toLowerCase() },
-            });
-
-            if (existingUser) {
-                throw new ConflictError("User with this email already exists");
-            }
-
-            const user = await createUser(
-                input.email,
-                input.password,
-                input.name,
-                input.role,
-                input.phone // Pass phone to createUser
-            );
-
-            if (input.role === "STUDENT") {
-                await ctx.prisma.studentProfile.create({
-                    data: { userId: user.id, grade: 10 },
+            try {
+                // Check for existing phone number first
+                if (input.phone) {
+                    const existingPhone = await ctx.prisma.user.findUnique({
+                        where: { phone: input.phone },
+                    });
+                    
+                    if (existingPhone) {
+                        throw new ConflictError("This phone number already exists. Please use a different number.");
+                    }
+                }
+                
+                const existingUser = await ctx.prisma.user.findUnique({
+                    where: { email: input.email.toLowerCase() },
                 });
+
+                if (existingUser) {
+                    throw new ConflictError("User with this email already exists");
+                }
+
+                const user = await createUser(
+                    input.email,
+                    input.password,
+                    input.name,
+                    input.role,
+                    input.phone // Pass phone to createUser
+                );
+
+                if (input.role === "STUDENT") {
+                    await ctx.prisma.studentProfile.create({
+                        data: { userId: user.id, grade: 10 },
+                    });
+                }
+
+                if (input.role === "TEACHER") {
+                    await ctx.prisma.teacherProfile.create({
+                        data: { userId: user.id, subjects: [] },
+                    });
+                }
+
+                const token = await createToken(user);
+                await setSessionCookie(token);
+
+                return {
+                    success: true,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        role: user.role,
+                    },
+                };
+            } catch (error: any) {
+                // Catch Prisma unique constraint errors
+                if (error.code === 'P2002') {
+                    const field = error.meta?.target?.[0];
+                    if (field === 'phone') {
+                        throw new ConflictError("This phone number already exists. Please use a different number.");
+                    } else if (field === 'email') {
+                        throw new ConflictError("User with this email already exists");
+                    }
+                }
+                // Re-throw other errors
+                throw error;
             }
-
-            if (input.role === "TEACHER") {
-                await ctx.prisma.teacherProfile.create({
-                    data: { userId: user.id, subjects: [] },
-                });
-            }
-
-            const token = await createToken(user);
-            await setSessionCookie(token);
-
-            return {
-                success: true,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                },
-            };
         }),
 
     /**

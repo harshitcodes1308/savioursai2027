@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { TRPCProvider } from "@/lib/trpc/client";
 import { ConsoleWelcome } from "@/components/ConsoleWelcome";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "ICSE Saviours – AI Student OS",
@@ -28,6 +29,7 @@ export default function RootLayout({
         <TRPCProvider>
           {children}
         </TRPCProvider>
+        <Analytics />
       </body>
     </html>
   );

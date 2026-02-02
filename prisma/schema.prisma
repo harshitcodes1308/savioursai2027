@@ -12,6 +12,7 @@ model User {
   email              String              @unique
   password           String
   name               String
+  phone              String?             @unique // Optional phone number (null for existing users)
   role               UserRole            @default(STUDENT)
   isPaid             Boolean             @default(false)
   emailVerified      DateTime?

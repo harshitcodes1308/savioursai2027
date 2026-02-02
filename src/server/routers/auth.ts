@@ -19,6 +19,7 @@ export const authRouter = createTRPCRouter({
                 email: z.string().email(),
                 password: z.string().min(8),
                 name: z.string().min(2),
+                phone: z.string().optional(), // Optional phone number
                 role: z.enum(["STUDENT", "TEACHER"]).optional().default("STUDENT"),
             })
         )
@@ -35,7 +36,8 @@ export const authRouter = createTRPCRouter({
                 input.email,
                 input.password,
                 input.name,
-                input.role
+                input.role,
+                input.phone // Pass phone to createUser
             );
 
             if (input.role === "STUDENT") {

@@ -12,7 +12,7 @@ export default function SignupPage() {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState(""); // Collected but unused for now
+    const [phone, setPhone] = useState(""); // Phone number stored in database
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
@@ -47,6 +47,7 @@ export default function SignupPage() {
             email,
             password,
             name,
+            phone, // Phone number now saved to database
             role: "STUDENT"
         });
     };

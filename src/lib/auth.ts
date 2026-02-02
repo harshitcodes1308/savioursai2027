@@ -146,7 +146,8 @@ export async function createUser(
     email: string,
     password: string,
     name: string,
-    role: UserRole = "STUDENT"
+    role: UserRole = "STUDENT",
+    phone?: string // Optional phone number
 ): Promise<SessionUser> {
     const hashedPassword = await hashPassword(password);
 
@@ -155,6 +156,7 @@ export async function createUser(
             email: email.toLowerCase(),
             password: hashedPassword,
             name,
+            phone: phone || null, // Save phone if provided, null otherwise
             role,
             isPaid: false, // Default to unpaid
         },

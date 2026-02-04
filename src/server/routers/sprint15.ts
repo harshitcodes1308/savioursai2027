@@ -203,7 +203,23 @@ export const sprint15Router = createTRPCRouter({
         const planGen = new DayPlanGenerator(ctx.prisma);
         
         // Extract chapter analysis from diagnostic
-        const chapterAnalysis = sprint.chapterAnalysis as any;
+        let chapterAnalysis = sprint.chapterAnalysis as any;
+        
+        // FALLBACK: If old format {weak: {}, medium: {}, strong: {}}, extract from diagnostic
+        if (chapterAnalysis?.weak && Object.keys(chapterAnalysis.weak).length === 0) {
+          console.warn(`[submitDiagnostic] Old format detected, extracting from diagnostic`);
+          const diagnosticTest = sprint.diagnosticTest as any;
+          const extracted: any = {};
+          
+          for (const subject of sprint.subjects) {
+            const questions = diagnosticTest[subject] || [];
+            const chapters = [...new Set(questions.map((q: any) => q.chapter).filter(Boolean))];
+            extracted[subject] = { weak: [], medium: chapters, strong: [] };
+            console.log(`[submitDiagnostic] Extracted ${chapters.length} chapters for ${subject}`);
+          }
+          
+          chapterAnalysis = extracted;
+        }
         
         if (chapterAnalysis) {
           await planGen.initializeFromDiagnostic(input.sprintId, chapterAnalysis);

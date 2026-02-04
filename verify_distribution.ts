@@ -13,7 +13,8 @@ const mockInput = {
       "P1", "P2", "P3", "P4", "P5"
     ] // 5 chapters
   },
-  daily_study_hours: 2
+  daily_study_hours: 2,
+  exam_date: "2026-03-01" // Added for TypeScript
 };
 
 console.log("Testing with 16 Math chapters and 5 Physics chapters...");

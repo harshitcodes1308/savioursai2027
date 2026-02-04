@@ -127,9 +127,16 @@ OUTPUT FORMAT — RETURN STRICT JSON ONLY:
 {
   "diagnostic_test": {},
   "chapter_strength_analysis": {
-    "weak": {},
-    "medium": {},
-    "strong": {}
+    "Mathematics": {
+      "weak": ["Chapter1", "Chapter2"],
+      "medium": ["Chapter3"],
+      "strong": ["Chapter4", "Chapter5"]
+    },
+    "Physics": {
+      "weak": ["Chapter1"],
+      "medium": ["Chapter2", "Chapter3"],
+      "strong": ["Chapter4"]
+    }
   },
   "predicted_score_range": "",
   "daily_targets_system": {

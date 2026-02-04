@@ -178,7 +178,7 @@ Generate ${count} questions now:`;
 
     // If we need more than templates, reuse with slight variation
     while (questions.length < count) {
-      const idx = questions.length % templates.length;
+      const idx: number = questions.length % templates.length;
       questions.push({
         ...templates[idx],
         questionNumber: questions.length + 1

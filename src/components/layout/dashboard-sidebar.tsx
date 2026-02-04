@@ -14,7 +14,7 @@ const menuItems = [
     { icon: "📝", label: "Customise Test", href: "/dashboard/tests" },
     { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy" },
     { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus" },
-    { icon: "🚀", label: "15-Day Sprint", href: "/dashboard/sprint" },
+    { icon: "🚀", label: "10-Day Sprint", href: "/dashboard/sprint" },
     { icon: "📖", label: "Notes", href: "/dashboard/notes" },
     { icon: "👤", label: "Profile", href: "/dashboard/profile" },
     { icon: "📜", label: "Policies", href: "/dashboard/policies" },

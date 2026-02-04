@@ -227,7 +227,7 @@ export default function Sprint15Page() {
 function CreateSprintForm({ onClose }: { onClose: () => void }) {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [dailyHours, setDailyHours] = useState(3);
-  const [examDate, setExamDate] = useState("");
+  // Auto-calculate exam date as 10 days from now
   
   // ICSE Class 10 subjects
   const availableSubjects = [
@@ -260,15 +260,14 @@ function CreateSprintForm({ onClose }: { onClose: () => void }) {
       return;
     }
     
-    if (!examDate) {
-      alert("Please select exam date");
-      return;
-    }
+    // Auto-calculate exam date as 10 days from now
+    const examDate = new Date();
+    examDate.setDate(examDate.getDate() + 10);
     
     createSprint.mutate({
       subjects,
       dailyStudyHours: dailyHours,
-      examDate,
+      examDate: examDate.toISOString().split('T')[0], // YYYY-MM-DD format
     });
   };
   
@@ -404,37 +403,39 @@ function CreateSprintForm({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         
-        {/* Exam Date */}
+        {/* Auto-calculated: 10-day sprint */}
         <div style={{
           background: "rgba(31,31,34,0.8)",
           backdropFilter: "blur(12px)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          border: "1px solid rgba(139,92,246,0.2)",
           borderRadius: "0.75rem",
-          padding: "1.5rem"
+          padding: "1.5rem",
+          textAlign: "center"
         }}>
-          <label style={{ 
-            display: "block", 
-            color: "#FFF", 
+          <div style={{ 
+            color: "#A78BFA", 
             fontWeight: 600, 
-            marginBottom: "1rem" 
+            marginBottom: "0.5rem",
+            fontSize: "0.875rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em"
           }}>
-            Exam Date
-          </label>
-          <input
-            type="date"
-            value={examDate}
-            onChange={(e) => setExamDate(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "0.5rem",
-              color: "#FFF",
-              fontSize: "1rem",
-              minHeight: "44px"
-            }}
-          />
+            Sprint Duration
+          </div>
+          <div style={{ 
+            color: "#FFF", 
+            fontSize: "2rem", 
+            fontWeight: 700,
+            marginBottom: "0.25rem"
+          }}>
+            10 Days
+          </div>
+          <div style={{ 
+            color: "rgba(255,255,255,0.5)", 
+            fontSize: "0.875rem"
+          }}>
+            Starts immediately upon creation
+          </div>
         </div>
         
         {/* Submit Button */}

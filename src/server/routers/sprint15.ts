@@ -214,11 +214,31 @@ export const sprint15Router = createTRPCRouter({
           for (const subject of sprint.subjects) {
             const questions = diagnosticTest[subject] || [];
             const chapters = [...new Set(questions.map((q: any) => q.chapter).filter(Boolean))];
+            
+            // If no chapters found in questions, create a generic one
+            if (chapters.length === 0) {
+              console.warn(`[submitDiagnostic] No chapters in diagnostic for ${subject}, using generic`);
+              chapters.push(`${subject} - General Topics`);
+            }
+            
             extracted[subject] = { weak: [], medium: chapters, strong: [] };
             console.log(`[submitDiagnostic] Extracted ${chapters.length} chapters for ${subject}`);
           }
           
           chapterAnalysis = extracted;
+        }
+        
+        // ULTIMATE FALLBACK: If still no valid analysis, create from subjects
+        if (!chapterAnalysis || Object.keys(chapterAnalysis).length === 0) {
+          console.error(`[submitDiagnostic] No chapter analysis at all! Creating from subjects`);
+          chapterAnalysis = {};
+          for (const subject of sprint.subjects) {
+            chapterAnalysis[subject] = {
+              weak: [],
+              medium: [`${subject} - Core Concepts`],
+              strong: []
+            };
+          }
         }
         
         if (chapterAnalysis) {

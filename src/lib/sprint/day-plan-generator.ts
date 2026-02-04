@@ -173,9 +173,15 @@ export class DayPlanGenerator {
     sprintId: string,
     chapterAnalysis: Record<string, { weak: string[], medium: string[], strong: string[] }>
   ) {
+    console.log(`[DayPlanGen] === INITIALIZATION DEBUG ===`);
+    console.log(`[DayPlanGen] chapterAnalysis type:`, typeof chapterAnalysis);
+    console.log(`[DayPlanGen] chapterAnalysis keys:`, Object.keys(chapterAnalysis || {}));
+    console.log(`[DayPlanGen] chapterAnalysis full:`, JSON.stringify(chapterAnalysis, null, 2));
+    
     const records = [];
 
-    for (const [subject, analysis] of Object.entries(chapterAnalysis)) {
+    for (const [subject, analysis] of Object.entries(chapterAnalysis || {})) {
+      console.log(`[DayPlanGen] Processing subject: ${subject}`, analysis);
       // Weak chapters: high priority
       for (const chapter of analysis.weak || []) {
         records.push({

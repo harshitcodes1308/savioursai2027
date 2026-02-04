@@ -57,13 +57,13 @@ export class ScoreCalculator {
           correctAnswers,
           score,
           timeSpent,
-          questionResults: answers
+          questionResults: answers as any
         },
         update: {
           correctAnswers,
           score,
           timeSpent,
-          questionResults: answers
+          questionResults: answers as any
         }
       });
 

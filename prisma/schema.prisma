@@ -608,6 +608,9 @@ model Sprint15Day {
   predictedScoreRange   String
   dailyPlans            Json                // Array of 15 day plans
   
+  // NEW: Adaptive architecture feature flag
+  useAdaptivePlan       Boolean             @default(false) // Enable derived state architecture
+  
   // Progress tracking
   currentDay            Int                 @default(0) // 0 = diagnostic pending
   diagnosticCompleted   Boolean             @default(false)
@@ -622,6 +625,8 @@ model Sprint15Day {
   
   user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   testSubmissions       Sprint15TestSubmission[]
+  dailyTestResults      DailyTestResult[]   // NEW: Structured score tracking
+  chapterPerformance    ChapterPerformance[] // NEW: Adaptive performance tracking
   
   @@index([userId])
   @@index([status])
@@ -645,10 +650,60 @@ model Sprint15TestSubmission {
   submittedAt           DateTime            @default(now())
   
   sprint                Sprint15Day         @relation(fields: [sprintId], references: [id], onDelete: Cascade)
-  
   @@index([sprintId, dayNumber])
   @@map("sprint_15_test_submissions")
 }
+
+// NEW: Structured daily test results for adaptive architecture
+model DailyTestResult {
+  id                String          @id @default(cuid())
+  sprintId          String
+  dayNumber         Int             // 1-15
+  subject           String
+  
+  // Aggregate scores
+  totalQuestions    Int
+  correctAnswers    Int
+  score             Float           // Percentage
+  timeSpent         Int             // Total seconds
+  
+  // Question-by-question results
+  questionResults   Json            // Array of { questionId, chapter, isCorrect, timeSpent }
+  
+  completedAt       DateTime        @default(now())
+  
+  sprint            Sprint15Day     @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  
+  @@unique([sprintId, dayNumber, subject]) // One result per day per subject
+  @@index([sprintId, dayNumber])
+  @@map("daily_test_results")
+}
+
+// NEW: Chapter-level performance tracking for adaptive scheduling
+model ChapterPerformance {
+  id              String          @id @default(cuid())
+  sprintId        String
+  subject         String
+  chapter         String
+  
+  // Performance metrics
+  strength        Float           @default(0) // 0-100, higher = stronger
+  attemptsCount   Int             @default(0)
+  lastTested      DateTime?
+  needsReview     Boolean         @default(false)
+  
+  // Scheduling priority (1 = highest, 100 = lowest)
+  priority        Int             @default(100)
+  
+  updatedAt       DateTime        @default(now()) @updatedAt
+  
+  sprint          Sprint15Day     @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  
+  @@unique([sprintId, subject, chapter]) // One record per chapter per sprint
+  @@index([sprintId, priority])
+  @@map("chapter_performance")
+}
+
 
 enum Sprint15Status {
   DIAGNOSTIC_PENDING
@@ -656,4 +711,5 @@ enum Sprint15Status {
   COMPLETED
   ABANDONED
 }
+
 

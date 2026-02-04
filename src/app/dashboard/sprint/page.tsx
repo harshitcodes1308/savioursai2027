@@ -32,7 +32,7 @@ export default function Sprint15Page() {
   
   // Show active sprint if exists
   if (activeSprint) {
-    return <ActiveSprintDashboard sprint={activeSprint} />;
+    return <ActiveSprintDashboard sprint={activeSprint} onCreateNew={() => setShowCreateForm(true)} />;
   }
   
   // Empty state - create new sprint
@@ -229,9 +229,22 @@ function CreateSprintForm({ onClose }: { onClose: () => void }) {
   const [dailyHours, setDailyHours] = useState(3);
   const [examDate, setExamDate] = useState("");
   
-  // Fetch ICSE subjects from database
-  const { data: dbSubjects } = trpc.dashboard.getSubjects.useQuery();
-  const availableSubjects = dbSubjects?.map(s => s.name) || [];
+  // ICSE Class 10 subjects
+  const availableSubjects = [
+    "Mathematics",
+    "English Language", 
+    "English Literature",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "History & Civics",
+    "Geography",
+    "Computer Applications",
+    "Commercial Studies",
+    "Economics",
+    "Hindi",
+    "Sanskrit"
+  ];
   
   const createSprint = trpc.sprint15.create.useMutation({
     onSuccess: () => {
@@ -452,30 +465,69 @@ function CreateSprintForm({ onClose }: { onClose: () => void }) {
   );
 }
 
-function ActiveSprintDashboard({ sprint }: { sprint: any }) {
+function ActiveSprintDashboard({ sprint, onCreateNew }: { sprint: any; onCreateNew: () => void }) {
   const router = useRouter();
   
-  // Parse daily plans
-  const plans = sprint.dailyPlans as any[];
-  const currentPlan = plans[sprint.currentDay - 1];
+  // Get current day's plan
+  const dailyPlans = sprint.dailyPlans as any[];
+  const currentPlan = dailyPlans?.[sprint.currentDay - 1];
   
+  // Safety check
+  if (!currentPlan || !currentPlan.subjects) {
+    console.warn("[Sprint UI] No current plan or subjects found for day", sprint.currentDay);
+  }
+
   return (
     <div style={{ padding: "1.5rem", maxWidth: "1200px", margin: "0 auto" }}>
-      {/* Header */}
+      {/* Header with New Sprint button */}
       <div style={{ marginBottom: "2rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
           <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "#FFF" }}>
             🚀 15-Day Sprint
           </h1>
-          <div style={{
-            padding: "0.5rem 1rem",
-            background: "rgba(139,92,246,0.15)",
-            border: "1px solid rgba(139,92,246,0.3)",
-            borderRadius: "9999px",
-            color: "#A78BFA",
-            fontWeight: 600
-          }}>
-            Day {sprint.currentDay}/15
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{
+              padding: "0.5rem 1rem",
+              background: "rgba(139,92,246,0.15)",
+              border: "1px solid rgba(139,92,246,0.3)",
+              borderRadius: "9999px",
+              color: "#A78BFA",
+              fontWeight: 600
+            }}>
+              Day {sprint.currentDay}/15
+            </div>
+            <button
+              onClick={onCreateNew}
+              style={{
+                padding: "0.5rem 1rem",
+                background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)",
+                border: "none",
+                borderRadius: "0.5rem",
+                color: "#FFF",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                minHeight: "36px"
+              }}
+            >
+              + New Sprint
+            </button>
+            <button
+              onClick={() => router.push("/dashboard/sprint")}
+              style={{
+                padding: "0.5rem 1rem",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "0.5rem",
+                color: "#9CA3AF",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                minHeight: "36px"
+              }}
+            >
+              ← Back
+            </button>
           </div>
         </div>
         
@@ -543,33 +595,41 @@ function ActiveSprintDashboard({ sprint }: { sprint: any }) {
       {/* Active Sprint - Today's Plan */}
       {sprint.status === "ACTIVE" && currentPlan && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {/* Today's Card */}
-          <div style={{
-            background: "linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(124,58,237,0.15) 100%)",
-            border: "1px solid rgba(139,92,246,0.3)",
-            borderRadius: "1rem",
-            padding: "1.5rem"
+          {/* Today's Plan */}
+        <div style={{
+          background: "rgba(31,31,34,0.8)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: "1rem",
+          padding: "2rem",
+          marginBottom: "1.5rem"
+        }}>
+          <h2 style={{
+            fontSize: "1.5rem",
+            fontWeight: 700,
+            color: "#FFF",
+            marginBottom: "1.5rem"
           }}>
-            <h2 style={{ 
-              fontSize: "1.5rem", 
-              fontWeight: 700, 
-              color: "#FFF", 
-              marginBottom: "1.5rem" 
-            }}>
-              📅 Today's Plan - Day {sprint.currentDay}
-            </h2>
-            
-            {currentPlan.subjects.map((subj: any, idx: number) => (
+            📅 Today's Plan - Day {sprint.currentDay}
+          </h2>
+          
+          {currentPlan?.subjects?.length > 0 ? (
+            currentPlan.subjects.map((subj: any, idx: number) => (
               <div key={idx} style={{ marginBottom: "1rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                   <h3 style={{ fontSize: "1.125rem", fontWeight: 600, color: "#FFF" }}>{subj.name}</h3>
                   <span style={{ color: "#9CA3AF", fontSize: "0.875rem" }}>{subj.time_minutes} mins</span>
                 </div>
                 <div style={{ color: "#D1D5DB", fontSize: "0.875rem" }}>
-                  {subj.chapters.join(", ")}
+                  {subj.chapters?.join(", ") || "No chapters"}
                 </div>
               </div>
-            ))}
+            ))
+          ) : (
+            <div style={{ color: "#9CA3AF", textAlign: "center", padding: "2rem" }}>
+              No plan data available for Day {sprint.currentDay}
+            </div>
+          )}
             
             <button
               onClick={() => router.push(`/dashboard/sprint/${sprint.id}/day/${sprint.currentDay}`)}

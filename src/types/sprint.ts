@@ -93,6 +93,7 @@ export interface SprintInput {
   subjects: string[];
   daily_study_hours: number;
   exam_date: string;
+  chapters?: Record<string, string[]>; // Map of subject name to chapter names
   completed_days?: number;
   previous_test_results?: any;
   time_spent_today?: number;

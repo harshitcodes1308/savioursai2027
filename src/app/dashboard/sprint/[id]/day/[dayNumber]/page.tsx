@@ -143,7 +143,8 @@ export default function DayPlanPage({ params }: { params: Promise<{ id: string; 
                       color: "#FF6B6B",
                       textDecoration: "none",
                       fontSize: "0.875rem",
-                      transition: "all 0.2s"
+                      transition: "all 0.2s",
+                      display: "block"
                     }}
                     onMouseOver={(e) => {
                       e.currentTarget.style.background = "rgba(255,0,0,0.15)";
@@ -260,10 +261,17 @@ function DailyTest({ sprintId, dayNumber, plan, onBack }: any) {
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [showResults, setShowResults] = useState(false);
+  const [score, setScore] = useState({ correct: 0, total: 0, percentage: 0 });
   
   const submitTest = trpc.sprint15.submitDailyTest.useMutation({
     onSuccess: () => {
-      router.push("/dashboard/sprint");
+      // If day 15 completed, show parent report
+      if (dayNumber === 15) {
+        router.push(`/dashboard/sprint/${sprintId}/report`);
+      } else {
+        router.push("/dashboard/sprint");
+      }
     },
   });
   
@@ -271,6 +279,100 @@ function DailyTest({ sprintId, dayNumber, plan, onBack }: any) {
   const testQuestions = plan.subjects?.flatMap((subj: any) => 
     subj.test?.questions || []
   ) || [];
+  
+  const handleFinish = () => {
+    // Calculate score
+    let correct = 0;
+    testQuestions.forEach((q: any, idx: number) => {
+      if (answers[idx] === q.correct_answer) {
+        correct++;
+      }
+    });
+    
+    const percentage = Math.round((correct / testQuestions.length) * 100);
+    setScore({ correct, total: testQuestions.length, percentage });
+    setShowResults(true);
+  };
+  
+  const handleSubmitAfterReview = () => {
+    submitTest.mutate({
+      sprintId,
+      dayNumber,
+      answers: { answers, questions: testQuestions },
+      timeSpent: 0
+    });
+  };
+  
+  // Show results screen
+  if (showResults) {
+    return (
+      <div style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
+        <div style={{
+          background: "linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(5,150,105,0.2) 100%)",
+          border: "1px solid rgba(16,185,129,0.3)",
+          borderRadius: "1rem",
+          padding: "3rem 2rem",
+          textAlign: "center",
+          marginBottom: "2rem"
+        }}>
+          <h1 style={{ fontSize: "2.5rem", fontWeight: 700, color: "#FFF", marginBottom: "1rem" }}>
+            {score.percentage >= 80 ? "🎉 Excellent!" : score.percentage >= 60 ? "👍 Good Job!" : "📚 Keep Practicing!"}
+          </h1>
+          
+          <div style={{ fontSize: "4rem", fontWeight: 700, color: "#10B981", marginBottom: "1rem" }}>
+            {score.percentage}%
+          </div>
+          
+          <div style={{ color: "#D1D5DB", fontSize: "1.25rem", marginBottom: "2rem" }}>
+            You scored {score.correct} out of {score.total} questions correctly
+          </div>
+          
+          <div style={{
+            padding: "1.5rem",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "0.75rem",
+            marginBottom: "2rem"
+          }}>
+            <div style={{ color: "#9CA3AF", marginBottom: "0.5rem" }}>Chapter Covered Today</div>
+            <div style={{ color: "#FFF", fontSize: "1.1rem" }}>
+              {plan.subjects?.map((s: any) => `${s.name}: ${s.chapters.join(", ")}`).join(" | ")}
+            </div>
+          </div>
+          
+          {score.percentage < 60 && (
+            <div style={{
+              padding: "1rem",
+              background: "rgba(251,191,36,0.1)",
+              border: "1px solid rgba(251,191,36,0.3)",
+              borderRadius: "0.5rem",
+              color: "#FCD34D",
+              marginBottom: "1.5rem"
+            }}>
+              💡 Tip: Review the chapter again and practice more questions!
+            </div>
+          )}
+          
+          <button
+            onClick={handleSubmitAfterReview}
+            disabled={submitTest.isPending}
+            style={{
+              padding: "1rem 3rem",
+              background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)",
+              border: "none",
+              borderRadius: "0.75rem",
+              color: "#FFF",
+              fontWeight: 600,
+              fontSize: "1.1rem",
+              cursor: submitTest.isPending ? "not-allowed" : "pointer",
+              opacity: submitTest.isPending ? 0.5 : 1
+            }}
+          >
+            {submitTest.isPending ? "Submitting..." : dayNumber === 15 ? "View Report →" : "Continue to Next Day →"}
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   if (testQuestions.length === 0) {
     return (

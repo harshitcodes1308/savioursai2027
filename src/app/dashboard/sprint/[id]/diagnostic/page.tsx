@@ -129,14 +129,47 @@ export default function DiagnosticTestPage({ params }: { params: Promise<{ id: s
   const allQuestions: any[] = [];
   
   // Flatten all questions from all subjects
-  Object.keys(diagnosticTest).forEach(subject => {
-    const subjectTest = diagnosticTest[subject];
-    if (subjectTest?.questions) {
-      subjectTest.questions.forEach((q: any) => {
-        allQuestions.push({ ...q, subject });
-      });
-    }
-  });
+  if (diagnosticTest && typeof diagnosticTest === 'object') {
+    Object.keys(diagnosticTest).forEach(subject => {
+      const subjectTest = diagnosticTest[subject];
+      if (subjectTest?.questions && Array.isArray(subjectTest.questions)) {
+        subjectTest.questions.forEach((q: any) => {
+          allQuestions.push({ ...q, subject });
+        });
+      }
+    });
+  }
+  
+  // Check if diagnostic test has questions
+  if (allQuestions.length === 0) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center", maxWidth: "600px", margin: "0 auto" }}>
+        <div style={{ color: "#F59E0B", fontSize: "1.5rem", marginBottom: "1rem" }}>
+          ⚠️ No Questions Available
+        </div>
+        <div style={{ color: "#D1D5DB", marginBottom: "2rem", lineHeight: "1.6" }}>
+          This sprint was created before the diagnostic test was properly configured. 
+          Please delete this sprint and create a new one to get the full diagnostic experience with all questions.
+        </div>
+        <button
+          onClick={() => router.push("/dashboard/sprint")}
+          style={{
+            padding: "0.75rem 2rem",
+            background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)",
+            border: "none",
+            borderRadius: "0.75rem",
+            color: "#FFF",
+            cursor: "pointer",
+            fontWeight: 600,
+            boxShadow: "0 4px 12px rgba(139,92,246,0.3)",
+            minHeight: "44px"
+          }}
+        >
+          ← Back to Sprint Dashboard
+        </button>
+      </div>
+    );
+  }
   
   const currentQ = allQuestions[currentQuestion];
   const progress = ((currentQuestion + 1) / allQuestions.length) * 100;

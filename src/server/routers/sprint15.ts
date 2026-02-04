@@ -242,7 +242,7 @@ export const sprint15Router = createTRPCRouter({
         
         // Generate questions for each subject's assigned chapter
         const subjectsWithQuestions = await Promise.all(
-          plan.subjects.map(async (subject) => {
+          plan.subjects.map(async (subject: any) => {
             const questions = await questionGen.generateForChapter(
               subject.name,
               subject.chapters[0],

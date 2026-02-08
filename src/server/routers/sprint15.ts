@@ -173,7 +173,7 @@ export const sprint15Router = createTRPCRouter({
     .input(
       z.object({
         sprintId: z.string(),
-        results: z.any(), // Frontend sends 'results', not 'answers'
+        results: z.any(), // { answers, timeSpent, questions }
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -185,6 +185,8 @@ export const sprint15Router = createTRPCRouter({
         throw new Error("Sprint not found");
       }
 
+      console.log(`[submitDiagnostic] Processing diagnostic for sprint ${input.sprintId.slice(0, 8)}`);
+
       // Update sprint status
       await ctx.prisma.sprint15Day.update({
         where: { id: input.sprintId },
@@ -195,57 +197,54 @@ export const sprint15Router = createTRPCRouter({
         },
       });
 
-      // If adaptive mode, initialize chapter performance
+      // If adaptive mode, initialize chapter performance from REAL diagnostic answers
       if (sprint.useAdaptivePlan) {
         console.log(`[submitDiagnostic] Initializing chapter performance for ADAPTIVE sprint`);
         
         const { DayPlanGenerator } = await import("@/lib/sprint");
         const planGen = new DayPlanGenerator(ctx.prisma);
         
-        // Extract chapter analysis from diagnostic
-        let chapterAnalysis = sprint.chapterAnalysis as any;
+        // Extract chapters from diagnostic questions (not from AI analysis)
+        const diagnosticTest = sprint.diagnosticTest as any;
+        const chapterAnalysis: any = {};
         
-        // FALLBACK: If old format {weak: {}, medium: {}, strong: {}}, extract from diagnostic
-        if (chapterAnalysis?.weak && Object.keys(chapterAnalysis.weak).length === 0) {
-          console.warn(`[submitDiagnostic] Old format detected, extracting from diagnostic`);
-          const diagnosticTest = sprint.diagnosticTest as any;
-          const extracted: any = {};
+        console.log(`[submitDiagnostic] Extracting chapters from diagnostic test`);
+        
+        for (const subject of sprint.subjects) {
+          const questions = diagnosticTest[subject] || [];
           
-          for (const subject of sprint.subjects) {
-            const questions = diagnosticTest[subject] || [];
-            const chapters = [...new Set(questions.map((q: any) => q.chapter).filter(Boolean))];
-            
-            // If no chapters found in questions, create a generic one
-            if (chapters.length === 0) {
-              console.warn(`[submitDiagnostic] No chapters in diagnostic for ${subject}, using generic`);
-              chapters.push(`${subject} - General Topics`);
-            }
-            
-            extracted[subject] = { weak: [], medium: chapters, strong: [] };
-            console.log(`[submitDiagnostic] Extracted ${chapters.length} chapters for ${subject}`);
+          // Get unique chapters from questions
+          const chapters = [...new Set(
+            questions
+              .map((q: any) => q.chapter)
+              .filter((ch: string) => ch && ch.trim().length > 0)
+          )];
+          
+          console.log(`[submitDiagnostic] Found ${chapters.length} chapters for ${subject}`);
+          
+          // If no chapters in questions, create a generic one
+          if (chapters.length === 0) {
+            console.warn(`[submitDiagnostic] No chapters found for ${subject}, using generic`);
+            chapters.push(`${subject} - Core Topics`);
           }
           
-          chapterAnalysis = extracted;
+          // Initialize ALL chapters as "medium" (no categorization in diagnostic)
+          // They'll be categorized based on daily test performance
+          chapterAnalysis[subject] = {
+            weak: [],
+            medium: chapters,
+            strong: []
+          };
         }
         
-        // ULTIMATE FALLBACK: If still no valid analysis, create from subjects
-        if (!chapterAnalysis || Object.keys(chapterAnalysis).length === 0) {
-          console.error(`[submitDiagnostic] No chapter analysis at all! Creating from subjects`);
-          chapterAnalysis = {};
-          for (const subject of sprint.subjects) {
-            chapterAnalysis[subject] = {
-              weak: [],
-              medium: [`${subject} - Core Concepts`],
-              strong: []
-            };
-          }
-        }
+        console.log(`[submitDiagnostic] Chapter analysis created:`, JSON.stringify(chapterAnalysis, null, 2));
         
-        if (chapterAnalysis) {
-          await planGen.initializeFromDiagnostic(input.sprintId, chapterAnalysis);
-          console.log(`[submitDiagnostic] Chapter performance initialized successfully`);
+        // Initialize chapter performance
+        if (chapterAnalysis && Object.keys(chapterAnalysis).length > 0) {
+          const count = await planGen.initializeFromDiagnostic(input.sprintId, chapterAnalysis);
+          console.log(`[submitDiagnostic] Initialized ${count} chapter performance records`);
         } else {
-          console.warn(`[submitDiagnostic] No chapter analysis found, skipping initialization`);
+          console.error(`[submitDiagnostic] Failed to create chapter analysis!`);
         }
       }
 

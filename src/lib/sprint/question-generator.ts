@@ -51,64 +51,108 @@ export class QuestionGenerator {
     chapter: string,
     count: number
   ): Promise<any[]> {
-    const prompt = `You are an ICSE board exam question paper setter.
+    const prompt = `You are an ICSE Class 10 board exam question paper setter with 20+ years of experience.
 
-Generate ${count} multiple-choice questions for:
+Generate ${count} HIGH-QUALITY multiple-choice questions for:
 - Subject: ${subject}
 - Chapter: ${chapter}
-- Difficulty: ICSE Class 10 board exam level
+- Difficulty: ICSE Class 10 board exam level (HARD/APPLICATION-BASED)
 
-Requirements:
-1. Questions must be conceptual, not just recall
-2. Options should be plausible distractors
-3. Include numerical/application questions where relevant
-4. Use proper ICSE terminology
-5. Each question worth 3 marks
+CRITICAL REQUIREMENTS:
+1. ❌ NO basic recall questions (e.g., "What is the SI unit of...")
+2. ✅ ONLY application, analysis, and problem-solving questions
+3. ✅ Questions must require 2-3 steps to solve
+4. ✅ Include numerical problems with calculations
+5. ✅ Use ICSE board exam terminology and format
+6. ✅ All options must be plausible (avoid obvious wrong answers)
+7. ✅ Each question worth 3-4 marks
+8. ✅ Questions must be DIRECTLY related to "${chapter}" - no generic questions
 
-Return ONLY valid JSON (no markdown, no explanations):
+DIFFICULTY GUIDELINES:
+- Easy questions: 0% (DO NOT GENERATE)
+- Medium questions: 30% (simple application)
+- Hard questions: 70% (multi-step problem solving)
+
+Return ONLY valid JSON (no markdown, no code blocks, no explanations):
 {
   "questions": [
     {
-      "question": "A clear, complete question with all necessary information",
+      "question": "A complete, detailed question with all necessary data and context",
       "options": [
-        "A. First option (properly formatted)",
+        "A. First option with proper units/format",
         "B. Second option",
         "C. Third option", 
         "D. Fourth option"
       ],
-      "correct_answer": "A. First option (exactly matching one option)",
-      "explanation": "Brief explanation of the correct answer",
+      "correct_answer": "A. First option (must exactly match one option)",
+      "explanation": "Step-by-step solution showing all calculations",
       "marks": 3
     }
   ]
 }
 
-Example for Mathematics - Quadratic Equations:
+EXAMPLE 1 - Mathematics (Quadratic Equations):
 {
   "questions": [
     {
-      "question": "If α and β are the roots of the equation 2x² - 5x + 3 = 0, what is the value of α² + β²?",
+      "question": "The sum of the squares of two consecutive odd numbers is 394. Find the numbers using quadratic equations.",
       "options": [
-        "A. 25/4",
-        "B. 13/4",
-        "C. 9/2",
-        "D. 11/4"
+        "A. 13 and 15",
+        "B. 11 and 13",
+        "C. 15 and 17",
+        "D. 9 and 11"
       ],
-      "correct_answer": "B. 13/4",
-      "explanation": "α + β = 5/2, αβ = 3/2. α² + β² = (α + β)² - 2αβ = 25/4 - 3 = 13/4",
-      "marks": 3
+      "correct_answer": "A. 13 and 15",
+      "explanation": "Let numbers be x and x+2. Then x² + (x+2)² = 394. Solving: 2x² + 4x + 4 = 394, x² + 2x - 195 = 0. Using quadratic formula: x = 13. Numbers are 13 and 15.",
+      "marks": 4
     }
   ]
 }
 
-Generate ${count} questions now:`;
+EXAMPLE 2 - Physics (Force and Motion):
+{
+  "questions": [
+    {
+      "question": "A car of mass 1200 kg moving at 72 km/h is brought to rest in 10 seconds by applying brakes. Calculate the retarding force applied by the brakes.",
+      "options": [
+        "A. 2400 N",
+        "B. 1200 N",
+        "C. 3600 N",
+        "D. 1800 N"
+      ],
+      "correct_answer": "A. 2400 N",
+      "explanation": "Initial velocity u = 72 km/h = 20 m/s, Final velocity v = 0, Time t = 10s. Acceleration a = (v-u)/t = -2 m/s². Force F = ma = 1200 × 2 = 2400 N.",
+      "marks": 4
+    }
+  ]
+}
+
+EXAMPLE 3 - Chemistry (Chemical Reactions):
+{
+  "questions": [
+    {
+      "question": "When 5.3g of sodium carbonate reacts completely with excess hydrochloric acid, what volume of CO₂ gas is produced at STP? (Na=23, C=12, O=16)",
+      "options": [
+        "A. 1.12 L",
+        "B. 2.24 L",
+        "C. 0.56 L",
+        "D. 3.36 L"
+      ],
+      "correct_answer": "A. 1.12 L",
+      "explanation": "Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂. Molar mass of Na₂CO₃ = 106g. Moles = 5.3/106 = 0.05. 1 mole Na₂CO₃ produces 1 mole CO₂. Volume at STP = 0.05 × 22.4 = 1.12 L.",
+      "marks": 4
+    }
+  ]
+}
+
+NOW GENERATE ${count} HARD, APPLICATION-BASED QUESTIONS FOR "${chapter}" IN ${subject}:`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
-      temperature: 0.8, // Higher for variety
-      max_tokens: 2500
+      temperature: 0.6, // Lower for more focused, relevant questions
+      max_tokens: 3000 // Increased for detailed explanations
     });
 
     const content = response.choices[0]?.message?.content;

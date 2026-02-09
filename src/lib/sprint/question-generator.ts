@@ -51,108 +51,137 @@ export class QuestionGenerator {
     chapter: string,
     count: number
   ): Promise<any[]> {
-    const prompt = `You are an ICSE Class 10 board exam question paper setter with 20+ years of experience.
+    const prompt = `You are an ICSE 2026 board exam question paper setter specializing in COMPETENCY-BASED questions.
 
-Generate ${count} HIGH-QUALITY multiple-choice questions for:
+Generate ${count} EXTREMELY HARD, COMPETENCY-BASED questions for:
 - Subject: ${subject}
 - Chapter: ${chapter}
-- Difficulty: ICSE Class 10 board exam level (HARD/APPLICATION-BASED)
+- Standard: ICSE 2026 (NEW COMPETENCY-BASED PATTERN)
 
-CRITICAL REQUIREMENTS:
-1. ❌ NO basic recall questions (e.g., "What is the SI unit of...")
-2. ✅ ONLY application, analysis, and problem-solving questions
-3. ✅ Questions must require 2-3 steps to solve
-4. ✅ Include numerical problems with calculations
-5. ✅ Use ICSE board exam terminology and format
-6. ✅ All options must be plausible (avoid obvious wrong answers)
-7. ✅ Each question worth 3-4 marks
-8. ✅ Questions must be DIRECTLY related to "${chapter}" - no generic questions
+🚨 CRITICAL REQUIREMENTS - COMPETENCY-BASED ICSE 2026:
+1. ❌ ZERO easy or medium questions - ONLY HARD/VERY HARD
+2. ❌ NO recall questions (definitions, formulas, facts)
+3. ❌ NO single-step problems
+4. ✅ ONLY multi-step problem solving (3-5 steps minimum)
+5. ✅ ONLY application in real-world scenarios
+6. ✅ ONLY analysis, evaluation, and synthesis level (Bloom's Taxonomy)
+7. ✅ Questions must test COMPETENCY, not memory
+8. ✅ Include data interpretation, graph analysis, case studies
+9. ✅ Cross-concept integration (combine 2-3 concepts)
+10. ✅ Each question worth 4-5 marks (board exam standard)
 
-DIFFICULTY GUIDELINES:
-- Easy questions: 0% (DO NOT GENERATE)
-- Medium questions: 30% (simple application)
-- Hard questions: 70% (multi-step problem solving)
+ICSE 2026 COMPETENCY FOCUS:
+- Problem Solving: 40%
+- Critical Thinking: 30%
+- Application & Analysis: 20%
+- Data Interpretation: 10%
 
-Return ONLY valid JSON (no markdown, no code blocks, no explanations):
+QUESTION COMPLEXITY REQUIREMENTS:
+- Must require understanding of WHY, not just WHAT
+- Must involve decision-making or comparison
+- Must test ability to apply concepts to new situations
+- Must require multi-step calculations with reasoning
+- Must have tricky distractors that test common misconceptions
+
+Return ONLY valid JSON (no markdown, no code blocks):
 {
   "questions": [
     {
-      "question": "A complete, detailed question with all necessary data and context",
+      "question": "A detailed, complex scenario with multiple data points requiring analysis and multi-step solution",
       "options": [
-        "A. First option with proper units/format",
-        "B. Second option",
-        "C. Third option", 
-        "D. Fourth option"
+        "A. Detailed option with proper units (must be plausible based on partial understanding)",
+        "B. Another plausible option (tests common misconception)",
+        "C. Third option (tests calculation error)",
+        "D. Fourth option (tests conceptual misunderstanding)"
       ],
-      "correct_answer": "A. First option (must exactly match one option)",
-      "explanation": "Step-by-step solution showing all calculations",
-      "marks": 3
-    }
-  ]
-}
-
-EXAMPLE 1 - Mathematics (Quadratic Equations):
-{
-  "questions": [
-    {
-      "question": "The sum of the squares of two consecutive odd numbers is 394. Find the numbers using quadratic equations.",
-      "options": [
-        "A. 13 and 15",
-        "B. 11 and 13",
-        "C. 15 and 17",
-        "D. 9 and 11"
-      ],
-      "correct_answer": "A. 13 and 15",
-      "explanation": "Let numbers be x and x+2. Then x² + (x+2)² = 394. Solving: 2x² + 4x + 4 = 394, x² + 2x - 195 = 0. Using quadratic formula: x = 13. Numbers are 13 and 15.",
+      "correct_answer": "A. [exact match to option]",
+      "explanation": "Detailed step-by-step solution: Given data: ... Step 1: Identify/Analyze... Step 2: Apply formula/concept... Step 3: Calculate... Step 4: Verify/Conclude... Common errors: Option B assumes [misconception], Option C results from [calculation error], Option D misunderstands [concept].",
       "marks": 4
     }
   ]
 }
 
-EXAMPLE 2 - Physics (Force and Motion):
+EXAMPLE 1 - Mathematics (Quadratic Equations) - COMPETENCY-BASED:
 {
   "questions": [
     {
-      "question": "A car of mass 1200 kg moving at 72 km/h is brought to rest in 10 seconds by applying brakes. Calculate the retarding force applied by the brakes.",
+      "question": "A rectangular park has a walking path of uniform width around it. The park's dimensions are 40m × 30m. If the total area including the path is 1800 m², and the path width is the same on all sides, find the width of the path by forming and solving a quadratic equation. Which of the following represents the correct width?",
       "options": [
-        "A. 2400 N",
-        "B. 1200 N",
-        "C. 3600 N",
-        "D. 1800 N"
+        "A. 5 m",
+        "B. 10 m",
+        "C. 3 m",
+        "D. 7 m"
       ],
-      "correct_answer": "A. 2400 N",
-      "explanation": "Initial velocity u = 72 km/h = 20 m/s, Final velocity v = 0, Time t = 10s. Acceleration a = (v-u)/t = -2 m/s². Force F = ma = 1200 × 2 = 2400 N.",
+      "correct_answer": "A. 5 m",
+      "explanation": "Let path width = x meters. Total dimensions: (40+2x) × (30+2x). Equation: (40+2x)(30+2x) = 1800. Expanding: 1200 + 80x + 60x + 4x² = 1800. Simplifying: 4x² + 140x - 600 = 0, or x² + 35x - 150 = 0. Using quadratic formula: x = (-35 ± √(1225+600))/2 = (-35 ± √1825)/2 ≈ (-35 ± 42.7)/2. Taking positive root: x = 7.7/2 ≈ 5m (rejecting negative). Option B (10m) would make total area 2500m². Option C (3m) gives 1656m². Option D (7m) gives 2072m².",
+      "marks": 5
+    }
+  ]
+}
+
+EXAMPLE 2 - Physics (Force & Motion) - COMPETENCY-BASED:
+{
+  "questions": [
+    {
+      "question": "A truck and a car are moving with the same kinetic energy. The mass of the truck is 4 times that of the car. If the truck's brakes fail and it collides with a stationary wall, while the car (with working brakes) stops safely in the same distance, compare the braking forces. If the car requires a braking force of F, what force does the wall exert on the truck?",
+      "options": [
+        "A. 2F",
+        "B. 4F",
+        "C. F/2",
+        "D. F"
+      ],
+      "correct_answer": "A. 2F",
+      "explanation": "Given: KE_truck = KE_car, m_truck = 4m_car. From KE = ½mv²: ½(4m)v_t² = ½(m)v_c². Therefore v_c² = 4v_t², so v_c = 2v_t. Using work-energy theorem: Force × distance = KE. For same stopping distance d: F_truck × d = KE_truck, F_car × d = KE_car. Since KE are equal: F_truck = F_car = F... WAIT! This is wrong reasoning. Actually, F = ma = m(v²/2d). For car: F = m(v_c²/2d). For truck: F_truck = 4m(v_t²/2d) = 4m((v_c/2)²/2d) = 4m(v_c²/8d) = m(v_c²/2d) × 2 = 2F. Option B assumes direct mass proportionality. Option C inverts the relationship. Option D ignores velocity difference.",
+      "marks": 5
+    }
+  ]
+}
+
+EXAMPLE 3 - Chemistry (Mole Concept) - COMPETENCY-BASED:
+{
+  "questions": [
+    {
+      "question": "A student performs an experiment where 10.6g of anhydrous sodium carbonate (Na₂CO₃) reacts with excess dilute HCl. The CO₂ produced is passed through lime water. If only 80% of the theoretical CO₂ actually reacts with lime water due to experimental losses, what mass of calcium carbonate precipitate is formed? (Na=23, C=12, O=16, Ca=40)",
+      "options": [
+        "A. 8.0 g",
+        "B. 10.0 g",
+        "C. 6.4 g",
+        "D. 8.8 g"
+      ],
+      "correct_answer": "A. 8.0 g",
+      "explanation": "Step 1: Moles of Na₂CO₃ = 10.6/106 = 0.1 mol. Step 2: Reaction: Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂. Theoretical CO₂ = 0.1 mol. Step 3: Actual CO₂ reacting = 0.1 × 0.8 = 0.08 mol. Step 4: Reaction with lime water: CO₂ + Ca(OH)₂ → CaCO₃ + H₂O. Moles of CaCO₃ = 0.08 mol. Step 5: Mass of CaCO₃ = 0.08 × 100 = 8.0g. Option B (10g) ignores 80% efficiency. Option C (6.4g) incorrectly calculates 80% of final mass instead of CO₂. Option D (8.8g) uses wrong molar mass.",
+      "marks": 5
+    }
+  ]
+}
+
+EXAMPLE 4 - Biology (Genetics) - COMPETENCY-BASED:
+{
+  "questions": [
+    {
+      "question": "In a genetic cross between two heterozygous plants (Tt × Tt) where T (tall) is dominant over t (dwarf), a farmer plants 1000 seeds from this cross. Due to environmental stress, only 60% of dwarf plants survive while 90% of tall plants survive. How many tall plants will the farmer have at maturity?",
+      "options": [
+        "A. 675 plants",
+        "B. 750 plants",
+        "C. 825 plants",
+        "D. 900 plants"
+      ],
+      "correct_answer": "A. 675 plants",
+      "explanation": "Step 1: Genetic ratio Tt × Tt gives 3:1 (Tall:Dwarf). Expected: 750 tall (TT+Tt), 250 dwarf (tt). Step 2: Apply survival rates. Tall survivors = 750 × 0.9 = 675. Dwarf survivors = 250 × 0.6 = 150. Step 3: Total tall plants at maturity = 675. Option B (750) ignores survival rate. Option C (825) incorrectly adds dwarf survivors. Option D (900) uses wrong ratio or survival rate.",
       "marks": 4
     }
   ]
 }
 
-EXAMPLE 3 - Chemistry (Chemical Reactions):
-{
-  "questions": [
-    {
-      "question": "When 5.3g of sodium carbonate reacts completely with excess hydrochloric acid, what volume of CO₂ gas is produced at STP? (Na=23, C=12, O=16)",
-      "options": [
-        "A. 1.12 L",
-        "B. 2.24 L",
-        "C. 0.56 L",
-        "D. 3.36 L"
-      ],
-      "correct_answer": "A. 1.12 L",
-      "explanation": "Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂. Molar mass of Na₂CO₃ = 106g. Moles = 5.3/106 = 0.05. 1 mole Na₂CO₃ produces 1 mole CO₂. Volume at STP = 0.05 × 22.4 = 1.12 L.",
-      "marks": 4
-    }
-  ]
-}
-
-NOW GENERATE ${count} HARD, APPLICATION-BASED QUESTIONS FOR "${chapter}" IN ${subject}:`;
+NOW GENERATE ${count} EXTREMELY HARD, COMPETENCY-BASED ICSE 2026 QUESTIONS for "${chapter}" in ${subject}.
+REMEMBER: NO easy questions, NO medium questions, ONLY HARD multi-step competency-based questions!`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
-      temperature: 0.6, // Lower for more focused, relevant questions
-      max_tokens: 3000 // Increased for detailed explanations
+      temperature: 0.5, // Lower for strict adherence to hard question requirements
+      max_tokens: 4000 // Increased for complex competency-based explanations
     });
 
     const content = response.choices[0]?.message?.content;

@@ -1,0 +1,222 @@
+--- PAGE 1 ---
+ANSWER KEY (PAPER 1) 
+ 
+SECTION A (40 Marks) 
+Question 1 [15x1=15] 
+Q. No. 
+Answer 
+Q. No. 
+Answer 
+(i) 
+(c) Chlorine 
+(ix) 
+(b) Na₂CO₃ 
+(ii) 
+(b) Sugar 
+(x) 
+(b) Alkenes 
+(iii) 
+(a) Both A and R true, R 
+explains A 
+(xi) 
+(a) Both A and R true, R 
+explains A 
+(iv) 
+(c) Sulphur dioxide 
+(xii) 
+(b) Bauxite 
+(v) 
+(c) Carbon tetrachloride 
+(xiii) 
+(c) Propanol 
+(vi) 
+(b) 6.022 × 10²³ 
+(xiv) 
+(c) Sodium 
+(vii) 
+(a) Group 2, Period 3 
+(xv) 
+(d) Reddish brown 
+(viii) 
+(a) Vanadium pentoxide 
+ 
+ 
+Question 2 [5+5+5+5+5=25] 
+(i) Name the following: [5x1=5]​
+(a) Electrorefining​
+(b) Covalent bond​
+(c) Acid salt (e.g., NaHCO₃)​
+(d) Carbon dioxide​
+(e) Chlorine (or Argon) 
+
+--- PAGE 2 ---
+(ii) Matching: [5x1=5]​
+(a) Sodium hydroxide - 3. Strong base​
+(b) Sodium hydrogen carbonate - 1. Acid salt​
+(c) Acetic acid - 2. Weak electrolyte​
+(d) Ammonia - 4. Haber's process​
+(e) Nitric acid - 5. Oxidizing agent 
+(iii) Complete the following: [5x1=5]​
+(a) +1 (forms Na⁺ ion)​
+(b) cathode​
+(c) dehydrating​
+(d) left​
+(e) -OH 
+(iv) Identify the following: [5x1=5]​
+(a) Magnesium (or any metal above hydrogen in reactivity series that reacts with very 
+dilute nitric acid)​
+(b) Water (H₂O)​
+(c) Ammonia (NH₃)​
+(d) Coordinate bond / Dative bond​
+(e) Bronze 
+(v) Structural formulas and IUPAC names: [3+2=5] 
+text 
+(a) Structural formulas: 
+   1. Ethanoic acid: CH₃-COOH 
+   2. Propane: CH₃-CH₂-CH₃ 
+   3. But-2-ene: CH₃-CH=CH-CH₃ 
+ 
+(b) IUPAC names: 
+   1. CH₃-CH₂-CHO: **Propanal** 
+   2. CH₃-CO-CH₃: **Propanone** (or Acetone) 
+ 
+SECTION B (40 Marks) 
+Question 3 [3+3+2+2=10] 
+
+--- PAGE 3 ---
+(i) Electrolysis: The chemical decomposition of an electrolyte into its constituent 
+elements when an electric current is passed through its molten state or aqueous 
+solution.​
+- Electrolyte: A substance that conducts electricity in aqueous solution or molten state 
+and undergoes chemical decomposition. Example: NaCl, HCl​
+- Non-electrolyte: A substance that does not conduct electricity in aqueous solution or 
+molten state. Example: Sugar, Urea [3] 
+(ii) Electrolysis of acidified water:​
+- Electrolyte: Acidified water (dilute H₂SO₄)​
+- Electrodes: Platinum​
+- Ionization: H₂O ⇌ H⁺ + OH⁻​
+- At cathode (reduction): 2H⁺ + 2e⁻ → H₂(g)​
+- At anode (oxidation): 2OH⁻ → H₂O + ½O₂ + 2e⁻ or 2H₂O → O₂ + 4H⁺ + 4e⁻​
+- Observation: Bubbles of hydrogen gas at cathode, oxygen gas at anode; volume ratio 
+H₂:O₂ = 2:1 [3] 
+(iii) Electroplating: The process of coating a thin layer of a desired metal onto another 
+metallic object by electrolysis. Reasons:​
+- To prevent corrosion/rusting​
+- To improve appearance (decorative purpose)​
+- To make the object more durable/wear-resistant [2] 
+(iv) Electroplating silver onto copper spoon:​
+(a) Electrolyte: Silver nitrate solution (or potassium argentocyanide)​
+(b) Anode: Pure silver metal [2] 
+Question 4 [2+3+3+2=10] 
+(i) Mendeleev's Periodic Law: The properties of elements are a periodic function of their 
+atomic masses. Mendeleev classified elements based on their atomic masses and 
+arranged them in groups and periods, leaving gaps for undiscovered elements. [2] 
+(ii) Element X with electronic configuration 2, 8, 5:​
+(a) Atomic number: 2 + 8 + 5 = 15​
+(b) Group: 15 (VA); Period: 3​
+(c) Non-metal (since it has 5 valence electrons and tends to gain electrons) [3] 
+(iii) Trend in atomic size:​
+- Along a period (left to right): Atomic size decreases because nuclear charge increases, 
+pulling electrons closer to the nucleus.​
+
+--- PAGE 4 ---
+- Down a group: Atomic size increases because new shells are added, increasing the 
+distance between the nucleus and the outermost electrons. [3] 
+(iv) Electronegativity: The tendency of an atom to attract shared pair of electrons 
+towards itself in a covalent bond. Variation in Group 17: Electronegativity decreases 
+down the group (Fluorine has the highest electronegativity). [2] 
+Question 5 [3+3+2+2=10] 
+(i) Laboratory preparation equations:​
+(a) Hydrogen chloride: NaCl + H₂SO₄ (conc.) → NaHSO₄ + HCl(g) (at low temperature) or 
+2NaCl + H₂SO₄ (conc.) → Na₂SO₄ + 2HCl(g) (at higher temperature)​
+(b) Ammonia: 2NH₄Cl + Ca(OH)₂ → CaCl₂ + 2H₂O + 2NH₃(g) [3] 
+(ii) Fountain experiment for HCl:​
+- A round-bottomed flask filled with dry HCl gas is fitted with a jet tube and connected to 
+a beaker of water containing a few drops of blue litmus.​
+- When a few drops of water are forced into the flask, HCl dissolves rapidly, creating a 
+partial vacuum.​
+- Atmospheric pressure forces water up through the jet tube, creating a fountain.​
+- The blue litmus turns red, showing HCl is acidic.​
+- This demonstrates the high solubility of HCl in water. [3] 
+(iii) Reasons:​
+(a) HCl cannot be stored in aluminium containers: Aluminium reacts with HCl to form 
+aluminium chloride and hydrogen gas, corroding the container. 2Al + 6HCl → 2AlCl₃ + 
+3H₂​
+(b) Ammonia not collected over water: Ammonia is highly soluble in water, so it would 
+dissolve instead of being collected. [2] 
+(iv) Gas produced when ammonia reacts:​
+(a) With heated copper oxide: Nitrogen (2NH₃ + 3CuO → 3Cu + 3H₂O + N₂)​
+(b) With excess chlorine: Nitrogen trichloride (NCl₃) or nitrogen (depending on 
+conditions). Actually, with excess chlorine, NCl₃ is formed (explosive). NH₃ + 3Cl₂ → 
+NCl₃ + 3HCl [2] 
+Question 6 [4+2+4=10] 
+(i) Contact Process for sulphuric acid manufacture:​
+- Step 1: Burning of sulphur or roasting of sulphide ores: S + O₂ → SO₂​
+- Step 2: Catalytic oxidation of SO₂ to SO₃: 2SO₂ + O₂ ⇌ 2SO₃​
+
+--- PAGE 5 ---
+- Conditions: Temperature ~450°C, Pressure ~2 atm, Catalyst: Vanadium pentoxide 
+(V₂O₅) or Platinum​
+- Step 3: Absorption of SO₃ in concentrated H₂SO₄: SO₃ + H₂SO₄ → H₂S₂O₇ (Oleum)​
+- Step 4: Dilution of oleum: H₂S₂O₇ + H₂O → 2H₂SO₄ [4] 
+(ii) Dilute vs Concentrated sulphuric acid:​
+| Property | Dilute H₂SO₄ | Concentrated H₂SO₄ |​
+|---------|--------------|--------------------|​
+| Behaviour | Acts as a typical acid | Acts as an oxidizing agent and dehydrating agent |​
+| Reaction with metals | Reacts with metals above hydrogen to produce H₂ | Reacts with 
+metals like Cu to produce SO₂ (oxidizing property) | [2] 
+(iii) Balanced equations:​
+(a) Conc. H₂SO₄ with copper: Cu + 2H₂SO₄ (conc.) → CuSO₄ + SO₂ + 2H₂O​
+(b) Conc. H₂SO₄ with sugar (dehydration): C₁₂H₂₂O₁₁ → 12C + 11H₂O (sugar charred to 
+carbon)​
+(c) Dil. H₂SO₄ with sodium carbonate: Na₂CO₃ + H₂SO₄ → Na₂SO₄ + H₂O + CO₂​
+(d) Dil. H₂SO₄ with zinc: Zn + H₂SO₄ → ZnSO₄ + H₂ [4] 
+Question 7 [3+2+2+3=10] 
+(i) Mole: The amount of substance that contains as many particles as there are atoms 
+in exactly 12 g of carbon-12 (6.022 × 10²³ particles).​
+(a) Moles in 22 g CO₂: Molar mass CO₂ = 12 + 32 = 44 g/mol; Moles = 22/44 = 0.5 mol​
+(b) Moles in 3.011 × 10²³ atoms of oxygen: Moles = (3.011 × 10²³) / (6.022 × 10²³) = 0.5 
+mol [3] 
+(ii) Avogadro's Law: Equal volumes of all gases under the same conditions of 
+temperature and pressure contain the same number of molecules. Volume of 1 mole at 
+STP: 22.4 litres. [2] 
+(iii) Percentage composition of water (H₂O):​
+- Molar mass = (2 × 1) + 16 = 18 g/mol​
+- % Hydrogen = (2/18) × 100 = 11.11%​
+- % Oxygen = (16/18) × 100 = 88.89% [2] 
+(iv) Empirical formula calculation:​
+| Element | % | Atomic mass | Relative moles | Simplest ratio |​
+|---------|---|-------------|----------------|----------------|​
+| C | 40.00 | 12 | 40/12 = 3.33 | 3.33/3.33 = 1 |​
+| H | 6.67 | 1 | 6.67/1 = 6.67 | 6.67/3.33 = 2 |​
+
+--- PAGE 6 ---
+| O | 53.33 | 16 | 53.33/16 = 3.33 | 3.33/3.33 = 1 |​
+Empirical formula: CH₂O [3] 
+Question 8 [4+3+3=10] 
+(i) Extraction of aluminium:​
+- Purification of bauxite (Baeyer's Process): Bauxite (Al₂O₃·2H₂O) contains impurities like 
+Fe₂O₃ and SiO₂. It is treated with concentrated NaOH under pressure. Al₂O₃ dissolves as 
+sodium aluminate: Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O. Impurities remain undissolved. 
+The solution is diluted and seeded to precipitate pure Al(OH)₃, which is then heated to 
+get pure Al₂O₃ (alumina). 
+text 
+- **Electrolytic cell (Hall-Heroult process):** 
+    - **Electrolyte:** Alumina dissolved in molten cryolite (Na₃AlF₆) and fluorspar (CaF₂) 
+to lower the melting point. 
+    - **Cathode:** Graphite lining of the cell 
+    - **Anode:** Graphite rods 
+    - **At cathode:** Al³⁺ + 3e⁻ → Al (molten aluminium collected at bottom) 
+    - **At anode:** 2O²⁻ → O₂ + 4e⁻; Oxygen reacts with carbon anode: C + O₂ → CO₂ 
+(anode burns away) `[4]` 
+(ii) Alloys:​
+(a) Brass: Composition: Copper (60-80%) + Zinc (20-40%); Uses: decorative items, 
+musical instruments, screws, bolts​
+(b) Stainless steel: Composition: Iron + Chromium (12-18%) + Nickel (8-10%); Uses: 
+Cutlery, kitchenware, surgical instruments, industrial equipment [3] 
+(iii) Balanced equations:​
+(a) Dil. HCl with sodium carbonate: Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂​
+(b) NaOH with zinc: Zn + 2NaOH → Na₂ZnO₂ + H₂ (Sodium zincate)​
+(c) Thermal decomposition of lead nitrate: 2Pb(NO₃)₂ → 2PbO + 4NO₂ + O₂ [3 
+ 
+

@@ -1,0 +1,114 @@
+--- PAGE 1 ---
+Answer Key for Mock Specimen Paper 1 
+SECTION A 
+Question 1​
+(i) (c) Centripetal force​
+(ii) (d) Velocity​
+(iii) (a) M.A. = V.R. × η​
+(iv) (b) away from the normal​
+(v) (a) J kg⁻¹​
+(vi) (c) greater than the primary coil​
+(vii) (d) Brown​
+(viii) (a) 2 protons and 2 neutrons​
+(ix) (c) Dispersion​
+(x) (b) At the focus​
+(xi) (c) Gamma​
+(xii) (c) Zero​
+(xiii) (d) the potential difference across its ends​
+(xiv) (c) remains constant​
+(xv) (d) Water 
+Question 2​
+(i) (a) maximum [1]​
+(b) Pascal's law [1]​
+(c) total internal reflection [1]​
+(d) convex [1]​
+(e) watt [1]​
+(f) cadmium rods [1] 
+(ii) (a) Class I lever → A see-saw [1]​
+(b) Class II lever → A nutcracker [1]​
+(c) Class III lever → A pair of tweezers [1] 
+(iii) (a) Ultrasonic waves [1]​
+(b) They can travel undeviated over long distances in water. / They are not absorbed 
+much by the medium. [1] 
+SECTION B 
+
+--- PAGE 2 ---
+Question 3​
+(i) (a) For an image of the same size as the object in a convex lens, the object must be 
+placed at 2F (twice the focal length). Therefore, u = 2f = 2 × 15 = 30 cm. [2]​
+(b) Magnification (m) = -1 (for a real, inverted image of the same size). [1] 
+(ii) (a) Power = 2.4 kW, Time = 30 min = 0.5 h.​
+Energy per day = Power × Time = 2.4 kW × 0.5 h = 1.2 kWh. [2]​
+(b) Total energy for April (30 days) = 1.2 × 30 = 36 kWh (units).​
+Cost = Total units × rate = 36 × ₹5.00 = ₹180. [2] 
+(iii) (a) Energy can neither be created nor destroyed, but can only be transformed from 
+one form into another. [1]​
+(b) m = 0.5 kg, v = 20 m/s.​
+K.E. = ½ mv² = ½ × 0.5 × (20)² = ½ × 0.5 × 400 = ½ × 200 = 100 J. [2] 
+Question 4​
+(i) (a) Specific latent heat of fusion is the amount of heat required to convert 1 kg of a 
+solid into a liquid at its melting point without any change in temperature. [1]​
+(b) Q = m × L = 50 g × 336 J/g = 16800 J. [2] 
+(ii) (a) & (b) (Student to draw correct diagram showing refraction at both surfaces and 
+label lateral displacement.) [2]​
+(c) Lateral displacement depends on: (1) Thickness of the glass block. (2) Angle of 
+incidence. (3) Refractive index of the material. (Any two) [2] 
+(iii) (a) In space, there is no atmosphere to scatter sunlight. [1]​
+(b) (1) Infrared radiation [1]​
+(2) Ultraviolet radiation [1] 
+Question 5​
+(i) (a) (Student to draw correct circuit diagram with 2Ω, 3Ω, 6Ω in parallel, this combination 
+in series with 2Ω, all connected to 6V battery.) [2]​
+(b) For parallel: 1/Rp = 1/2 + 1/3 + 1/6 = (3+2+1)/6 = 6/6 = 1. So, Rp = 1Ω.​
+Total R = Rp + 2Ω = 1Ω + 2Ω = 3Ω. [2]​
+(c) I = V / R = 6V / 3Ω = 2 A. [1] 
+(ii) (a) The centre of gravity of a body is the point where the entire weight of the body 
+appears to act. [1]​
+(b) Let W be the weight of the scale. By principle of moments:​
+Anticlockwise moment = Clockwise moment​
+W × (50 - 40) = 50 gf × (40 - 10)​
+
+--- PAGE 3 ---
+W × 10 = 50 × 30​
+W = (50 × 30) / 10 = 150 gf. [3] 
+(iii) (a) Fission is the splitting of a heavy nucleus into lighter nuclei, while fusion is the 
+combining of light nuclei to form a heavier nucleus. [2]​
+(b) Nuclear fusion. [1] 
+Question 6​
+(i) (a) Ohm's Law states that the potential difference across the ends of a metallic 
+conductor is directly proportional to the current flowing through it, provided its 
+temperature remains constant. [1]​
+(b) The slope of the V-I graph represents the resistance (R) of the conductor. [1]​
+(c) Resistance depends on: (1) Length of the conductor. (2) Area of cross-section. (3) 
+Temperature. (4) Nature of material. (Any two) [2] 
+(ii) (a) Resonance is a special case of forced vibrations in which the frequency of the 
+applied force matches the natural frequency of the vibrating body, causing the body to 
+vibrate with a large amplitude. [2]​
+(b) To avoid setting the bridge into resonant vibrations, which could cause it to collapse. 
+[1] 
+(iii) (a) Beta (β) [1]​
+(b) An electron and an antineutrino are emitted. [1]​
+(c) Handle the source with long tongs / keep the source in a lead box / limit exposure 
+time. (Any one) [1] 
+Question 7​
+(i) (a) Power is the rate of doing work. / Power = Work done / Time taken. [1]​
+(b) Work done per minute = mgh + ½ mv²​
+= (500 × 10 × 20) + (½ × 500 × 10²)​
+= 100000 + (250 × 100) = 100000 + 25000 = 125000 J​
+Power = Work / time = 125000 J / 60 s = 2083.33 W. [3] 
+(ii) (a) Laws of Refraction:​
+(1) The incident ray, the refracted ray, and the normal at the point of incidence all lie in 
+the same plane.​
+(2) The ratio of the sine of the angle of incidence to the sine of the angle of refraction is 
+constant for a given pair of media. (Snell's Law) [2]​
+(b) μ = c / v ⇒ v = c / μ = (3 × 10⁸) / 2.42 ≈ 1.24 × 10⁸ m/s. [2] 
+
+--- PAGE 4 ---
+(iii) (a) An electromagnet is a magnet that consists of a soft iron core with a coil of 
+insulated wire wound around it, which produces a magnetic field only when current 
+flows through the coil. [1]​
+(b) (1) Its strength can be changed. (2) Its polarity can be reversed. (3) It can be 
+magnetized and demagnetized easily. (Any two) [2]​
+(c) Right-hand thumb rule / Maxwell's corkscrew rule. [1] 
+ 
+

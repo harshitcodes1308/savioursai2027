@@ -1,0 +1,242 @@
+--- PAGE 1 ---
+ANSWER KEY (PAPER 2) 
+ 
+SECTION A (40 Marks) 
+Question 1 [15x1=15] 
+Q. No. 
+Answer 
+Q. No. 
+Answer 
+(i) 
+(a) Lithium 
+(ix) 
+(c) Sulphur dioxide 
+(ii) 
+(c) Carbon dioxide 
+(x) 
+(b) -CHO 
+(iii) 
+(a) Both A and R true, R 
+explains A 
+(xi) 
+(a) Both A and R true, R 
+explains A 
+(iv) 
+(b) 2 moles 
+(xii) 
+(c) Solder 
+(v) 
+(c) Sodium chloride 
+(xiii) 
+(a) Butanal 
+(vi) 
+(b) Iron with 
+molybdenum promoter 
+(xiv) 
+(d) Copper 
+(vii) 
+(a) Group 1, Period 4 
+(xv) 
+(c) Inky blue / deep blue 
+(viii) 
+(b) Hydrochloric acid 
+ 
+ 
+Question 2 [5+5+5+5+5=25] 
+(i) Name the following: [5x1=5]​
+(a) Sublimation​
+(b) Electrovalent bond / Ionic bond​
+(c) Normal salt​
+(d) Hydrogen sulphide​
+(e) Neon (or Fluorine if considering ionization potential, but Neon has highest in Period 
+2) 
+
+--- PAGE 2 ---
+(ii) Matching: [5x1=5]​
+(a) Ostwald's process - 3. Nitric acid​
+(b) Contact process - 4. Sulphuric acid​
+(c) Haber's process - 2. Ammonia​
+(d) Caustic soda - 1. Sodium hydroxide​
+(e) Marsh gas - 5. Methane 
+(iii) Complete the following: [5x1=5]​
+(a) decreases​
+(b) ions​
+(c) oxidizing​
+(d) 3​
+(e) blue (pH 10 is alkaline) 
+(iv) Identify the following: [5x1=5]​
+(a) Mercury (Hg)​
+(b) Washing soda (Na₂CO₃) or Sodium carbonate​
+(c) Sulphur dioxide (SO₂)​
+(d) Covalent bond (polar covalent)​
+(e) Haematite (Fe₂O₃) / Magnetite (Fe₃O₄) 
+(v) Structural formulas and IUPAC names: [3+2=5] 
+text 
+(a) Structural formulas: 
+   1. Ethanol: CH₃-CH₂-OH 
+   2. Propene: CH₃-CH=CH₂ 
+   3. 2-methyl propane: CH₃-CH(CH₃)-CH₃ 
+ 
+(b) IUPAC names: 
+   1. CH₃-CH₂-COOH: **Propanoic acid** 
+   2. CH₃-CH=CH-CH₃: **But-2-ene** 
+ 
+SECTION B (40 Marks) 
+Question 3 [4+3+3=10] 
+(i) Covalent bond: The chemical bond formed between two atoms by mutual sharing of 
+electrons between them. 
+
+--- PAGE 3 ---
+text 
+(a) **Chlorine molecule (Cl₂):** Each Cl atom has 7 valence electrons. They share one 
+pair of electrons to achieve octet. 
+    Electron dot diagram: :Cl· + ·Cl: → :Cl:Cl: (with shared pair shown between) 
+ 
+(b) **Water molecule (H₂O):** Oxygen (6 valence electrons) shares one electron each 
+with two hydrogen atoms (1 electron each). 
+    Electron dot diagram: H· + ·O· + ·H → H:O:H (with two shared pairs around O) `[4]` 
+(ii) Differences between electrovalent and covalent compounds: 
+text 
+| Property | Electrovalent (Ionic) | Covalent | 
+|---------|----------------------|----------| 
+| Bond formation | Transfer of electrons | Sharing of electrons | 
+| Melting/Boiling point | High | Low | 
+| Solubility | Soluble in water, insoluble in organic solvents | Insoluble in water, soluble in 
+organic solvents | 
+| Electrical conductivity | Conduct in molten or aqueous state | Do not conduct electricity 
+| 
+*(Any three)* `[3]` 
+(iii) Coordinate bond: A bond in which the shared pair of electrons is contributed entirely 
+by one atom (donor) to another atom (acceptor). 
+text 
+**Formation of ammonium ion (NH₄⁺):** 
+- Ammonia (NH₃) has a lone pair of electrons on nitrogen. 
+- H⁺ ion has no electrons. 
+- Nitrogen donates its lone pair to H⁺, forming a coordinate bond. 
+- Electron dot diagram: Show NH₃ with lone pair on N, and H⁺ accepting it to form NH₄⁺ 
+with all bonds equivalent. `[3]` 
+Question 4 [2+3+3+2=10] 
+(i) Modern Periodic Law: The physical and chemical properties of elements are periodic 
+functions of their atomic numbers. The modern periodic table has 18 groups and 7 
+periods. [2] 
+
+--- PAGE 4 ---
+(ii) Element X with atomic number 12:​
+(a) Electronic configuration: 2, 8, 2​
+(b) Group: 2; Period: 3​
+(c) Metal (alkaline earth metal). Formula of oxide: XO (MgO) [3] 
+(iii) Trend in ionization potential:​
+- Along a period (left to right): Ionization potential increases because nuclear charge 
+increases, making it harder to remove an electron.​
+- Down a group: Ionization potential decreases because atomic size increases and 
+shielding effect increases, making it easier to remove an electron. [3] 
+(iv) Electron affinity: The amount of energy released when an atom in the gaseous state 
+accepts an electron to form a negative ion. Variation in Group 1: Electron affinity 
+decreases down the group (from Li to Cs). [2] 
+Question 5 [3+3+2+2=10] 
+(i) Laboratory preparation equations:​
+(a) Nitric acid: NaNO₃ + H₂SO₄ (conc.) → NaHSO₄ + HNO₃​
+(b) Hydrogen: Zn + H₂SO₄ (dil.) → ZnSO₄ + H₂ [3] 
+(ii) Fountain experiment for ammonia:​
+- A round-bottomed flask filled with dry ammonia gas is fitted with a jet tube and 
+connected to a beaker of water containing a few drops of red litmus.​
+- When a few drops of water are forced into the flask, ammonia dissolves rapidly, 
+creating a partial vacuum.​
+- Atmospheric pressure forces water up through the jet tube, creating a fountain.​
+- The red litmus turns blue, showing ammonia is alkaline.​
+- This demonstrates the high solubility of ammonia in water. [3] 
+(iii) Reasons:​
+(a) Sulphuric acid as "King of Chemicals": It is the most widely used industrial chemical, 
+involved in manufacturing fertilizers, dyes, detergents, paints, etc.​
+(b) Nitric acid stored in brown bottles: Nitric acid decomposes in the presence of 
+sunlight (photochemical decomposition): 4HNO₃ → 4NO₂ + 2H₂O + O₂. Brown bottles 
+protect it from light. [2] 
+(iv) Gas produced when nitric acid reacts:​
+(a) With copper: Nitrogen dioxide (Cu + 4HNO₃ (conc.) → Cu(NO₃)₂ + 2NO₂ + 2H₂O)​
+(b) With carbon: Carbon dioxide and nitrogen dioxide (C + 4HNO₃ (conc.) → CO₂ + 4NO₂ 
++ 2H₂O) [2] 
+
+--- PAGE 5 ---
+Question 6 [4+2+4=10] 
+(i) Haber's Process for ammonia manufacture:​
+- Reactants: Nitrogen (from air) and Hydrogen (from water gas or natural gas)​
+- Reaction: N₂ + 3H₂ ⇌ 2NH₃ + Heat​
+- Conditions:​
+- Temperature: 450-500°C​
+- Pressure: 200-900 atm​
+- Catalyst: Iron (Fe) with promoters like Mo, Al₂O₃, K₂O​
+- Unreacted N₂ and H₂ are recycled. [4] 
+(ii) Dilute vs Concentrated nitric acid:​
+| Property | Dilute HNO₃ | Concentrated HNO₃ |​
+|---------|-------------|-------------------|​
+| Behaviour | Acts as a typical acid | Acts as a strong oxidizing agent |​
+| Reaction with metals | Reacts with metals to produce NO or NO₂ depending on 
+concentration | Reacts with metals to produce NO₂ | [2] 
+(iii) Balanced equations:​
+(a) Conc. HNO₃ with copper: Cu + 4HNO₃ (conc.) → Cu(NO₃)₂ + 2NO₂ + 2H₂O​
+(b) HNO₃ with sodium carbonate: Na₂CO₃ + 2HNO₃ → 2NaNO₃ + H₂O + CO₂​
+(c) Ammonia with hydrogen chloride: NH₃ + HCl → NH₄Cl (white fumes)​
+(d) Thermal decomposition of ammonium chloride: NH₄Cl → NH₃ + HCl (on heating, 
+sublimes and recombines) [4] 
+Question 7 [3+2+2+3=10] 
+(i) Atomic mass unit (amu): 1/12th of the mass of one carbon-12 atom.​
+(a) Molecular mass of H₂SO₄: (2×1) + 32 + (4×16) = 2 + 32 + 64 = 98 u​
+(b) Molecular mass of C₆H₁₂O₆: (6×12) + (12×1) + (6×16) = 72 + 12 + 96 = 180 u [3] 
+(ii) Gay Lussac's Law of Combining Volumes: When gases react, they do so in volumes 
+which bear a simple ratio to one another and to the volumes of the products (if 
+gaseous), all measured under the same conditions of temperature and pressure.​
+Example: 2 volumes of hydrogen + 1 volume of oxygen → 2 volumes of water vapor 
+(H₂:O₂:H₂O = 2:1:2) [2] 
+(iii) Number of molecules:​
+(a) 36 g water: Molar mass H₂O = 18 g/mol; Moles = 36/18 = 2 mol; Molecules = 2 × 
+6.022 × 10²³ = 1.2044 × 10²⁴ molecules​
+
+--- PAGE 6 ---
+(b) 11.2 L oxygen at STP: Moles = 11.2/22.4 = 0.5 mol; Molecules = 0.5 × 6.022 × 10²³ = 
+3.011 × 10²³ molecules [2] 
+(iv) Empirical and molecular formula:​
+| Element | % | Atomic mass | Relative moles | Simplest ratio |​
+|---------|---|-------------|----------------|----------------|​
+| C | 92.3 | 12 | 92.3/12 = 7.69 | 7.69/7.69 = 1 |​
+| H | 7.7 | 1 | 7.7/1 = 7.7 | 7.7/7.69 = 1 | 
+text 
+**Empirical formula:** CH 
+**Empirical formula mass:** 12 + 1 = 13 
+**Molecular mass given:** 78 
+**n = Molecular mass / Empirical mass = 78/13 = 6** 
+**Molecular formula:** (CH)₆ = **C₆H₆** (Benzene) `[3]` 
+Question 8 [4+3+3=10] 
+(i) Metallurgy: The process of extracting a metal from its ore and refining it. 
+text 
+**Steps in extraction:** 
+1. **Crushing and grinding** of the ore 
+2. **Concentration (dressing) of the ore:** Removal of gangue by: 
+    - Hydraulic washing (gravity separation) 
+    - Magnetic separation 
+    - Froth flotation process 
+3. **Conversion of concentrated ore to metal oxide:**  
+    - Roasting (for sulphide ores) in presence of air 
+    - Calcination (for carbonate ores) in absence of air 
+4. **Reduction of metal oxide to free metal:** 
+    - Using reducing agents like carbon, CO, or by electrolysis 
+5. **Refining of the metal:** To obtain pure metal (electrorefining) `[4]` 
+(ii) Amphoteric oxides: Oxides that react with both acids and bases to form salt and 
+water.​
+Examples: Aluminium oxide (Al₂O₃), Zinc oxide (ZnO) 
+text 
+**Equations for Al₂O₃:** 
+
+--- PAGE 7 ---
+- With acid: Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O 
+- With base: Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O (Sodium aluminate) 
+ 
+**Equations for ZnO:** 
+- With acid: ZnO + 2HCl → ZnCl₂ + H₂O 
+- With base: ZnO + 2NaOH → Na₂ZnO₂ + H₂O (Sodium zincate) `[3]` 
+(iii) Balanced equations:​
+(a) NaOH with aluminium: 2Al + 2NaOH + 2H₂O → 2NaAlO₂ + 3H₂ (Sodium aluminate)​
+(b) Heat on zinc carbonate: ZnCO₃ → ZnO + CO₂ (on heating)​
+(c) Dil. H₂SO₄ with lead nitrate: Pb(NO₃)₂ + H₂SO₄ → PbSO₄↓ + 2HNO₃ (white precipitate 
+of lead sulphate) [3] 
+ 
+

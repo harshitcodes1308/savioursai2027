@@ -1,0 +1,276 @@
+--- PAGE 1 ---
+ICSE Class X Computer Applications (Paper 1) 
+MOCK SPECIMEN PAPER - 02 (2026) 
+Time Allowed: Two Hours​
+Maximum Marks: 100 
+ 
+Instructions: (Same as Paper 1) 
+ 
+SECTION A (40 Marks) 
+(Attempt all questions from this Section) 
+Question 1​
+Choose the correct answers to the questions from the given options: [20] 
+(i) Which of the following is a principle of Object Oriented Programming?​
+(a) Compilation​
+(b) Inheritance​
+(c) Execution​
+(d) Debugging 
+(ii) JVM stands for:​
+(a) Java Virtual Machine​
+(b) Java Variable Method​
+(c) Java Verified Module​
+(d) Java Version Manager 
+(iii) What is the size of the int data type in Java?​
+(a) 1 byte​
+(b) 2 bytes​
+(c) 4 bytes​
+(d) 8 bytes 
+
+--- PAGE 2 ---
+(iv) Which operator is used to allocate memory for an object?​
+(a) new​
+(b) alloc​
+(c) malloc​
+(d) create 
+(v) Which of the following is not a valid Java keyword?​
+(a) class​
+(b) public​
+(c) String​
+(d) static 
+(vi) What will be the output of System.out.println(Math.floor(5.7) + 
+Math.ceil(2.3))?​
+(a) 7.0​
+(b) 8.0​
+(c) 8​
+(d) 7 
+(vii) Which method returns the length of a String?​
+(a) length​
+(b) size()​
+(c) length()​
+(d) getLength() 
+(viii) Which of the following is used to exit from a switch statement?​
+(a) exit​
+(b) return​
+(c) break​
+(d) stop 
+(ix) Consider the array: int num[] = new int[10]; What is the index of the first 
+element?​
+(a) 1​
+(b) 0​
+(c) -1​
+(d) 10 
+(x) Which loop is best suited when the number of iterations is known in advance?​
+(a) for loop​
+
+--- PAGE 3 ---
+(b) while loop​
+(c) do-while loop​
+(d) All loops 
+(xi) A double dimensional array is declared as int M[3][4]; How many elements does 
+it have?​
+(a) 7​
+(b) 12​
+(c) 3​
+(d) 4 
+(xii) Which method prototype correctly defines a method that accepts a String and 
+returns its length?​
+(a) void length(String s)​
+(b) int length(String s)​
+(c) String length(String s)​
+(d) length(String s) 
+(xiii) The statement that skips the current iteration and moves to the next iteration of a 
+loop is:​
+(a) break​
+(b) continue​
+(c) skip​
+(d) next 
+(xiv) What is the default value of an instance variable of type int in Java?​
+(a) 0​
+(b) null​
+(c) undefined​
+(d) 1 
+(xv) Which method checks if a character is a digit?​
+(a) Character.isDigit()​
+(b) Character.digit()​
+(c) isDigit()​
+(d) char.isDigit() 
+(xvi) Assertion (A): The Math class is automatically available in all Java programs.​
+Reason (R): The Math class belongs to the java.lang package.​
+(a) Both A and R are true, and R is the correct explanation of A​
+
+--- PAGE 4 ---
+(b) Both A and R are true, but R is not the correct explanation of A​
+(c) A is true, but R is false​
+(d) A is false, but R is true 
+(xvii) What will be the output of: System.out.println(10 + 20 + "Java")?​
+(a) 30Java​
+(b) Java30​
+(c) 1020Java​
+(d) Compilation Error 
+(xviii) To find the number of characters in a String s, we use:​
+(a) s.length​
+(b) s.length()​
+(c) length(s)​
+(d) s.size() 
+(xix) Which of the following correctly declares and initializes a 2D array with 2 rows and 
+3 columns?​
+(a) int arr = new int[2][3];​
+(b) int arr[][] = new int[2][3];​
+(c) int[][] arr = new int[2,3];​
+(d) int arr[2][3] = new int; 
+(xx) What is the return type of the equalsIgnoreCase() method in the String class?​
+(a) int​
+(b) boolean​
+(c) char​
+(d) String 
+Question 2​
+Answer the following questions: [20] 
+(i) Rewrite the following code using a ternary operator:​
+java if (num % 2 == 0) result = "Even"; else result = "Odd"; [2] 
+(ii) Evaluate the expression when x = 3 and y = 4:​
+java int z = ++x * y-- - x++ + --y; System.out.println("x = " + x); 
+System.out.println("y = " + y); System.out.println("z = " + z);[2] 
+(iii) Identify the error in the following code and correct it:​
+java for (int i = 1; i <= 5; i++); { System.out.println(i); } [2] 
+
+--- PAGE 5 ---
+(iv) Write the Java expression for: [2]​
+(a³ + b³) / (a - b) 
+(v) How many times will the following loop execute? What is the output?​
+java for (int i = 1; i <= 3; i++) { for (int j = 1; j <= i; j++) { 
+System.out.print("*"); } System.out.println(); }[2] 
+(vi) Write the output of the following String methods:​
+java String s1 = "Hello"; String s2 = "World"; 
+System.out.println(s1.concat(s2)); System.out.println(s2.indexOf('r'));[2] 
+(vii) Predict the output:​
+java int a = 10; int b = 20; System.out.println("Sum = " + a + b); 
+System.out.println("Sum = " + (a + b));[2] 
+(viii) The following code has an error. Identify the type of error (syntax/logical/runtime) 
+and correct it:​
+java Scanner sc = new Scanner(System.in); System.out.println("Enter your 
+age: "); int age = sc.nextInt(); if (age >= 18) System.out.println("You 
+are eligible to vote.") else System.out.println("You are not eligible to 
+vote.");[2] 
+(ix) Consider the following class and answer the questions:​
+```java​
+class Rectangle {​
+int length;​
+int breadth; 
+text 
+   Rectangle() { 
+        length = 0; 
+        breadth = 0; 
+    } 
+     
+    Rectangle(int l, int b) { 
+        length = l; 
+        breadth = b; 
+    } 
+     
+    int area() { 
+        return length * breadth; 
+
+--- PAGE 6 ---
+    } 
+} 
+``` 
+(a) Name the types of constructors used. 
+(b) What is the return type of the `area()` method? `[2]` 
+(x) Given the 2D array: int A[][] = {{2,4,6}, {8,10,12}, {14,16,18}};​
+(a) What is the value of A[1][2]?​
+(b) What is the result of A[0][0] + A[2][2]? [2] 
+ 
+SECTION B (60 Marks) 
+(Answer any four questions from this Section) 
+ 
+Question 3​
+Define a class named StudentMarks with the following specifications: [15] 
+Class name: StudentMarks 
+Member variables: 
+●​ String name - Name of the student 
+●​ int roll - Roll number 
+●​ int[] marks - Array to store marks in 5 subjects 
+Member methods: 
+●​ void accept() - Accept name, roll, and marks for 5 subjects. 
+●​ double calculateAverage() - Calculate and return the average marks. 
+●​ char getGrade() - Assign grade based on average: 
+○​ Average ≥ 90 → 'A' 
+○​ Average ≥ 75 → 'B' 
+○​ Average ≥ 60 → 'C' 
+○​ Average ≥ 40 → 'D' 
+○​ Below 40 → 'F' 
+●​ void display() - Display all student details along with average and grade. 
+
+--- PAGE 7 ---
+Write the main() method to create an object, call the methods, and display the result. 
+ 
+Question 4​
+Define a class named ArrayOperations with the following specifications: [15] 
+Class name: ArrayOperations 
+Member variables: 
+●​ int[] arr - to store 8 integers 
+Member methods: 
+●​ void accept() - Accept 8 integers into the array using Scanner. 
+●​ void selectionSort() - Sort the array in ascending order using Selection Sort 
+technique. 
+●​ int linearSearch(int key) - Search for the given key using Linear Search. 
+Return the index if found, otherwise return -1. 
+●​ void display() - Display the sorted array. 
+Write the main() method to create an object, accept the array, sort it, accept a key to 
+search, and display the result. 
+ 
+Question 5​
+Define a class named WordProcessor with the following specifications: [15] 
+Class name: WordProcessor 
+Member variables: 
+●​ String sentence 
+Member methods: 
+●​ void accept() - Accept a sentence from the user. 
+●​ int countWords() - Count and return the number of words in the sentence. 
+●​ String extractVowels() - Extract all vowels from the sentence and return as a 
+String. 
+
+--- PAGE 8 ---
+●​ void display() - Display the original sentence, word count, and extracted 
+vowels. 
+Write the main() method to create an object and perform the operations. 
+ 
+Question 6​
+Define a class named DiagonalSum with the following specifications: [15] 
+Class name: DiagonalSum 
+Member variables: 
+●​ int[][] mat - a 4×4 matrix 
+Member methods: 
+●​ void accept() - Accept 16 integers into the matrix using nested loops. 
+●​ int leftDiagonal() - Calculate and return the sum of the left diagonal elements 
+(top-left to bottom-right). 
+●​ int rightDiagonal() - Calculate and return the sum of the right diagonal 
+elements (top-right to bottom-left). 
+●​ void display() - Display the matrix in proper 4×4 format and display both 
+diagonal sums. 
+Write the main() method to create an object, accept the matrix, and display the results. 
+ 
+Question 7​
+Define a class named SpecialNumber with the following specifications: [15] 
+Class name: SpecialNumber 
+Member methods: 
+●​ boolean isArmstrong(int n) - Check if a number is an Armstrong number (sum 
+of cubes of digits equals the number itself) and return true/false. 
+●​ boolean isPerfect(int n) - Check if a number is a Perfect number (sum of its 
+proper divisors equals the number itself) and return true/false. 
+●​ int factorial(int n) - Calculate and return the factorial of n. 
+●​ void display(int n) - Display the number and all the results. 
+
+--- PAGE 9 ---
+Write the main() method to accept an integer and call the display method. 
+ 
+Question 8​
+Define a class named OverloadCalc to overload the method compute() as follows: [15] 
+(i) void compute(int a, int b) - Display the sum of squares of a and b: a² + b² 
+(ii) void compute(double r) - Display the area of a circle with radius r: πr² (use π = 
+3.14) 
+(iii) void compute(int n) - Display the factorial of n. 
+Write the main() method to demonstrate all three overloaded methods. 
+ 
+ 
+

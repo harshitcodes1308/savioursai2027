@@ -1,0 +1,200 @@
+--- PAGE 1 ---
+Mock Specimen Paper 1 
+SCIENCE (52)​
+PHYSICS​
+SCIENCE Paper - 1 
+Class X​
+Time: Two Hours​
+Maximum Marks: 80 
+Instructions: 
+1.​ Answers to this Paper must be written on the paper provided separately. 
+2.​ You will not be allowed to write during the first 15 minutes. 
+3.​ This time is to be spent in reading the question paper. 
+4.​ The time given at the head of this Paper is the time allowed for writing the 
+answers. 
+5.​ Section A is compulsory. Attempt any four questions from Section B. 
+6.​ The intended marks for questions or parts of questions are given in brackets [ ]. 
+ 
+SECTION A (40 Marks)​
+(Attempt all questions from this Section.) 
+Question 1​
+Choose the correct answers to the questions from the given options. (Do not copy the 
+question, write the correct answers only.) 
+(i) A boy is rotating a stone tied to a string in a horizontal circle. The force that keeps the 
+stone in its circular path is:​
+(a) Centrifugal force​
+(b) Gravitational force​
+(c) Centripetal force​
+(d) Frictional force 
+(ii) Which of the following is a vector quantity?​
+(a) Mass​
+(b) Distance​
+
+--- PAGE 2 ---
+(c) Speed​
+(d) Velocity 
+(iii) The correct relationship between mechanical advantage (M.A.), velocity ratio (V.R.), 
+and efficiency (η) is:​
+(a) M.A. = V.R. × η​
+(b) η = M.A. × V.R.​
+(c) V.R. = M.A. × η​
+(d) M.A. = η / V.R. 
+(iv) If a ray of light passes from kerosene to air, it bends:​
+(a) towards the normal​
+(b) away from the normal​
+(c) perpendicular to the normal​
+(d) along the normal 
+(v) The unit of specific latent heat of fusion is:​
+(a) J kg⁻¹​
+(b) J kg⁻¹ °C⁻¹​
+(c) J​
+(d) J °C⁻¹ 
+(vi) In a step-up transformer, the number of turns in the secondary coil is:​
+(a) equal to the primary coil​
+(b) less than the primary coil​
+(c) greater than the primary coil​
+(d) zero 
+(vii) The colour of the live wire in a household electrical circuit, as per the new 
+international convention, is:​
+(a) Red​
+(b) Black​
+(c) Green​
+(d) Brown 
+(viii) An α-particle consists of:​
+(a) 2 protons and 2 neutrons​
+(b) 1 proton and 1 neutron​
+(c) 2 protons and 2 electrons​
+(d) 2 electrons and 2 neutrons 
+
+--- PAGE 3 ---
+(ix) The phenomenon of splitting of white light into its component colours by a prism is 
+called:​
+(a) Reflection​
+(b) Refraction​
+(c) Dispersion​
+(d) Diffraction 
+(x) In a concave mirror, the image is formed at infinity. The object should be placed:​
+(a) At the centre of curvature​
+(b) At the focus​
+(c) Between pole and focus​
+(d) Beyond the centre of curvature 
+(xi) Which of the following radiations has the highest penetrating power?​
+(a) Alpha​
+(b) Beta​
+(c) Gamma​
+(d) Ultraviolet 
+(xii) For a body moving with a constant speed in a uniform circular motion, the work 
+done by the centripetal force is:​
+(a) Positive​
+(b) Negative​
+(c) Zero​
+(d) Maximum 
+(xiii) The resistance of a conductor does not depend on:​
+(a) its length​
+(b) its area of cross-section​
+(c) its temperature​
+(d) the potential difference across its ends 
+(xiv) When a stone is dropped from a height, its total mechanical energy (neglecting air 
+resistance):​
+(a) increases​
+(b) decreases​
+(c) remains constant​
+(d) first increases then decreases 
+
+--- PAGE 4 ---
+(xv) The specific heat capacity of a substance is the highest for:​
+(a) Copper​
+(b) Iron​
+(c) Lead​
+(d) Water 
+Question 2​
+(i) Complete the following by choosing the correct answers from the bracket:​
+(a) The value of the acceleration due to gravity (g) is ________ (maximum/minimum) at 
+the poles.​
+(b) In a hydraulic lift, the principle of ________ (Pascal's law / Archimedes' principle) is 
+used.​
+(c) The phenomenon of________ (total internal reflection / refraction) is responsible for 
+the working of an optical fibre.​
+(d) The power of a lens is +2.5 D. The lens is ________ (convex/concave).​
+(e) The S.I. unit of electrical power is ________ (watt / kilowatt-hour).​
+(f) In a nuclear reactor, the chain reaction is controlled by using ________ (graphite rods / 
+cadmium rods). 
+(ii) Match the type of lever in Column A with its example in Column B. 
+Column A (Type of Lever) 
+Column B (Example) 
+(a) Class I lever 
+• A nutcracker 
+(b) Class II lever 
+• A see-saw 
+(c) Class III lever 
+• A pair of tweezers 
+(iii) (a) Name the wave used in sonar to detect submarines.​
+(b) State one reason why this wave is used for this purpose. 
+ 
+SECTION B (40 Marks)​
+(Attempt any four questions from this Section.) 
+Question 3​
+(i) A convex lens of focal length 15 cm is used to form a real, inverted image of the 
+same size as the object.​
+
+--- PAGE 5 ---
+(a) At what distance should the object be placed from the lens?​
+(b) What will be the magnification produced in this case? 
+(ii) A geyser of 2.4 kW is used for 30 minutes every day. Calculate the:​
+(a) Electrical energy consumed in kWh per day.​
+(b) Cost of running it for the month of April (30 days) if the rate per unit is ₹5.00. 
+(iii) (a) State the principle of conservation of energy.​
+(b) A ball of mass 0.5 kg is thrown vertically upwards with an initial velocity of 20 m/s. 
+Calculate its kinetic energy at the moment of throwing. (g = 10 m/s²) 
+Question 4​
+(i) (a) Define specific latent heat of fusion.​
+(b) Calculate the amount of heat required to convert 50 g of ice at 0°C to water at 0°C. 
+(Specific latent heat of ice = 336 J/g) 
+(ii) The diagram shows a ray of light entering a rectangular glass block.​
+(a) Copy the diagram and complete the path of the ray until it emerges into the air.​
+(b) Label the lateral displacement on your diagram.​
+(c) State two factors on which the lateral displacement depends. 
+(iii) (a) Why is the sky appearing dark to an astronaut in space?​
+(b) Name the part of the electromagnetic spectrum that is used for:​
+(1) Remote control of a TV.​
+(2) Sterilizing surgical instruments. 
+Question 5​
+(i) Three resistors of 2Ω, 3Ω, and 6Ω are connected in parallel. This combination is then 
+connected in series with a 2Ω resistor and a 6V battery.​
+(a) Draw the circuit diagram.​
+(b) Calculate the total resistance of the circuit.​
+(c) Find the current drawn from the battery. 
+(ii) (a) What is a centre of gravity of a body?​
+(b) A uniform metre scale is balanced at the 40 cm mark, when a weight of 50 gf is 
+suspended at the 10 cm mark. Calculate the weight of the metre scale. 
+(iii) (a) Distinguish between nuclear fission and nuclear fusion.​
+(b) Name the type of nuclear reaction that takes place in the sun. 
+
+--- PAGE 6 ---
+Question 6​
+(i) (a) State Ohm's Law.​
+(b) In an experiment to verify Ohm's Law, the following V-I graph was plotted. What does 
+the slope of the line represent? 
+(A description of a graph with Voltage (V) on y-axis and Current (I) on x-axis, showing a 
+straight line passing through the origin.) 
+(c) Name two factors on which the resistance of a metallic wire depends. 
+(ii) (a) Explain the term 'resonance' with reference to sound.​
+(b) A soldier marching on a bridge sometimes breaks his steps. Why? 
+(iii) (a) Name the radiation which has the least mass among alpha, beta, and gamma.​
+(b) In a β- decay, a neutron in the nucleus converts into a proton. What are the other 
+particles emitted during this process?​
+(c) State one safety precaution against harmful radiation from a radioactive source. 
+Question 7​
+(i) (a) Define power.​
+(b) A pump lifts 500 kg of water per minute from a well 20 m deep and ejects it at a 
+speed of 10 m/s. Calculate the power of the pump. (g = 10 m/s²) 
+(ii) (a) State the laws of refraction of light.​
+(b) The refractive index of diamond is 2.42. What is the speed of light in diamond? 
+(Speed of light in air = 3 x 10⁸ m/s) 
+(iii) (a) What is an electromagnet?​
+(b) State two advantages of an electromagnet over a permanent magnet.​
+(c) Name the rule used to determine the direction of the magnetic field produced by a 
+straight current-carrying conductor. 
+ 
+ 
+

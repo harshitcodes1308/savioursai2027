@@ -1,0 +1,610 @@
+--- PAGE 1 ---
+ANSWER KEY (PAPER 1) 
+ 
+SECTION A (40 Marks) 
+Question 1 [20x1=20] 
+Q. No. 
+Answer 
+Q. No. 
+Answer 
+(i) 
+(c) Compilation 
+(xi) 
+(a) 24 
+(ii) 
+(b) Platform 
+Independent 
+(xii) 
+(c) int product(int a, 
+int b) 
+(iii) 
+(b) 2 bytes 
+(xiii) 
+(c) break 
+(iv) 
+(c) * (multiplication) 
+(xiv) 
+(d) No default value; 
+must be initialized 
+(v) 
+(b) float 
+(xv) 
+(a) 
+Character.toUpperCase
+() 
+(vi) 
+(b) -1.0 
+(xvi) 
+(a) Both A and R true, R 
+explains A 
+(vii) 
+(c) toUpperCase() 
+(xvii) 
+(b) Java1020 
+(viii) 
+(d) float 
+(xviii) 
+(c) arr.length 
+(ix) 
+(b) 20 
+(xix) 
+(b) int[][] arr = new 
+int[3][4]; 
+(x) 
+(c) do-while loop 
+(xx) 
+(b) int 
+Question 2 [2x10=20] 
+
+--- PAGE 2 ---
+(i) Corrected code:​
+java if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') 
+System.out.println("Vowel"); else System.out.println("Not a vowel");[2] 
+(ii) Evaluation:​
+- Step-by-step: a=5, b=2​
+- a++ uses 5 then increments a to 6​
+- ++b increments b to 3 then uses 3​
+- a-- uses 6 then decrements a to 5​
+- b++ uses 3 then increments b to 4​
+- result = 5 + 3 - 6 + 3 = 5​
+- Output:​
+a = 5 b = 4 result = 5 [2] 
+(iii) Error: Missing braces {} for the if block.​
+Corrected code:​
+java int marks = 75; if (marks >= 75) { System.out.println("PASS"); 
+System.out.println("Congratulations!"); } else { 
+System.out.println("FAIL"); }[2] 
+(iv) Java expression:​
+java Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)) / (a + b)​
+Or​
+java Math.sqrt(a*a + b*b) / (a + b) [2] 
+(v) Loop execution:​
+- Iteration 1: x=5 → print 5, x becomes 7​
+- Iteration 2: x=7 → print 7, x becomes 9​
+- Iteration 3: x=9 → print 9, x becomes 11​
+- Condition x < 10 becomes false (11 < 10 false)​
+- Output: 5 7 9 ​
+- Number of times: 3 [2] 
+(vi) Output:​
+- str1.charAt(3) → character at index 3 in "PROGRAM" is 'G'​
+- str1.compareTo(str2) compares "PROGRAM" with "PROJECT"​
+- 'G' vs 'J': 'G' (71) - 'J' (74) = -3​
+- Output:​
+G -3 [2] 
+
+--- PAGE 3 ---
+(vii) Output:​
+- ch = 'D' → ASCII value 68​
+- n = 68 - 65 + 5 = 8​
+- (char)n → ASCII 8 is non-printable (backspace)​
+- Output: (nothing visible, but technically it's a backspace character)​
+Actually, ASCII 8 is not a visible character, so nothing prints.​
+If we want to see it, it would be invisible. [2] 
+(viii) Error: No error in this code. It will compile and run correctly.​
+- Integer.parseInt(num) converts "100" to int 100​
+- Math.sqrt(100) = 10.0​
+- Output: Square root is 10.0​
+- Type: No error [2] 
+(ix) (a) Constructor types: Default constructor (no parameters) and Parameterized 
+constructor.​
+(b) Number of constructors: 2 [2] 
+(x) Given int X[][] = {{1,2,3}, {4,5,6}, {7,8,9}};​
+(a) X[2][1] → row 2, column 1 = 8​
+(b) X[0][2] + X[1][1] = 3 + 5 = 8 [2] 
+ 
+SECTION B (60 Marks) 
+Question 3: ElectricityBill [15] 
+java 
+import java.util.Scanner; 
+ 
+class ElectricityBill { 
+    String consumerNo; 
+    String consumerName; 
+    int prevReading; 
+    int currReading; 
+    double amount; 
+     
+    void inputData() { 
+        Scanner sc = new Scanner(System.in); 
+
+--- PAGE 4 ---
+        System.out.print("Enter Consumer Number: "); 
+        consumerNo = sc.nextLine(); 
+        System.out.print("Enter Consumer Name: "); 
+        consumerName = sc.nextLine(); 
+        System.out.print("Enter Previous Reading: "); 
+        prevReading = sc.nextInt(); 
+        System.out.print("Enter Current Reading: "); 
+        currReading = sc.nextInt(); 
+    } 
+     
+    void calculate() { 
+        int units = currReading - prevReading; 
+        if (units <= 100) 
+            amount = units * 2.50; 
+        else if (units <= 300) 
+            amount = 100 * 2.50 + (units - 100) * 3.50; 
+        else 
+            amount = 100 * 2.50 + 200 * 3.50 + (units - 300) * 5.00; 
+    } 
+     
+    void display() { 
+        System.out.println("\n--- ELECTRICITY BILL ---"); 
+        System.out.println("Consumer Number: " + consumerNo); 
+        System.out.println("Consumer Name: " + consumerName); 
+        System.out.println("Previous Reading: " + prevReading); 
+        System.out.println("Current Reading: " + currReading); 
+        System.out.println("Units Consumed: " + (currReading - prevReading)); 
+        System.out.println("Total Amount: ₹" + amount); 
+    } 
+     
+    public static void main(String[] args) { 
+        ElectricityBill bill = new ElectricityBill(); 
+        bill.inputData(); 
+        bill.calculate(); 
+        bill.display(); 
+    } 
+} 
+
+--- PAGE 5 ---
+Variable Description Table: 
+Variable Name 
+Data Type 
+Purpose 
+consumerNo 
+String 
+Stores consumer number 
+consumerName 
+String 
+Stores consumer name 
+prevReading 
+int 
+Previous month's meter reading 
+currReading 
+int 
+Current month's meter reading 
+amount 
+double 
+Calculated bill amount 
+units 
+int 
+Units consumed (local variable) 
+sc 
+Scanner 
+Scanner object for input 
+ 
+Question 4: ArraySearch [15] 
+java 
+import java.util.Scanner; 
+ 
+class ArraySearch { 
+    int[] arr = new int[10]; 
+     
+    void accept() { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.println("Enter 10 integers:"); 
+        for (int i = 0; i < 10; i++) { 
+            arr[i] = sc.nextInt(); 
+        } 
+    } 
+     
+    void bubbleSort() { 
+        int temp; 
+        for (int i = 0; i < 9; i++) { 
+            for (int j = 0; j < 9 - i; j++) { 
+
+--- PAGE 6 ---
+                if (arr[j] > arr[j + 1]) { 
+                    temp = arr[j]; 
+                    arr[j] = arr[j + 1]; 
+                    arr[j + 1] = temp; 
+                } 
+            } 
+        } 
+    } 
+     
+    int binarySearch(int key) { 
+        int low = 0, high = 9; 
+        while (low <= high) { 
+            int mid = (low + high) / 2; 
+            if (arr[mid] == key) 
+                return mid; 
+            else if (arr[mid] < key) 
+                low = mid + 1; 
+            else 
+                high = mid - 1; 
+        } 
+        return -1; 
+    } 
+     
+    void display() { 
+        System.out.println("Sorted Array:"); 
+        for (int i = 0; i < 10; i++) { 
+            System.out.print(arr[i] + " "); 
+        } 
+        System.out.println(); 
+    } 
+     
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        ArraySearch obj = new ArraySearch(); 
+         
+        obj.accept(); 
+        obj.bubbleSort(); 
+        obj.display(); 
+         
+
+--- PAGE 7 ---
+        System.out.print("Enter number to search: "); 
+        int key = sc.nextInt(); 
+         
+        int result = obj.binarySearch(key); 
+        if (result != -1) 
+            System.out.println("Element found at index: " + result); 
+        else 
+            System.out.println("Element not found."); 
+    } 
+} 
+Variable Description Table: 
+Variable Name 
+Data Type 
+Purpose 
+arr[] 
+int 
+Array to store 10 integers 
+i, j 
+int 
+Loop counters 
+temp 
+int 
+Temporary variable for swapping 
+low 
+int 
+Lower bound for binary search 
+high 
+int 
+Upper bound for binary search 
+mid 
+int 
+Middle index for binary search 
+key 
+int 
+Element to search for 
+result 
+int 
+Result of binary search 
+ 
+Question 5: StringManipulation [15] 
+java 
+import java.util.Scanner; 
+ 
+class StringManipulation { 
+
+--- PAGE 8 ---
+    String str; 
+     
+    void accept() { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.print("Enter a string: "); 
+        str = sc.nextLine(); 
+    } 
+     
+    String convertCase() { 
+        String result = ""; 
+        for (int i = 0; i < str.length(); i++) { 
+            char ch = str.charAt(i); 
+            if (Character.isUpperCase(ch)) 
+                result += Character.toLowerCase(ch); 
+            else if (Character.isLowerCase(ch)) 
+                result += Character.toUpperCase(ch); 
+            else 
+                result += ch; 
+        } 
+        return result; 
+    } 
+     
+    int countVowels() { 
+        int count = 0; 
+        String s = str.toLowerCase(); 
+        for (int i = 0; i < s.length(); i++) { 
+            char ch = s.charAt(i); 
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') 
+                count++; 
+        } 
+        return count; 
+    } 
+     
+    void display() { 
+        System.out.println("\n--- STRING MANIPULATION ---"); 
+        System.out.println("Original String: " + str); 
+        System.out.println("Case Converted: " + convertCase()); 
+        System.out.println("Number of Vowels: " + countVowels()); 
+    } 
+
+--- PAGE 9 ---
+     
+    public static void main(String[] args) { 
+        StringManipulation obj = new StringManipulation(); 
+        obj.accept(); 
+        obj.display(); 
+    } 
+} 
+Variable Description Table: 
+Variable Name 
+Data Type 
+Purpose 
+str 
+String 
+Stores the input string 
+result 
+String 
+Stores the case-converted string 
+ch 
+char 
+Current character being processed 
+count 
+int 
+Count of vowels 
+s 
+String 
+Lowercase version of input string 
+i 
+int 
+Loop counter 
+ 
+Question 6: MatrixSum [15] 
+java 
+import java.util.Scanner; 
+ 
+class MatrixSum { 
+    int[][] mat = new int[3][3]; 
+     
+    void accept() { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.println("Enter 9 elements for 3x3 matrix:"); 
+        for (int i = 0; i < 3; i++) { 
+            for (int j = 0; j < 3; j++) { 
+
+--- PAGE 10 ---
+                mat[i][j] = sc.nextInt(); 
+            } 
+        } 
+    } 
+     
+    int sumOfRows() { 
+        int total = 0; 
+        for (int i = 0; i < 3; i++) { 
+            for (int j = 0; j < 3; j++) { 
+                total += mat[i][j]; 
+            } 
+        } 
+        return total; 
+    } 
+     
+    void rowWiseSum() { 
+        for (int i = 0; i < 3; i++) { 
+            int rowSum = 0; 
+            for (int j = 0; j < 3; j++) { 
+                rowSum += mat[i][j]; 
+            } 
+            System.out.println("Sum of Row " + (i + 1) + " = " + rowSum); 
+        } 
+    } 
+     
+    void display() { 
+        System.out.println("\nMatrix:"); 
+        for (int i = 0; i < 3; i++) { 
+            for (int j = 0; j < 3; j++) { 
+                System.out.print(mat[i][j] + "\t"); 
+            } 
+            System.out.println(); 
+        } 
+    } 
+     
+    public static void main(String[] args) { 
+        MatrixSum obj = new MatrixSum(); 
+        obj.accept(); 
+        obj.display(); 
+
+--- PAGE 11 ---
+        obj.rowWiseSum(); 
+        System.out.println("Total Sum of all elements: " + obj.sumOfRows()); 
+    } 
+} 
+Variable Description Table: 
+Variable Name 
+Data Type 
+Purpose 
+mat[][] 
+int 
+3×3 matrix 
+i, j 
+int 
+Loop counters 
+total 
+int 
+Total sum of all elements 
+rowSum 
+int 
+Sum of current row 
+ 
+Question 7: NumberCheck [15] 
+java 
+import java.util.Scanner; 
+ 
+class NumberCheck { 
+     
+    boolean isPrime(int n) { 
+        if (n <= 1) 
+            return false; 
+        for (int i = 2; i <= n/2; i++) { 
+            if (n % i == 0) 
+                return false; 
+        } 
+        return true; 
+    } 
+     
+    boolean isPalindrome(int n) { 
+        int original = n; 
+        int rev = 0; 
+
+--- PAGE 12 ---
+        while (n > 0) { 
+            int digit = n % 10; 
+            rev = rev * 10 + digit; 
+            n = n / 10; 
+        } 
+        return original == rev; 
+    } 
+     
+    int sumOfDigits(int n) { 
+        int sum = 0; 
+        while (n > 0) { 
+            sum += n % 10; 
+            n = n / 10; 
+        } 
+        return sum; 
+    } 
+     
+    void display(int n) { 
+        System.out.println("\n--- NUMBER ANALYSIS ---"); 
+        System.out.println("Number: " + n); 
+        System.out.println("Prime: " + (isPrime(n) ? "Yes" : "No")); 
+        System.out.println("Palindrome: " + (isPalindrome(n) ? "Yes" : "No")); 
+        System.out.println("Sum of Digits: " + sumOfDigits(n)); 
+    } 
+     
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        NumberCheck obj = new NumberCheck(); 
+         
+        System.out.print("Enter a number: "); 
+        int num = sc.nextInt(); 
+         
+        obj.display(num); 
+    } 
+} 
+Variable Description Table: 
+
+--- PAGE 13 ---
+Variable Name 
+Data Type 
+Purpose 
+n 
+int 
+Number to check 
+i 
+int 
+Loop counter 
+original 
+int 
+Original number (for palindrome) 
+rev 
+int 
+Reversed number 
+digit 
+int 
+Current digit extracted 
+sum 
+int 
+Sum of digits 
+num 
+int 
+Input number in main 
+ 
+Question 8: Overload [15] 
+java 
+import java.util.Scanner; 
+ 
+class Overload { 
+     
+    void series(int x, int n) { 
+        int sum = 0; 
+        for (int i = 1; i <= n; i++) { 
+            sum += Math.pow(x, i); 
+        } 
+        System.out.println("Sum of series x + x² + ... + xⁿ = " + sum); 
+    } 
+     
+    void series(int p) { 
+        System.out.println("\nPattern for " + p + " rows:"); 
+        for (int i = 1; i <= p; i++) { 
+            for (int j = 1; j <= i; j++) { 
+                System.out.print(i + " "); 
+            } 
+
+--- PAGE 14 ---
+            System.out.println(); 
+        } 
+    } 
+     
+    void series() { 
+        int sum = 0; 
+        for (int i = 1; i <= 10; i++) { 
+            for (int j = 1; j <= i; j++) { 
+                sum += j; 
+            } 
+        } 
+        System.out.println("Sum of series (1) + (1+2) + ... + (1+2+...+10) = " + sum); 
+    } 
+     
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        Overload obj = new Overload(); 
+         
+        System.out.print("Enter x and n for series(x,n): "); 
+        int x = sc.nextInt(); 
+        int n = sc.nextInt(); 
+        obj.series(x, n); 
+         
+        System.out.print("\nEnter p for pattern: "); 
+        int p = sc.nextInt(); 
+        obj.series(p); 
+         
+        System.out.println(); 
+        obj.series(); 
+    } 
+} 
+Variable Description Table: 
+Variable Name 
+Data Type 
+Purpose 
+x 
+int 
+Base value for power series 
+
+--- PAGE 15 ---
+n 
+int 
+Number of terms in power series 
+p 
+int 
+Number of rows for pattern 
+i, j 
+int 
+Loop counters 
+sum 
+int 
+Sum of series 
+ 
+

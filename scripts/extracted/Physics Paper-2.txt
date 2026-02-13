@@ -1,0 +1,214 @@
+--- PAGE 1 ---
+Mock Specimen Paper 2 
+SCIENCE (52)​
+PHYSICS​
+SCIENCE Paper - 1 
+Class X​
+Time: Two Hours​
+Maximum Marks: 80 
+Instructions: 
+1.​ Answers to this Paper must be written on the paper provided separately. 
+2.​ You will not be allowed to write during the first 15 minutes. 
+3.​ This time is to be spent in reading the question paper. 
+4.​ The time given at the head of this Paper is the time allowed for writing the 
+answers. 
+5.​ Section A is compulsory. Attempt any four questions from Section B. 
+6.​ The intended marks for questions or parts of questions are given in brackets [ ]. 
+ 
+SECTION A (40 Marks)​
+(Attempt all questions from this Section.) 
+Question 1​
+Choose the correct answers to the questions from the given options. (Do not copy the 
+question, write the correct answers only.) 
+(i) A couple produces a:​
+(a) Translatory motion​
+(b) Rotatory motion​
+(c) Vibratory motion​
+(d) Oscillatory motion 
+(ii) Which of the following is a non-renewable source of energy?​
+(a) Wind​
+(b) Natural gas​
+(c) Solar​
+(d) Tidal 
+
+--- PAGE 2 ---
+(iii) The S.I. unit of power is:​
+(a) Joule​
+(b) Newton​
+(c) Watt​
+(d) Pascal 
+(iv) The phenomenon of splitting of light into its constituent colours is called:​
+(a) Reflection​
+(b) Refraction​
+(c) Dispersion​
+(d) Diffraction 
+(v) The critical angle is maximum for:​
+(a) Glass​
+(b) Water​
+(c) Diamond​
+(d) Kerosene 
+(vi) The device used to measure the potential difference between two points in a circuit 
+is called a:​
+(a) Ammeter​
+(b) Voltmeter​
+(c) Galvanometer​
+(d) Rheostat 
+(vii) In an AC generator, the current in the coil is reversed by the:​
+(a) Slip rings​
+(b) Brushes​
+(c) Split rings​
+(d) Armature 
+(viii) The fundamental frequency of a sound wave is 200 Hz. What is its time period?​
+(a) 200 s​
+(b) 0.5 s​
+(c) 0.05 s​
+(d) 0.005 s 
+(ix) Which of the following has the highest specific heat capacity?​
+(a) Iron​
+(b) Mercury​
+
+--- PAGE 3 ---
+(c) Water​
+(d) Alcohol 
+(x) In a step-down transformer, the output voltage is:​
+(a) Greater than the input voltage​
+(b) Equal to the input voltage​
+(c) Less than the input voltage​
+(d) Zero 
+(xi) The force acting on a unit positive test charge placed at a point in an electric field is 
+called:​
+(a) Electric current​
+(b) Electric potential​
+(c) Electric power​
+(d) Electric field intensity 
+(xii) A 100 g iron ball at 90°C is dropped into 100 g of water at 20°C. The final 
+temperature will be:​
+(a) 55°C​
+(b) less than 55°C​
+(c) more than 55°C​
+(d) 70°C 
+(xiii) The unit of radioactivity is:​
+(a) Roentgen​
+(b) Curie​
+(c) Rutherford​
+(d) All of these 
+(xiv) A concave lens always forms an image which is:​
+(a) Real and inverted​
+(b) Virtual and erect​
+(c) Real and erect​
+(d) Virtual and inverted 
+(xv) For a body starting from rest, the kinetic energy is:​
+(a) directly proportional to the velocity​
+(b) directly proportional to the square of the velocity​
+(c) inversely proportional to the velocity​
+(d) inversely proportional to the square of the velocity 
+
+--- PAGE 4 ---
+Question 2​
+(i) Complete the following by choosing the correct answers from the bracket:​
+(a) The turning effect of force is called its ________ (moment / impulse).​
+(b) The ratio of the mass of a substance to the mass of an equal volume of water at 4°C 
+is its ________ (density / relative density).​
+(c) For a ray of light passing through a prism, the angle through which the emergent ray 
+deviates from the direction of the incident ray is called the angle of ________ (deviation / 
+emergence).​
+(d) In a conductor, the current flows from ________ (higher potential to lower potential / 
+lower potential to higher potential).​
+(e) The temperature at which a liquid boils is called its ________ (melting point / boiling 
+point).​
+(f) The nucleus of an atom consists of ________ (protons and electrons / protons and 
+neutrons). 
+(ii) Match the physical quantity in Column A with its S.I. unit in Column B. 
+Column A (Physical Quantity) 
+Column B (S.I. Unit) 
+(a) Pressure 
+• Newton metre (Nm) 
+(b) Work 
+• Pascal (Pa) 
+(c) Moment of force 
+• Joule (J) 
+(iii) (a) What is the audible range of frequencies for a normal human ear?​
+(b) Name the characteristic of sound that helps us to distinguish between two sounds 
+of the same loudness and pitch. 
+ 
+SECTION B (40 Marks)​
+(Attempt any four questions from this Section.) 
+Question 3​
+(i) (a) State the principle of moments.​
+(b) A metre scale is balanced on a knife edge at its centre. When two coins of mass 5 g 
+each are placed on top of each other at the 10 cm mark, the scale is found to be 
+balanced at the 15 cm mark. Calculate the mass of the metre scale. 
+
+--- PAGE 5 ---
+(ii) (a) What is the power of accommodation of the human eye?​
+(b) Name the type of lens used to correct the defect of:​
+(1) Myopia​
+(2) Hypermetropia 
+(iii) (a) Define specific heat capacity.​
+(b) 200 g of water at 80°C is mixed with 100 g of water at 20°C. Find the final 
+temperature of the mixture, assuming no heat loss to the surroundings. 
+Question 4​
+(i) (a) What is the function of a fuse in an electrical circuit?​
+(b) An electric iron of rating 750 W, 220 V is connected to a 220 V line. Calculate the 
+current drawn by it. What should be the current rating of the fuse to be used with it? 
+(ii) The diagram shows a ray of light incident on a right-angled prism at an angle of 
+incidence of 45°.​
+(Assume the critical angle for the material of the prism is 42°.)​
+(a) Will the ray undergo total internal reflection at the first inner face? Why?​
+(b) Draw the path of the ray through the prism until it emerges into the air. 
+(iii) (a) Define radioactivity.​
+(b) What are the two main types of radiation emitted by a radioactive substance? Name 
+the one with the highest ionizing power. 
+Question 5​
+(i) (a) Write the relation between commercial unit of electrical energy and S.I. unit.​
+(b) Two bulbs A (100 W, 220 V) and B (60 W, 220 V) are connected in series to a 220 V 
+mains. Which bulb will glow brighter? Give a reason for your answer. 
+(ii) (a) State the two factors on which the magnitude of the induced e.m.f. depends in 
+Faraday's experiment.​
+(b) Name and state the rule used to find the direction of induced current. 
+(iii) (a) What is meant by the 'velocity ratio' of a simple machine?​
+(b) For an inclined plane as a simple machine, write the expression for its velocity ratio 
+in terms of the length of the incline (l) and its height (h). 
+Question 6​
+(i) (a) Distinguish between nuclear fission and nuclear fusion.​
+(b) Complete the following nuclear reaction:​
+ 
+
+--- PAGE 6 ---
+92235U+01n⟶56144Ba+_+301n+Energy 
+92 
+235 
+​ 
+U+ 
+0 
+1 
+​ 
+n⟶ 
+56 
+144 
+​ 
+Ba+_+3 
+0 
+1 
+​ 
+n+Energy 
+(ii) (a) A ray of light enters a rectangular glass slab at an angle of 45°. If the refractive 
+index of glass is 1.5, calculate the angle of refraction inside the glass. (Given sin 45° = 
+0.7071)​
+(b) Draw a ray diagram to show the path of a ray of light passing through a rectangular 
+glass slab. Label the angle of incidence, angle of refraction, and angle of emergence. 
+(iii) (a) What is a geostationary satellite?​
+(b) State two uses of artificial satellites. 
+Question 7​
+(i) A wire of resistance 4Ω is bent in the form of a closed circle. What is the resistance 
+between two points at the ends of any diameter of the circle? 
+
+--- PAGE 7 ---
+(ii) (a) What is an echo?​
+(b) A man standing 75 m away from a high wall fires a gun. If the speed of sound in air 
+is 340 m/s, after how much time will he hear the echo? 
+(iii) (a) What is a couple? Give an example.​
+(b) A nut is opened by a spanner of length 20 cm. If the minimum force required is 2 N, 
+find the moment of force needed to loosen the nut. 
+ 
+

@@ -15,6 +15,7 @@ const menuItems = [
     { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy" },
     { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus" },
     { icon: "🚀", label: "10-Day Sprint", href: "/dashboard/sprint" },
+    { icon: "📄", label: "TYQ", href: "/dashboard/tyq" },
     { icon: "📖", label: "Notes", href: "/dashboard/notes" },
     { icon: "👤", label: "Profile", href: "/dashboard/profile" },
     { icon: "📜", label: "Policies", href: "/dashboard/policies" },

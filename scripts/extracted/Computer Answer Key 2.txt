@@ -1,0 +1,442 @@
+--- PAGE 1 ---
+ANSWER KEY (PAPER 2) 
+ 
+SECTION A (40 Marks) 
+Question 1 [20x1=20] 
+Q. No. 
+Answer 
+Q. No. 
+Answer 
+(i) 
+(b) Inheritance 
+(xi) 
+(b) 12 
+(ii) 
+(a) Java Virtual 
+Machine 
+(xii) 
+(b) int length(String 
+s) 
+(iii) 
+(c) 4 bytes 
+(xiii) 
+(b) continue 
+(iv) 
+(a) new 
+(xiv) 
+(a) 0 
+(v) 
+(c) String (String is a 
+class, not a keyword) 
+(xv) 
+(a) 
+Character.isDigit() 
+(vi) 
+(b) 8.0 
+(xvi) 
+(a) Both A and R true, R 
+explains A 
+(vii) 
+(c) length() 
+(xvii) 
+(a) 30Java 
+(viii) 
+(c) break 
+(xviii) 
+(b) s.length() 
+(ix) 
+(b) 0 
+(xix) 
+(b) int arr[][] = new 
+int[2][3]; 
+(x) 
+(a) for loop 
+(xx) 
+(b) boolean 
+Question 2 [2x10=20] 
+
+--- PAGE 2 ---
+(i) Ternary operator:​
+java result = (num % 2 == 0) ? "Even" : "Odd"; [2] 
+(ii) Evaluation:​
+- Initial: x=3, y=4​
+- ++x → x becomes 4, uses 4​
+- y-- uses 4, then y becomes 3​
+- x++ uses 4, then x becomes 5​
+- --y → y becomes 2, uses 2​
+- z = 4 * 4 - 4 + 2 = 16 - 4 + 2 = 14​
+- Output:​
+x = 5 y = 2 z = 14 [2] 
+(iii) Error: Semicolon after the for loop terminates it prematurely. Also, variable i is not 
+accessible outside the loop.​
+Corrected code:​
+java for (int i = 1; i <= 5; i++) { System.out.println(i); } [2] 
+(iv) Java expression:​
+java (Math.pow(a, 3) + Math.pow(b, 3)) / (a - b)​
+Or​
+java (a*a*a + b*b*b) / (a - b) [2] 
+(v) Loop execution:​
+- i=1: j=1 → prints one *​
+- i=2: j=1,2 → prints two *​
+- i=3: j=1,2,3 → prints three *​
+- Output:​
+* ** ***​
+- Number of times inner loop executes: 1+2+3 = 6 times [2] 
+(vi) Output:​
+- s1.concat(s2) → "HelloWorld"​
+- s2.indexOf('r') → index of 'r' in "World" is 2​
+- Output:​
+HelloWorld 2 [2] 
+(vii) Output:​
+- First line: "Sum = " + 10 → "Sum = 10", then + 20 → "Sum = 1020"​
+- Second line: "Sum = " + (10+20) → "Sum = 30"​
+
+--- PAGE 3 ---
+- Output:​
+Sum = 1020 Sum = 30 [2] 
+(viii) Error: Missing semicolon after the first System.out.println() statement (syntax 
+error).​
+Corrected code:​
+java Scanner sc = new Scanner(System.in); System.out.println("Enter your 
+age: "); int age = sc.nextInt(); if (age >= 18) System.out.println("You 
+are eligible to vote."); else System.out.println("You are not eligible to 
+vote.");[2] 
+(ix) (a) Constructor types: Default constructor and Parameterized constructor.​
+(b) Return type of area(): int [2] 
+(x) Given int A[][] = {{2,4,6}, {8,10,12}, {14,16,18}};​
+(a) A[1][2] → row 1, column 2 = 12​
+(b) A[0][0] + A[2][2] = 2 + 18 = 20 [2] 
+ 
+SECTION B (60 Marks) 
+Question 3: StudentMarks [15] 
+java 
+import java.util.Scanner; 
+ 
+class StudentMarks { 
+    String name; 
+    int roll; 
+    int[] marks = new int[5]; 
+     
+    void accept() { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.print("Enter name: "); 
+        name = sc.nextLine(); 
+        System.out.print("Enter roll number: "); 
+        roll = sc.nextInt(); 
+        System.out.println("Enter marks in 5 subjects:"); 
+        for (int i = 0; i < 5; i++) { 
+
+--- PAGE 4 ---
+            marks[i] = sc.nextInt(); 
+        } 
+    } 
+     
+    double calculateAverage() { 
+        int sum = 0; 
+        for (int i = 0; i < 5; i++) { 
+            sum += marks[i]; 
+        } 
+        return sum / 5.0; 
+    } 
+     
+    char getGrade() { 
+        double avg = calculateAverage(); 
+        if (avg >= 90) return 'A'; 
+        else if (avg >= 75) return 'B'; 
+        else if (avg >= 60) return 'C'; 
+        else if (avg >= 40) return 'D'; 
+        else return 'F'; 
+    } 
+     
+    void display() { 
+        System.out.println("\n--- STUDENT REPORT ---"); 
+        System.out.println("Name: " + name); 
+        System.out.println("Roll Number: " + roll); 
+        System.out.print("Marks: "); 
+        for (int i = 0; i < 5; i++) { 
+            System.out.print(marks[i] + " "); 
+        } 
+        System.out.println(); 
+        System.out.println("Average: " + calculateAverage()); 
+        System.out.println("Grade: " + getGrade()); 
+    } 
+     
+    public static void main(String[] args) { 
+        StudentMarks obj = new StudentMarks(); 
+        obj.accept(); 
+        obj.display(); 
+    } 
+
+--- PAGE 5 ---
+} 
+ 
+Question 4: ArrayOperations [15] 
+java 
+import java.util.Scanner; 
+ 
+class ArrayOperations { 
+    int[] arr = new int[8]; 
+     
+    void accept() { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.println("Enter 8 integers:"); 
+        for (int i = 0; i < 8; i++) { 
+            arr[i] = sc.nextInt(); 
+        } 
+    } 
+     
+    void selectionSort() { 
+        for (int i = 0; i < 7; i++) { 
+            int minIndex = i; 
+            for (int j = i + 1; j < 8; j++) { 
+                if (arr[j] < arr[minIndex]) { 
+                    minIndex = j; 
+                } 
+            } 
+            int temp = arr[i]; 
+            arr[i] = arr[minIndex]; 
+            arr[minIndex] = temp; 
+        } 
+    } 
+     
+    int linearSearch(int key) { 
+        for (int i = 0; i < 8; i++) { 
+            if (arr[i] == key) 
+                return i; 
+        } 
+        return -1; 
+    } 
+
+--- PAGE 6 ---
+     
+    void display() { 
+        System.out.println("Sorted Array:"); 
+        for (int i = 0; i < 8; i++) { 
+            System.out.print(arr[i] + " "); 
+        } 
+        System.out.println(); 
+    } 
+     
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        ArrayOperations obj = new ArrayOperations(); 
+         
+        obj.accept(); 
+        obj.selectionSort(); 
+        obj.display(); 
+         
+        System.out.print("Enter number to search: "); 
+        int key = sc.nextInt(); 
+         
+        int result = obj.linearSearch(key); 
+        if (result != -1) 
+            System.out.println("Element found at index: " + result); 
+        else 
+            System.out.println("Element not found."); 
+    } 
+} 
+ 
+Question 5: WordProcessor [15] 
+java 
+import java.util.Scanner; 
+ 
+class WordProcessor { 
+    String sentence; 
+     
+    void accept() { 
+        Scanner sc = new Scanner(System.in); 
+
+--- PAGE 7 ---
+        System.out.print("Enter a sentence: "); 
+        sentence = sc.nextLine(); 
+    } 
+     
+    int countWords() { 
+        if (sentence.isEmpty()) 
+            return 0; 
+        String[] words = sentence.trim().split("\\s+"); 
+        return words.length; 
+    } 
+     
+    String extractVowels() { 
+        String vowels = ""; 
+        String s = sentence.toLowerCase(); 
+        for (int i = 0; i < s.length(); i++) { 
+            char ch = s.charAt(i); 
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') 
+                vowels += sentence.charAt(i); // add original character 
+        } 
+        return vowels; 
+    } 
+     
+    void display() { 
+        System.out.println("\n--- WORD PROCESSOR ---"); 
+        System.out.println("Original Sentence: " + sentence); 
+        System.out.println("Number of Words: " + countWords()); 
+        System.out.println("Extracted Vowels: " + extractVowels()); 
+    } 
+     
+    public static void main(String[] args) { 
+        WordProcessor obj = new WordProcessor(); 
+        obj.accept(); 
+        obj.display(); 
+    } 
+} 
+ 
+Question 6: DiagonalSum [15] 
+
+--- PAGE 8 ---
+java 
+import java.util.Scanner; 
+ 
+class DiagonalSum { 
+    int[][] mat = new int[4][4]; 
+     
+    void accept() { 
+        Scanner sc = new Scanner(System.in); 
+        System.out.println("Enter 16 elements for 4x4 matrix:"); 
+        for (int i = 0; i < 4; i++) { 
+            for (int j = 0; j < 4; j++) { 
+                mat[i][j] = sc.nextInt(); 
+            } 
+        } 
+    } 
+     
+    int leftDiagonal() { 
+        int sum = 0; 
+        for (int i = 0; i < 4; i++) { 
+            sum += mat[i][i]; 
+        } 
+        return sum; 
+    } 
+     
+    int rightDiagonal() { 
+        int sum = 0; 
+        for (int i = 0; i < 4; i++) { 
+            sum += mat[i][3 - i]; 
+        } 
+        return sum; 
+    } 
+     
+    void display() { 
+        System.out.println("\nMatrix:"); 
+        for (int i = 0; i < 4; i++) { 
+            for (int j = 0; j < 4; j++) { 
+                System.out.print(mat[i][j] + "\t"); 
+            } 
+            System.out.println(); 
+
+--- PAGE 9 ---
+        } 
+        System.out.println("Left Diagonal Sum: " + leftDiagonal()); 
+        System.out.println("Right Diagonal Sum: " + rightDiagonal()); 
+    } 
+     
+    public static void main(String[] args) { 
+        DiagonalSum obj = new DiagonalSum(); 
+        obj.accept(); 
+        obj.display(); 
+    } 
+} 
+ 
+Question 7: SpecialNumber [15] 
+java 
+import java.util.Scanner; 
+ 
+class SpecialNumber { 
+     
+    boolean isArmstrong(int n) { 
+        int original = n; 
+        int sum = 0; 
+        while (n > 0) { 
+            int digit = n % 10; 
+            sum += digit * digit * digit; 
+            n = n / 10; 
+        } 
+        return original == sum; 
+    } 
+     
+    boolean isPerfect(int n) { 
+        int sum = 0; 
+        for (int i = 1; i < n; i++) { 
+            if (n % i == 0) 
+                sum += i; 
+        } 
+        return sum == n; 
+    } 
+
+--- PAGE 10 ---
+     
+    int factorial(int n) { 
+        int fact = 1; 
+        for (int i = 1; i <= n; i++) { 
+            fact *= i; 
+        } 
+        return fact; 
+    } 
+     
+    void display(int n) { 
+        System.out.println("\n--- SPECIAL NUMBER ANALYSIS ---"); 
+        System.out.println("Number: " + n); 
+        System.out.println("Armstrong: " + (isArmstrong(n) ? "Yes" : "No")); 
+        System.out.println("Perfect: " + (isPerfect(n) ? "Yes" : "No")); 
+        System.out.println("Factorial of " + n + " = " + factorial(n)); 
+    } 
+     
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        SpecialNumber obj = new SpecialNumber(); 
+         
+        System.out.print("Enter a number: "); 
+        int num = sc.nextInt(); 
+         
+        obj.display(num); 
+    } 
+} 
+ 
+Question 8: OverloadCalc [15] 
+java 
+import java.util.Scanner; 
+ 
+class OverloadCalc { 
+     
+    void compute(int a, int b) { 
+        int sum = a*a + b*b; 
+        System.out.println("Sum of squares of " + a + " and " + b + " = " + sum); 
+
+--- PAGE 11 ---
+    } 
+     
+    void compute(double r) { 
+        double area = 3.14 * r * r; 
+        System.out.println("Area of circle with radius " + r + " = " + area); 
+    } 
+     
+    void compute(int n) { 
+        int fact = 1; 
+        for (int i = 1; i <= n; i++) { 
+            fact *= i; 
+        } 
+        System.out.println("Factorial of " + n + " = " + fact); 
+    } 
+     
+    public static void main(String[] args) { 
+        Scanner sc = new Scanner(System.in); 
+        OverloadCalc obj = new OverloadCalc(); 
+         
+        System.out.print("Enter two integers for compute(a,b): "); 
+        int a = sc.nextInt(); 
+        int b = sc.nextInt(); 
+        obj.compute(a, b); 
+         
+        System.out.print("\nEnter radius for compute(double): "); 
+        double r = sc.nextDouble(); 
+        obj.compute(r); 
+         
+        System.out.print("\nEnter number for compute(int): "); 
+        int n = sc.nextInt(); 
+        obj.compute(n); 
+    } 
+} 
+ 
+

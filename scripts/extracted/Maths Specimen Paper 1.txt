@@ -1,0 +1,218 @@
+--- PAGE 1 ---
+ICSE Class X Mathematics (Paper - 51) 
+MOCK SPECIMEN PAPER - 01 (2026) 
+Time Allowed: Three Hours​
+Maximum Marks: 80 
+ 
+Instructions: 
+1.​ Answers to this Paper must be written on the paper provided separately. 
+2.​ You will not be allowed to write during the first 15 minutes. This time is to be 
+spent in reading the question paper. 
+3.​ This Paper is divided into two Sections: Section A and Section B. 
+4.​ Attempt all questions from Section A and any four questions from Section B. 
+5.​ All working, including rough work, must be clearly shown, and must be done on 
+the same sheet as the rest of the answer. 
+6.​ Omission of essential working will result in loss of marks. 
+7.​ Mathematical tables are provided. 
+ 
+SECTION A (40 Marks) 
+(Attempt all questions from this Section) 
+Question 1​
+Choose the correct answers to the questions from the given options: [15] 
+(i) If the roots of the quadratic equation 2x² - 6x + k = 0 are real and equal, then the value 
+of k is:​
+(a) 9/2​
+(b) -9/2​
+(c) 9​
+(d) -9 
+(ii) A man invests ₹ 8000 in shares paying 10% dividend when a share of face value ₹ 
+100 is available at ₹ 80. The annual income of the man is:​
+
+--- PAGE 2 ---
+(a) ₹ 800​
+(b) ₹ 1000​
+(c) ₹ 640​
+(d) ₹ 1250 
+(iii) In the given figure, O is the centre of the circle. If ∠ABC = 40°, then the value of 
+∠AOC is: 
+image[[450, 250, 650, 400]] 
+text 
+(a) 40° 
+(b) 80° 
+(c) 120° 
+(d) 140° 
+(iv) The solution set of the inequation 3x - 5 ≤ 4x - 3, x ∈ R, when represented on the 
+number line is:​
+(a) x ≥ -2​
+(b) x ≤ -2​
+(c) x ≥ 2​
+(d) x ≤ 2 
+(v) If the mean of 5, 7, 9, x, 15 is 10, then the value of x is:​
+(a) 12​
+(b) 13​
+(c) 14​
+(d) 15 
+(vi) A solid sphere of radius 6 cm is melted and recast into a cone of height 6 cm. The 
+radius of the cone is:​
+(a) 6 cm​
+(b) 8 cm​
+(c) 10 cm​
+(d) 12 cm 
+(vii) If tan θ = 3/4, then the value of (sin θ + cos θ) / (sin θ - cos θ) is:​
+(a) 7​
+(b) -7​
+
+--- PAGE 3 ---
+(c) 1/7​
+(d) -1/7 
+(viii) The 15th term of the A.P. 3, 8, 13, 18, ... is:​
+(a) 73​
+(b) 68​
+(c) 78​
+(d) 83 
+(ix) If the distance between the points (4, p) and (1, 0) is 5, then the value of p is:​
+(a) ±4​
+(b) 4​
+(c) -4​
+(d) 0 
+(x) The marked price of an article is ₹ 800. A shopkeeper gives a discount of 10% and 
+still makes a profit of 20%. The cost price of the article is:​
+(a) ₹ 600​
+(b) ₹ 640​
+(c) ₹ 720​
+(d) ₹ 660 
+(xi) In a cyclic quadrilateral ABCD, if ∠A = 100°, then ∠C = ?​
+(a) 80°​
+(b) 100°​
+(c) 60°​
+(d) 120° 
+(xii) If the matrix [2 3; 4 5] is multiplied by [1; 2], the product is:​
+(a) [8; 14]​
+(b) [14; 8]​
+(c) [8 14]​
+(d) [14 8] 
+(xiii) If two positive integers a and b are written as a = x³y² and b = xy³, where x and y are 
+prime numbers, then HCF (a, b) is:​
+(a) x³y³​
+(b) x²y²​
+(c) xy²​
+(d) x²y 
+
+--- PAGE 4 ---
+(xiv) The probability of getting a prime number when a fair die is rolled once is:​
+(a) 1/2​
+(b) 1/3​
+(c) 2/3​
+(d) 1/6 
+(xv) If x, y, z are in continued proportion, then the value of (y² + z²)/(x² + y²) is:​
+(a) z/x​
+(b) x/z​
+(c) y/x​
+(d) z/y 
+Question 2​
+Answer the following questions: [25] 
+(i) Rohan deposits ₹ 400 per month in a recurring deposit account for 2 years. If the 
+bank pays interest at the rate of 8% per annum, find the amount he receives on maturity. 
+[4] 
+(ii) Solve the following inequation and represent the solution set on the number line:​
+2x - 3 ≤ x + 2 < 3x + 5, x ∈ R [3] 
+(iii) A man bought 500 shares, each of face value ₹ 10, at a market price of ₹ 12 per 
+share. If the company declares a dividend of 15%, find:​
+(a) his investment​
+(b) his annual dividend​
+(c) his rate of return on investment [4] 
+(iv) In the given figure, AB is a diameter of the circle with centre O. CD is a chord equal to 
+the radius. Prove that ∠APC = 60°. 
+image[[450, 350, 650, 500]] 
+[4] 
+(v) Find the value of k for which the quadratic equation (k + 4)x² + (k + 1)x + 1 = 0 has 
+equal roots. [3] 
+(vi) Prove the identity: (1 + cot θ - cosec θ)(1 + tan θ + sec θ) = 2 [4] 
+(vii) Find the coordinates of the point which divides the line segment joining the points 
+A(2, -3) and B(-4, 6) in the ratio 2 : 3 internally. [3] 
+
+--- PAGE 5 ---
+ 
+SECTION B (40 Marks) 
+(Attempt any four questions from this Section) 
+Question 3​
+Answer the following: [10] 
+(i) The sum of the first 10 terms of an arithmetic progression is 230 and its first term is 
+5. Find the common difference and the 20th term. [4] 
+(ii) A bag contains 5 red balls, 4 blue balls, and 3 green balls. A ball is drawn at random 
+from the bag. Find the probability that the ball drawn is:​
+(a) red​
+(b) not blue​
+(c) either red or green [3] 
+(iii) Using remainder theorem, factorize the polynomial 2x³ + x² - 13x + 6 completely. [3] 
+Question 4​
+Answer the following: [10] 
+(i) A shopkeeper bought an article with marked price ₹ 2000 at successive discounts of 
+10% and 15%. He spent ₹ 50 on transportation and sold it for ₹ 2000. Find his profit or 
+loss percentage. [4] 
+(ii) Prove that: (sin A + cosec A)² + (cos A + sec A)² = 7 + tan² A + cot² A [3] 
+(iii) If the points A(6, 1), B(8, 2), C(9, 4) and D(p, 3) are the vertices of a parallelogram, 
+taken in order, find the value of p. [3] 
+Question 5​
+Answer the following: [10] 
+(i) Construct a triangle ABC with AB = 6 cm, BC = 5 cm, and ∠ABC = 60°. Construct a 
+circle passing through A, B, and C. Measure its radius. [4] 
+(ii) In the given figure, O is the centre of the circle. PT is a tangent to the circle at point P. 
+If ∠TPQ = 50° and ∠PRQ = 30°, find:​
+(a) ∠POQ​
+
+--- PAGE 6 ---
+(b) ∠QPR​
+(c) ∠PQR 
+image[[500, 300, 700, 450]] 
+[3] 
+(iii) A solid toy is in the form of a hemisphere surmounted by a right circular cone. The 
+height of the cone is 4 cm and the diameter of the base is 6 cm. Find the volume of the 
+toy. (Use π = 3.14) [3] 
+Question 6​
+Answer the following: [10] 
+(i) The following table gives the marks obtained by 50 students in an examination: 
+Marks 
+0-10 
+10-20 
+20-30 
+30-40 
+40-50 
+50-60 
+Students 
+4 
+8 
+12 
+10 
+9 
+7 
+Draw a histogram and frequency polygon for the above data. [4] 
+(ii) A straight line passes through the points A(2, -4) and B(6, 2). Find:​
+(a) the slope of the line​
+(b) the equation of the line​
+(c) the value of a if the line passes through the point (a, 5) [3] 
+(iii) Solve the following pair of equations by cross-multiplication method:​
+3x + 4y = 10​
+2x - 3y = 1 [3] 
+Question 7​
+Answer the following: [10] 
+(i) A vertical tower stands on a horizontal plane and is surmounted by a vertical flagstaff 
+of height 5 m. At a point on the plane, the angles of elevation of the bottom and top of 
+the flagstaff are 30° and 45° respectively. Find the height of the tower. [4] 
+(ii) In a class test, the mean marks of 40 students was found to be 35. Later on, it was 
+discovered that a mark of 40 was misread as 50. Find the correct mean. [3] 
+
+--- PAGE 7 ---
+(iii) If 7 times the 7th term of an A.P. is equal to 11 times the 11th term, show that the 
+18th term is zero. [3] 
+Question 8​
+Answer the following: [10] 
+(i) The diameter of a metallic sphere is 6 cm. It is melted and drawn into a wire of 
+diameter 2 mm. Find the length of the wire in metres. [4] 
+(ii) Using properties of proportion, solve for x: (√(x+5) + √(x-16)) / (√(x+5) - √(x-16)) = 
+7/3 [3] 
+(iii) A man deposited ₹ 800 per month in a bank for 18 months under the Recurring 
+Deposit Scheme. If he received ₹ 15,084 at the time of maturity, find the rate of interest 
+per annum. [3] 
+ 
+

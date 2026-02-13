@@ -1,0 +1,299 @@
+--- PAGE 1 ---
+ICSE Class X Computer Applications (Paper 1) 
+MOCK SPECIMEN PAPER - 01 (2026) 
+Time Allowed: Two Hours​
+Maximum Marks: 100 
+ 
+Instructions: 
+1.​ Answers to this Paper must be written on the answer sheet provided separately. 
+2.​ You will not be allowed to write during the first 15 minutes. This time is to be 
+spent in reading the question paper. 
+3.​ This Paper is divided into two Sections: Section A and Section B. 
+4.​ Attempt all questions from Section A and any four questions from Section B. 
+5.​ The intended marks for questions or parts of questions are given in brackets [ ]. 
+6.​ Programs in Section B should be written in Java with proper variable 
+descriptions. 
+ 
+SECTION A (40 Marks) 
+(Attempt all questions from this Section) 
+Question 1​
+Choose the correct answers to the questions from the given options: [20] 
+(i) Which of the following is not a principle of Object Oriented Programming?​
+(a) Inheritance​
+(b) Polymorphism​
+(c) Compilation​
+(d) Encapsulation 
+(ii) The Java feature that allows code to run on any platform is called:​
+(a) Robust​
+(b) Platform Independent​
+
+--- PAGE 2 ---
+(c) Secure​
+(d) Multithreaded 
+(iii) What is the size of the char data type in Java?​
+(a) 1 byte​
+(b) 2 bytes​
+(c) 4 bytes​
+(d) 8 bytes 
+(iv) Which operator has the highest precedence in the expression: a + b * c - d / e?​
+(a) +​
+(b) -​
+(c) *​
+(d) / 
+(v) Which of the following is a valid Java keyword?​
+(a) Integer​
+(b) float​
+(c) String​
+(d) character 
+(vi) What will be the output of System.out.println(Math.ceil(-4.6) + 
+Math.floor(3.2))?​
+(a) -2.0​
+(b) -1.0​
+(c) 0.0​
+(d) 1.0 
+(vii) Which of the following methods returns a String value?​
+(a) length()​
+(b) charAt()​
+(c) toUpperCase()​
+(d) indexOf() 
+(viii) In a switch statement, which of the following data types is not allowed?​
+(a) int​
+(b) char​
+(c) String​
+(d) float 
+
+--- PAGE 3 ---
+(ix) Consider the array: int arr[] = {5, 10, 15, 20, 25}; What is the value of 
+arr[3]?​
+(a) 15​
+(b) 20​
+(c) 25​
+(d) 10 
+(x) Which loop is guaranteed to execute at least once?​
+(a) for loop​
+(b) while loop​
+(c) do-while loop​
+(d) All loops execute at least once 
+(xi) A single dimensional array has 25 elements. What is the index of the last element?​
+(a) 24​
+(b) 25​
+(c) 26​
+(d) 0 
+(xii) Which method prototype correctly defines a method that accepts two integers and 
+returns their product as an integer?​
+(a) void product(int a, int b)​
+(b) int product(int a, b)​
+(c) int product(int a, int b)​
+(d) product(int a, int b) 
+(xiii) The statement used to exit from a loop prematurely is:​
+(a) exit​
+(b) return​
+(c) break​
+(d) stop 
+(xiv) What is the default value of a local variable in Java?​
+(a) 0​
+(b) null​
+(c) false​
+(d) No default value; must be initialized 
+(xv) Which method converts a character to uppercase?​
+(a) Character.toUpperCase()​
+
+--- PAGE 4 ---
+(b) String.toUpperCase()​
+(c) char.toUpperCase()​
+(d) toUpperCase() 
+(xvi) Assertion (A): The Scanner class is used to take input from the user.​
+Reason (R): The Scanner class belongs to the java.util package.​
+(a) Both A and R are true, and R is the correct explanation of A​
+(b) Both A and R are true, but R is not the correct explanation of A​
+(c) A is true, but R is false​
+(d) A is false, but R is true 
+(xvii) What will be the output of: System.out.println("Java" + 10 + 20)?​
+(a) Java30​
+(b) Java1020​
+(c) 30Java​
+(d) Compilation Error 
+(xviii) To find the number of elements in an array arr, we use:​
+(a) arr.length()​
+(b) length(arr)​
+(c) arr.length​
+(d) arr.size() 
+(xix) Which of the following correctly declares and initializes a 2D array with 3 rows and 
+4 columns?​
+(a) int arr[3][4];​
+(b) int[][] arr = new int[3][4];​
+(c) int arr = new int[3][4];​
+(d) int arr[3][4] = new int; 
+(xx) What is the return type of the compareTo() method in the String class?​
+(a) boolean​
+(b) int​
+(c) char​
+(d) String 
+Question 2​
+Answer the following questions: [20] 
+(i) Rewrite the following code using a single if statement:​
+java if (ch == 'a') System.out.println("Vowel"); else if (ch == 'e') 
+
+--- PAGE 5 ---
+System.out.println("Vowel"); else if (ch == 'i') 
+System.out.println("Vowel"); else if (ch == 'o') 
+System.out.println("Vowel"); else if (ch == 'u') 
+System.out.println("Vowel"); else System.out.println("Not a vowel");[2] 
+(ii) Evaluate the expression when a = 5 and b = 2:​
+java int result = a++ + ++b - a-- + b++; System.out.println("a = " + a); 
+System.out.println("b = " + b); System.out.println("result = " + 
+result);[2] 
+(iii) Identify the error in the following code and correct it to print "PASS" when the marks 
+are 75 or above:​
+java int marks = 75; if (marks >= 75) System.out.println("PASS"); 
+System.out.println("Congratulations!"); else 
+System.out.println("FAIL");[2] 
+(iv) Write the Java expression for: [2]​
+√(a² + b²) / (a + b) 
+(v) How many times will the following loop execute? What is the output?​
+java int x = 5; do { System.out.print(x + " "); x += 2; } while (x < 10); 
+[2] 
+(vi) Write the output of the following String methods:​
+java String str1 = "PROGRAM"; String str2 = "PROJECT"; 
+System.out.println(str1.charAt(3)); 
+System.out.println(str1.compareTo(str2));[2] 
+(vii) Predict the output:​
+java char ch = 'D'; int n = ch - 65 + 5; System.out.println((char)n); [2] 
+(viii) The following code has an error. Identify the type of error (syntax/logical/runtime) 
+and correct it:​
+java String num = "100"; int x = Integer.parseInt(num); double result = 
+Math.sqrt(x); System.out.println("Square root is " + result);[2] 
+(ix) Consider the following class and answer the questions:​
+```java​
+class Student {​
+String name;​
+int roll; 
+
+--- PAGE 6 ---
+text 
+   Student() { 
+        name = "Unknown"; 
+        roll = 0; 
+    } 
+     
+    Student(String n, int r) { 
+        name = n; 
+        roll = r; 
+    } 
+} 
+``` 
+(a) Name the types of constructors used in this class. 
+(b) How many constructors are defined in the class? `[2]` 
+(x) Given the 2D array: int X[][] = {{1,2,3}, {4,5,6}, {7,8,9}};​
+(a) What is the value of X[2][1]?​
+(b) What is the result of X[0][2] + X[1][1]? [2] 
+ 
+SECTION B (60 Marks) 
+(Answer any four questions from this Section) 
+Each program should be written with: 
+●​ Variable description table (Name, Data Type, Purpose) 
+●​ Comments for clarity 
+●​ Proper indentation 
+ 
+Question 3​
+Define a class named ElectricityBill with the following specifications: [15] 
+Class name: ElectricityBill 
+Member variables: 
+●​ String consumerNo - Consumer number 
+
+--- PAGE 7 ---
+●​ String consumerName - Name of the consumer 
+●​ int prevReading - Previous month's meter reading 
+●​ int currReading - Current month's meter reading 
+●​ double amount - Bill amount 
+Member methods: 
+●​ void inputData() - Accept values for consumerNo, consumerName, 
+prevReading, and currReading using Scanner. 
+●​ void calculate() - Calculate the bill amount based on the following tariff: 
+Units Consumed 
+Rate per Unit 
+First 100 units 
+₹2.50 
+Next 200 units 
+₹3.50 
+Above 300 units 
+₹5.00 
+Units consumed = currReading - prevReading 
+●​ void display() - Display all the details including the bill amount in a proper 
+format. 
+Write the main() method to create an object, call the methods, and display the bill. 
+ 
+Question 4​
+Define a class named ArraySearch with the following specifications: [15] 
+Class name: ArraySearch 
+Member variables: 
+●​ int[] arr - to store 10 integers 
+Member methods: 
+●​ void accept() - Accept 10 integers into the array using Scanner. 
+
+--- PAGE 8 ---
+●​ void bubbleSort() - Sort the array in ascending order using Bubble Sort 
+technique. 
+●​ int binarySearch(int key) - Search for the given key in the sorted array using 
+Binary Search. Return the index if found, otherwise return -1. 
+●​ void display() - Display the sorted array. 
+Write the main() method to create an object, accept the array, sort it, accept a key to 
+search, and display the result (found or not found). 
+ 
+Question 5​
+Define a class named StringManipulation with the following specifications: [15] 
+Class name: StringManipulation 
+Member variables: 
+●​ String str 
+Member methods: 
+●​ void accept() - Accept a string from the user. 
+●​ String convertCase() - Convert the string such that: 
+○​ Each uppercase letter becomes lowercase 
+○​ Each lowercase letter becomes uppercase 
+○​ All other characters remain the same 
+●​ int countVowels() - Count and return the number of vowels in the string. 
+●​ void display() - Display the original string, the converted string, and the vowel 
+count. 
+Write the main() method to create an object and perform the operations. 
+ 
+Question 6​
+Define a class named MatrixSum with the following specifications: [15] 
+Class name: MatrixSum 
+Member variables: 
+●​ int[][] mat - a 3×3 matrix 
+
+--- PAGE 9 ---
+Member methods: 
+●​ void accept() - Accept 9 integers into the matrix using nested loops. 
+●​ int sumOfRows() - Calculate and return the sum of all elements in the matrix. 
+●​ void rowWiseSum() - Calculate and display the sum of each row separately. 
+●​ void display() - Display the matrix in proper 3×3 format. 
+Write the main() method to create an object, accept the matrix, and display the 
+row-wise sums and total sum. 
+ 
+Question 7​
+Define a class named NumberCheck with the following specifications: [15] 
+Class name: NumberCheck 
+Member methods: 
+●​ boolean isPrime(int n) - Check if a number is prime and return true/false. 
+●​ boolean isPalindrome(int n) - Check if a number is palindrome (reads same 
+forwards and backwards) and return true/false. 
+●​ int sumOfDigits(int n) - Calculate and return the sum of digits of the number. 
+●​ void display(int n) - Display the number and all the results 
+(prime/palindrome/digit sum). 
+Write the main() method to accept an integer and call the display method. 
+ 
+Question 8​
+Define a class named Overload to overload the method series() as follows: [15] 
+(i) void series(int x, int n) - Display the sum of the series:​
+S = x + x² + x³ + ... + xⁿ 
+(ii) void series(int p) - Display the following series for p rows:​
+1 2 2 3 3 3 4 4 4 4 5 5 5 5 5​
+(up to p rows) 
+(iii) void series() - Display the sum of the series:​
+S = 1 + (1+2) + (1+2+3) + ... + (1+2+3+...+10) 
+
+--- PAGE 10 ---
+Write the main() method to demonstrate all three overloaded methods. 
+ 
+

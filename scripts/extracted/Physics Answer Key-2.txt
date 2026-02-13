@@ -1,0 +1,120 @@
+--- PAGE 1 ---
+Answer Key for Mock Specimen Paper 2 
+SECTION A 
+Question 1​
+(i) (b) Rotatory motion​
+(ii) (b) Natural gas​
+(iii) (c) Watt​
+(iv) (c) Dispersion​
+(v) (b) Water​
+(vi) (b) Voltmeter​
+(vii) (c) Split rings​
+(viii) (d) 0.005 s (T = 1/f = 1/200)​
+(ix) (c) Water​
+(x) (c) Less than the input voltage​
+(xi) (d) Electric field intensity​
+(xii) (b) less than 55°C (since specific heat of iron is less than that of water)​
+(xiii) (d) All of these​
+(xiv) (b) Virtual and erect​
+(xv) (b) directly proportional to the square of the velocity 
+Question 2​
+(i) (a) moment [1]​
+(b) relative density [1]​
+(c) deviation [1]​
+(d) higher potential to lower potential [1]​
+(e) boiling point [1]​
+(f) protons and neutrons [1] 
+(ii) (a) Pressure → Pascal (Pa) [1]​
+(b) Work → Joule (J) [1]​
+(c) Moment of force → Newton metre (Nm) [1] 
+(iii) (a) 20 Hz to 20,000 Hz [1]​
+(b) Quality (or Timbre) [1] 
+SECTION B 
+
+--- PAGE 2 ---
+Question 3​
+(i) (a) The principle of moments states that when a body is in rotational equilibrium, the 
+sum of the clockwise moments about a point equals the sum of the anticlockwise 
+moments about the same point. [1]​
+(b) Let M be the mass of the scale. The centre of gravity of the scale is at the 50 cm 
+mark.​
+Clockwise moment = M × (50 - 15) = M × 35​
+Anticlockwise moment = (5+5)g × (15 - 10) = 10 × 5 = 50 gf cm​
+By principle of moments: 35M = 50 ⇒ M = 50/35 = 10/7 ≈ 1.43 gf. [3] 
+(ii) (a) The ability of the eye lens to adjust its focal length to see objects at different 
+distances clearly. [1]​
+(b) (1) Myopia → Concave lens [1]​
+(2) Hypermetropia → Convex lens [1] 
+(iii) (a) Specific heat capacity is the amount of heat required to raise the temperature of 
+a unit mass of a substance by 1°C (or 1 K). [1]​
+(b) Let T be the final temperature. Heat lost by hot water = Heat gained by cold water.​
+m₁c(T₁ - T) = m₂c(T - T₂)​
+200 × (80 - T) = 100 × (T - 20)​
+2 × (80 - T) = (T - 20)​
+160 - 2T = T - 20​
+160 + 20 = T + 2T​
+180 = 3T ⇒ T = 60°C. [3] 
+Question 4​
+(i) (a) A fuse is a safety device that protects the electrical circuit from overloading and 
+short circuits by melting and breaking the circuit when a large current flows. [1]​
+(b) I = P / V = 750 / 220 = 3.41 A. [1]​
+The fuse rating should be slightly higher than the normal current, e.g., 5 A. [1] 
+(ii) (a) Yes, because the angle of incidence (45°) inside the prism is greater than the 
+critical angle (42°) for the material. [2]​
+(b) (Student to draw diagram showing the ray undergoing total internal reflection at the 
+first inner face and then emerging out from the other face, perpendicularly if the second 
+face is arranged suitably.) [2] 
+(iii) (a) Radioactivity is the phenomenon of spontaneous disintegration of the nucleus of 
+an unstable atom, accompanied by the emission of α, β, and γ radiations. [2]​
+(b) Alpha (α), Beta (β), and Gamma (γ). Alpha (α) has the highest ionizing power. [2] 
+
+--- PAGE 3 ---
+Question 5​
+(i) (a) 1 kWh = 3.6 × 10⁶ J [1]​
+(b) The 60 W bulb will glow brighter. In series, current is the same. Power P = I²R. Since 
+R = V²/P, the 60 W bulb has higher resistance. Hence, it consumes more power (I²R) and 
+glows brighter. [2] 
+(ii) (a) The magnitude of induced e.m.f. depends on: (1) The speed of motion of the 
+magnet or coil. (2) The number of turns in the coil. (3) The strength of the magnet. (Any 
+two) [2]​
+(b) Fleming's Right-Hand Rule: Stretch the thumb, forefinger, and middle finger of the 
+right hand mutually perpendicular. If the forefinger points in the direction of the 
+magnetic field and the thumb points in the direction of motion of the conductor, then the 
+middle finger points in the direction of the induced current. [2] 
+(iii) (a) Velocity ratio is the ratio of the velocity of the effort to the velocity of the load. / 
+It is also equal to the ratio of the distance moved by effort to the distance moved by 
+load in the same time. [1]​
+(b) V.R. for an inclined plane = l / h (length of incline / height of incline). [1] 
+Question 6​
+(i) (a) Fission: Splitting of a heavy nucleus. Fusion: Combining of light nuclei. [2]​
+(b)  
+3689Kr 
+36 
+89 
+​ 
+Kr (Krypton-89) [Check: 235 + 1 = 236. On RHS: 144 + ? + 3 = 236, so ? = 89. 92 = 56 + ?, 
+so ? = 36.] [2] 
+(ii) (a) μ = sin i / sin r ⇒ 1.5 = sin 45° / sin r ⇒ sin r = 0.7071 / 1.5 = 0.4714. So, r ≈ 
+28.13°. [2]​
+(b) (Student to draw a neat ray diagram showing the incident ray, refracted ray inside the 
+slab, and emergent ray parallel to the incident ray, with all angles labelled correctly.) [2] 
+(iii) (a) A satellite that appears to be fixed at a point above the earth's surface and 
+revolves around the earth in an orbit directly above the equator with a period of 24 
+hours. [1]​
+
+--- PAGE 4 ---
+(b) Uses: (1) Communication (TV, telephone). (2) Weather forecasting. (3) Navigation. 
+(Any two) [2] 
+Question 7​
+(i) When a 4Ω wire is bent into a circle, each semicircle will have a resistance of 2Ω. The 
+two points at the ends of a diameter will have two 2Ω resistors in parallel. So, R = 
+(2×2)/(2+2) = 4/4 = 1Ω. [3] 
+(ii) (a) An echo is the repetition of sound due to the reflection of sound waves from a 
+distant obstacle. [1]​
+(b) Time = Total distance travelled / speed = (2 × 75) / 340 = 150 / 340 = 0.44 s. [2] 
+(iii) (a) A couple is a pair of two equal and opposite forces acting on a body along two 
+different lines of action, producing a turning effect. Example: Turning a steering wheel. 
+[1]​
+(b) Moment of force = Force × perpendicular distance = 2 N × 0.20 m = 0.4 Nm. [2] 
+ 
+

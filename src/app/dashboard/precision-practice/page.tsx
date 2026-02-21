@@ -27,11 +27,7 @@ const SUBJECTS: PrecisionSubject[] = [
     name: "Physics",
     icon: "⚡",
     color: "#F59E0B",
-    chapters: [
-      { id: "Force, Work, Power & Energy", name: "Force, Work, Power & Energy" },
-      { id: "Light", name: "Light" },
-      { id: "Electricity", name: "Electricity" },
-    ],
+    chapters: [],
   },
   {
     id: "Mathematics",

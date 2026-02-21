@@ -9,16 +9,15 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function DashboardPage() {
     const router = useRouter();
-    const isMobile = useIsMobile(); // Mobile detection
+    const isMobile = useIsMobile();
 
-    // Auto-refetch every 30 seconds + on window focus (Fix #1)
     const { data: profile, isLoading: profileLoading } = trpc.dashboard.getProfile.useQuery(undefined, {
         refetchOnWindowFocus: true,
         refetchOnMount: true,
     });
 
     const { data: stats } = trpc.dashboard.getStudyStats.useQuery(undefined, {
-        refetchInterval: 30000, // 30 seconds
+        refetchInterval: 30000,
         refetchOnWindowFocus: true,
         refetchOnMount: true,
     });
@@ -35,7 +34,6 @@ export default function DashboardPage() {
         },
     });
 
-    // Memoized values (Fix #3 - Performance)
     const todayDate = useMemo(() =>
         new Date().toLocaleDateString("en-US", {
             weekday: "long",
@@ -50,394 +48,397 @@ export default function DashboardPage() {
         [stats?.todayHours, stats?.todayGoal]
     );
 
-    // Auto-refresh at midnight (Fix #5 - Date-Aware)
     useEffect(() => {
         const now = new Date();
         const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(0, 0, 0, 0);
-
         const msUntilMidnight = tomorrow.getTime() - now.getTime();
-
-        const timer = setTimeout(() => {
-            window.location.reload();
-        }, msUntilMidnight);
-
+        const timer = setTimeout(() => { window.location.reload(); }, msUntilMidnight);
         return () => clearTimeout(timer);
     }, []);
 
-    const handleLogout = () => {
-        logoutMutation.mutate();
-    };
+    const handleLogout = () => { logoutMutation.mutate(); };
 
-    // Loading skeleton (Fix #3 - Prevent layout shift)
     if (profileLoading || !stats) {
         return (
             <div style={{
                 minHeight: "100vh",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#1A1D24"
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "#030303", flexDirection: "column", gap: 16,
             }}>
-                <div style={{ color: "#FFFFFF", fontSize: "18px" }}>Loading your dashboard...</div>
+                <div className="animate-float" style={{ fontSize: 48 }}>✨</div>
+                <div style={{
+                    fontSize: 16, fontWeight: 600,
+                    background: "linear-gradient(135deg, #A78BFA, #8B5CF6)",
+                    WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                }}>Loading your dashboard...</div>
+                <div style={{
+                    width: 200, height: 3, borderRadius: 2,
+                    background: "rgba(255,255,255,0.06)", overflow: "hidden",
+                }}>
+                    <div className="animate-shimmer" style={{ width: "100%", height: "100%" }} />
+                </div>
             </div>
         );
     }
 
+    const greeting = profile?.createdAt && (new Date().getTime() - new Date(profile.createdAt).getTime() < 300000)
+        ? `Welcome, ${profile?.name}!`
+        : `Welcome back, ${profile?.name}!`;
+
+    const quickActions = [
+        { label: "Study Planner", icon: "📅", path: "/dashboard/planner", color: "#8B5CF6", desc: "Plan your day" },
+        { label: "Subjects", icon: "📚", path: "/dashboard/subjects", color: "#3B82F6", desc: "Browse syllabus" },
+        { label: "AI Assistant", icon: "🤖", path: "/dashboard/ai-assistant", color: "#10B981", desc: "Ask anything" },
+        { label: "Competency Test", icon: "⚡", path: "/dashboard/precision-practice", color: "#F59E0B", desc: "Test yourself" },
+    ];
+
     return (
         <div style={{
             minHeight: "100vh",
-            backgroundColor: "#030303",
-            padding: isMobile ? "16px" : "24px", // Mobile-first padding
-            transition: "all 0.2s ease-in-out"
+            background: "radial-gradient(ellipse at 0% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303",
+            padding: isMobile ? "16px" : "32px",
+            transition: "all 0.2s ease-in-out",
         }}>
-            {/* Header with User Info + Date */}
-            <div style={{
-                maxWidth: "1400px",
-                margin: "0 auto 32px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
+            {/* Header */}
+            <div className="animate-fadeIn" style={{
+                maxWidth: "1400px", margin: "0 auto 36px",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
                 <div>
                     <h1 style={{
-                        ...typography.display,
-                        fontSize: "32px",
-                        fontWeight: 700,
-                        color: "#FFFFFF",
-                        marginBottom: "8px"
+                        fontSize: isMobile ? "24px" : "34px", fontWeight: 800,
+                        marginBottom: "6px", letterSpacing: -0.5,
+                        background: "linear-gradient(135deg, #FFFFFF 0%, #A78BFA 100%)",
+                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                     }}>
-                        {profile?.createdAt && (new Date().getTime() - new Date(profile.createdAt).getTime() < 300000) 
-                            ? `Welcome, ${profile?.name}! 👋` 
-                            : `Welcome back, ${profile?.name}! 👋`}
+                        {greeting} 👋
                     </h1>
                     <p style={{
-                        ...typography.text,
-                        fontSize: "14px",
-                        fontWeight: 400,
-                        color: "#A78BFA" /* Lavender Highlight */
+                        fontSize: "14px", color: "#6B7280", fontWeight: 500,
+                        display: "flex", alignItems: "center", gap: 8,
                     }}>
-                        {todayDate} • {profile?.role === "STUDENT" ? "Let's make today productive" : "Manage your classes"}
+                        <span style={{
+                            display: "inline-block", width: 6, height: 6, borderRadius: "50%",
+                            background: "#8B5CF6", boxShadow: "0 0 8px rgba(139,92,246,0.5)",
+                        }} />
+                        {todayDate}
                     </p>
                 </div>
                 <button
                     onClick={handleLogout}
                     disabled={logoutMutation.isPending}
-                    className="hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:border-primary/50"
                     style={{
-                        backgroundColor: "#0E0E10",
-                        color: "#FFFFFF",
-                        padding: "12px 24px",
+                        background: "rgba(255,255,255,0.03)",
+                        color: "#9CA3AF",
+                        padding: "10px 20px",
                         borderRadius: "12px",
-                        border: "1px solid #1F1F22",
-                        fontSize: "14px",
-                        fontWeight: "600",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        fontSize: "13px",
+                        fontWeight: 600,
                         cursor: logoutMutation.isPending ? "not-allowed" : "pointer",
                         opacity: logoutMutation.isPending ? 0.5 : 1,
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                        transition: "all 0.3s ease",
+                        backdropFilter: "blur(10px)",
                     }}
                 >
                     {logoutMutation.isPending ? "Logging out..." : "Logout"}
                 </button>
             </div>
 
-
             <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
-                {/* Simple responsive grid: 3 cols on desktop, 2 on tablet, 1 on mobile */}
                 <div className="dashboard-grid" style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                    gap: "20px"
+                    gap: "20px",
                 }}>
 
                     {/* Today's Study Plan */}
-                    <div className="dashboard-card" style={{
-                        padding: "24px",
-                        minHeight: "260px",
-                        display: "flex",
-                        flexDirection: "column"
+                    <div className="dashboard-card animate-slideInUp" style={{
+                        padding: "28px", minHeight: "280px",
+                        display: "flex", flexDirection: "column",
                     }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", maxWidth: "100%", position: "relative", zIndex: 1 }}>
-                            <h3 style={{
-                                ...typography.display,
-                                fontSize: "16px",
-                                fontWeight: 600,
-                                color: "#FFFFFF",
-                                maxWidth: "70%",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap"
-                            }}>Today's Study Plan</h3>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{
+                                    width: 36, height: 36, borderRadius: 10,
+                                    background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05))",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    fontSize: 18,
+                                }}>📋</div>
+                                <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Today&apos;s Progress</h3>
+                            </div>
                             <button
                                 onClick={() => router.push('/dashboard/planner')}
                                 style={{
-                                    color: "#A78BFA",
-                                    fontSize: "14px",
-                                    background: "none",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s ease-in-out",
-                                    flexShrink: 0
+                                    color: "#8B5CF6", fontSize: "12px", fontWeight: 600,
+                                    background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)",
+                                    borderRadius: 8, padding: "5px 12px", cursor: "pointer",
+                                    transition: "all 0.2s",
                                 }}
-                            >
-                                View All
-                            </button>
+                            >View All</button>
                         </div>
 
                         {/* Circular Progress */}
-                        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px", position: "relative", zIndex: 1 }}>
-                            <div style={{ position: "relative", width: "112px", height: "112px" }}>
+                        <div style={{ display: "flex", justifyContent: "center", flex: 1, alignItems: "center" }}>
+                            <div style={{ position: "relative", width: 130, height: 130 }}>
                                 <svg style={{ width: "100%", height: "100%", transform: "rotate(-90deg)" }}>
-                                    <circle cx="56" cy="56" r="50" stroke="#1F1F22" strokeWidth="10" fill="none" />
-                                    <circle cx="56" cy="56" r="50" stroke="#8B5CF6" strokeWidth="10" fill="none"
-                                        strokeDasharray="314" strokeDashoffset={314 - (314 * todayProgress / 100)} strokeLinecap="round"
-                                        style={{ filter: "drop-shadow(0 0 4px rgba(139, 92, 246, 0.5))" }} />
+                                    <circle cx="65" cy="65" r="56" stroke="rgba(255,255,255,0.04)" strokeWidth="10" fill="none" />
+                                    <circle cx="65" cy="65" r="56" stroke="url(#progressGrad)" strokeWidth="10" fill="none"
+                                        strokeDasharray="352" strokeDashoffset={352 - (352 * Math.min(todayProgress, 100) / 100)} strokeLinecap="round"
+                                        style={{
+                                            filter: "drop-shadow(0 0 8px rgba(139,92,246,0.4))",
+                                            transition: "stroke-dashoffset 1s ease",
+                                        }} />
+                                    <defs>
+                                        <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stopColor="#8B5CF6" />
+                                            <stop offset="100%" stopColor="#EC4899" />
+                                        </linearGradient>
+                                    </defs>
                                 </svg>
                                 <div style={{
-                                    position: "absolute",
-                                    top: "0",
-                                    left: "0",
-                                    right: "0",
-                                    bottom: "0",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
+                                    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+                                    display: "flex", alignItems: "center", justifyContent: "center",
                                     flexDirection: "column",
-                                    maxWidth: "100%",
-                                    overflow: "hidden"
                                 }}>
                                     <span style={{
-                                        ...typography.display,
-                                        fontSize: "32px",
-                                        fontWeight: 700,
-                                        color: "#FFFFFF",
-                                        maxWidth: "100%",
-                                        overflow: "hidden",
-                                        textAlign: "center"
-                                    }}>
-                                        {todayProgress}%
-                                    </span>
+                                        fontSize: 36, fontWeight: 800, letterSpacing: -1,
+                                        background: "linear-gradient(135deg, #FFF, #A78BFA)",
+                                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                                    }}>{todayProgress}%</span>
+                                    <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 500 }}>complete</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Row 1, Col 2: Exam Readiness */}
-                    <div className="dashboard-card" style={{
-                        padding: "24px",
-                        height: "260px",
-                        display: "flex",
-                        flexDirection: "column",
+                    {/* Exam Readiness */}
+                    <div className="dashboard-card animate-slideInUp delay-100" style={{
+                        padding: "28px", height: "280px",
+                        display: "flex", flexDirection: "column",
                         overflow: "hidden",
-                        boxSizing: "border-box",
-                        wordBreak: "break-word"
                     }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", maxWidth: "100%" }}>
-                            <h3 style={{
-                                ...typography.display,
-                                fontSize: "16px",
-                                fontWeight: 600,
-                                color: "#FFFFFF",
-                                maxWidth: "100%",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap"
-                            }}>Exam Readiness</h3>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "20px" }}>
+                            <div style={{
+                                width: 36, height: 36, borderRadius: 10,
+                                background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.05))",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 18,
+                            }}>🎯</div>
+                            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Exam Readiness</h3>
                         </div>
 
                         <div style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(6, 1fr)",
-                            gridTemplateRows: "repeat(4, 1fr)",
-                            gap: "6px",
-                            height: "128px",
-                            marginBottom: "16px"
+                            display: "grid", gridTemplateColumns: "repeat(6, 1fr)",
+                            gridTemplateRows: "repeat(4, 1fr)", gap: 5,
+                            height: 100, marginBottom: 16,
                         }}>
                             {Array.from({ length: 24 }).map((_, i) => {
                                 const isComplete = i < Math.floor(24 * ((stats?.examReadiness || 0) / 100));
                                 return (
                                     <div key={i} style={{
-                                        backgroundColor: isComplete ? "#8B5CF6" : "#1F1F22",
-                                        border: isComplete ? "none" : "1px solid #2D2D30",
-                                        borderRadius: "4px",
-                                        transition: "all 0.3s ease-in-out",
-                                        boxShadow: isComplete ? "0 0 8px rgba(139, 92, 246, 0.4)" : "none"
-                                    }}></div>
+                                        background: isComplete
+                                            ? `linear-gradient(135deg, #8B5CF6, ${i % 3 === 0 ? '#EC4899' : '#7C3AED'})`
+                                            : "rgba(255,255,255,0.03)",
+                                        borderRadius: 4,
+                                        transition: `all 0.4s ease ${i * 30}ms`,
+                                        boxShadow: isComplete ? "0 0 8px rgba(139,92,246,0.3)" : "none",
+                                        border: isComplete ? "none" : "1px solid rgba(255,255,255,0.04)",
+                                    }} />
                                 );
                             })}
                         </div>
 
-                        <div style={{ marginTop: "auto", maxWidth: "100%", overflow: "hidden" }}>
+                        <div style={{ marginTop: "auto" }}>
                             <div style={{
-                                ...typography.display,
-                                fontSize: "40px",
-                                fontWeight: 700,
-                                color: "#8B5CF6",
-                                marginBottom: "4px",
-                                maxWidth: "100%",
-                                overflow: "hidden",
-                                textAlign: "left",
-                                textShadow: "0 0 20px rgba(139, 92, 246, 0.3)"
+                                fontSize: 44, fontWeight: 800, letterSpacing: -1,
+                                background: "linear-gradient(135deg, #8B5CF6, #3B82F6)",
+                                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                                marginBottom: 2,
+                                filter: "drop-shadow(0 0 20px rgba(139,92,246,0.2))",
                             }}>
                                 {stats?.examReadiness}%
                             </div>
-                            <p style={{
-                                ...typography.text,
-                                color: "#9CA3AF",
-                                fontSize: "13px",
-                                fontWeight: 400,
-                                maxWidth: "100%",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap"
-                            }}>Syllabus coverage</p>
+                            <p style={{ color: "#6B7280", fontSize: 12, fontWeight: 500 }}>
+                                Syllabus coverage
+                            </p>
                         </div>
                     </div>
 
-                    {/* Row 1, Col 3: Learning Streak */}
-                    <div className="dashboard-card" style={{
-                        padding: "24px",
-                        height: "260px",
-                        overflow: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
-                        boxSizing: "border-box",
-                        wordBreak: "break-word"
+                    {/* Learning Streak */}
+                    <div className="dashboard-card animate-slideInUp delay-200" style={{
+                        padding: "28px", height: "280px",
+                        overflow: "hidden", display: "flex", flexDirection: "column",
+                        position: "relative",
                     }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                            <h3 style={{
-                                ...typography.display,
-                                fontSize: "16px",
-                                fontWeight: 600,
-                                color: "#FFFFFF"
-                            }}>Learning Streak</h3>
-                            <span style={{ fontSize: "20px", filter: "drop-shadow(0 0 10px rgba(255, 100, 0, 0.3))" }}>🔥</span>
+                        {/* Background glow */}
+                        <div style={{
+                            position: "absolute", top: -40, right: -40,
+                            width: 120, height: 120, borderRadius: "50%",
+                            background: "radial-gradient(circle, rgba(245,158,11,0.08), transparent 70%)",
+                            pointerEvents: "none",
+                        }} />
+
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, position: "relative" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{
+                                    width: 36, height: 36, borderRadius: 10,
+                                    background: "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    fontSize: 18,
+                                }}>🔥</div>
+                                <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Learning Streak</h3>
+                            </div>
                         </div>
 
-                        <div style={{ textAlign: "center", marginTop: "auto" }}>
+                        <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
                             <div style={{
-                                ...typography.display,
-                                fontSize: "48px",
-                                fontWeight: 700,
-                                color: "#FFFFFF",
-                                marginBottom: "4px",
-                                textShadow: "0 0 20px rgba(255, 255, 255, 0.1)"
+                                fontSize: 64, fontWeight: 900, letterSpacing: -2,
+                                background: "linear-gradient(135deg, #F59E0B, #EF4444)",
+                                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                                marginBottom: 4,
+                                filter: "drop-shadow(0 0 20px rgba(245,158,11,0.2))",
+                                lineHeight: 1,
                             }}>
                                 {stats?.currentStreak || 0}
                             </div>
+                            <p style={{ color: "#F59E0B", fontSize: 14, fontWeight: 600 }}>Day Streak</p>
                             <p style={{
-                                ...typography.text,
-                                color: "#A78BFA",
-                                fontSize: "14px",
-                                fontWeight: 400
-                            }}>Day Streak</p>
-                            <p style={{
-                                ...typography.text,
-                                color: "#9CA3AF",
-                                fontSize: "12px",
-                                marginTop: "4px",
-                                fontWeight: 400
-                            }}>{stats?.avgHoursPerDay}h avg/day</p>
+                                color: "#6B7280", fontSize: 12, marginTop: 4,
+                                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                            }}>
+                                <span style={{
+                                    display: "inline-block", width: 6, height: 6, borderRadius: "50%",
+                                    background: "#10B981",
+                                }} />
+                                {stats?.avgHoursPerDay}h avg/day
+                            </p>
                         </div>
                     </div>
 
-                    {/* Row 2, Col 1: Empty State */}
-                    <div className="dashboard-card" style={{
-                        padding: "24px",
-                        height: "260px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
+                    {/* Quick Actions */}
+                    <div className="dashboard-card animate-slideInUp delay-300" style={{
+                        padding: "28px", minHeight: "280px",
+                        display: "flex", flexDirection: "column",
                     }}>
-                        <div style={{ textAlign: "center", color: "#9CA3AF" }}>
-                            <div style={{ fontSize: "32px", marginBottom: "8px", opacity: 0.5 }}>📊</div>
-                            <div style={{ fontSize: "14px" }}>More insights coming soon</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                            <div style={{
+                                width: 36, height: 36, borderRadius: 10,
+                                background: "linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 18,
+                            }}>🚀</div>
+                            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Quick Actions</h3>
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+                            {quickActions.map((action, i) => (
+                                <button
+                                    key={action.label}
+                                    onClick={() => router.push(action.path)}
+                                    style={{
+                                        display: "flex", alignItems: "center", gap: 12,
+                                        padding: "12px 14px", borderRadius: 12,
+                                        background: "rgba(255,255,255,0.02)",
+                                        border: "1px solid rgba(255,255,255,0.04)",
+                                        color: "#FFF", cursor: "pointer",
+                                        textAlign: "left",
+                                        transition: "all 0.3s ease",
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = `${action.color}10`;
+                                        e.currentTarget.style.borderColor = `${action.color}30`;
+                                        e.currentTarget.style.transform = "translateX(6px)";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.04)";
+                                        e.currentTarget.style.transform = "none";
+                                    }}
+                                >
+                                    <span style={{ fontSize: 20, minWidth: 28 }}>{action.icon}</span>
+                                    <div>
+                                        <div style={{ fontSize: 13, fontWeight: 600 }}>{action.label}</div>
+                                        <div style={{ fontSize: 11, color: "#6B7280" }}>{action.desc}</div>
+                                    </div>
+                                    <span style={{ marginLeft: "auto", color: "#4B5563", fontSize: 14 }}>→</span>
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Row 2, Col 2: Weekly Progress */}
-                    <div className="dashboard-card" style={{
-                        padding: "24px",
-                        height: "260px",
-                        overflow: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
-                        boxSizing: "border-box",
-                        wordBreak: "break-word"
+                    {/* Weekly Progress */}
+                    <div className="dashboard-card animate-slideInUp delay-400" style={{
+                        padding: "28px", height: "280px",
+                        overflow: "hidden", display: "flex", flexDirection: "column",
                     }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                <span style={{ fontSize: "18px", color: "#8B5CF6" }}>📈</span>
-                                <h3 style={{ fontWeight: "600", color: "#FFFFFF", fontSize: "14px" }}>Weekly Progress</h3>
-                            </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                            <div style={{
+                                width: 36, height: 36, borderRadius: 10,
+                                background: "linear-gradient(135deg, rgba(236,72,153,0.15), rgba(236,72,153,0.05))",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 18,
+                            }}>📈</div>
+                            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Weekly Progress</h3>
                         </div>
 
                         <div style={{
-                            ...typography.display,
-                            fontSize: "40px",
-                            fontWeight: 700,
-                            color: "#8B5CF6",
-                            marginBottom: "4px",
-                            textShadow: "0 0 20px rgba(139, 92, 246, 0.3)"
+                            fontSize: 44, fontWeight: 800, letterSpacing: -1,
+                            background: "linear-gradient(135deg, #EC4899, #8B5CF6)",
+                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                            marginBottom: 4,
                         }}>
                             {stats?.weeklyProgress}%
                         </div>
-                        <p style={{
-                            ...typography.text,
-                            color: "#9CA3AF",
-                            fontSize: "13px",
-                            fontWeight: 400
-                        }}>Completed this week</p>
+                        <p style={{ color: "#6B7280", fontSize: 12, fontWeight: 500, marginBottom: 16 }}>
+                            Completed this week
+                        </p>
 
-                        <div style={{ height: "80px", position: "relative" }}>
+                        <div style={{ flex: 1, position: "relative" }}>
                             <svg style={{ width: "100%", height: "100%" }} viewBox="0 0 280 60" preserveAspectRatio="none">
-                                <path d="M 0 45 Q 50 35, 100 40 T 200 25 T 280 20" stroke="#8B5CF6" strokeWidth="2" fill="none" style={{ filter: "drop-shadow(0 0 4px rgba(139, 92, 246, 0.5))" }} />
-                                <circle cx="270" cy="20" r="3" fill="#8B5CF6" style={{ filter: "drop-shadow(0 0 4px rgba(139, 92, 246, 0.8))" }} />
+                                <defs>
+                                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="#EC4899" />
+                                        <stop offset="100%" stopColor="#8B5CF6" />
+                                    </linearGradient>
+                                    <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stopColor="rgba(139,92,246,0.15)" />
+                                        <stop offset="100%" stopColor="rgba(139,92,246,0)" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 0 45 Q 50 35, 100 40 T 200 25 T 280 20 L 280 60 L 0 60 Z" fill="url(#areaGrad)" />
+                                <path d="M 0 45 Q 50 35, 100 40 T 200 25 T 280 20" stroke="url(#lineGrad)" strokeWidth="2.5" fill="none"
+                                    style={{ filter: "drop-shadow(0 0 6px rgba(139,92,246,0.4))" }} />
+                                <circle cx="280" cy="20" r="4" fill="#8B5CF6" style={{ filter: "drop-shadow(0 0 6px rgba(139,92,246,0.8))" }} />
                             </svg>
                         </div>
                     </div>
 
-                    {/* Row 2, Col 3: Quick Actions */}
-                    <div className="dashboard-card" style={{
-                        padding: "24px",
-                        height: "260px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "12px"
+                    {/* Insights Coming Soon */}
+                    <div className="dashboard-card animate-slideInUp delay-500" style={{
+                        padding: "28px", height: "280px",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        position: "relative", overflow: "hidden",
                     }}>
-                        <h3 style={{
-                            ...typography.display,
-                            fontSize: "14px",
-                            fontWeight: 600,
-                            color: "#FFFFFF",
-                            marginBottom: "8px"
-                        }}>Quick Actions</h3>
-
-                        {['Planner', 'Subjects', 'AI Assistant'].map((action, i) => {
-                            const paths = ['/dashboard/planner', '/dashboard/subjects', '/dashboard/ai-assistant'];
-                            const icons = ['📅', '📚', '🤖'];
-                            return (
-                                <button
-                                    key={action}
-                                    onClick={() => router.push(paths[i])}
-                                    className="bg-[#1A1D24] hover:bg-[#2D2D30] hover:translate-x-1"
-                                    style={{
-                                        color: "#FFFFFF",
-                                        padding: "16px",
-                                        borderRadius: "12px",
-                                        border: "none",
-                                        fontSize: "14px",
-                                        fontWeight: "600",
-                                        cursor: "pointer",
-                                        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                                        textAlign: "left"
-                                    }}
-                                >
-                                    {icons[i]} {action}
-                                </button>
-                            );
-                        })}
+                        <div className="animate-orb" style={{
+                            position: "absolute", top: "50%", left: "50%",
+                            width: 200, height: 200, borderRadius: "50%",
+                            background: "radial-gradient(circle, rgba(139,92,246,0.06), transparent 70%)",
+                            transform: "translate(-50%, -50%)",
+                            pointerEvents: "none",
+                        }} />
+                        <div style={{ textAlign: "center", position: "relative" }}>
+                            <div className="animate-float" style={{ fontSize: 40, marginBottom: 12, opacity: 0.6 }}>📊</div>
+                            <div style={{
+                                fontSize: 14, fontWeight: 600,
+                                background: "linear-gradient(135deg, #A78BFA, #8B5CF6)",
+                                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                                marginBottom: 4,
+                            }}>More Insights</div>
+                            <div style={{ fontSize: 12, color: "#4B5563" }}>Coming soon</div>
+                        </div>
                     </div>
 
                 </div>

@@ -97,19 +97,16 @@ export default function SmartPlannerPage() {
     // Show timeline if there are plans
     if (plans && plans.length > 0) {
         return (
-            <div style={{ height: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#030303" }}>
+            <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.04) 0%, transparent 50%), #030303" }}>
                 {/* Header with Progress */}
-                <div style={{ backgroundColor: "#0E0E10", padding: "24px 32px", borderBottom: "2px solid #1F1F22" }}>
+                <div style={{ background: "linear-gradient(180deg, rgba(14,14,20,0.98), rgba(14,14,20,0.95))", padding: "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.04)", backdropFilter: "blur(20px)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                        <h1 style={{
-                            ...typography.display,
-                            fontSize: "28px",
-                            fontWeight: 700,
-                            color: "#FFFFFF",
-                            margin: 0
-                        }}>
-                            📅 Your Study Timeline
-                        </h1>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📅</div>
+                            <h1 style={{ fontSize: "24px", fontWeight: 800, margin: 0, background: "linear-gradient(135deg, #FFF, #34D399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.5 }}>
+                                Your Study Timeline
+                            </h1>
+                        </div>
                         <button
                             onClick={() => {
                                 if (confirm("Create a new timeline? This will clear your current plan.")) {
@@ -117,15 +114,16 @@ export default function SmartPlannerPage() {
                                 }
                             }}
                             style={{
-                                ...typography.text,
-                                padding: "12px 24px",
-                                backgroundColor: "#8B5CF6",
+                                padding: "10px 20px",
+                                background: "linear-gradient(135deg, #8B5CF6, #7C3AED)",
                                 color: "#FFFFFF",
                                 border: "none",
-                                borderRadius: "8px",
-                                fontSize: "14px",
+                                borderRadius: "12px",
+                                fontSize: "13px",
                                 fontWeight: 700,
                                 cursor: "pointer",
+                                boxShadow: "0 4px 16px rgba(139,92,246,0.3)",
+                                transition: "all 0.3s ease",
                             }}
                         >
                             ➕ Create New Timeline
@@ -135,20 +133,22 @@ export default function SmartPlannerPage() {
                     {/* Progress Meter */}
                     <div>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                            <span style={{ ...typography.text, fontSize: "14px", color: "#9CA3AF" }}>
+                            <span style={{ fontSize: "13px", color: "#6B7280", fontWeight: 500 }}>
                                 {completedCount} / {totalPlans} chapters completed
                             </span>
-                            <span style={{ ...typography.display, fontSize: "16px", fontWeight: 700, color: "#10B981" }}>
+                            <span style={{ fontSize: "14px", fontWeight: 700, background: "linear-gradient(135deg, #10B981, #34D399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                                 {progressPercent}%
                             </span>
                         </div>
-                        <div style={{ height: "12px", backgroundColor: "#374151", borderRadius: "6px", overflow: "hidden" }}>
+                        <div style={{ height: "6px", background: "rgba(255,255,255,0.04)", borderRadius: "3px", overflow: "hidden" }}>
                             <div
                                 style={{
                                     width: `${progressPercent}%`,
                                     height: "100%",
-                                    background: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
-                                    transition: "width 0.5s ease",
+                                    background: "linear-gradient(90deg, #10B981, #34D399, #10B981)",
+                                    backgroundSize: "200% 100%",
+                                    transition: "width 0.8s ease",
+                                    boxShadow: "0 0 12px rgba(16,185,129,0.3)",
                                 }}
                             />
                         </div>
@@ -257,25 +257,15 @@ export default function SmartPlannerPage() {
 
     // Show plan creation form
     return (
-        <div style={{ height: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#030303", padding: "40px" }}>
-            <div style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
-                <h1 style={{
-                    ...typography.display,
-                    fontSize: "36px",
-                    fontWeight: 700,
-                    color: "#FFFFFF",
-                    marginBottom: "12px",
-                    textAlign: "center"
-                }}>
-                    🎯 AI-Powered Study Planner
+        <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303", padding: "40px" }}>
+            <div className="animate-fadeIn" style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
+                <div style={{ textAlign: "center", marginBottom: 16 }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", borderRadius: 20, padding: "6px 14px", fontSize: 11, fontWeight: 600, color: "#A78BFA", letterSpacing: 1, textTransform: "uppercase" }}>🎯 AI-Powered</div>
+                </div>
+                <h1 style={{ fontSize: "32px", fontWeight: 800, marginBottom: "10px", textAlign: "center", letterSpacing: -0.5, background: "linear-gradient(135deg, #FFF, #A78BFA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    Smart Study Planner
                 </h1>
-                <p style={{
-                    ...typography.text,
-                    color: "#9CA3AF",
-                    fontSize: "16px",
-                    marginBottom: "40px",
-                    textAlign: "center"
-                }}>
+                <p style={{ color: "#6B7280", fontSize: "14px", marginBottom: "36px", textAlign: "center" }}>
                     Select subjects and chapters, AI will create a smart timeline with difficulty prediction
                 </p>
 
@@ -373,28 +363,29 @@ export default function SmartPlannerPage() {
                         onClick={handleGeneratePlan}
                         disabled={generatePlan.isPending}
                         style={{
-                            ...typography.text,
                             width: "100%",
-                            padding: "18px",
-                            backgroundColor: "#8B5CF6",
+                            padding: "16px",
+                            background: generatePlan.isPending ? "rgba(139,92,246,0.5)" : "linear-gradient(135deg, #8B5CF6, #7C3AED)",
                             color: "#FFFFFF",
                             border: "none",
-                            borderRadius: "12px",
-                            fontSize: "18px",
+                            borderRadius: "14px",
+                            fontSize: "16px",
                             fontWeight: 700,
-                            cursor: "pointer",
-                            transition: "all 0.2s",
+                            cursor: generatePlan.isPending ? "not-allowed" : "pointer",
+                            transition: "all 0.3s ease",
+                            boxShadow: "0 8px 24px rgba(139,92,246,0.3)",
+                            letterSpacing: 0.3,
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = "scale(1.02)";
-                            e.currentTarget.style.boxShadow = "0 8px 16px rgba(139, 92, 246, 0.3)";
+                            e.currentTarget.style.transform = "translateY(-2px)";
+                            e.currentTarget.style.boxShadow = "0 12px 32px rgba(139,92,246,0.4)";
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "scale(1)";
-                            e.currentTarget.style.boxShadow = "none";
+                            e.currentTarget.style.transform = "none";
+                            e.currentTarget.style.boxShadow = "0 8px 24px rgba(139,92,246,0.3)";
                         }}
                     >
-                        {generatePlan.isPending ? "Generating..." : "🎯 Generate Full Plan"}
+                        {generatePlan.isPending ? "⚡ Generating..." : "🎯 Generate Full Plan →"}
                     </button>
                 </div>
             </div>
@@ -427,27 +418,28 @@ function SubjectChapterSelector({
     const selectedCount = selectedChapters.filter((c) => c.subjectId === subject.id).length;
 
     return (
-        <div style={{ marginBottom: "12px", backgroundColor: "#1F2937", borderRadius: "12px", overflow: "hidden" }}>
+        <div style={{ marginBottom: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: "14px", overflow: "hidden" }}>
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 style={{
                     width: "100%",
-                    padding: "16px 20px",
-                    backgroundColor: "#1F2937",
+                    padding: "14px 18px",
+                    background: "transparent",
                     color: "#FFFFFF",
                     border: "none",
-                    fontSize: "15px",
-                    fontWeight: "600",
+                    fontSize: "14px",
+                    fontWeight: 600,
                     cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    transition: "all 0.2s ease",
                 }}
             >
-                <span>
-                    {subject.icon} {subject.name} {selectedCount > 0 && `(${selectedCount})`}
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {subject.icon} {subject.name} {selectedCount > 0 && <span style={{ background: "rgba(139,92,246,0.15)", color: "#A78BFA", padding: "2px 8px", borderRadius: 8, fontSize: 11, fontWeight: 700 }}>{selectedCount}</span>}
                 </span>
-                <span style={{ fontSize: "18px" }}>{isExpanded ? "▼" : "▶"}</span>
+                <span style={{ fontSize: 14, color: "#6B7280", transition: "transform 0.2s", transform: isExpanded ? "rotate(90deg)" : "none" }}>▶</span>
             </button>
 
             {isExpanded && (

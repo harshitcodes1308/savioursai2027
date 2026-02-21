@@ -181,18 +181,20 @@ export default function AIAssistantPage() {
     };
 
     return (
-        <div style={{ padding: "24px", maxWidth: "1000px", margin: "0 auto", height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", backgroundColor: "#030303" }}>
+        <div style={{ padding: "24px", maxWidth: "1000px", margin: "0 auto", height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.03) 0%, transparent 50%), #030303" }}>
             {/* Header */}
-            <div className="dashboard-card" style={{
-                padding: "20px 32px",
-                marginBottom: "24px",
+            <div className="dashboard-card animate-fadeIn" style={{
+                padding: "16px 28px",
+                marginBottom: "20px",
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "center",
+                borderRadius: "18px",
             }}>
-                <div>
-                    <h1 style={{ ...typography.display, fontSize: "24px", fontWeight: 700, margin: 0 }}>
-                        {mode === "chat" ? "🤖 AI Tutor" : "⚡ Flashcard Review"}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: mode === "chat" ? "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05))" : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{mode === "chat" ? "🤖" : "⚡"}</div>
+                    <h1 style={{ fontSize: "18px", fontWeight: 800, margin: 0, background: "linear-gradient(135deg, #FFF, #A78BFA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.3 }}>
+                        {mode === "chat" ? "AI Tutor" : "Flashcard Review"}
                     </h1>
                 </div>
                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
@@ -201,13 +203,13 @@ export default function AIAssistantPage() {
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
                             style={{
-                                ...typography.text,
                                 padding: "6px 12px",
-                                borderRadius: "8px",
-                                backgroundColor: "#1F1F22",
-                                border: "1px solid #374151",
+                                borderRadius: "10px",
+                                background: "rgba(255,255,255,0.03)",
+                                border: "1px solid rgba(255,255,255,0.06)",
                                 color: "#FFFFFF",
-                                fontSize: "13px",
+                                fontSize: "12px",
+                                outline: "none",
                             }}
                         >
                             <option value="">All Subjects</option>
@@ -230,15 +232,16 @@ export default function AIAssistantPage() {
                             }
                         }}
                         style={{
-                            ...typography.text,
                             padding: "8px 16px",
-                            backgroundColor: mode === "chat" ? "#8B5CF6" : "#374151",
+                            background: mode === "chat" ? "linear-gradient(135deg, #8B5CF6, #7C3AED)" : "rgba(255,255,255,0.05)",
                             color: "#FFFFFF",
-                            borderRadius: "8px",
-                            border: "none",
+                            borderRadius: "10px",
+                            border: mode === "chat" ? "none" : "1px solid rgba(255,255,255,0.08)",
                             fontWeight: 600,
-                            fontSize: "13px",
-                            cursor: "pointer"
+                            fontSize: "12px",
+                            cursor: "pointer",
+                            boxShadow: mode === "chat" ? "0 4px 12px rgba(139,92,246,0.25)" : "none",
+                            transition: "all 0.3s ease",
                         }}
                     >
                         {mode === "chat" ? "⚡ Start Review" : "💬 Back to Chat"}
@@ -253,12 +256,13 @@ export default function AIAssistantPage() {
                         className="dashboard-card"
                         style={{
                             flex: 1,
-                            padding: "24px",
-                            marginBottom: "16px",
+                            padding: "20px",
+                            marginBottom: "12px",
                             overflowY: "auto",
                             display: "flex",
                             flexDirection: "column",
-                            gap: "16px",
+                            gap: "14px",
+                            borderRadius: "18px",
                         }}
                     >
                         {messages.map((message, index) => (
@@ -271,11 +275,15 @@ export default function AIAssistantPage() {
                                 >
                                     <div
                                         style={{
-                                            maxWidth: "70%",
-                                            padding: "12px 16px",
-                                            borderRadius: "12px",
-                                            backgroundColor: message.role === "user" ? "#8B5CF6" : "#1A1A1D",
+                                            maxWidth: "75%",
+                                            padding: "14px 18px",
+                                            borderRadius: message.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                                            background: message.role === "user" 
+                                                ? "linear-gradient(135deg, #8B5CF6, #7C3AED)" 
+                                                : "rgba(255,255,255,0.03)",
+                                            border: message.role === "user" ? "none" : "1px solid rgba(255,255,255,0.04)",
                                             color: "#FFFFFF",
+                                            boxShadow: message.role === "user" ? "0 4px 16px rgba(139,92,246,0.2)" : "none",
                                         }}
                                     >
                                         {message.role === "assistant" && (
@@ -337,10 +345,10 @@ export default function AIAssistantPage() {
                     </div>
 
                     {/* Chat Input */}
-                    <div style={{ padding: "20px", borderTop: "1px solid #1F1F22" }}>
+                    <div style={{ padding: "16px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                         {/* File Preview */}
                         {uploadedFile && (
-                            <div style={{ marginBottom: "12px", padding: "12px", backgroundColor: "#1A1A1D", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <div style={{ marginBottom: "12px", padding: "12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                                     {uploadedFile.type === 'image' ? (
                                         <img src={uploadedFile.data} alt="Uploaded" style={{ maxWidth: "60px", maxHeight: "60px", borderRadius: "4px" }} />
@@ -370,31 +378,34 @@ export default function AIAssistantPage() {
                                 disabled={askMutation.isPending}
                                 style={{
                                     flex: 1,
-                                    padding: "12px 16px",
-                                    borderRadius: "12px",
-                                    backgroundColor: "#1A1A1D",
-                                    border: "1px solid #374151",
+                                    padding: "13px 16px",
+                                    borderRadius: "14px",
+                                    background: "rgba(255,255,255,0.03)",
+                                    border: "1px solid rgba(255,255,255,0.06)",
                                     color: "#FFFFFF",
                                     fontSize: "14px",
                                     outline: "none",
+                                    transition: "all 0.3s ease",
                                 }}
                             />
                             <button
                                 onClick={handleSend}
                                 disabled={askMutation.isPending || !input.trim()}
                                 style={{
-                                    padding: "12px 24px",
-                                    borderRadius: "12px",
-                                    backgroundColor: "#8B5CF6",
+                                    padding: "12px 22px",
+                                    borderRadius: "14px",
+                                    background: askMutation.isPending || !input.trim() ? "rgba(139,92,246,0.3)" : "linear-gradient(135deg, #8B5CF6, #7C3AED)",
                                     color: "#FFFFFF",
-                                    fontSize: "14px",
-                                    fontWeight: "600",
+                                    fontSize: "13px",
+                                    fontWeight: 700,
                                     border: "none",
-                                    cursor: "pointer",
-                                    opacity: askMutation.isPending ? 0.7 : 1
+                                    cursor: askMutation.isPending ? "not-allowed" : "pointer",
+                                    boxShadow: "0 4px 12px rgba(139,92,246,0.2)",
+                                    transition: "all 0.3s ease",
+                                    letterSpacing: 0.3,
                                 }}
                             >
-                                Send
+                                Send →
                             </button>
                         </div>
                     </div>

@@ -1,24 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 const menuItems = [
-  { icon: "📊", label: "Dashboard", href: "/dashboard" },
-  { icon: "📚", label: "Subjects", href: "/dashboard/subjects" },
-  { icon: "📅", label: "Planner", href: "/dashboard/planner" },
-  { icon: "🤖", label: "AI Assistant", href: "/dashboard/ai-assistant" },
-  { icon: "📝", label: "Customise Test", href: "/dashboard/tests" },
-  { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy" },
-  { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus" },
-  { icon: "⚡", label: "Competency Test", href: "/dashboard/precision-practice" },
-  { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers" },
-  { icon: "📖", label: "Notes", href: "/dashboard/notes" },
-  { icon: "👤", label: "Profile", href: "/dashboard/profile" },
-  { icon: "📜", label: "Policies", href: "/dashboard/policies" },
+  { icon: "📊", label: "Dashboard", href: "/dashboard", accent: "#8B5CF6" },
+  { icon: "📚", label: "Subjects", href: "/dashboard/subjects", accent: "#3B82F6" },
+  { icon: "📅", label: "Planner", href: "/dashboard/planner", accent: "#10B981" },
+  { icon: "🤖", label: "AI Assistant", href: "/dashboard/ai-assistant", accent: "#F59E0B" },
+  { icon: "📝", label: "Customise Test", href: "/dashboard/tests", accent: "#EC4899" },
+  { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy", accent: "#EF4444" },
+  { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus", accent: "#06B6D4" },
+  { icon: "⚡", label: "Competency Test", href: "/dashboard/precision-practice", accent: "#F97316" },
+  { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers", accent: "#6366F1" },
+  { icon: "📖", label: "Notes", href: "/dashboard/notes", accent: "#14B8A6" },
+  { icon: "👤", label: "Profile", href: "/dashboard/profile", accent: "#A78BFA" },
+  { icon: "📜", label: "Policies", href: "/dashboard/policies", accent: "#6B7280" },
 ];
 
 export default function DashboardSidebar({
@@ -31,28 +30,21 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useIsMobile(); // Check for mobile state
-
-  // We can rely on CSS for mobile detection for the hamburger visibility
-  // to avoid hydration mismatch, but we still need state for the drawer itself.
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const initials = userName
-    ? userName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+    ? userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
   const handleNavigation = (href: string) => {
-    setIsOpen(false); // Close sidebar on nav
+    setIsOpen(false);
     router.push(href);
   };
 
   return (
     <>
-      {/* HAMBURGER - Visible ONLY on Mobile via CSS class 'mobile-only' */}
+      {/* HAMBURGER */}
       <button
         className="mobile-only"
         onClick={() => setIsOpen(!isOpen)}
@@ -61,45 +53,46 @@ export default function DashboardSidebar({
           top: 16,
           left: 16,
           zIndex: 200,
-          width: 44,
-          height: 44,
-          backgroundColor: isOpen ? "#8B5CF6" : "#1A1A1D",
-          border: "1px solid #333",
-          borderRadius: 12,
+          width: 46,
+          height: 46,
+          background: isOpen
+            ? "linear-gradient(135deg, #8B5CF6, #7C3AED)"
+            : "rgba(14,14,16,0.9)",
+          backdropFilter: "blur(20px)",
+          border: "1px solid rgba(139,92,246,0.3)",
+          borderRadius: 14,
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
-          color: isOpen ? "#FFF" : "#8B5CF6",
-          fontSize: 24,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+          color: "#FFF",
+          fontSize: 22,
+          boxShadow: isOpen
+            ? "0 8px 32px rgba(139,92,246,0.4)"
+            : "0 4px 20px rgba(0,0,0,0.4)",
           transition: "all 0.3s ease",
-          // display property is handled by globals.css classes: mobile-only / desktop-only
         }}
       >
         {isOpen ? "✕" : "☰"}
       </button>
 
-      {/* OVERLAY - Visible only when open on mobile */}
+      {/* OVERLAY */}
       <div
         className={isOpen ? "mobile-only" : ""}
         onClick={() => setIsOpen(false)}
         style={{
           position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.8)",
-          backdropFilter: "blur(4px)",
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.7)",
+          backdropFilter: "blur(8px)",
           zIndex: 140,
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? "auto" : "none",
           transition: "opacity 0.3s ease",
-          display: isOpen ? "block" : "none", // Force hide when closed to prevent interactions
+          display: isOpen ? "block" : "none",
         }}
       />
 
-      {/* SIDEBAR CONTAINER */}
+      {/* SIDEBAR */}
       <aside
         style={{
           position: "fixed",
@@ -107,180 +100,264 @@ export default function DashboardSidebar({
           left: 0,
           width: "280px",
           height: "100vh",
-          backgroundColor: "#0E0E10",
-          borderRight: "1px solid #1F1F22",
+          background: "linear-gradient(180deg, #08080D 0%, #0B0B12 40%, #0E0E16 100%)",
+          borderRight: "1px solid rgba(139,92,246,0.06)",
           display: "flex",
           flexDirection: "column",
           zIndex: 150,
-          // REMOVED inline transform to prevent conflicts. Relies purely on CSS.
-          boxShadow: isOpen ? "10px 0 30px rgba(0,0,0,0.5)" : "none",
+          boxShadow: isOpen ? "10px 0 40px rgba(0,0,0,0.6)" : "none",
+          overflow: "hidden",
         }}
-        // LOGIC FIX: On desktop (!isMobile), ALWAYS show sidebar (translate-x-0).
-        // On mobile, rely on isOpen state.
         className={`sidebar-transition ${!isMobile || isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        {/* Logo Section */}
-        <div
-          style={{
-            padding: "24px 20px",
-            borderBottom: "1px solid #1F1F22",
-            flexShrink: 0,
-          }}
-        >
+        {/* Ambient glow orbs */}
+        <div style={{
+          position: "absolute", top: -80, left: -60,
+          width: 200, height: 200, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(139,92,246,0.06), transparent 70%)",
+          pointerEvents: "none",
+        }} />
+        <div style={{
+          position: "absolute", bottom: -100, right: -80,
+          width: 250, height: 250, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(59,130,246,0.04), transparent 70%)",
+          pointerEvents: "none",
+        }} />
+
+        {/* Logo */}
+        <div style={{
+          padding: "22px 20px",
+          borderBottom: "1px solid rgba(255,255,255,0.03)",
+          flexShrink: 0,
+          position: "relative",
+        }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div
-              style={{
-                width: 60,
-                height: 60,
-                position: "relative",
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={60}
-                height={60}
-                style={{ objectFit: "contain" }}
-              />
+            <div style={{
+              width: 46, height: 46,
+              position: "relative", flexShrink: 0,
+              borderRadius: 14,
+              background: "linear-gradient(135deg, rgba(139,92,246,0.12), rgba(59,130,246,0.06))",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              border: "1px solid rgba(139,92,246,0.12)",
+              overflow: "hidden",
+              boxShadow: "0 0 20px rgba(139,92,246,0.08)",
+            }}>
+              <Image src="/logo.png" alt="Logo" width={46} height={46} style={{ objectFit: "contain" }} />
             </div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "#FFF" }}>
+              <div style={{
+                fontSize: 15, fontWeight: 800, letterSpacing: -0.3,
+                background: "linear-gradient(135deg, #FFFFFF 20%, #C4B5FD 50%, #818CF8 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}>
                 ICSE Saviours
               </div>
-              <div style={{ fontSize: 11, color: "#666" }}>v1.0.0 Alpha</div>
+              <div style={{
+                fontSize: 9, fontWeight: 600,
+                letterSpacing: 2, textTransform: "uppercase",
+                display: "flex", alignItems: "center", gap: 6,
+              }}>
+                <span style={{
+                  background: "linear-gradient(135deg, #8B5CF6, #6366F1)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}>Student OS</span>
+                <span style={{
+                  background: "linear-gradient(135deg, #8B5CF6, #7C3AED)",
+                  padding: "1px 6px",
+                  borderRadius: 4,
+                  fontSize: 8,
+                  fontWeight: 700,
+                  color: "#FFF",
+                  letterSpacing: 0.5,
+                }}>v1.2</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* User Profile Section - FIXED */}
-        <div
-          style={{
-            padding: 20,
-            borderBottom: "1px solid #1F1F22",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
+        {/* User Profile Card */}
+        <div style={{
+          padding: "14px 16px",
+          margin: "8px 12px",
+          borderRadius: 14,
+          background: "linear-gradient(135deg, rgba(139,92,246,0.06), rgba(59,130,246,0.03))",
+          border: "1px solid rgba(139,92,246,0.08)",
+          display: "flex", alignItems: "center", gap: 12,
+          flexShrink: 0,
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Subtle shimmer overlay */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(110deg, transparent 30%, rgba(139,92,246,0.04) 50%, transparent 70%)",
+            pointerEvents: "none",
+          }} />
+          <div style={{
+            width: 38, height: 38, minWidth: 38,
+            borderRadius: 11,
+            background: "linear-gradient(135deg, #8B5CF6, #6366F1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 13, fontWeight: 800, color: "#FFF",
             flexShrink: 0,
-            backgroundColor: "#0E0E10",
-          }}
-        >
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              minWidth: 40,
-              maxWidth: 40,
-              borderRadius: "50%",
-              backgroundColor: "#8B5CF6",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "#FFF",
-              overflow: "hidden",
-              flexShrink: 0,
-            }}
-          >
-            {/* We use a div background or img if available, here just text */}
-            <span style={{ transform: "translateY(1px)" }}>{initials}</span>
+            boxShadow: "0 4px 14px rgba(139,92,246,0.35), inset 0 1px 0 rgba(255,255,255,0.1)",
+            position: "relative",
+          }}>
+            {initials}
           </div>
-          <div
-            style={{
-              flex: 1,
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "#FFF",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
+          <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+            <div style={{
+              fontSize: 13, fontWeight: 650, color: "#F3F4F6",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+              letterSpacing: -0.1,
+            }}>
               {userName || "User"}
             </div>
-            <div
-              style={{
-                fontSize: 12,
-                color: "#9CA3AF",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
+            <div style={{
+              fontSize: 10, color: "#6B7280", fontWeight: 500,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>
               {userEmail || "user@example.com"}
             </div>
           </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+            <div style={{
+              width: 7, height: 7, borderRadius: "50%",
+              background: "linear-gradient(135deg, #10B981, #34D399)",
+              boxShadow: "0 0 8px rgba(16,185,129,0.5), 0 0 3px rgba(16,185,129,0.8)",
+            }} />
+            <span style={{ fontSize: 9, color: "#10B981", fontWeight: 600, letterSpacing: 0.3 }}>Live</span>
+          </div>
+        </div>
+
+        {/* Section Label */}
+        <div style={{
+          padding: "12px 22px 6px",
+          fontSize: 9, fontWeight: 700, letterSpacing: 1.8,
+          textTransform: "uppercase", color: "#4B5563",
+        }}>
+          Navigation
         </div>
 
         {/* Nav Links */}
-        <nav style={{ padding: 12, flex: 1, overflowY: "auto" }}>
-          {menuItems.map((item) => {
+        <nav style={{ padding: "2px 10px", flex: 1, overflowY: "auto" }}>
+          {menuItems.map((item, idx) => {
             const isActive = pathname === item.href;
+            const isHovered = hoveredItem === item.href;
+            const activeColor = item.accent;
             return (
               <button
                 key={item.href}
                 onClick={() => handleNavigation(item.href)}
+                onMouseEnter={() => setHoveredItem(item.href)}
+                onMouseLeave={() => setHoveredItem(null)}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  gap: 11,
                   width: "100%",
-                  padding: "12px 16px",
-                  marginBottom: 4,
+                  padding: "10px 12px",
+                  marginBottom: 1,
                   borderRadius: 12,
-                  backgroundColor: isActive
-                    ? "rgba(139,92,246,0.15)"
+                  position: "relative",
+                  overflow: "hidden",
+                  background: isActive
+                    ? `linear-gradient(135deg, ${activeColor}14, ${activeColor}08)`
+                    : isHovered
+                    ? "rgba(255,255,255,0.02)"
                     : "transparent",
-                  color: isActive ? "#8B5CF6" : "#9CA3AF",
+                  color: isActive ? activeColor : isHovered ? "#E5E7EB" : "#9CA3AF",
                   border: isActive
-                    ? "1px solid rgba(139,92,246,0.2)"
+                    ? `1px solid ${activeColor}25`
                     : "1px solid transparent",
                   cursor: "pointer",
                   textAlign: "left",
-                  fontSize: 14,
-                  fontWeight: isActive ? 600 : 500,
-                  transition: "all 0.2s",
+                  fontSize: 13,
+                  fontWeight: isActive ? 650 : 500,
+                  letterSpacing: isActive ? 0.1 : 0,
+                  transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                  transform: isHovered && !isActive ? "translateX(4px)" : "none",
                 }}
               >
-                <span
-                  style={{ fontSize: 20, minWidth: 24, textAlign: "center" }}
-                >
+                {/* Active indicator bar — colored per item */}
+                {isActive && (
+                  <div style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "15%",
+                    bottom: "15%",
+                    width: 3,
+                    borderRadius: 2,
+                    background: `linear-gradient(180deg, ${activeColor}, ${activeColor}AA)`,
+                    boxShadow: `0 0 10px ${activeColor}60`,
+                  }} />
+                )}
+                {/* Active background glow */}
+                {isActive && (
+                  <div style={{
+                    position: "absolute",
+                    left: 0, top: 0, bottom: 0,
+                    width: 80,
+                    background: `linear-gradient(90deg, ${activeColor}10, transparent)`,
+                    pointerEvents: "none",
+                  }} />
+                )}
+                <div style={{
+                  width: 30, height: 30, minWidth: 30,
+                  borderRadius: 9,
+                  background: isActive
+                    ? `linear-gradient(135deg, ${activeColor}18, ${activeColor}08)`
+                    : isHovered
+                    ? "rgba(255,255,255,0.04)"
+                    : "rgba(255,255,255,0.02)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 16,
+                  border: isActive ? `1px solid ${activeColor}20` : "1px solid transparent",
+                  filter: isActive ? "none" : "grayscale(0.2)",
+                  transition: "all 0.25s ease",
+                }}>
                   {item.icon}
-                </span>
+                </div>
                 <span style={{ whiteSpace: "nowrap" }}>{item.label}</span>
+                {isActive && (
+                  <div style={{
+                    position: "absolute",
+                    right: 12,
+                    display: "flex", alignItems: "center", gap: 3,
+                  }}>
+                    <div style={{
+                      width: 5, height: 5,
+                      borderRadius: "50%",
+                      background: activeColor,
+                      boxShadow: `0 0 8px ${activeColor}80`,
+                    }} />
+                  </div>
+                )}
               </button>
             );
           })}
         </nav>
 
         {/* Footer */}
-        <div
-          style={{
-            padding: 16,
-            borderTop: "1px solid #1F1F22",
-            textAlign: "center",
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ fontSize: 11, color: "#555" }}>
-            © 2026 ICSE Saviours
+        <div style={{
+          padding: "14px 16px",
+          borderTop: "1px solid rgba(255,255,255,0.03)",
+          textAlign: "center",
+          flexShrink: 0,
+          position: "relative",
+        }}>
+          <div style={{
+            fontSize: 9, fontWeight: 600, letterSpacing: 0.8,
+            background: "linear-gradient(135deg, #4B5563, #6B7280)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>
+            © 2026 ICSE Saviours • Made with 💜
           </div>
         </div>
       </aside>
-
-      {/* Styles moved to globals.css for reliability */}
     </>
   );
 }

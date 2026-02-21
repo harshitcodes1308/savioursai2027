@@ -23,7 +23,7 @@ export default function TYQPage() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}>
-            TYQ — This Year&apos;s Questions
+            Guess Papers
           </h1>
         </div>
         <p style={{ color: "#9CA3AF", fontSize: 15, margin: 0, lineHeight: 1.6 }}>
@@ -83,7 +83,7 @@ export default function TYQPage() {
           return (
             <button
               key={subject.id}
-              onClick={() => router.push(`/dashboard/tyq/${subject.id}`)}
+              onClick={() => router.push(`/dashboard/guess-papers/${subject.id}`)}
               onMouseEnter={() => setHoveredSubject(subject.id)}
               onMouseLeave={() => setHoveredSubject(null)}
               style={{

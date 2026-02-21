@@ -257,7 +257,7 @@
 
 ---
 
-### 8. **🚀 10-Day Sprint**
+### 8. **🚀 10-Day Sprint (Sprint 15)**
 
 **Purpose**: Intensive adaptive exam preparation program
 
@@ -478,10 +478,10 @@
 
 **Frontend**:
 
-- Next.js 14 (App Router)
-- React 18
+- Next.js 16 (App Router)
+- React 19
 - TypeScript
-- TailwindCSS (custom styling)
+- TailwindCSS 4 (custom dark theme)
 - tRPC for type-safe API calls
 
 **Backend**:
@@ -702,9 +702,9 @@
 
 ### Color Scheme
 
-- **Primary**: Emerald Green (#10B981) - Growth, success
-- **Background**: Dark (#0F172A) - Focus, premium feel
-- **Accent**: Blue (#3B82F6) - Trust, intelligence
+- **Primary**: Futuristic Purple (#8B5CF6) - Premium, modern
+- **Background**: Deep Black (#030303) - Focus, immersive
+- **Card Background**: Soft Graphite (#0E0E10) - Depth, layering
 - **Warning**: Amber (#F59E0B) - Attention areas
 - **Error**: Red (#EF4444) - Mistakes, weak areas
 

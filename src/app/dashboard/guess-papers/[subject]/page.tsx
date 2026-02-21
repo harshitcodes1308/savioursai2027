@@ -90,9 +90,9 @@ export default function TYQExamPage() {
     return (
       <div style={{ padding: 40, textAlign: "center" }}>
         <h2 style={{ color: "#EF4444" }}>Subject not found</h2>
-        <button onClick={() => router.push("/dashboard/tyq")}
+        <button onClick={() => router.push("/dashboard/guess-papers")}
           style={{ marginTop: 16, padding: "12px 24px", background: "#8B5CF6", color: "#FFF", border: "none", borderRadius: 12, cursor: "pointer" }}>
-          ← Back to TYQ
+          ← Back to Guess Papers
         </button>
       </div>
     );
@@ -104,7 +104,7 @@ export default function TYQExamPage() {
   if (phase === "intro") {
     return (
       <div style={{ padding: "32px 24px", maxWidth: 700, margin: "0 auto" }}>
-        <button onClick={() => router.push("/dashboard/tyq")}
+        <button onClick={() => router.push("/dashboard/guess-papers")}
           style={{
             background: "none", border: "none", color: "#9CA3AF", cursor: "pointer",
             fontSize: 14, marginBottom: 24, display: "flex", alignItems: "center", gap: 6,
@@ -475,7 +475,7 @@ export default function TYQExamPage() {
             📄 View Question Paper
           </button>
           <button
-            onClick={() => router.push("/dashboard/tyq")}
+            onClick={() => router.push("/dashboard/guess-papers")}
             style={{
               padding: "14px 36px",
               background: "linear-gradient(135deg, #EC4899, #8B5CF6)",
@@ -484,7 +484,7 @@ export default function TYQExamPage() {
               boxShadow: "0 8px 24px rgba(236,72,153,0.2)",
             }}
           >
-            🔄 Start New TYQ Test
+            🔄 Start New Test
           </button>
         </div>
       </div>

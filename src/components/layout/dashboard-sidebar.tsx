@@ -5,19 +5,46 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-const menuItems = [
-  { icon: "📊", label: "Dashboard", href: "/dashboard", accent: "#8B5CF6" },
-  { icon: "📚", label: "Subjects", href: "/dashboard/subjects", accent: "#3B82F6" },
-  { icon: "📅", label: "Planner", href: "/dashboard/planner", accent: "#10B981" },
-  { icon: "🤖", label: "AI Assistant", href: "/dashboard/ai-assistant", accent: "#F59E0B" },
-  { icon: "📝", label: "Customise Test", href: "/dashboard/tests", accent: "#EC4899" },
-  { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy", accent: "#EF4444" },
-  { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus", accent: "#06B6D4" },
-  { icon: "⚡", label: "Competency Test", href: "/dashboard/precision-practice", accent: "#F97316" },
-  { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers", accent: "#6366F1" },
-  { icon: "📖", label: "Notes", href: "/dashboard/notes", accent: "#14B8A6" },
-  { icon: "👤", label: "Profile", href: "/dashboard/profile", accent: "#A78BFA" },
-  { icon: "📜", label: "Policies", href: "/dashboard/policies", accent: "#6B7280" },
+const menuSections = [
+  {
+    title: "Primary",
+    items: [
+      { icon: "📊", label: "Dashboard", href: "/dashboard", accent: "#8B5CF6" },
+      { icon: "📚", label: "Subjects", href: "/dashboard/subjects", accent: "#3B82F6" },
+      { icon: "📅", label: "Planner", href: "/dashboard/planner", accent: "#10B981" },
+      { icon: "🤖", label: "AI Assistant", href: "/dashboard/ai-assistant", accent: "#F59E0B" },
+    ]
+  },
+  {
+    title: "Practice & Test",
+    items: [
+      { icon: "📝", label: "Customise Test", href: "/dashboard/tests", accent: "#EC4899" },
+      { icon: "⚡", label: "Competency Test", href: "/dashboard/precision-practice", accent: "#F97316" },
+      { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers", accent: "#6366F1" },
+      { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy", accent: "#EF4444" },
+    ]
+  },
+  {
+    title: "History",
+    items: [
+      { icon: "⏳", label: "ChronoScroll", href: "/dashboard/chronoscroll", accent: "#0EA5E9" },
+      { icon: "⚔️", label: "Date Battle Arena", href: "/dashboard/date-battle", accent: "#D946EF" },
+    ]
+  },
+  {
+    title: "Library",
+    items: [
+      { icon: "📖", label: "Notes", href: "/dashboard/notes", accent: "#14B8A6" },
+      { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus", accent: "#06B6D4" },
+    ]
+  },
+  {
+    title: "Account",
+    items: [
+      { icon: "👤", label: "Profile", href: "/dashboard/profile", accent: "#A78BFA" },
+      { icon: "📜", label: "Policies", href: "/dashboard/policies", accent: "#6B7280" },
+    ]
+  }
 ];
 
 export default function DashboardSidebar({
@@ -232,55 +259,58 @@ export default function DashboardSidebar({
           </div>
         </div>
 
-        {/* Section Label */}
-        <div style={{
-          padding: "12px 22px 6px",
-          fontSize: 9, fontWeight: 700, letterSpacing: 1.8,
-          textTransform: "uppercase", color: "#4B5563",
-        }}>
-          Navigation
-        </div>
-
         {/* Nav Links */}
-        <nav style={{ padding: "2px 10px", flex: 1, overflowY: "auto" }}>
-          {menuItems.map((item, idx) => {
-            const isActive = pathname === item.href;
-            const isHovered = hoveredItem === item.href;
-            const activeColor = item.accent;
-            return (
-              <button
-                key={item.href}
-                onClick={() => handleNavigation(item.href)}
-                onMouseEnter={() => setHoveredItem(item.href)}
-                onMouseLeave={() => setHoveredItem(null)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 11,
-                  width: "100%",
-                  padding: "10px 12px",
-                  marginBottom: 1,
-                  borderRadius: 12,
-                  position: "relative",
-                  overflow: "hidden",
-                  background: isActive
-                    ? `linear-gradient(135deg, ${activeColor}14, ${activeColor}08)`
-                    : isHovered
-                    ? "rgba(255,255,255,0.02)"
-                    : "transparent",
-                  color: isActive ? activeColor : isHovered ? "#E5E7EB" : "#9CA3AF",
-                  border: isActive
-                    ? `1px solid ${activeColor}25`
-                    : "1px solid transparent",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  fontSize: 13,
-                  fontWeight: isActive ? 650 : 500,
-                  letterSpacing: isActive ? 0.1 : 0,
-                  transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-                  transform: isHovered && !isActive ? "translateX(4px)" : "none",
-                }}
-              >
+        <nav style={{ padding: "0 10px 20px", flex: 1, overflowY: "auto" }}>
+          {menuSections.map((section, sIdx) => (
+            <div key={section.title} style={{ marginBottom: sIdx === menuSections.length - 1 ? 0 : 16 }}>
+              {/* Section Header */}
+              <div style={{
+                padding: "8px 12px 6px",
+                fontSize: 9, fontWeight: 700, letterSpacing: 1.5,
+                textTransform: "uppercase", color: "#4B5563",
+              }}>
+                {section.title}
+              </div>
+              
+              {/* Items in section */}
+              {section.items.map((item) => {
+                const isActive = pathname === item.href;
+                const isHovered = hoveredItem === item.href;
+                const activeColor = item.accent;
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => handleNavigation(item.href)}
+                    onMouseEnter={() => setHoveredItem(item.href)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 11,
+                      width: "100%",
+                      padding: "10px 12px",
+                      marginBottom: 1,
+                      borderRadius: 12,
+                      position: "relative",
+                      overflow: "hidden",
+                      background: isActive
+                        ? `linear-gradient(135deg, ${activeColor}14, ${activeColor}08)`
+                        : isHovered
+                        ? "rgba(255,255,255,0.02)"
+                        : "transparent",
+                      color: isActive ? activeColor : isHovered ? "#E5E7EB" : "#9CA3AF",
+                      border: isActive
+                        ? `1px solid ${activeColor}25`
+                        : "1px solid transparent",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      fontSize: 13,
+                      fontWeight: isActive ? 650 : 500,
+                      letterSpacing: isActive ? 0.1 : 0,
+                      transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                      transform: isHovered && !isActive ? "translateX(4px)" : "none",
+                    }}
+                  >
                 {/* Active indicator bar — colored per item */}
                 {isActive && (
                   <div style={{
@@ -338,6 +368,8 @@ export default function DashboardSidebar({
               </button>
             );
           })}
+            </div>
+          ))}
         </nav>
 
         {/* Footer */}

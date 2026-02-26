@@ -10,9 +10,10 @@ datasource db {
 model User {
   id                 String              @id @default(cuid())
   email              String              @unique
-  password           String
+  password           String?             // Optional: null for Google OAuth users
   name               String
-  phone              String?             @unique // Optional phone number (null for existing users)
+  phone              String?             @unique
+  authProvider       String              @default("credentials") // "credentials" or "google"
   role               UserRole            @default(STUDENT)
   isPaid             Boolean             @default(false)
   emailVerified      DateTime?
@@ -32,7 +33,7 @@ model User {
   teacherProfile     TeacherProfile?
   testAttempts       TestAttempt[]
   focusSessions      FocusSession[]
-  sprint15Days       Sprint15Day[]       // 15-day sprint plans
+  sprint15Days       Sprint15Day[]
 
   @@map("users")
 }

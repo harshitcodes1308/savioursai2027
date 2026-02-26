@@ -122,12 +122,14 @@ export async function authenticate(
 
     if (!user) return null;
 
+    // Google users cannot login with email/password
+    if (!user.password) return null;
+
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) return null;
 
     // GRANDFATHERING LOGIC
-    // Users created BEFORE Jan 29, 2026 (Launch Date) get Legacy Paid Status
-    const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30"); // IST
+    const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
     const isLegacyUser = user.createdAt < CUTOFF_DATE;
 
     return {
@@ -135,7 +137,7 @@ export async function authenticate(
         email: user.email,
         name: user.name,
         role: user.role,
-        isPaid: user.isPaid || isLegacyUser, // Valid if explicitly paid OR legacy
+        isPaid: user.isPaid || isLegacyUser,
     };
 }
 

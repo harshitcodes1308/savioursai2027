@@ -4,7 +4,7 @@ import { jwtVerify, SignJWT } from 'jose';
 import { prisma } from '@/lib/prisma';
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard'];
+const protectedRoutes = ['/dashboard', '/onboarding'];
 
 // Routes that should redirect to dashboard if authenticated
 const authRoutes = ['/login', '/signup'];
@@ -49,9 +49,33 @@ export async function middleware(request: NextRequest) {
 
     // 1. Redirect to login if accessing protected route without auth
     if (isProtectedRoute && !isAuthenticated) {
+        // Allow onboarding page to redirect to login (not loop)
         const url = new URL('/login', request.url);
         url.searchParams.set('redirect', pathname);
         return NextResponse.redirect(url);
+    }
+
+    // 1b. Phone check: redirect to /onboarding if no phone number
+    // Only check for dashboard routes (not onboarding itself or API routes)
+    if (pathname.startsWith('/dashboard') && isAuthenticated && token) {
+        try {
+            const secret = new TextEncoder().encode(
+                process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+            );
+            const { payload } = await jwtVerify(token, secret);
+            const userId = (payload.user as any)?.id;
+            if (userId) {
+                const dbUser = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { phone: true }
+                });
+                if (dbUser && !dbUser.phone) {
+                    return NextResponse.redirect(new URL('/onboarding', request.url));
+                }
+            }
+        } catch {
+            // Token invalid, let the normal auth flow handle it
+        }
     }
 
     // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid (from protected routes only)
@@ -162,6 +186,6 @@ export const config = {
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
          */
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|logo.png).*)',
     ],
 };

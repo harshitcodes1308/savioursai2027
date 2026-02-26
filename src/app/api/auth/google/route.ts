@@ -1,6 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit, GOOGLE_AUTH_RATE_LIMIT } from "@/lib/api-rate-limit";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    // Rate limit Google auth attempts by IP
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    const rateCheck = checkRateLimit(`google-auth:${ip}`, GOOGLE_AUTH_RATE_LIMIT);
+    if (!rateCheck.allowed) {
+        return NextResponse.json({ error: "Too many attempts. Please try again later." }, { status: 429 });
+    }
+
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
     const redirectUri = `${baseUrl}/api/auth/google/callback`;

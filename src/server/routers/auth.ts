@@ -8,6 +8,7 @@ import {
     clearSessionCookie,
 } from "@/lib/auth";
 import { ConflictError, ValidationError, AuthenticationError } from "@/lib/errors";
+import { checkRateLimit, AUTH_RATE_LIMIT } from "@/lib/api-rate-limit";
 
 export const authRouter = createTRPCRouter({
     /**
@@ -24,6 +25,13 @@ export const authRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            // Rate limit signup attempts
+            const rateLimitKey = `signup:${input.email.toLowerCase()}`;
+            const rateCheck = checkRateLimit(rateLimitKey, AUTH_RATE_LIMIT);
+            if (!rateCheck.allowed) {
+                throw new ValidationError(`Too many attempts. Please try again in ${rateCheck.retryAfterSeconds}s.`);
+            }
+
             try {
                 // Check for existing phone number first
                 if (input.phone) {
@@ -108,6 +116,13 @@ export const authRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            // Rate limit login attempts
+            const rateLimitKey = `login:${input.email.toLowerCase()}`;
+            const rateCheck = checkRateLimit(rateLimitKey, AUTH_RATE_LIMIT);
+            if (!rateCheck.allowed) {
+                throw new AuthenticationError(`Too many login attempts. Please try again in ${rateCheck.retryAfterSeconds}s.`);
+            }
+
             try {
                 // RULE 1: Removed strict 'W' password check to allow normal login/signup
                 // if (!input.password.startsWith('W')) { ... }

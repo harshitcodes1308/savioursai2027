@@ -56,8 +56,8 @@ export async function middleware(request: NextRequest) {
     }
 
     // 1b. Phone check: redirect to /onboarding if no phone number
-    // Only check for dashboard routes (not onboarding itself or API routes)
-    if (pathname.startsWith('/dashboard') && isAuthenticated && token) {
+    // Check for dashboard AND pricing routes (not onboarding itself)
+    if ((pathname.startsWith('/dashboard') || pathname === '/pricing') && isAuthenticated && token) {
         try {
             const secret = new TextEncoder().encode(
                 process.env.JWT_SECRET || 'your-secret-key-change-in-production'
@@ -78,8 +78,9 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid (from protected routes only)
-    if (isProtectedRoute && isAuthenticated && !isPaid && token) {
+    // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid
+    // EXCLUDED: /onboarding (users must enter phone before paying)
+    if (isProtectedRoute && !pathname.startsWith('/onboarding') && isAuthenticated && !isPaid && token) {
         // CRITICAL FIX: Verify against DB in case isPaid was updated manually
         // This prevents stale token issue where DB has isPaid=true but token has isPaid=false
         try {

@@ -17,6 +17,7 @@ export async function createTRPCContext(opts?: FetchCreateContextFnOptions) {
         prisma,
         session,
         user: session?.user,
+        resHeaders: opts?.resHeaders,
     };
 }
 

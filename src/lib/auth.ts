@@ -86,27 +86,43 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 /**
  * Set session cookie
  */
-export async function setSessionCookie(token: string, rememberMe: boolean = false) {
-    const cookieStore = await cookies();
+export async function setSessionCookie(token: string, rememberMe: boolean = false, resHeaders?: Headers) {
     const maxAge = rememberMe
         ? 60 * 60 * 24 * 30 // 30 days
         : 60 * 60 * 24 * 1; // 1 day
 
-    cookieStore.set("auth-token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge,
-        path: "/",
-    });
+    if (resHeaders) {
+        const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+        resHeaders.append(
+            "Set-Cookie",
+            `auth-token=${token}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`
+        );
+    } else {
+        const cookieStore = await cookies();
+        cookieStore.set("auth-token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge,
+            path: "/",
+        });
+    }
 }
 
 /**
  * Clear session cookie
  */
-export async function clearSessionCookie() {
-    const cookieStore = await cookies();
-    cookieStore.delete("auth-token");
+export async function clearSessionCookie(resHeaders?: Headers) {
+    if (resHeaders) {
+        const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+        resHeaders.append(
+            "Set-Cookie",
+            `auth-token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`
+        );
+    } else {
+        const cookieStore = await cookies();
+        cookieStore.delete("auth-token");
+    }
 }
 
 /**

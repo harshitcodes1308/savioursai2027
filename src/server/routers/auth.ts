@@ -82,7 +82,7 @@ export const authRouter = createTRPCRouter({
                 }
 
                 const token = await createToken(user);
-                await setSessionCookie(token);
+                await setSessionCookie(token, false, ctx.resHeaders);
 
                 return {
                     success: true,
@@ -208,8 +208,8 @@ export const authRouter = createTRPCRouter({
                 }
 
                 const token = await createToken(authenticatedUser);
-                // Pass rememberMe flag to cookie setter
-                await setSessionCookie(token, input.rememberMe || false);
+                // Pass rememberMe flag and resHeaders to cookie setter
+                await setSessionCookie(token, input.rememberMe || false, ctx.resHeaders);
 
                 return {
                     success: true,
@@ -226,7 +226,7 @@ export const authRouter = createTRPCRouter({
                 if (error instanceof TRPCError) throw error;
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "Failed to authenticate user"
+                    message: "Failed to authenticate user: " + (error instanceof Error ? error.message : String(error))
                 });
             }
         }),
@@ -234,8 +234,8 @@ export const authRouter = createTRPCRouter({
     /**
      * Logout user
      */
-    logout: protectedProcedure.mutation(async () => {
-        await clearSessionCookie();
+    logout: protectedProcedure.mutation(async ({ ctx }) => {
+        await clearSessionCookie(ctx.resHeaders);
         return { success: true };
     }),
 

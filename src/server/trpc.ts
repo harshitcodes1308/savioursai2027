@@ -33,9 +33,7 @@ const t = initTRPC.context<Context>().create({
 
         return {
             ...shape,
-            message: isProduction && error.code === "INTERNAL_SERVER_ERROR"
-                ? "Something went wrong"
-                : shape.message,
+            message: error.message,
             data: {
                 ...shape.data,
                 zodError:

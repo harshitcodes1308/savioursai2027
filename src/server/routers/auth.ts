@@ -7,7 +7,7 @@ import {
     setSessionCookie,
     clearSessionCookie,
 } from "@/lib/auth";
-import { ConflictError, ValidationError, AuthenticationError } from "@/lib/errors";
+import { TRPCError } from "@trpc/server";
 import { checkRateLimit, AUTH_RATE_LIMIT } from "@/lib/api-rate-limit";
 
 export const authRouter = createTRPCRouter({
@@ -29,7 +29,10 @@ export const authRouter = createTRPCRouter({
             const rateLimitKey = `signup:${input.email.toLowerCase()}`;
             const rateCheck = checkRateLimit(rateLimitKey, AUTH_RATE_LIMIT);
             if (!rateCheck.allowed) {
-                throw new ValidationError(`Too many attempts. Please try again in ${rateCheck.retryAfterSeconds}s.`);
+                throw new TRPCError({
+                    code: "TOO_MANY_REQUESTS",
+                    message: `Too many attempts. Please try again in ${rateCheck.retryAfterSeconds}s.`
+                });
             }
 
             try {
@@ -40,7 +43,10 @@ export const authRouter = createTRPCRouter({
                     });
                     
                     if (existingPhone) {
-                        throw new ConflictError("This phone number already exists. Please use a different number.");
+                        throw new TRPCError({
+                            code: "CONFLICT",
+                            message: "This phone number already exists. Please use a different number."
+                        });
                     }
                 }
                 
@@ -49,7 +55,10 @@ export const authRouter = createTRPCRouter({
                 });
 
                 if (existingUser) {
-                    throw new ConflictError("User with this email already exists");
+                    throw new TRPCError({
+                        code: "CONFLICT",
+                        message: "User with this email already exists"
+                    });
                 }
 
                 const user = await createUser(
@@ -89,13 +98,24 @@ export const authRouter = createTRPCRouter({
                 if (error.code === 'P2002') {
                     const field = error.meta?.target?.[0];
                     if (field === 'phone') {
-                        throw new ConflictError("This phone number already exists. Please use a different number.");
+                        throw new TRPCError({
+                            code: "CONFLICT",
+                            message: "This phone number already exists. Please use a different number."
+                        });
                     } else if (field === 'email') {
-                        throw new ConflictError("User with this email already exists");
+                        throw new TRPCError({
+                            code: "CONFLICT",
+                            message: "User with this email already exists"
+                        });
                     }
                 }
-                // Re-throw other errors
-                throw error;
+                
+                // Keep TRPCErrors intact, wrap others
+                if (error instanceof TRPCError) throw error;
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "An expected error occurred during signup"
+                });
             }
         }),
 
@@ -120,7 +140,10 @@ export const authRouter = createTRPCRouter({
             const rateLimitKey = `login:${input.email.toLowerCase()}`;
             const rateCheck = checkRateLimit(rateLimitKey, AUTH_RATE_LIMIT);
             if (!rateCheck.allowed) {
-                throw new AuthenticationError(`Too many login attempts. Please try again in ${rateCheck.retryAfterSeconds}s.`);
+                throw new TRPCError({
+                    code: "TOO_MANY_REQUESTS",
+                    message: `Too many login attempts. Please try again in ${rateCheck.retryAfterSeconds}s.`
+                });
             }
 
             try {
@@ -146,7 +169,10 @@ export const authRouter = createTRPCRouter({
                     }
 
                     if (!authenticatedUser) {
-                        throw new AuthenticationError("Invalid email or password");
+                        throw new TRPCError({
+                            code: "UNAUTHORIZED",
+                            message: "Invalid email or password"
+                        });
                     }
 
                 } else {
@@ -175,7 +201,10 @@ export const authRouter = createTRPCRouter({
                 // Final Step: Issue Session
                 if (!authenticatedUser) {
                     // Should be unreachable, but for type safety
-                     throw new AuthenticationError("Authentication failed");
+                     throw new TRPCError({
+                         code: "UNAUTHORIZED",
+                         message: "Authentication failed"
+                     });
                 }
 
                 const token = await createToken(authenticatedUser);
@@ -194,7 +223,11 @@ export const authRouter = createTRPCRouter({
 
             } catch (error) {
                 console.error("Login/Auth error:", error);
-                throw error;
+                if (error instanceof TRPCError) throw error;
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Failed to authenticate user"
+                });
             }
         }),
 

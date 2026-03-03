@@ -20,6 +20,7 @@ const menuSections = [
     items: [
       { icon: "📝", label: "Customise Test", href: "/dashboard/tests", accent: "#EC4899" },
       { icon: "⚡", label: "Competency Test", href: "/dashboard/precision-practice", accent: "#F97316" },
+      { icon: "🧮", label: "Numerical Mastery", href: "/dashboard/numerical-mastery", accent: "#3B82F6" },
       { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers", accent: "#6366F1" },
       { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy", accent: "#EF4444" },
     ]

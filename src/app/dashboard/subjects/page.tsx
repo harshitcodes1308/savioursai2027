@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { typography } from "@/lib/typography";
+import { useResponsive } from "@/hooks/useResponsive";
 
 export default function SubjectsPage() {
+    const { isMobile, isTablet } = useResponsive();
     const { data: subjects, isLoading } = trpc.content.getSubjects.useQuery();
 
     if (isLoading) {
@@ -41,8 +43,9 @@ export default function SubjectsPage() {
 
     return (
         <div style={{
-            minHeight: "100vh", padding: "32px",
+            minHeight: "100vh", padding: isMobile ? "12px" : isTablet ? "20px" : "32px",
             background: "radial-gradient(ellipse at 30% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303",
+            boxSizing: "border-box" as const, overflowX: "hidden" as const,
         }}>
             <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
                 {/* Header */}
@@ -57,7 +60,7 @@ export default function SubjectsPage() {
                         📚 ICSE Class 10
                     </div>
                     <h1 style={{
-                        fontSize: "32px", fontWeight: 800, marginBottom: "8px",
+                        fontSize: isMobile ? "22px" : "32px", fontWeight: 800, marginBottom: "8px",
                         letterSpacing: -0.5,
                         background: "linear-gradient(135deg, #FFFFFF 0%, #A78BFA 100%)",
                         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
@@ -72,8 +75,8 @@ export default function SubjectsPage() {
                 {/* Subjects Grid */}
                 <div style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                    gap: "20px",
+                    gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: isMobile ? "12px" : "20px",
                 }}>
                     {subjects?.map((subject, idx) => {
                         const color = subjectColors[subject.name] || "#8B5CF6";
@@ -86,7 +89,7 @@ export default function SubjectsPage() {
                                 <div
                                     className={`dashboard-card animate-slideInUp delay-${(idx % 4) * 100 + 100}`}
                                     style={{
-                                        padding: "28px",
+                                        padding: isMobile ? "18px" : "28px",
                                         cursor: "pointer",
                                         height: "100%",
                                         display: "flex",

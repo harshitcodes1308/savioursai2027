@@ -6,6 +6,7 @@ import { typography } from "@/lib/typography";
 import ReactMarkdown from "react-markdown";
 import "../markdown-styles.css";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface Message {
     role: "user" | "assistant";
@@ -21,6 +22,7 @@ interface Message {
 }
 
 export default function AIAssistantPage() {
+    const { isMobile, isTablet } = useResponsive();
 
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -181,15 +183,17 @@ export default function AIAssistantPage() {
     };
 
     return (
-        <div style={{ padding: "24px", maxWidth: "1000px", margin: "0 auto", height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.03) 0%, transparent 50%), #030303" }}>
+        <div style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1000px", margin: "0 auto", height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.03) 0%, transparent 50%), #030303", overflowX: "hidden" as const, boxSizing: "border-box" as const }}>
             {/* Header */}
             <div className="dashboard-card animate-fadeIn" style={{
-                padding: "16px 28px",
-                marginBottom: "20px",
+                padding: isMobile ? "12px 14px" : "16px 28px",
+                marginBottom: isMobile ? "12px" : "20px",
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: isMobile ? "flex-start" : "center",
                 borderRadius: "18px",
+                flexDirection: isMobile ? "column" : "row",
+                gap: isMobile ? 10 : 0,
             }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 36, height: 36, borderRadius: 10, background: mode === "chat" ? "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05))" : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{mode === "chat" ? "🤖" : "⚡"}</div>

@@ -2,13 +2,13 @@
 
 import { useState, useRef, useEffect, UIEvent } from "react";
 import { typography } from "@/lib/typography";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useResponsive } from "@/hooks/useResponsive";
 
 import { CHRONO_DATA } from "@/data/chrono-config";
 
 
 export default function ChronoScrollPage() {
-    const isMobile = useIsMobile();
+    const { isMobile } = useResponsive();
     const [activeIndex, setActiveIndex] = useState(0);
     const [showRecall, setShowRecall] = useState(false);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);

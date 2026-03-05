@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const menuSections = [
   {
@@ -51,14 +53,17 @@ const menuSections = [
 export default function DashboardSidebar({
   userName,
   userEmail,
+  isPaid = true,
 }: {
   userName?: string;
   userEmail?: string;
+  isPaid?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [upgradeFeature, setUpgradeFeature] = useState<{ name: string; description: string } | null>(null);
   const isMobile = useIsMobile();
 
   const initials = userName
@@ -66,6 +71,15 @@ export default function DashboardSidebar({
     : "U";
 
   const handleNavigation = (href: string) => {
+    // If free user clicks a locked route, show UpgradePrompt
+    if (!isPaid && isLockedRoute(href)) {
+      const info = getFeatureInfo(href);
+      if (info) {
+        setUpgradeFeature(info);
+        setIsOpen(false);
+        return;
+      }
+    }
     setIsOpen(false);
     router.push(href);
   };
@@ -351,7 +365,16 @@ export default function DashboardSidebar({
                 }}>
                   {item.icon}
                 </div>
-                <span style={{ whiteSpace: "nowrap" }}>{item.label}</span>
+                <span style={{ whiteSpace: "nowrap", flex: 1 }}>{item.label}</span>
+                {/* Lock icon for free users on locked routes */}
+                {!isPaid && isLockedRoute(item.href) && (
+                  <span style={{
+                    fontSize: 12,
+                    opacity: 0.6,
+                    marginLeft: "auto",
+                    flexShrink: 0,
+                  }}>🔒</span>
+                )}
                 {isActive && (
                   <div style={{
                     position: "absolute",
@@ -391,6 +414,15 @@ export default function DashboardSidebar({
           </div>
         </div>
       </aside>
+
+      {/* UpgradePrompt overlay for free users */}
+      {upgradeFeature && (
+        <UpgradePrompt
+          featureName={upgradeFeature.name}
+          description={upgradeFeature.description}
+          onClose={() => setUpgradeFeature(null)}
+        />
+      )}
     </>
   );
 }

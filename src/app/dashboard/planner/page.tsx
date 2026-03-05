@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc/client";
 import { useRouter } from "next/navigation";
 import { typography } from "@/lib/typography";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface SelectedChapter {
     chapterId: string;
@@ -15,6 +16,7 @@ interface SelectedChapter {
 
 export default function SmartPlannerPage() {
     const router = useRouter();
+    const { isMobile, isTablet } = useResponsive();
     const [selectedChapters, setSelectedChapters] = useState<SelectedChapter[]>([]);
     const [startDate, setStartDate] = useState("");
     const [targetDate, setTargetDate] = useState("");
@@ -97,13 +99,13 @@ export default function SmartPlannerPage() {
     // Show timeline if there are plans
     if (plans && plans.length > 0) {
         return (
-            <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.04) 0%, transparent 50%), #030303" }}>
+            <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.04) 0%, transparent 50%), #030303", overflowX: "hidden" as const }}>
                 {/* Header with Progress */}
-                <div style={{ background: "linear-gradient(180deg, rgba(14,14,20,0.98), rgba(14,14,20,0.95))", padding: "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.04)", backdropFilter: "blur(20px)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                <div style={{ background: "linear-gradient(180deg, rgba(14,14,20,0.98), rgba(14,14,20,0.95))", padding: isMobile ? "16px" : "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.04)", backdropFilter: "blur(20px)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", marginBottom: "16px", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                             <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📅</div>
-                            <h1 style={{ fontSize: "24px", fontWeight: 800, margin: 0, background: "linear-gradient(135deg, #FFF, #34D399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.5 }}>
+                            <h1 style={{ fontSize: isMobile ? "18px" : "24px", fontWeight: 800, margin: 0, background: "linear-gradient(135deg, #FFF, #34D399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.5 }}>
                                 Your Study Timeline
                             </h1>
                         </div>
@@ -156,7 +158,7 @@ export default function SmartPlannerPage() {
                 </div>
 
                 {/* Timeline Content */}
-                <div style={{ flex: 1, overflow: "auto", padding: "32px" }}>
+                <div style={{ flex: 1, overflow: "auto", padding: isMobile ? "16px" : "32px" }}>
                     <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
                         {Object.entries(plansByDate).map(([dateStr, dayPlans]) => (
                             <div key={dateStr} style={{ marginBottom: "40px" }}>
@@ -175,7 +177,7 @@ export default function SmartPlannerPage() {
                                     })}
                                 </h3>
 
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "20px" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(320px, 1fr))", gap: isMobile ? "12px" : "20px" }}>
                                     {dayPlans.map((plan: any) => (
                                         <div
                                             key={plan.id}
@@ -257,19 +259,19 @@ export default function SmartPlannerPage() {
 
     // Show plan creation form
     return (
-        <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303", padding: "40px" }}>
+        <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303", padding: isMobile ? "16px" : "40px", overflowY: "auto", overflowX: "hidden" as const }}>
             <div className="animate-fadeIn" style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
                 <div style={{ textAlign: "center", marginBottom: 16 }}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", borderRadius: 20, padding: "6px 14px", fontSize: 11, fontWeight: 600, color: "#A78BFA", letterSpacing: 1, textTransform: "uppercase" }}>🎯 AI-Powered</div>
                 </div>
-                <h1 style={{ fontSize: "32px", fontWeight: 800, marginBottom: "10px", textAlign: "center", letterSpacing: -0.5, background: "linear-gradient(135deg, #FFF, #A78BFA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                <h1 style={{ fontSize: isMobile ? "22px" : "32px", fontWeight: 800, marginBottom: "10px", textAlign: "center", letterSpacing: -0.5, background: "linear-gradient(135deg, #FFF, #A78BFA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                     Smart Study Planner
                 </h1>
-                <p style={{ color: "#6B7280", fontSize: "14px", marginBottom: "36px", textAlign: "center" }}>
+                <p style={{ color: "#6B7280", fontSize: isMobile ? "13px" : "14px", marginBottom: isMobile ? "24px" : "36px", textAlign: "center" }}>
                     Select subjects and chapters, AI will create a smart timeline with difficulty prediction
                 </p>
 
-                <div className="dashboard-card" style={{ padding: "32px" }}>
+                <div className="dashboard-card" style={{ padding: isMobile ? "16px" : "32px" }}>
                     {/* Subjects and Chapters */}
                     <div style={{ marginBottom: "28px" }}>
                         <label style={{

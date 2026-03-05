@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useResponsive } from "@/hooks/useResponsive";
 import { physicsQuestions } from "@/data/precision-physics";
 import { mathsQuestions } from "@/data/precision-maths";
 import {
@@ -93,6 +94,7 @@ function formatSec(seconds: number): string {
 type Phase = "subject" | "chapter" | "countdown" | "test" | "analytics";
 
 export default function CompetencyTestPage() {
+  const { isMobile } = useResponsive();
   const [phase, setPhase] = useState<Phase>("subject");
   const [selectedSubject, setSelectedSubject] = useState<PrecisionSubject | null>(null);
   const [selectedChapter, setSelectedChapter] = useState("");
@@ -231,7 +233,7 @@ export default function CompetencyTestPage() {
   // =============================================
   if (phase === "subject") {
     return (
-      <div style={{ padding: "32px 24px", maxWidth: 1000, margin: "0 auto" }}>
+      <div style={{ padding: isMobile ? "16px" : "32px 24px", maxWidth: 1000, margin: "0 auto", boxSizing: "border-box" as const, overflowX: "hidden" as const }}>
         {/* Hero */}
         <div
           style={{

@@ -6,6 +6,7 @@ import { typography } from "@/lib/typography";
 import ReactMarkdown from "react-markdown";
 import { ChevronRight, ChevronLeft, Brain, RotateCcw, Copy } from "lucide-react";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
+import { useResponsive } from "@/hooks/useResponsive";
 
 // --- Types ---
 type WizardStep = 0 | 1 | 2 | 3 | 4 | 5 | 6; // 6 is result
@@ -64,6 +65,7 @@ const MODES = [
 ] as const;
 
 export default function StrategyPage() {
+    const { isMobile, isTablet } = useResponsive();
     const [step, setStep] = useState<WizardStep>(0);
     const [data, setData] = useState<StrategyData>(INITIAL_DATA);
     const [generatedStrategy, setGeneratedStrategy] = useState<string | null>(null);
@@ -126,7 +128,7 @@ export default function StrategyPage() {
                         <h2 style={{ ...typography.display, fontSize: '24px', marginBottom: '16px' }}>
                             Select the subjects you are appearing for:
                         </h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? '10px' : '16px', marginTop: '24px' }}>
                             {SUBJECT_LIST.map((sub) => {
                                 const isSelected = data.subjects.includes(sub);
                                 return (
@@ -200,7 +202,7 @@ export default function StrategyPage() {
                             Select the relevant subjects for each category.
                         </p>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '20px' : '32px' }}>
                             {/* Weaknesses */}
                             <div>
                                 <h3 style={{ ...typography.text, fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#EF4444' }}>
@@ -421,7 +423,7 @@ export default function StrategyPage() {
                         <h2 style={{ ...typography.display, fontSize: '24px', marginBottom: '16px' }}>
                             Select Strategy Mode
                         </h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px', marginTop: '24px' }}>
                             {MODES.map((mode) => (
                                 <button
                                     key={mode.id}
@@ -467,8 +469,8 @@ export default function StrategyPage() {
 
             case 6: // Result
                 return (
-                    <div className="dashboard-card" style={{ padding: '48px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                    <div className="dashboard-card" style={{ padding: isMobile ? '20px' : '48px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', marginBottom: '32px', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 0 }}>
                             <h2 style={{ ...typography.display, fontSize: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <Brain style={{ color: '#8B5CF6' }} /> Your Strategy
                             </h2>
@@ -510,7 +512,7 @@ export default function StrategyPage() {
     };
 
     return (
-        <div style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', backgroundColor: '#030303' }}>
+        <div style={{ padding: isMobile ? '16px' : '32px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', backgroundColor: '#030303', boxSizing: 'border-box' as const, overflowX: 'hidden' as const }}>
             <GenerationLoader 
                 isVisible={generateMutation.isPending} 
                 label="Crafting Strategy..." 

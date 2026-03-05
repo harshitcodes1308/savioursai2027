@@ -5,11 +5,11 @@ import { trpc } from "@/lib/trpc/client";
 import { useEffect, useMemo } from "react";
 import { typography } from "@/lib/typography";
 import { LazyCard } from "@/components/ui/LazyCard";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useResponsive } from "@/hooks/useResponsive";
 
 export default function DashboardPage() {
     const router = useRouter();
-    const isMobile = useIsMobile();
+    const { isMobile, isTablet } = useResponsive();
 
     const { data: profile, isLoading: profileLoading } = trpc.dashboard.getProfile.useQuery(undefined, {
         refetchOnWindowFocus: true,
@@ -98,17 +98,21 @@ export default function DashboardPage() {
         <div style={{
             minHeight: "100vh",
             background: "radial-gradient(ellipse at 0% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303",
-            padding: isMobile ? "16px" : "32px",
+            padding: isMobile ? "12px" : isTablet ? "20px" : "32px",
             transition: "all 0.2s ease-in-out",
+            boxSizing: "border-box" as const,
+            overflowX: "hidden" as const,
         }}>
             {/* Header */}
             <div className="animate-fadeIn" style={{
-                maxWidth: "1400px", margin: "0 auto 36px",
-                display: "flex", justifyContent: "space-between", alignItems: "center",
+                maxWidth: "1400px", margin: isMobile ? "0 auto 20px" : "0 auto 36px",
+                display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center",
+                flexDirection: isMobile ? "column" : "row",
+                gap: isMobile ? 12 : 0,
             }}>
                 <div>
                     <h1 style={{
-                        fontSize: isMobile ? "24px" : "34px", fontWeight: 800,
+                        fontSize: isMobile ? "22px" : isTablet ? "28px" : "34px", fontWeight: 800,
                         marginBottom: "6px", letterSpacing: -0.5,
                         background: "linear-gradient(135deg, #FFFFFF 0%, #A78BFA 100%)",
                         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
@@ -150,13 +154,13 @@ export default function DashboardPage() {
             <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
                 <div className="dashboard-grid" style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                    gap: "20px",
+                    gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(280px, 1fr))",
+                    gap: isMobile ? "12px" : "20px",
                 }}>
 
                     {/* Today's Study Plan */}
                     <div className="dashboard-card animate-slideInUp" style={{
-                        padding: "28px", minHeight: "280px",
+                        padding: isMobile ? "18px" : "28px", minHeight: isMobile ? "220px" : "280px",
                         display: "flex", flexDirection: "column",
                     }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
@@ -216,7 +220,8 @@ export default function DashboardPage() {
 
                     {/* Exam Readiness */}
                     <div className="dashboard-card animate-slideInUp delay-100" style={{
-                        padding: "28px", height: "280px",
+                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
+                        minHeight: isMobile ? "220px" : undefined,
                         display: "flex", flexDirection: "column",
                         overflow: "hidden",
                     }}>
@@ -269,7 +274,8 @@ export default function DashboardPage() {
 
                     {/* Learning Streak */}
                     <div className="dashboard-card animate-slideInUp delay-200" style={{
-                        padding: "28px", height: "280px",
+                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
+                        minHeight: isMobile ? "220px" : undefined,
                         overflow: "hidden", display: "flex", flexDirection: "column",
                         position: "relative",
                     }}>
@@ -320,7 +326,7 @@ export default function DashboardPage() {
 
                     {/* Quick Actions */}
                     <div className="dashboard-card animate-slideInUp delay-300" style={{
-                        padding: "28px", minHeight: "280px",
+                        padding: isMobile ? "18px" : "28px", minHeight: isMobile ? "220px" : "280px",
                         display: "flex", flexDirection: "column",
                     }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
@@ -371,7 +377,8 @@ export default function DashboardPage() {
 
                     {/* Weekly Progress */}
                     <div className="dashboard-card animate-slideInUp delay-400" style={{
-                        padding: "28px", height: "280px",
+                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
+                        minHeight: isMobile ? "220px" : undefined,
                         overflow: "hidden", display: "flex", flexDirection: "column",
                     }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -418,7 +425,8 @@ export default function DashboardPage() {
 
                     {/* Insights Coming Soon */}
                     <div className="dashboard-card animate-slideInUp delay-500" style={{
-                        padding: "28px", height: "280px",
+                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
+                        minHeight: isMobile ? "180px" : undefined,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         position: "relative", overflow: "hidden",
                     }}>

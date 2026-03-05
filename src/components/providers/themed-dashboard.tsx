@@ -7,11 +7,13 @@ import { ReactNode } from 'react';
 export function ThemedDashboardContent({
     children,
     userName,
-    userEmail
+    userEmail,
+    isPaid,
 }: {
     children: ReactNode;
     userName?: string;
     userEmail?: string;
+    isPaid?: boolean;
 }) {
     const [isMobile, setIsMobile] = useState(false);
 
@@ -24,7 +26,7 @@ export function ThemedDashboardContent({
 
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#030303' }}>
-            <DashboardSidebar userName={userName} userEmail={userEmail} />
+            <DashboardSidebar userName={userName} userEmail={userEmail} isPaid={isPaid} />
 
             {/* Main Content */}
             <main

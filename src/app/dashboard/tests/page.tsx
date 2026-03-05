@@ -5,6 +5,7 @@ import { trpc } from '@/lib/trpc/client';
 import { typography } from '@/lib/typography';
 import { ICSE_SUBJECTS, ICSE_CHAPTERS } from '@/lib/icse-data';
 import type { MCQ } from '@/lib/test-generator';
+import { useResponsive } from '@/hooks/useResponsive';
 
 type Step =
     | 'subject'
@@ -18,6 +19,7 @@ type Step =
     | 'solutions';
 
 export default function CustomiseTestPage() {
+    const { isMobile } = useResponsive();
     const [step, setStep] = useState<Step>('subject');
 
     // Config states
@@ -101,7 +103,7 @@ export default function CustomiseTestPage() {
     const currentQ = questions[currentQuestion];
 
     return (
-        <div style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ padding: isMobile ? '16px' : '32px', maxWidth: '1200px', margin: '0 auto', boxSizing: 'border-box' as const, overflowX: 'hidden' as const }}>
             <h1 style={{ ...typography.display, fontSize: '32px', marginBottom: '24px' }}>
                 Customise Test
             </h1>
@@ -112,7 +114,7 @@ export default function CustomiseTestPage() {
                     <h2 style={{ ...typography.display, fontSize: '24px', marginBottom: '16px' }}>
                         Select  the subject you want to create a test for:
                     </h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? '10px' : '16px', marginTop: '24px' }}>
                         {ICSE_SUBJECTS.map((sub) => (
                             <button
                                 key={sub}

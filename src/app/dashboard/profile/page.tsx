@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc/client';
 import { typography } from '@/lib/typography';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function ProfilePage() {
+    const { isMobile } = useResponsive();
     const { data: stats, isLoading } = trpc.profile.getStats.useQuery();
     const { data: user } = trpc.auth.getProfile.useQuery();
 
@@ -40,7 +42,7 @@ export default function ProfilePage() {
     const hasActivity = stats && stats.totalTests > 0;
 
     return (
-        <div style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ padding: isMobile ? '16px' : '32px', maxWidth: '1200px', margin: '0 auto', boxSizing: 'border-box' as const, overflowX: 'hidden' as const }}>
             {/* Header */}
             <div style={{ marginBottom: '32px' }}>
                 <h1 style={{ ...typography.display, fontSize: '32px', marginBottom: '8px' }}>
@@ -52,8 +54,8 @@ export default function ProfilePage() {
             </div>
 
             {/* Profile Card */}
-            <div className="dashboard-card" style={{ padding: '32px', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <div className="dashboard-card" style={{ padding: isMobile ? '20px' : '32px', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: isMobile ? 'center' : 'center', gap: isMobile ? '16px' : '24px', flexDirection: isMobile ? 'column' : 'row' }}>
                     {/* Avatar */}
                     <div style={{
                         width: '96px',
@@ -177,7 +179,7 @@ export default function ProfilePage() {
                     <h3 style={{ ...typography.display, fontSize: '20px', marginBottom: '16px' }}>
                         Your Progress
                     </h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '32px' }}>
                         <div className="dashboard-card" style={{ padding: '24px' }}>
                             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📝</div>
                             <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px' }}>

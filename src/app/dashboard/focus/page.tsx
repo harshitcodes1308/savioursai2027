@@ -5,6 +5,7 @@ import { trpc } from '@/lib/trpc/client';
 import { typography } from '@/lib/typography';
 import { FocusTaskType, FocusModeType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import { useResponsive } from '@/hooks/useResponsive';
 
 // --- Types ---
 type FocusState = 'SETUP_CONTEXT' | 'SETUP_TIME' | 'SETUP_STYLE' | 'SETUP_CUSTOM' | 'PREVIEW_PLAN' | 'ACTIVE' | 'REFLECTION' | 'SUMMARY';
@@ -39,6 +40,7 @@ const TASK_TYPES: { id: FocusTaskType; label: string }[] = [
 
 export default function FocusPage() {
     const router = useRouter();
+    const { isMobile } = useResponsive();
     
     const [state, setState] = useState<FocusState>('SETUP_CONTEXT');
     const [subject, setSubject] = useState('');
@@ -160,7 +162,7 @@ export default function FocusPage() {
     const totalFocusBlocks = blocks.filter(b => b.type === 'FOCUS').length;
     
     return (
-        <div style={{ padding: '32px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ padding: isMobile ? '16px' : '32px', maxWidth: '900px', margin: '0 auto', boxSizing: 'border-box' as const, overflowX: 'hidden' as const }}>
             {/* STEP 1: Subject + Task Type */}
             {state === 'SETUP_CONTEXT' && (
                 <>
@@ -257,7 +259,7 @@ export default function FocusPage() {
                         <p style={{ fontSize: '20px', color: '#9CA3AF', marginTop: '16px' }}>minutes</p>
                     </div>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
                         {[30, 60, 90, 120].map(preset => (
                             <button
                                 key={preset}
@@ -379,7 +381,7 @@ export default function FocusPage() {
                             {currentBlock.type === 'FOCUS' ? '🎯 Focus Block' : '☕ Break Time'}
                         </div>
                         
-                        <div style={{ fontSize: '72px', fontWeight: 'bold', color: currentBlock.type === 'FOCUS' ? '#8B5CF6' : '#38BDF8', marginBottom: '16px' }}>
+                        <div style={{ fontSize: isMobile ? '48px' : '72px', fontWeight: 'bold', color: currentBlock.type === 'FOCUS' ? '#8B5CF6' : '#38BDF8', marginBottom: '16px' }}>
                             {formatTime(timeRemaining)}
                         </div>
                         

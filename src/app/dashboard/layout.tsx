@@ -10,12 +10,17 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const { data: profile } = trpc.dashboard.getProfile.useQuery();
+    const { data: session } = trpc.auth.getSession.useQuery();
+
+    // isPaid from JWT session payload (no extra DB call)
+    const isPaid = !!(session?.user as any)?.isPaid;
 
     return (
         <ThemeProvider>
             <ThemedDashboardContent
                 userName={profile?.name}
                 userEmail={profile?.email}
+                isPaid={isPaid}
             >
                 {children}
             </ThemedDashboardContent>

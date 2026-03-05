@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useResponsive } from "@/hooks/useResponsive";
 import { CHRONO_DATA } from "@/data/chrono-config";
 import { BATTLE_CONFIG, PERFECT_SCORE, calculateScore, getRankObj } from "@/data/battle-config";
 
@@ -161,7 +161,7 @@ function getLeaderboardWithPlayer(playerScore: number) {
 
 
 export default function DateBattleArenaPage() {
-    const isMobile = useIsMobile();
+    const { isMobile } = useResponsive();
     
     // Game State
     const [gameState, setGameState] = useState<GameState>("idle");

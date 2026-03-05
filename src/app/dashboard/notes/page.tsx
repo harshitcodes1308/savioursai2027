@@ -5,8 +5,10 @@ import { trpc } from '@/lib/trpc/client';
 import { typography } from '@/lib/typography';
 import ReactMarkdown from 'react-markdown';
 import '../markdown-styles.css';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function NotesPage() {
+    const { isMobile } = useResponsive();
     const [isCreating, setIsCreating] = useState(false);
     const [title, setTitle] = useState('');
     const [rawContent, setRawContent] = useState('');
@@ -46,9 +48,9 @@ export default function NotesPage() {
     const hasNotes = notes && notes.length > 0;
 
     return (
-        <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ padding: isMobile ? '16px' : '32px', maxWidth: '1400px', margin: '0 auto', boxSizing: 'border-box' as const, overflowX: 'hidden' as const }}>
             {/* Header */}
-            <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 0 }}>
                 <div>
                     <h1 style={{ ...typography.display, fontSize: '32px', marginBottom: '8px' }}>
                         📖 My Notes
@@ -430,7 +432,7 @@ export default function NotesPage() {
                     </button>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))', gap: isMobile ? '16px' : '24px' }}>
                     {notes.map((note) => (
                         <div
                             key={note.id}

@@ -3,10 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TYQ_SUBJECTS, READING_TIME_MINUTES } from "@/data/tyq-config";
+import { trpc } from "@/lib/trpc/client";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 export default function TYQPage() {
   const router = useRouter();
   const [hoveredSubject, setHoveredSubject] = useState<string | null>(null);
+  const { data: session } = trpc.auth.getSession.useQuery();
+  const isPaid = !!(session?.user as any)?.isPaid;
+  const [showUpgrade, setShowUpgrade] = useState(false);
+
+  const handleSubjectClick = (subjectId: string) => {
+    // Free users can only access Physics
+    if (!isPaid && subjectId !== "physics") {
+      setShowUpgrade(true);
+      return;
+    }
+    router.push(`/dashboard/guess-papers/${subjectId}`);
+  };
 
   return (
     <div style={{ padding: "32px 24px", maxWidth: 1200, margin: "0 auto" }}>
@@ -31,6 +45,35 @@ export default function TYQPage() {
           Select a subject to begin your timed practice session.
         </p>
       </div>
+
+      {/* Free tier banner */}
+      {!isPaid && (
+        <div style={{
+          background: "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.05))",
+          border: "1px solid rgba(59,130,246,0.2)",
+          borderRadius: 14,
+          padding: "16px 20px",
+          marginBottom: 24,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          fontSize: 13,
+          color: "#9CA3AF",
+        }}>
+          <span style={{ fontSize: 18 }}>💡</span>
+          <span>
+            <strong style={{ color: "#60A5FA" }}>Free Tier:</strong> Physics guess papers are available for free.{" "}
+            <button
+              onClick={() => setShowUpgrade(true)}
+              style={{
+                background: "none", border: "none", color: "#3B82F6",
+                fontWeight: 700, cursor: "pointer", textDecoration: "underline",
+                fontSize: 13, padding: 0,
+              }}
+            >Upgrade to Pro</button> to unlock all 10 subjects.
+          </span>
+        </div>
+      )}
 
       {/* How It Works */}
       <div style={{
@@ -80,26 +123,59 @@ export default function TYQPage() {
       }}>
         {TYQ_SUBJECTS.map((subject) => {
           const isHovered = hoveredSubject === subject.id;
+          const isLocked = !isPaid && subject.id !== "physics";
           return (
             <button
               key={subject.id}
-              onClick={() => router.push(`/dashboard/guess-papers/${subject.id}`)}
+              onClick={() => handleSubjectClick(subject.id)}
               onMouseEnter={() => setHoveredSubject(subject.id)}
               onMouseLeave={() => setHoveredSubject(null)}
               style={{
+                position: "relative",
                 background: isHovered
                   ? `linear-gradient(135deg, ${subject.color}15, ${subject.color}08)`
                   : "rgba(255,255,255,0.03)",
                 border: `1px solid ${isHovered ? subject.color + "40" : "rgba(255,255,255,0.06)"}`,
                 borderRadius: 16,
                 padding: "24px 20px",
-                cursor: "pointer",
+                cursor: isLocked ? "default" : "pointer",
                 textAlign: "left",
                 transition: "all 0.3s ease",
-                transform: isHovered ? "translateY(-2px)" : "none",
-                boxShadow: isHovered ? `0 8px 24px ${subject.color}15` : "none",
+                transform: isHovered && !isLocked ? "translateY(-2px)" : "none",
+                boxShadow: isHovered && !isLocked ? `0 8px 24px ${subject.color}15` : "none",
+                opacity: isLocked ? 0.55 : 1,
               }}
             >
+              {/* Lock overlay for non-Physics subjects */}
+              {isLocked && (
+                <div style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(3,3,5,0.5)",
+                  backdropFilter: "blur(2px)",
+                  zIndex: 2,
+                }}>
+                  <div style={{
+                    background: "rgba(59,130,246,0.15)",
+                    border: "1px solid rgba(59,130,246,0.3)",
+                    borderRadius: 12,
+                    padding: "8px 16px",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#60A5FA",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}>
+                    🔒 Unlock with Pro
+                  </div>
+                </div>
+              )}
+
               {/* Icon + Name */}
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
                 <div style={{
@@ -139,13 +215,22 @@ export default function TYQPage() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 16, color: subject.color,
                 }}>
-                  →
+                  {isLocked ? "🔒" : "→"}
                 </div>
               </div>
             </button>
           );
         })}
       </div>
+
+      {/* UpgradePrompt overlay */}
+      {showUpgrade && (
+        <UpgradePrompt
+          featureName="All Guess Papers"
+          description="Access specimen papers for all 10 ICSE subjects — Physics, Chemistry, Biology, Maths, English, History, Geography, Computer, and more."
+          onClose={() => setShowUpgrade(false)}
+        />
+      )}
     </div>
   );
 }

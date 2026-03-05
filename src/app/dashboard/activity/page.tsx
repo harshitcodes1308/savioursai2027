@@ -3,8 +3,10 @@
 import { trpc } from "@/lib/trpc/client";
 import { format } from "date-fns";
 import { typography } from "@/lib/typography";
+import { useResponsive } from "@/hooks/useResponsive";
 
 export default function ActivityPage() {
+    const { isMobile } = useResponsive();
     const { data: plans, isLoading } = trpc.planner.getMyPlans.useQuery({});
 
     // Group activities by recent dates
@@ -20,7 +22,7 @@ export default function ActivityPage() {
     ).slice(0, 30); // Last 30 days
 
     return (
-        <div style={{ minHeight: "100vh", backgroundColor: "#030303", padding: "24px" }}>
+        <div style={{ minHeight: "100vh", backgroundColor: "#030303", padding: isMobile ? "12px" : "24px", boxSizing: "border-box" as const, overflowX: "hidden" as const }}>
             <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
                 <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#FFFFFF", marginBottom: "8px" }}>
                     📈 Study Activity
@@ -80,7 +82,7 @@ export default function ActivityPage() {
                                         </div>
                                     </div>
 
-                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "12px" }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(250px, 1fr))", gap: "12px" }}>
                                         {dayPlans.map((plan: any) => (
                                             <div key={plan.id} style={{
                                                 backgroundColor: "#1A1A1D",

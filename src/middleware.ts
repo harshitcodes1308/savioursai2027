@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify, SignJWT } from 'jose';
 import { prisma } from '@/lib/prisma';
+import { LOCKED_ROUTES } from '@/lib/tier-config';
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/onboarding'];
@@ -78,64 +79,17 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // 2. PAYMENT GATE: Redirect to Pricing if Authenticated but Unpaid
-    // EXCLUDED: /onboarding (users must enter phone before paying)
-    if (isProtectedRoute && !pathname.startsWith('/onboarding') && isAuthenticated && !isPaid && token) {
-        // CRITICAL FIX: Verify against DB in case isPaid was updated manually
-        // This prevents stale token issue where DB has isPaid=true but token has isPaid=false
-        try {
-            const secret = new TextEncoder().encode(
-                process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-            );
-            const { payload } = await jwtVerify(token, secret);
-            const userId = (payload.user as any)?.id;
-            
-            if (userId) {
-                const dbUser = await prisma.user.findUnique({
-                    where: { id: userId },
-                    select: { isPaid: true, createdAt: true }
-                });
-
-                if (dbUser) {
-                    // Check if user is a legacy user (created before Jan 29, 2026)
-                    const isLegacyUser = dbUser.createdAt < new Date('2026-01-29');
-                    const actuallyPaid = dbUser.isPaid || isLegacyUser;
-
-                    if (actuallyPaid) {
-                        // DB says paid but token says unpaid → Refresh token
-                        const updatedUser = {
-                            ...(payload.user as any),
-                            isPaid: true
-                        };
-                        
-                        const newToken = await new SignJWT({ user: updatedUser })
-                            .setProtectedHeader({ alg: "HS256" })
-                            .setIssuedAt()
-                            .setExpirationTime("7d")
-                            .sign(secret);
-
-                        const response = NextResponse.next();
-                        response.cookies.set('auth-token', newToken, {
-                            httpOnly: true,
-                            secure: process.env.NODE_ENV === 'production',
-                            sameSite: 'lax',
-                            maxAge: 60 * 60 * 24 * 7, // 7 days
-                        });
-                        return response;
-                    }
-                }
-            }
-        } catch (error) {
-            console.error("Token refresh error:", error);
+    // 2. FREE TIER ROUTE GUARD: Redirect unpaid users from locked routes
+    // Unpaid users can access the dashboard but locked features redirect to /dashboard?locked=true
+    if (isProtectedRoute && !pathname.startsWith('/onboarding') && isAuthenticated && !isPaid) {
+        // Check if this is a locked route for free users
+        const isLocked = LOCKED_ROUTES.some(route => pathname.startsWith(route));
+        if (isLocked) {
+            const lockedRedirect = NextResponse.redirect(new URL('/dashboard?locked=true', request.url));
+            lockedRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return lockedRedirect;
         }
-        
-        // If we get here, user is genuinely unpaid
-        const pricingRedirect = NextResponse.redirect(new URL('/pricing', request.url));
-        // Prevent browser caching of this redirect
-        pricingRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        pricingRedirect.headers.set('Pragma', 'no-cache');
-        pricingRedirect.headers.set('Expires', '0');
-        return pricingRedirect;
+        // Free routes → allow through
     }
 
     // 3. Pricing Page Guard: Control access to /pricing
@@ -146,32 +100,31 @@ export async function middleware(request: NextRequest) {
             signupRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
             return signupRedirect;
         }
-        // Authenticated → allow if unpaid, redirect to dashboard if paid
+        // Paid users → redirect to dashboard (already have access)
         if (isPaid) {
             const dashboardRedirect = NextResponse.redirect(new URL('/dashboard', request.url));
             dashboardRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
             return dashboardRedirect;
         }
-        // Unpaid authenticated user → allow access to pricing
+        // Unpaid authenticated user → allow access to pricing (upgrade page)
     }
 
-    // 4. Handle Root Path: Redirect to login (avoid sticky /pricing redirects)
+    // 4. Handle Root Path: Redirect authenticated users to dashboard, others to login
     if (pathname === '/') {
-        if (isAuthenticated && isPaid) {
+        if (isAuthenticated) {
+            // Both paid and free users go to dashboard
             const dashboardRedirect = NextResponse.redirect(new URL('/dashboard', request.url));
             dashboardRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
             return dashboardRedirect;
         }
-        // For unpaid or unauthenticated users → redirect to login
-        // This prevents sticky /pricing redirects that lock users out
         const loginRedirect = NextResponse.redirect(new URL('/login', request.url));
         loginRedirect.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
         return loginRedirect;
     }
 
-    // 5. Redirect paid users from auth routes to dashboard
-    // Unpaid users CAN access /login and /signup (critical fix)
-    if (isAuthRoute && isAuthenticated && isPaid) {
+    // 5. Redirect authenticated users from auth routes to dashboard
+    // Both paid and free users go to dashboard if already logged in
+    if (isAuthRoute && isAuthenticated) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     

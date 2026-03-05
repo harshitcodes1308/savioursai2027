@@ -19,7 +19,7 @@ export default function SignupPage() {
 
     const signupMutation = trpc.auth.signup.useMutation({
         onSuccess: () => {
-            router.push("/pricing");
+            router.push("/dashboard");
         },
         onError: (err) => {
             setError(err.message || "Failed to create account");

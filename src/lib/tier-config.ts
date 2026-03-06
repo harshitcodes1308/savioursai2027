@@ -16,6 +16,7 @@ export const LOCKED_ROUTES = [
     "/dashboard/chronoscroll",
     "/dashboard/date-battle",
     "/dashboard/numerical-mastery",
+    "/dashboard/last-night-before",
 ] as const;
 
 /** Routes accessible to free users */
@@ -68,6 +69,10 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     "/dashboard/numerical-mastery": {
         name: "Numerical Mastery",
         description: "Master Physics numericals with step-by-step formulas, solved examples, and 50+ Previous Year Questions from 2007–2025.",
+    },
+    "/dashboard/last-night-before": {
+        name: "Last Night Before",
+        description: "Panic-mode revision: 30 numericals, 20 formulas, 10 definitions — randomly assigned for focused last-minute cramming.",
     },
 };
 

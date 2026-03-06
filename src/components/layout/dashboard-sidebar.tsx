@@ -25,6 +25,7 @@ const menuSections = [
       { icon: "🧮", label: "Numerical Mastery", href: "/dashboard/numerical-mastery", accent: "#3B82F6" },
       { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers", accent: "#6366F1" },
       { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy", accent: "#EF4444" },
+      { icon: "🌙", label: "Last Night Before", href: "/dashboard/last-night-before", accent: "#F59E0B" },
     ]
   },
   {

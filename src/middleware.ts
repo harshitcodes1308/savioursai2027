@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify, SignJWT } from 'jose';
-import { prisma } from '@/lib/prisma';
+import { jwtVerify } from 'jose';
 import { LOCKED_ROUTES } from '@/lib/tier-config';
 
 // Routes that require authentication
@@ -56,28 +55,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // 1b. Phone check: redirect to /onboarding if no phone number
-    // Check for dashboard AND pricing routes (not onboarding itself)
-    if ((pathname.startsWith('/dashboard') || pathname === '/pricing') && isAuthenticated && token) {
-        try {
-            const secret = new TextEncoder().encode(
-                process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-            );
-            const { payload } = await jwtVerify(token, secret);
-            const userId = (payload.user as any)?.id;
-            if (userId) {
-                const dbUser = await prisma.user.findUnique({
-                    where: { id: userId },
-                    select: { phone: true }
-                });
-                if (dbUser && !dbUser.phone) {
-                    return NextResponse.redirect(new URL('/onboarding', request.url));
-                }
-            }
-        } catch {
-            // Token invalid, let the normal auth flow handle it
-        }
-    }
+
+    // 1b. Phone check: now handled reliably in dashboard/layout.tsx via tRPC
+    // (Removed from middleware — Prisma in Edge runtime was unreliable)
 
     // 2. FREE TIER ROUTE GUARD: Redirect unpaid users from locked routes
     // Unpaid users can access the dashboard but locked features redirect to /dashboard?locked=true

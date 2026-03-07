@@ -28,7 +28,17 @@ const SUBJECTS: PrecisionSubject[] = [
     name: "Physics",
     icon: "⚡",
     color: "#F59E0B",
-    chapters: [],
+    chapters: [
+      { id: "FORCE, WORK, POWER AND ENERGY", name: "Force, Work, Power & Energy" },
+      { id: "LIGHT - REFRACTION AND LENSES", name: "Light, Refraction & Lenses" },
+      { id: "SOUND", name: "Sound" },
+      { id: "ELECTRICITY AND MAGNETISM", name: "Electricity & Magnetism" },
+      { id: "HEAT AND CALORIMETRY", name: "Heat & Calorimetry" },
+      { id: "MODERN PHYSICS - RADIOACTIVITY", name: "Modern Physics & Radioactivity" },
+      { id: "MACHINES AND LEVERS", name: "Machines & Levers" },
+      { id: "ELECTROMAGNETISM", name: "Electromagnetism" },
+      { id: "HOUSEHOLD CIRCUITS", name: "Household Circuits" },
+    ],
   },
   {
     id: "Mathematics",

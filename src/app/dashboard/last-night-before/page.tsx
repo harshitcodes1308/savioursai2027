@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { LNB_SETS, type LNBSet } from "@/data/lnb-mock-data";
 import { useResponsive } from "@/hooks/useResponsive";
+import { trpc } from "@/lib/trpc/client";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 type TabKey = "numericals" | "formulas" | "definitions";
 
@@ -31,16 +33,26 @@ export default function LastNightBeforePage() {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [showReroll, setShowReroll] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
+  
+  const { data: session, isLoading: sessionLoading } = trpc.auth.getSession.useQuery();
+  const isPaid = !!(session?.user as any)?.isPaid;
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Assign set on mount
   useEffect(() => {
+    if (sessionLoading || isInitialized) return;
     let setId: number;
-    const stored = sessionStorage.getItem("lnb_setId");
-    if (stored) {
-      setId = parseInt(stored, 10);
+    if (!isPaid) {
+      setId = 2; // Enforce Set 2 for free users
     } else {
-      setId = Math.floor(Math.random() * 5) + 1;
-      sessionStorage.setItem("lnb_setId", String(setId));
+      const stored = sessionStorage.getItem("lnb_setId");
+      if (stored) {
+        setId = parseInt(stored, 10);
+      } else {
+        setId = Math.floor(Math.random() * 5) + 1;
+        sessionStorage.setItem("lnb_setId", String(setId));
+      }
     }
     const found = LNB_SETS.find((s) => s.setId === setId) || LNB_SETS[0];
     setCurrentSet(found);
@@ -49,8 +61,9 @@ export default function LastNightBeforePage() {
     if (savedDone) {
       try { setDone(JSON.parse(savedDone)); } catch { /* ignore */ }
     }
+    setIsInitialized(true);
     setTimeout(() => setAnimateIn(true), 100);
-  }, []);
+  }, [sessionLoading, isPaid, isInitialized]);
 
   // Save progress
   useEffect(() => {
@@ -68,6 +81,10 @@ export default function LastNightBeforePage() {
   }, []);
 
   const handleReroll = () => {
+    if (!isPaid) {
+      setShowUpgradePrompt(true);
+      return;
+    }
     const newSetId = Math.floor(Math.random() * 5) + 1;
     sessionStorage.setItem("lnb_setId", String(newSetId));
     sessionStorage.removeItem("lnb_done");
@@ -98,6 +115,14 @@ export default function LastNightBeforePage() {
         position: "relative", overflow: "hidden",
         opacity: animateIn ? 1 : 0, transition: "opacity 0.8s ease",
       }}>
+        {showUpgradePrompt && (
+          <UpgradePrompt
+            featureName="Last Night Before Re-roll"
+            description="Unlock all 5 curated Physics PYQ sets and unlimited re-rolls. Get fully prepared for your exam with our complete revision material."
+            onClose={() => setShowUpgradePrompt(false)}
+          />
+        )}
+
         {/* Floating orbs */}
         <div style={{ position:"absolute", top:"10%", left:"10%", width:250, height:250, borderRadius:"50%", background:"radial-gradient(circle,rgba(245,158,11,0.06),transparent 70%)", pointerEvents:"none", animation:"float 8s ease-in-out infinite" }} />
         <div style={{ position:"absolute", bottom:"15%", right:"15%", width:300, height:300, borderRadius:"50%", background:"radial-gradient(circle,rgba(59,130,246,0.05),transparent 70%)", pointerEvents:"none", animation:"float 8s ease-in-out infinite 3s" }} />
@@ -171,11 +196,11 @@ export default function LastNightBeforePage() {
         </button>
 
         {/* Reroll link */}
-        <button onClick={() => setShowReroll(true)} style={{
+        <button onClick={() => isPaid ? setShowReroll(true) : setShowUpgradePrompt(true)} style={{
           background: "none", border: "none", color: "#6B7280", fontSize: 13,
           cursor: "pointer", textDecoration: "underline", padding: 8,
         }}>
-          Re-roll Set
+          {isPaid ? "Re-roll Set" : "🔒 Pro: Re-roll for a different set"}
         </button>
 
         {/* Reroll confirmation */}

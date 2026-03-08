@@ -10,6 +10,29 @@ export default function OnboardingPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [focused, setFocused] = useState(false);
+    const [cancelLoading, setCancelLoading] = useState(false);
+
+    const handleGoBack = async () => {
+        setCancelLoading(true);
+        setError("");
+        
+        try {
+            const res = await fetch("/api/auth/onboarding/cancel", {
+                method: "DELETE",
+            });
+            
+            if (!res.ok) {
+                setError("Failed to cancel setup. Please try again.");
+                setCancelLoading(false);
+                return;
+            }
+            
+            router.push("/login");
+        } catch {
+            setError("Network error. Please try again.");
+            setCancelLoading(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,7 +59,9 @@ export default function OnboardingPage() {
                 return;
             }
 
-            router.push("/dashboard");
+            // Use window.location.href for a hard redirect to clear tRPC cache
+            // and ensure the dashboard fetches the fresh profile data.
+            window.location.href = "/dashboard";
         } catch {
             setError("Network error. Please try again.");
             setLoading(false);
@@ -218,6 +243,40 @@ export default function OnboardingPage() {
                                     Saving...
                                 </span>
                             ) : "Continue to Dashboard →"}
+                        </button>
+
+                        {/* Go Back / Cancel */}
+                        <button
+                            type="button"
+                            onClick={handleGoBack}
+                            disabled={loading || cancelLoading}
+                            style={{
+                                width: "100%",
+                                padding: "14px",
+                                marginTop: "12px",
+                                background: "rgba(255,255,255,0.03)",
+                                color: "#9CA3AF",
+                                fontSize: "14px",
+                                fontWeight: 600,
+                                border: "1px solid rgba(255,255,255,0.06)",
+                                borderRadius: "14px",
+                                cursor: (loading || cancelLoading) ? "not-allowed" : "pointer",
+                                transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                                if (!loading && !cancelLoading) {
+                                    e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                                    e.currentTarget.style.color = "#D1D5DB";
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (!loading && !cancelLoading) {
+                                    e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                                    e.currentTarget.style.color = "#9CA3AF";
+                                }
+                            }}
+                        >
+                            {cancelLoading ? "Cancelling..." : "Go back"}
                         </button>
                     </form>
                 </div>

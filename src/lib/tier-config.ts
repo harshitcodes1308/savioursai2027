@@ -16,7 +16,6 @@ export const LOCKED_ROUTES = [
     "/dashboard/chronoscroll",
     "/dashboard/date-battle",
     "/dashboard/numerical-mastery",
-    "/dashboard/last-night-before",
 ] as const;
 
 /** Routes accessible to free users */
@@ -28,6 +27,7 @@ export const FREE_ROUTES = [
     "/dashboard/profile",
     "/dashboard/policies",
     "/dashboard/activity",
+    "/dashboard/last-night-before",
     // TODO: Add Formula Chain route once built
     // TODO: Add Physics Readiness Scan route once built
 ] as const;

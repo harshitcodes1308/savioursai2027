@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
 import { physicsQuestions } from "@/data/precision-physics";
 import { mathsQuestions } from "@/data/precision-maths";
+import { chemistryQuestions } from "@/data/precision-chemistry";
 import {
   PrecisionQuestion,
   PrecisionSubject,
@@ -20,6 +21,7 @@ import {
 const ALL_QUESTIONS: Record<string, PrecisionQuestion[]> = {
   Physics: physicsQuestions,
   Mathematics: mathsQuestions,
+  Chemistry: chemistryQuestions,
 };
 
 const SUBJECTS: PrecisionSubject[] = [
@@ -73,7 +75,24 @@ const SUBJECTS: PrecisionSubject[] = [
     name: "Chemistry",
     icon: "🧪",
     color: "#10B981",
-    chapters: [],
+    chapters: [
+      { id: "PERIODIC TABLE - PERIODIC PROPERTIES", name: "Periodic Table" },
+      { id: "CHEMICAL BONDING", name: "Chemical Bonding" },
+      { id: "STUDY OF ACIDS, BASES AND SALTS", name: "Study Of Acids, Bases And Salts" },
+      { id: "ANALYTICAL CHEMISTRY", name: "Analytical Chemistry" },
+      { id: "MOLE CONCEPT AND STOICHIOMETRY", name: "Mole Concept And Stoichiometry" },
+      { id: "ELECTROLYSIS", name: "Electrolysis" },
+      { id: "METALLURGY", name: "Metallurgy" },
+      { id: "STUDY OF COMPOUNDS - HYDROGEN", name: "Study Of Compounds - Hydrogen Chloride" },
+      { id: "STUDY OF COMPOUNDS - AMMONIA", name: "Study Of Compounds - Ammonia" },
+      { id: "STUDY OF COMPOUNDS - NITRIC ACID", name: "Study Of Compounds - Nitric Acid" },
+      { id: "STUDY OF COMPOUNDS - SULPHURIC ACID", name: "Study Of Compounds - Sulphuric Acid" },
+      { id: "ORGANIC CHEMISTRY - HYDROCARBONS", name: "Organic Chemistry - Hydrocarbons" },
+      { id: "ORGANIC CHEMISTRY - ALCOHOLS AND CARBOXYLIC ACIDS", name: "Organic Chemistry - Alcohols And Carboxylic Acids" },
+      { id: "ALLOYS", name: "Alloys" },
+      { id: "PRACTICAL CHEMISTRY", name: "Practical Chemistry" },
+      { id: "MOLE CONCEPT - EMPIRICAL AND MOLECULAR FORMULA", name: "Mole Concept - Empirical And Molecular Formula" },
+    ],
   },
   {
     id: "Biology",

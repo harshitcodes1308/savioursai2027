@@ -27,6 +27,7 @@ export const dashboardRouter = createTRPCRouter({
             createdAt: user.createdAt,
             studentProfile: user.studentProfile,
             teacherProfile: user.teacherProfile,
+            lnbChemistryUnlocked: user.lnbChemistryUnlocked,
         };
     }),
 

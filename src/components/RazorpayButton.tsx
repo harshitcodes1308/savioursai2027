@@ -33,13 +33,15 @@ declare global {
 }
 
 interface RazorpayButtonProps {
-    amount?: number;
+    amount?: number; // legacy prop
+    type?: "PRO" | "LNB_CHEMISTRY";
     email: string;
     name: string;
     onSuccess?: () => void;
+    buttonText?: string;
 }
 
-export function RazorpayButton({ amount = 99, email, name, onSuccess }: RazorpayButtonProps) {
+export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -68,7 +70,7 @@ export function RazorpayButton({ amount = 99, email, name, onSuccess }: Razorpay
             const orderRes = await fetch("/api/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount }),
+                body: JSON.stringify({ type }),
             });
             const orderData = await orderRes.json();
             
@@ -84,7 +86,7 @@ export function RazorpayButton({ amount = 99, email, name, onSuccess }: Razorpay
                 amount: orderData.order.amount,
                 currency: orderData.order.currency,
                 name: "ICSE Saviours",
-                description: "Lifetime Access",
+                description: type === "LNB_CHEMISTRY" ? "Unlock Chemistry Sets" : "Lifetime Access",
                 order_id: orderData.order.id,
                 handler: async function (response: any) {
                     setLoading(true); // Keep loading state
@@ -147,7 +149,7 @@ export function RazorpayButton({ amount = 99, email, name, onSuccess }: Razorpay
             onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
             onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
         >
-            {loading ? "Processing..." : "Get Lifetime Access"}
+            {loading ? "Processing..." : buttonText || "Get Lifetime Access"}
         </button>
     );
 }

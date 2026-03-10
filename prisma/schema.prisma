@@ -16,8 +16,8 @@ model User {
   emailVerified      DateTime?
   image              String?
   createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
   isPaid             Boolean             @default(false)
+  lnbChemistryUnlocked Boolean           @default(false)
   phone              String?             @unique
   authProvider       String              @default("credentials")
   aiUsageLogs        AiUsageLog[]

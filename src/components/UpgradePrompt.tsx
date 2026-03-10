@@ -9,9 +9,10 @@ interface UpgradePromptProps {
     featureName: string;
     description: string;
     onClose?: () => void;
+    type?: "PRO" | "LNB_CHEMISTRY";
 }
 
-export function UpgradePrompt({ featureName, description, onClose }: UpgradePromptProps) {
+export function UpgradePrompt({ featureName, description, onClose, type = "PRO" }: UpgradePromptProps) {
     const router = useRouter();
     const { data: session } = trpc.auth.getSession.useQuery();
     const [hoveredCTA, setHoveredCTA] = useState(false);
@@ -109,7 +110,7 @@ export function UpgradePrompt({ featureName, description, onClose }: UpgradeProm
                         lineHeight: 1.2,
                     }}
                 >
-                    Saviours AI Pro
+                    {type === "LNB_CHEMISTRY" ? "Chemistry LNB Set Unlock" : "Saviours AI Pro"}
                 </h2>
 
                 {/* Feature Name */}
@@ -155,11 +156,15 @@ export function UpgradePrompt({ featureName, description, onClose }: UpgradeProm
                     }}
                 >
                     <div style={{ marginBottom: 6 }}>
-                        <span style={{ fontSize: 44, fontWeight: 800, color: "#FFF" }}>₹99</span>
+                        <span style={{ fontSize: 44, fontWeight: 800, color: "#FFF" }}>
+                            {type === "LNB_CHEMISTRY" ? "₹19" : "₹99"}
+                        </span>
                         <span style={{ fontSize: 16, color: "#6B7280", marginLeft: 6 }}>one-time</span>
                     </div>
                     <p style={{ fontSize: 13, color: "#6B7280", margin: "0 0 24px" }}>
-                        Lifetime access to all features. No subscriptions. No hidden fees.
+                        {type === "LNB_CHEMISTRY"
+                            ? "Pay just ₹19 to unlock all 4 remaining Chemistry sets for Last Night Before revision."
+                            : "Lifetime access to all features. No subscriptions. No hidden fees."}
                     </p>
 
                     {/* CTA Button */}
@@ -174,27 +179,76 @@ export function UpgradePrompt({ featureName, description, onClose }: UpgradeProm
                         }}
                     >
                         <RazorpayButton
-                            amount={99}
+                            amount={type === "LNB_CHEMISTRY" ? 19 : 99}
+                            type={type}
                             email={session?.user?.email || "user@example.com"}
                             name={session?.user?.name || "User"}
+                            buttonText={type === "LNB_CHEMISTRY" ? "Pay ₹19 & Unlock Sets" : "Get Lifetime Access"}
+                            onSuccess={() => {
+                                if (onClose) onClose();
+                                router.refresh();
+                            }}
                         />
                     </div>
                 </div>
 
                 {/* What you get list */}
-                <div
-                    style={{
-                        background: "rgba(255,255,255,0.02)",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                        borderRadius: 16,
-                        padding: "20px 24px",
-                        marginBottom: 28,
-                        textAlign: "left",
-                    }}
-                >
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>
-                        Unlock everything with Pro
+                {type === "LNB_CHEMISTRY" ? (
+                    <div
+                        style={{
+                            background: "rgba(255,255,255,0.02)",
+                            border: "1px solid rgba(255,255,255,0.06)",
+                            borderRadius: 16,
+                            padding: "20px 24px",
+                            marginBottom: 28,
+                            textAlign: "left",
+                        }}
+                    >
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>
+                            What's Included
+                        </div>
+                        {[
+                            "120 vital Numericals (4 Sets)",
+                            "80 crucial Formulas",
+                            "40 important Definitions",
+                            "Unlimited Chemistry Re-rolls",
+                        ].map((item, i) => (
+                            <div
+                                key={i}
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    padding: "7px 0",
+                                    fontSize: 13,
+                                    color: "#D1D5DB",
+                                    borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                                }}
+                            >
+                                <span style={{
+                                    width: 18, height: 18, borderRadius: 6,
+                                    background: "rgba(16,185,129,0.15)",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    fontSize: 10, color: "#10B981", flexShrink: 0,
+                                }}>✓</span>
+                                {item}
+                            </div>
+                        ))}
                     </div>
+                ) : (
+                    <div
+                        style={{
+                            background: "rgba(255,255,255,0.02)",
+                            border: "1px solid rgba(255,255,255,0.06)",
+                            borderRadius: 16,
+                            padding: "20px 24px",
+                            marginBottom: 28,
+                            textAlign: "left",
+                        }}
+                    >
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>
+                            Unlock everything with Pro
+                        </div>
                     {[
                         "🤖 AI Doubt Solver with image upload",
                         "📅 Smart Study Planner",
@@ -226,8 +280,9 @@ export function UpgradePrompt({ featureName, description, onClose }: UpgradeProm
                             }}>✓</span>
                             {item}
                         </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Go Back */}
                 <button

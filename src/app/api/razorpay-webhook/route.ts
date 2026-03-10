@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 
-// Must match the hardcoded price in create-order
-const MINIMUM_AMOUNT_PAISE = 9900; // ₹99
+// removed MINIMUM_AMOUNT_PAISE as we handle it dynamically
+
 
 export async function POST(req: Request) {
     try {
@@ -42,10 +42,12 @@ export async function POST(req: Request) {
             const notes = payment.notes;
             const userEmail = notes?.userEmail || payment.email;
             const paymentAmount = payment.amount; // in paise
+            const purchaseType = notes?.purchaseType || "PRO"; // Default to PRO to prevent breaking old logic
 
             // Validate minimum amount
-            if (paymentAmount < MINIMUM_AMOUNT_PAISE) {
-                console.error(`Suspicious payment: amount ${paymentAmount} below minimum ${MINIMUM_AMOUNT_PAISE} for ${userEmail}`);
+            const expectedMinAmount = purchaseType === "LNB_CHEMISTRY" ? 1900 : 9900;
+            if (paymentAmount < expectedMinAmount) {
+                console.error(`Suspicious payment: amount ${paymentAmount} below minimum ${expectedMinAmount} for ${userEmail}`);
                 return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
             }
 
@@ -53,15 +55,23 @@ export async function POST(req: Request) {
                 // Idempotent: only update if not already paid
                 const user = await prisma.user.findUnique({
                     where: { email: userEmail },
-                    select: { isPaid: true },
+                    select: { isPaid: true, lnbChemistryUnlocked: true },
                 });
 
-                if (user && !user.isPaid) {
-                    await prisma.user.update({
-                        where: { email: userEmail },
-                        data: { isPaid: true },
-                    });
-                    console.log("User updated to PAID:", userEmail, "Amount:", paymentAmount);
+                if (user) {
+                    if (purchaseType === "LNB_CHEMISTRY" && !user.lnbChemistryUnlocked) {
+                        await prisma.user.update({
+                            where: { email: userEmail },
+                            data: { lnbChemistryUnlocked: true },
+                        });
+                        console.log("User unlocked LNB Chemistry:", userEmail, "Amount:", paymentAmount);
+                    } else if (purchaseType === "PRO" && !user.isPaid) {
+                        await prisma.user.update({
+                            where: { email: userEmail },
+                            data: { isPaid: true },
+                        });
+                        console.log("User updated to PAID (PRO):", userEmail, "Amount:", paymentAmount);
+                    }
                 }
             }
         }

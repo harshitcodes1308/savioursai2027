@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { LNB_SETS, type LNBSet } from "@/data/lnb-mock-data";
+import { LNB_CHEMISTRY_SETS } from "@/data/lnb-chemistry-data";
 import { useResponsive } from "@/hooks/useResponsive";
 import { trpc } from "@/lib/trpc/client";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
@@ -26,7 +27,8 @@ function getMotivation(pct: number): string {
 export default function LastNightBeforePage() {
   const router = useRouter();
   const { isMobile, isTablet } = useResponsive();
-  const [phase, setPhase] = useState<"reveal" | "revise">("reveal");
+  const [phase, setPhase] = useState<"select_subject" | "reveal" | "revise">("select_subject");
+  const [subject, setSubject] = useState<"Physics" | "Chemistry" | null>(null);
   const [currentSet, setCurrentSet] = useState<LNBSet | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("numericals");
   const [done, setDone] = useState<Record<string, boolean>>({});
@@ -36,41 +38,57 @@ export default function LastNightBeforePage() {
   
   const { data: session, isLoading: sessionLoading } = trpc.auth.getSession.useQuery();
   const isPaid = !!(session?.user as any)?.isPaid;
+  const lnbChemistryUnlocked = !!(session?.user as any)?.lnbChemistryUnlocked;
+  
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [upgradePromptType, setUpgradePromptType] = useState<"PRO" | "LNB_CHEMISTRY">("PRO");
 
-  // Assign set on mount
-  useEffect(() => {
-    if (sessionLoading || isInitialized) return;
+  const handleSelectSubject = (selectedSubject: "Physics" | "Chemistry") => {
+    setSubject(selectedSubject);
+    const dataset = selectedSubject === "Physics" ? LNB_SETS : LNB_CHEMISTRY_SETS;
     let setId: number;
-    if (!isPaid) {
-      setId = 2; // Enforce Set 2 for free users
+    
+    if (selectedSubject === "Physics") {
+      if (!isPaid) setId = 2; // Physics free users get Set 2
+      else {
+        const stored = sessionStorage.getItem("lnb_Physics_setId");
+        if (stored) setId = parseInt(stored, 10);
+        else {
+          setId = Math.floor(Math.random() * 5) + 1;
+          sessionStorage.setItem("lnb_Physics_setId", String(setId));
+        }
+      }
     } else {
-      const stored = sessionStorage.getItem("lnb_setId");
-      if (stored) {
-        setId = parseInt(stored, 10);
-      } else {
-        setId = Math.floor(Math.random() * 5) + 1;
-        sessionStorage.setItem("lnb_setId", String(setId));
+      if (!isPaid && !lnbChemistryUnlocked) setId = 1; // Chemistry free users get Set 1
+      else {
+        const stored = sessionStorage.getItem("lnb_Chemistry_setId");
+        if (stored) setId = parseInt(stored, 10);
+        else {
+          setId = Math.floor(Math.random() * 5) + 1;
+          sessionStorage.setItem("lnb_Chemistry_setId", String(setId));
+        }
       }
     }
-    const found = LNB_SETS.find((s) => s.setId === setId) || LNB_SETS[0];
-    setCurrentSet(found);
-    // Restore progress
-    const savedDone = sessionStorage.getItem("lnb_done");
-    if (savedDone) {
-      try { setDone(JSON.parse(savedDone)); } catch { /* ignore */ }
-    }
-    setIsInitialized(true);
-    setTimeout(() => setAnimateIn(true), 100);
-  }, [sessionLoading, isPaid, isInitialized]);
 
-  // Save progress
-  useEffect(() => {
-    if (Object.keys(done).length > 0) {
-      sessionStorage.setItem("lnb_done", JSON.stringify(done));
+    const found = dataset.find((s) => s.setId === setId) || dataset[0];
+    setCurrentSet(found);
+    
+    const savedDone = sessionStorage.getItem(`lnb_${selectedSubject}_done`);
+    if (savedDone) {
+      try { setDone(JSON.parse(savedDone)); } catch { setDone({}); }
+    } else {
+      setDone({});
     }
-  }, [done]);
+    
+    setPhase("reveal");
+    setTimeout(() => setAnimateIn(true), 100);
+  };
+
+  useEffect(() => {
+    if (subject && Object.keys(done).length > 0) {
+      sessionStorage.setItem(`lnb_${subject}_done`, JSON.stringify(done));
+    }
+  }, [done, subject]);
 
   const toggleDone = useCallback((id: string) => {
     setDone((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -80,20 +98,81 @@ export default function LastNightBeforePage() {
     setRevealed((prev) => ({ ...prev, [id]: !prev[id] }));
   }, []);
 
-  const handleReroll = () => {
-    if (!isPaid) {
+  const attemptRerollLinkClick = () => {
+    if (subject === "Physics" && !isPaid) {
+      setUpgradePromptType("PRO");
       setShowUpgradePrompt(true);
-      return;
+    } else if (subject === "Chemistry" && !isPaid && !lnbChemistryUnlocked) {
+      setUpgradePromptType("LNB_CHEMISTRY");
+      setShowUpgradePrompt(true);
+    } else {
+      setShowReroll(true);
     }
+  };
+
+  const handleReroll = () => {
+    if (subject === "Physics" && !isPaid) return;
+    if (subject === "Chemistry" && !isPaid && !lnbChemistryUnlocked) return;
+
+    const dataset = subject === "Physics" ? LNB_SETS : LNB_CHEMISTRY_SETS;
     const newSetId = Math.floor(Math.random() * 5) + 1;
-    sessionStorage.setItem("lnb_setId", String(newSetId));
-    sessionStorage.removeItem("lnb_done");
+    sessionStorage.setItem(`lnb_${subject}_setId`, String(newSetId));
+    sessionStorage.removeItem(`lnb_${subject}_done`);
+    
     setDone({});
     setRevealed({});
-    setCurrentSet(LNB_SETS.find((s) => s.setId === newSetId) || LNB_SETS[0]);
+    setCurrentSet(dataset.find((s) => s.setId === newSetId) || dataset[0]);
     setShowReroll(false);
     setPhase("reveal");
   };
+
+  if (sessionLoading) {
+    return <div style={{ minHeight: "100vh", background: "#0D1117", display: "flex", alignItems: "center", justifyContent: "center", color: "#6B7280" }}>Loading...</div>;
+  }
+  
+  if (phase === "select_subject") {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0D1117", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <h1 style={{ fontSize: 36, fontWeight: 900, color: "#FFF", marginBottom: 8, textAlign: "center" }}>Last Night Before</h1>
+        <p style={{ fontSize: 16, color: "#9CA3AF", marginBottom: 48, textAlign: "center" }}>Select a subject to begin your final revision sprint.</p>
+        
+        <div style={{ display: "flex", gap: 24, flexDirection: isMobile ? "column" : "row", width: "100%", maxWidth: 640 }}>
+          <button onClick={() => handleSelectSubject("Physics")} style={{
+            flex: 1, background: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(217,119,6,0.05))",
+            border: "1px solid rgba(245,158,11,0.2)", borderRadius: 24, padding: "32px 24px",
+            display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer",
+            transition: "transform 0.2s, box-shadow 0.2s"
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 24px rgba(245,158,11,0.15)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>⚡</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: "#F59E0B" }}>Physics</div>
+          </button>
+          
+          <button onClick={() => handleSelectSubject("Chemistry")} style={{
+            flex: 1, background: "linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05))",
+            border: "1px solid rgba(16,185,129,0.2)", borderRadius: 24, padding: "32px 24px",
+            display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer",
+            transition: "transform 0.2s, box-shadow 0.2s"
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 24px rgba(16,185,129,0.15)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🧪</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: "#10B981" }}>Chemistry</div>
+          </button>
+        </div>
+
+        <button onClick={() => router.push("/dashboard")} style={{
+          marginTop: 48,
+          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 10, padding: "10px 20px", color: "#9CA3AF", fontSize: 14,
+          cursor: "pointer", fontWeight: 600,
+        }}>
+          ← Back to Dashboard
+        </button>
+      </div>
+    );
+  }
 
   if (!currentSet) return null;
 
@@ -117,8 +196,9 @@ export default function LastNightBeforePage() {
       }}>
         {showUpgradePrompt && (
           <UpgradePrompt
-            featureName="Last Night Before Re-roll"
-            description="Unlock all 5 curated Physics PYQ sets and unlimited re-rolls. Get fully prepared for your exam with our complete revision material."
+            type={upgradePromptType}
+            featureName={upgradePromptType === "LNB_CHEMISTRY" ? "Unlock 4 More Chemistry Sets" : "Last Night Before Re-roll"}
+            description={upgradePromptType === "LNB_CHEMISTRY" ? "You are currently accessing the free Chemistry revision set. Pay ₹19 to unlock the remaining 4 highly-curated sets." : "Unlock all 5 curated Physics PYQ sets and unlimited re-rolls. Get fully prepared for your exam with our complete revision material."}
             onClose={() => setShowUpgradePrompt(false)}
           />
         )}
@@ -196,11 +276,11 @@ export default function LastNightBeforePage() {
         </button>
 
         {/* Reroll link */}
-        <button onClick={() => isPaid ? setShowReroll(true) : setShowUpgradePrompt(true)} style={{
+        <button onClick={attemptRerollLinkClick} style={{
           background: "none", border: "none", color: "#6B7280", fontSize: 13,
           cursor: "pointer", textDecoration: "underline", padding: 8,
         }}>
-          {isPaid ? "Re-roll Set" : "🔒 Pro: Re-roll for a different set"}
+          {(subject === "Chemistry" && !isPaid && !lnbChemistryUnlocked) ? "🔒 Unlock 4 more sets for ₹19" : (!isPaid && subject === "Physics") ? "🔒 Pro: Re-roll for a different set" : "Re-roll Set"}
         </button>
 
         {/* Reroll confirmation */}
@@ -261,7 +341,7 @@ export default function LastNightBeforePage() {
         backdropFilter: "blur(12px)", zIndex: 50,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => router.push("/dashboard")} style={{
+          <button onClick={() => setPhase("select_subject")} style={{
             background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10, padding: "8px 12px", color: "#9CA3AF", fontSize: 13,
             cursor: "pointer", fontWeight: 600,
@@ -284,7 +364,7 @@ export default function LastNightBeforePage() {
           }}>
             {pct}% done
           </div>
-          <button onClick={() => { setPhase("reveal"); setShowReroll(true); }} style={{
+          <button onClick={() => { setPhase("reveal"); attemptRerollLinkClick(); }} style={{
             background: "none", border: "1px solid rgba(245,158,11,0.2)",
             borderRadius: 8, padding: "6px 12px", color: "#F59E0B",
             fontSize: 12, cursor: "pointer", fontWeight: 600,

@@ -14,6 +14,7 @@ export interface SessionUser {
     name: string;
     role: UserRole;
     isPaid: boolean;
+    lnbChemistryUnlocked?: boolean;
 }
 
 export interface Session {

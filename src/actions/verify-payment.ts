@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser, createToken, setSessionCookie } from "@/lib/auth";
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
+import Razorpay from "razorpay";
 
 interface RazorpayResponse {
     razorpay_order_id: string;
@@ -36,18 +37,39 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
             return { success: false, error: "Payment verification failed" };
         }
 
-        // 2. Update Database (Idempotent - safe to do even if webhook checks)
-        const updatedUser = await prisma.user.update({
-            where: { id: user.id },
-            data: { isPaid: true },
-        });
+        // 2. Fetch Order from Razorpay to get the trusted details (prevents frontend spoofing)
+        const key_id = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
+        if (!key_id) {
+            console.error("RAZORPAY_KEY_ID is missing");
+            return { success: false, error: "Server configuration error" };
+        }
+        
+        const razorpay = new Razorpay({ key_id: key_id, key_secret: key_secret });
+        const order = await razorpay.orders.fetch(razorpay_order_id);
+        
+        const purchaseType = order.notes?.purchaseType || "PRO";
 
-        // 3. REFRESH SESSION COOKIE (Crucial Step: Updates isPaid in token)
+        // 3. Update Database 
+        let updatedUser;
+        if (purchaseType === "LNB_CHEMISTRY") {
+            updatedUser = await prisma.user.update({
+                where: { id: user.id },
+                data: { lnbChemistryUnlocked: true },
+            });
+        } else {
+            updatedUser = await prisma.user.update({
+                where: { id: user.id },
+                data: { isPaid: true },
+            });
+        }
+
+        // 4. REFRESH SESSION COOKIE
         const newToken = await createToken({
             ...updatedUser,
-            isPaid: true // Explicitly ensure payload has true
+            isPaid: updatedUser.isPaid,
+            lnbChemistryUnlocked: updatedUser.lnbChemistryUnlocked
         });
-        await setSessionCookie(newToken, true); // Assuming persistent login for paid users, or pass parameter
+        await setSessionCookie(newToken, true);
 
         revalidatePath("/dashboard");
         

@@ -5,6 +5,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { physicsQuestions } from "@/data/precision-physics";
 import { mathsQuestions } from "@/data/precision-maths";
 import { chemistryQuestions } from "@/data/precision-chemistry";
+import { PRECISION_BIOLOGY } from "@/data/precision-biology";
 import {
   PrecisionQuestion,
   PrecisionSubject,
@@ -22,6 +23,7 @@ const ALL_QUESTIONS: Record<string, PrecisionQuestion[]> = {
   Physics: physicsQuestions,
   Mathematics: mathsQuestions,
   Chemistry: chemistryQuestions,
+  Biology: PRECISION_BIOLOGY,
 };
 
 const SUBJECTS: PrecisionSubject[] = [
@@ -99,7 +101,19 @@ const SUBJECTS: PrecisionSubject[] = [
     name: "Biology",
     icon: "🧬",
     color: "#EC4899",
-    chapters: [],
+    chapters: [
+      { id: "Cell Cycle, Cell Division and Structure of Chromosomes", name: "Cell Cycle & Chromosomes" },
+      { id: "Genetics - Mendel's Laws and Inheritance", name: "Genetics & Inheritance" },
+      { id: "Absorption by Roots and Osmosis", name: "Absorption by Roots" },
+      { id: "Transpiration and Photosynthesis", name: "Transpiration" },
+      { id: "Photosynthesis", name: "Photosynthesis" },
+      { id: "Plant Physiology", name: "Plant Physiology" },
+      { id: "The Endocrine System", name: "The Endocrine System" },
+      { id: "Reproductive System", name: "Reproductive System" },
+      { id: "Population and Health", name: "Population and Health" },
+      { id: "Pollution and Waste Management", name: "Pollution and Waste Management" },
+      { id: "Human Evolution", name: "Human Evolution" }
+    ],
   },
 ];
 

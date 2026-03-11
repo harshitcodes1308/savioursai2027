@@ -1,0 +1,1528 @@
+Based on Previous Years' Papers (2008-2025) 
+ 
+CHAPTER 1: CELL CYCLE, CELL DIVISION AND STRUCTURE 
+OF CHROMOSOMES 
+ 
+Q1. Duplicated chromosomes are joined at a point termed: [2024, 1 mark] 
+(a) Centrosome​
+(b) Centromere​
+(c) Centriole​
+(d) Chromatid 
+Answer: (b) Centromere 
+Explanation: Duplicated chromosomes consist of two identical sister chromatids joined 
+together at a point called the centromere. 
+ 
+Q2. The cell component visible only during cell division is: [2013, 1 mark] 
+(a) Mitochondria​
+(b) Chloroplast​
+(c) Chromosome​
+(d) Chromatin 
+Answer: (c) Chromosome 
+ 
+Q3. A membrane that disappears during late prophase is: [2008, 1 mark] 
+(a) Cell membrane​
+(b) Nuclear membrane​
+(c) Plasma membrane​
+(d) Mitochondrial membrane 
+
+Answer: (b) Nuclear membrane 
+ 
+Q4. The point of attachment of two chromatids is called: [2020, 1 mark] 
+(a) Centrosome​
+(b) Centromere​
+(c) Chromatin​
+(d) Chromomere 
+Answer: (b) Centromere 
+ 
+Q5. After mitotic cell division, a female human cell will have: [2014, 1 mark] 
+(a) 44 + XX chromosomes​
+(b) 44 + XY chromosomes​
+(c) 22 + X chromosomes​
+(d) 22 + Y chromosomes 
+Answer: (a) 44 + XX chromosomes 
+ 
+Q6. During the synthesis phase of the cell cycle, more of: [2023, 1 mark] 
+(a) RNA is synthesised​
+(b) RNA and proteins are synthesised​
+(c) DNA is synthesised​
+(d) Glucose is synthesised 
+Answer: (c) DNA is synthesised 
+Explanation: S phase is the phase of the cell cycle when DNA packaged into chromosomes 
+is replicated. 
+ 
+Q7. The exchange of chromatid parts between the maternal and the paternal 
+chromatids of a pair of homologous chromosomes during meiosis is called: [2016, 1 
+mark] 
+
+(a) Synapsis​
+(b) Crossing over​
+(c) Linkage​
+(d) Mutation 
+Answer: (b) Crossing over 
+ 
+Q8. After Mitosis, a female human cell will have: [2022 Sem 1, 1 mark] 
+(a) 44 + XX chromosomes​
+(b) 22 + X chromosomes​
+(c) 22 + Y chromosomes​
+(d) 44 + XY chromosomes 
+Answer: (a) 44 + XX chromosomes 
+Explanation: Mitosis is an equational division that produces daughter cells with same 
+number of chromosomes as that of a parent cell. 
+ 
+Q9. At the end of ______, Cytokinesis is completed: [2022 Sem 1, 1 mark] 
+(a) Metaphase​
+(b) Prophase​
+(c) Interphase​
+(d) Telophase 
+Answer: (d) Telophase 
+Explanation: Cytokinesis begins in anaphase and ends in telophase, reaching completion 
+as the next interphase begins. 
+ 
+Q10. Replication of DNA in the cell cycle occurs during the: [2022 Sem 1, 1 mark] 
+(a) G₁-phase​
+(b) Anaphase​
+(c) S-phase​
+(d) G₂-phase 
+
+Answer: (c) S-phase 
+Explanation: S-phase is the period during which DNA replication occurs. 
+ 
+Q11. Karyokinesis is: [2022 Sem 1, 1 mark] 
+(a) division of nucleus during cell division​
+(b) division of cytoplasm during cell division​
+(c) division of centrosome​
+(d) division of nucleolus 
+Answer: (a) division of nucleus during cell division 
+ 
+Q12. Aster is located: [2022 Sem 1, 1 mark] 
+(a) around the centrioles in plant cells​
+(b) around the centrioles in animal cells​
+(c) around the chromatids in animal cells​
+(d) around the chromatids in plant cells 
+Answer: (b) around the centrioles in animal cells 
+ 
+Q13. The organelle that forms the aster during cell division is: [2023, 1 mark] 
+(a) Centrosome​
+(b) Centromere​
+(c) Chromosome​
+(d) Chromatid 
+Answer: (a) Centrosome 
+ 
+Q14. A non-dividing phase of the cell cycle where more DNA is synthesised is: [2020, 1 
+mark] 
+(a) G₁ phase​
+(b) G₂ phase​
+
+(c) S phase​
+(d) M phase 
+Answer: (c) S phase 
+ 
+Q15. A sudden inheritable change in one or more genes is called: [2020, 1 mark] 
+(a) Mutation​
+(b) Variation​
+(c) Adaptation​
+(d) Evolution 
+Answer: (a) Mutation 
+ 
+CHAPTER 2: GENETICS - MENDEL'S LAWS AND 
+INHERITANCE 
+ 
+Q1. A zygote which has Y chromosome inherited from the father will develop into a: 
+[2024, 1 mark] 
+(a) will depend on the chromosome inherited from the mother​
+(b) girl​
+(c) either boy or a girl​
+(d) boy 
+Answer: (d) boy 
+Explanation: In humans, the presence of a Y chromosome in the zygote will develop into a 
+male child. Sperm carrying Y chromosome fertilises the egg (X) resulting in XY zygote. 
+ 
+Q2. Four friends P, Q, R and S were discussing examples of genetic disorders. Who gave 
+the correct examples? [2024, 1 mark] 
+
+P: Colour blindness and malaria​
+Q: Albinism and cholera​
+R: Haemophilia and colour blindness​
+S: Haemophilia and albinism 
+(a) P and Q​
+(b) R and S​
+(c) P and R​
+(d) Q and S 
+Answer: (b) R and S 
+Explanation: Haemophilia, colour blindness, and albinism are examples of genetic 
+disorders. 
+ 
+Q3. A male gorilla has 48 chromosomes in each of its body cells. How many 
+chromosomes will each of the sperms have? [2024, 1 mark] 
+(a) 24​
+(b) 48​
+(c) 12​
+(d) 16 
+Answer: (a) 24 
+Explanation: Since body cells have 48 chromosomes, each sperm cell will contain 24 
+chromosomes due to meiosis (reduction division). 
+ 
+Q4. The recessive gene is one that expresses itself in: [2013, 1 mark] 
+(a) Heterozygous condition​
+(b) Homozygous condition​
+(c) F₂ generation​
+(d) Y-linked inheritance 
+Answer: (b) Homozygous condition 
+ 
+
+Q5. Ajay and Vijay are siblings. Ajay can roll his tongue while Vijay cannot. What is the 
+genotype of their parents? [2025, 1 mark] 
+(a) Both the parents are homozygous dominant​
+(b) Both the parents are homozygous recessive​
+(c) One parent is homozygous dominant, and the other is homozygous recessive​
+(d) Both the parents are heterozygous dominant 
+Answer: (d) Both the parents are heterozygous dominant 
+Explanation: Tongue rolling is a dominant trait. For Ajay to have at least one dominant 
+allele and Vijay to have two recessive alleles, both parents must be heterozygous (Rr). 
+ 
+Q6. A scientist wanted to conduct a genetic experiment on mice. He cut the tails of all 
+the mice and made them reproduce. What will be the phenotype of the offsprings? 
+[2025, 1 mark] 
+(a) All the offsprings will be tailless​
+(b) There will be a mix of tailed and tailless offsprings​
+(c) All the offsprings will have tails​
+(d) Tail of the offsprings cannot be predicted 
+Answer: (c) All the offsprings will have tails 
+Explanation: Tail cutting is an acquired trait that affects somatic cells, not germ cells. Only 
+changes in germ cells are inherited. 
+ 
+Q7. The type of gene, which in the presence of a contrasting allele is not expressed: 
+[2022 Sem 1, 1 mark] 
+(a) Homozygous​
+(b) Heterozygous​
+(c) Dominant​
+(d) Recessive 
+Answer: (d) Recessive 
+ 
+
+Q8. The genotype of a person who cannot roll his tongue is: [2022 Sem 1, 1 mark] 
+(a) Rr​
+(b) RR​
+(c) rr​
+(d) RRr 
+Answer: (c) rr 
+Explanation: In humans, tongue rolling is a dominant trait (R), those with the recessive 
+condition (rr) cannot roll their tongues. 
+ 
+Q9. A homozygous pea plant having purple flowers is crossed with a homozygous pea 
+plant bearing white flowers. The phenotypic ratio of the offspring obtained in F₂ 
+generation is: [2022 Sem 1, 1 mark] 
+(a) 2:1​
+(b) 1:1​
+(c) 1:2:1​
+(d) 3:1 
+Answer: (d) 3:1 
+ 
+Q10. Law of Dominance states that: [2022 Sem 1, 1 mark] 
+(a) Out of a pair of contrasting alleles present together, only the recessive allele is able 
+to express itself while the dominant remains suppressed​
+(b) Out of a pair of contrasting alleles present together, only the dominant allele is able 
+to express itself while the recessive remains suppressed​
+(c) Out of a pair of contrasting alleles present together, both the dominant and recessive 
+cannot express themselves​
+(d) Out of a pair of contrasting alleles present together, both the dominant and recessive 
+can express themselves 
+Answer: (b) Out of a pair of contrasting alleles present together, only the dominant allele 
+is able to express itself while the recessive remains suppressed 
+ 
+
+Q11. Mutation is: [2022 Sem 1, 1 mark] 
+(a) sudden change in one or more genes in an organism's cells which is heritable​
+(b) change in the number of centrosomes in an organism's cells which is heritable​
+(c) change in the structure of cell membrane in an organism's cell which is heritable​
+(d) change in the shape of cells which is heritable 
+Answer: (a) sudden change in one or more genes in an organism's cells which is 
+heritable 
+ 
+Q12. Genes are: [2022 Sem 1, 1 mark] 
+(a) present on cell wall​
+(b) present on chloroplast​
+(c) present on chromosomes​
+(d) present on centrosomes 
+Answer: (c) present on chromosomes 
+ 
+Q13. Haemophilia and colour blindness are: [2023, 1 mark] 
+(a) X-linked disorders​
+(b) Y-linked disorders​
+(c) Autosomal disorders​
+(d) Metabolic disorders 
+Answer: (a) X-linked disorders 
+ 
+Q14. The suppressed allele of a gene is called: [2017, 1 mark] 
+(a) Dominant​
+(b) Recessive​
+(c) Mutant​
+(d) Wild type 
+Answer: (b) Recessive 
+
+ 
+Q15. In a homozygous pea plant, axial flowers (A) are dominant over terminal flowers 
+(a). When pure axial is crossed with pure terminal, the phenotype of F₁ generation is: 
+[2017, 1 mark] 
+(a) All terminal​
+(b) All axial​
+(c) 3 axial : 1 terminal​
+(d) 1 axial : 1 terminal 
+Answer: (b) All axial 
+ 
+CHAPTER 3: ABSORPTION BY ROOTS AND OSMOSIS 
+ 
+Q1. The process in which water is lost from the margins of strawberry leaves is: [2024, 1 
+mark] 
+(a) Osmosis​
+(b) Imbibition​
+(c) Diffusion​
+(d) Guttation 
+Answer: (d) Guttation 
+Explanation: Guttation is the exudation of water droplets from the margins or tips of leaves 
+through hydathodes. 
+ 
+Q2. Which one of the following helps in the opening of stomata: [2024, 1 mark] 
+(a) Cobalt ions​
+(b) Potassium ions​
+(c) Magnesium ions​
+(d) Aluminium ions 
+Answer: (b) Potassium ions 
+
+Explanation: Potassium ions (K⁺) play a significant role in stomatal opening. When K⁺ ions 
+are pumped into guard cells, they cause osmotic uptake of water, increasing turgor 
+pressure and opening the stomata. 
+ 
+Q3. Osmosis takes place when there is: [2024, 1 mark] 
+(a) A freely permeable membrane​
+(b) A cell wall​
+(c) A selectively permeable membrane​
+(d) An impermeable membrane 
+Answer: (c) A selectively permeable membrane 
+ 
+Q4. Unicellular outgrowths from the epidermis of roots are called: [2024, 1 mark] 
+(a) Root hairs​
+(b) Trichomes​
+(c) Lenticels​
+(d) Hydathodes 
+Answer: (a) Root hairs 
+ 
+Q5. The phenomenon by which living or dead plant cells absorb water by surface 
+attraction is called: [2012, 1 mark] 
+(a) Osmosis​
+(b) Diffusion​
+(c) Imbibition​
+(d) Plasmolysis 
+Answer: (c) Imbibition 
+ 
+Q6. A plant cell may burst when: [2016, 1 mark] 
+
+(a) Turgor pressure equalises wall pressure​
+(b) Turgor pressure exceeds wall pressure​
+(c) Wall pressure exceeds turgor pressure​
+(d) None of the above 
+Answer: (b) Turgor pressure exceeds wall pressure 
+ 
+Q7. Marine fish when placed in tap water bursts because of: [2017, 1 mark] 
+(a) Endosmosis​
+(b) Exosmosis​
+(c) Diffusion​
+(d) Plasmolysis 
+Answer: (a) Endosmosis 
+ 
+Q8. When a cell is placed in ______ solution, it becomes plasmolysed: [2022 Sem 1, 1 
+mark] 
+(a) Distilled water​
+(b) Hypertonic​
+(c) Isotonic​
+(d) Hypotonic 
+Answer: (b) Hypertonic 
+Explanation: If a plant cell is placed in a hypertonic solution, the plant cell loses water and 
+gets plasmolysed. 
+ 
+Q9. A shoot from a balsam plant is kept in a beaker containing eosin solution (pink). 
+The pink colour will be distinctly seen in the: [2022 Sem 1, 1 mark] 
+(a) Xylem​
+(b) Phloem​
+(c) Epidermis​
+(d) Cortex 
+
+Answer: (a) Xylem 
+Explanation: Eosin is a water-soluble stain. When the cut end of the plant is immersed in 
+eosin solution, the colored solution enters the xylem vessels, indicating that water uptake 
+in plants is through xylem only. 
+ 
+Q10. The pressure developed in the roots due to continuous inward movement of water 
+by cell to cell osmosis is: [2022 Sem 1, 1 mark] 
+(a) Root pressure​
+(b) Wall pressure​
+(c) Turgor pressure​
+(d) Air pressure 
+Answer: (a) Root pressure 
+ 
+Q11. The process by which root hairs absorb water from the soil is: [2017, 1 mark] 
+(a) Osmosis​
+(b) Diffusion​
+(c) Imbibition​
+(d) Active transport 
+Answer: (a) Osmosis 
+ 
+Q12. The cell sap of root hair is ______ as compared to soil water: [2013, 1 mark] 
+(a) Hypotonic​
+(b) Hypertonic​
+(c) Isotonic​
+(d) Dilute 
+Answer: (b) Hypertonic 
+ 
+Q13. A plant cell when placed in a hypertonic solution becomes: [2014, 1 mark] 
+
+(a) Turgid​
+(b) Flaccid​
+(c) Plasmolysed​
+(d) Deplasmolysed 
+Answer: (c) Plasmolysed 
+ 
+Q14. The movement of water molecules from their region of higher concentration to 
+region of lower concentration through a semi-permeable membrane is called: [2013, 1 
+mark] 
+(a) Diffusion​
+(b) Osmosis​
+(c) Imbibition​
+(d) Active transport 
+Answer: (b) Osmosis 
+ 
+Q15. Water enters the root hair from the soil by the process of: [2008, 1 mark] 
+(a) Exosmosis​
+(b) Endosmosis​
+(c) Diffusion​
+(d) Imbibition 
+Answer: (b) Endosmosis 
+ 
+CHAPTER 4: TRANSPIRATION AND PHOTOSYNTHESIS 
+ 
+Q1. The process of conversion of ADP to ATP during photosynthesis is called: [2024, 1 
+mark] 
+(a) Photolysis​
+(b) Phagocytosis​
+
+(c) Photophosphorylation​
+(d) Polymerisation 
+Answer: (c) Photophosphorylation 
+Explanation: Photophosphorylation involves the phosphorylation of ADP to form ATP using 
+energy derived from light during photosynthesis. 
+ 
+Q2. The optimum temperature for photosynthesis is: [2025, 1 mark] 
+(a) 10-15°C​
+(b) 60-65°C​
+(c) 40-45°C​
+(d) 25-35°C 
+Answer: (d) 25-35°C 
+ 
+Q3. The paper used to demonstrate unequal transpiration in a dicot leaf is: [2023, 1 
+mark] 
+(a) Filter paper​
+(b) Litmus paper​
+(c) Starch paper​
+(d) Cobalt chloride paper 
+Answer: (d) Cobalt chloride paper 
+ 
+Q4. The site of light reaction in the cells of a green leaf is: [2023, 1 mark] 
+(a) Nucleus​
+(b) Grana of chloroplast​
+(c) Cytoplasm​
+(d) Stroma of chloroplast 
+Answer: (b) Grana of chloroplast 
+
+Explanation: Light reaction occurs in the membrane of thylakoids of grana in the 
+chloroplast. 
+ 
+Q5. The process of conversion of ADP to ATP during photosynthesis is called: [2022 
+Sem 1, 1 mark] 
+(a) Polymerisation​
+(b) Photophosphorylation​
+(c) Photorespiration​
+(d) Photolysis 
+Answer: (b) Photophosphorylation 
+ 
+Q6. Permanently open structures seen on the barks of old woody stems are: [2022 Sem 
+1, 1 mark] 
+(a) Stomata​
+(b) Hydathodes​
+(c) Lenticels​
+(d) Epidermal pores 
+Answer: (c) Lenticels 
+ 
+Q7. The process of splitting of water molecules into hydrogen ions and hydroxyl ions in 
+the presence of chlorophyll and light is called: [2010, 1 mark] 
+(a) Photophosphorylation​
+(b) Photolysis​
+(c) Hydrolysis​
+(d) Polymerisation 
+Answer: (b) Photolysis 
+ 
+Q8. To test a leaf for starch, the leaf is boiled in water to: [2018, 1 mark] 
+
+(a) remove chlorophyll​
+(b) kill the cells​
+(c) soften the leaf​
+(d) dissolve starch 
+Answer: (b) kill the cells 
+ 
+Q9. The solvent used to dissolve the chlorophyll pigments while testing a leaf for starch 
+is: [2017, 1 mark] 
+(a) Water​
+(b) Alcohol​
+(c) Soda lime​
+(d) Iodine 
+Answer: (b) Alcohol 
+ 
+Q10. In order to prove that carbon dioxide is necessary for photosynthesis, a potted 
+plant is placed in dark for 48 hours to: [2024, 1 mark] 
+(a) destarch the leaves​
+(b) remove chlorophyll​
+(c) activate enzymes​
+(d) increase transpiration 
+Answer: (a) destarch the leaves 
+ 
+Q11. A plant is kept in a dark cupboard for about 48 hours before conducting any 
+experiment on photosynthesis to: [2012, 1 mark] 
+(a) remove starch from the plant​
+(b) ensure that starch is not translocated from the leaves​
+(c) remove chlorophyll from the leaf​
+(d) destarch the experimental leaf 
+Answer: (d) destarch the experimental leaf 
+
+ 
+Q12. NADP is expanded as: [2012, 1 mark] 
+(a) Nicotinamide Adenosine Dinucleotide Phosphate​
+(b) Nicotinamide Adenine Dinucleotide Phosphate​
+(c) Nicotinamide Adenine Dinucleotide Phosphate​
+(d) Nicotinamide Adenosine Dinucleotide Phosphate 
+Answer: (b) Nicotinamide Adenine Dinucleotide Phosphate 
+ 
+Q13. Transpiration is useful to the plant because it: [2022 Sem 1, 1 mark] 
+(a) creates a suction force for absorption of water from the soil​
+(b) helps in photophosphorylation​
+(c) synthesises glucose​
+(d) splits water molecules 
+Answer: (a) creates a suction force for absorption of water from the soil 
+ 
+Q14. Photosynthesis is: [2022 Sem 1, 1 mark] 
+(a) synthesis of glucose from carbon dioxide by non-green plants using light energy​
+(b) synthesis of glucose by green plants from carbon dioxide using light energy​
+(c) synthesis of glucose from carbon dioxide and water by non-green plants using light 
+energy​
+(d) synthesis of glucose from carbon dioxide and water by green plants using light 
+energy 
+Answer: (d) synthesis of glucose from carbon dioxide and water by green plants using 
+light energy 
+ 
+Q15. Transpiration is: [2022 Sem 1, 1 mark] 
+(a) loss of water in the form of droplets from aerial parts of the plant​
+(b) loss of water in the form of water vapour from underground parts of the plant​
+
+(c) loss of water in the form of water vapour from aerial parts of the plant​
+(d) loss of water in the form of water vapour from all parts of the plant 
+Answer: (c) loss of water in the form of water vapour from aerial parts of the plant 
+ 
+CHAPTER 5: CIRCULATORY SYSTEM 
+ 
+Q1. The phase of cardiac cycle in which the auricles contract is: [2012, 1 mark] 
+(a) Atrial systole​
+(b) Ventricular systole​
+(c) Diastole​
+(d) Joint diastole 
+Answer: (a) Atrial systole 
+ 
+Q2. Pulse wave is mainly caused by the: [2013, 1 mark] 
+(a) systole of atria​
+(b) diastole of atria​
+(c) systole of the left ventricle​
+(d) systole of the right ventricle 
+Answer: (c) systole of the left ventricle 
+ 
+Q3. The vein that carries oxygenated blood is: [2015, 1 mark] 
+(a) Pulmonary artery​
+(b) Pulmonary vein​
+(c) Hepatic vein​
+(d) Renal vein 
+Answer: (b) Pulmonary vein 
+ 
+
+Q4. A muscular wall is absent in: [2019, 1 mark] 
+(a) Capillary​
+(b) Venule​
+(c) Arteriole​
+(d) Vein 
+Answer: (a) Capillary 
+ 
+Q5. The blood vessel that supplies oxygenated blood to the liver is: [2023, 1 mark] 
+(a) Hepatic artery​
+(b) Hepatic vein​
+(c) Inferior vena cava​
+(d) Hepatic portal vein 
+Answer: (a) Hepatic artery 
+ 
+Q6. The blood vessel that carries oxygenated blood is: [2022 Sem 2, 1 mark] 
+(a) Pulmonary artery​
+(b) Pulmonary vein​
+(c) Renal vein​
+(d) Hepatic vein 
+Answer: (b) Pulmonary vein 
+ 
+Q7. Pericardium covers the: [2022 Sem 2, 1 mark] 
+(a) Heart​
+(b) Brain​
+(c) Spinal cord​
+(d) Eyeball 
+Answer: (a) Heart 
+ 
+
+Q8. While recording the pulse rate, a doctor presses on our wrist at the: [2019, 1 mark] 
+(a) Nerve​
+(b) Vein​
+(c) Artery​
+(d) Capillary 
+Answer: (c) Artery 
+ 
+Q9. The mineral element essential for the clotting of blood is: [2011, 1 mark] 
+(a) Iron​
+(b) Calcium​
+(c) Sodium​
+(d) Potassium 
+Answer: (b) Calcium 
+ 
+Q10. The iron containing pigment in erythrocytes is: [2020, 1 mark] 
+(a) Haemocyanin​
+(b) Haemoglobin​
+(c) Myoglobin​
+(d) Chlorophyll 
+Answer: (b) Haemoglobin 
+ 
+Q11. Agranulocytes are: [2020, 1 mark] 
+(a) Lymphocytes, Monocytes​
+(b) Lymphocytes, Basophils​
+(c) Eosinophils, Basophils​
+(d) Eosinophils, Monocytes 
+Answer: (a) Lymphocytes, Monocytes 
+ 
+
+Q12. The mineral element in haemoglobin is: [2022 Sem 2, 1 mark] 
+(a) Manganese​
+(b) Iron​
+(c) Sodium​
+(d) Calcium 
+Answer: (b) Iron 
+ 
+Q13. Chordae tendineae are located in the: [2012, 1 mark] 
+(a) Brain​
+(b) Heart​
+(c) Lungs​
+(d) Kidneys 
+Answer: (b) Heart 
+Explanation: Chordae tendineae play a vital role in holding the atrioventricular valves in 
+place while the heart is pumping blood. 
+ 
+Q14. The average lifespan of RBCs in humans is: [2023, 1 mark] 
+(a) 120 days​
+(b) 100 days​
+(c) 80 days​
+(d) 60 days 
+Answer: (a) 120 days 
+ 
+Q15. The sound "LUBB" in heartbeat is produced due to closure of: [2015, 1 mark] 
+(a) Semilunar valves​
+(b) Tricuspid and bicuspid valves​
+(c) Pulmonary valve​
+(d) Aortic valve 
+
+Answer: (b) Tricuspid and bicuspid valves 
+ 
+CHAPTER 6: EXCRETORY SYSTEM 
+ 
+Q1. The organ where urea is produced is: [2012, 1 mark] 
+(a) Kidney​
+(b) Liver​
+(c) Lungs​
+(d) Skin 
+Answer: (b) Liver 
+ 
+Q2. The main nitrogenous waste formed in the human body is: [2024, 1 mark] 
+(a) Uric acid​
+(b) Urea​
+(c) Ammonia​
+(d) Creatinine 
+Answer: (b) Urea 
+ 
+Q3. The duct which transports urine from the kidney to the urinary bladder is: [2020, 1 
+mark] 
+(a) Ureter​
+(b) Urethra​
+(c) Renal tubule​
+(d) Collecting duct 
+Answer: (a) Ureter 
+ 
+
+Q4. The structural and functional units of excretion in the human kidney is the: [2020, 1 
+mark] 
+(a) Ureter​
+(b) Bowman's capsule​
+(c) Renal pelvis​
+(d) Nephron 
+Answer: (d) Nephron 
+ 
+Q5. The structure that stores urine temporarily is: [2022 Sem 2, 1 mark] 
+(a) Ureter​
+(b) Urethra​
+(c) Urinary bladder​
+(d) Kidneys 
+Answer: (c) Urinary bladder 
+ 
+Q6. The main nitrogenous waste formed in the human body is: [2022 Sem 2, 1 mark] 
+(a) Uric acid​
+(b) Urea​
+(c) Ammonia​
+(d) Creatinine 
+Answer: (b) Urea 
+ 
+Q7. The pale yellow colour of normal human urine is due to the pigment: [2023, 1 mark] 
+(a) Melanin​
+(b) Anthocyanin​
+(c) Urochrome​
+(d) Haemoglobin 
+Answer: (c) Urochrome 
+
+ 
+Q8. The structural and functional units of the kidney are called: [2015, 1 mark] 
+(a) Neurons​
+(b) Nephrons​
+(c) Alveoli​
+(d) Villi 
+Answer: (b) Nephrons 
+ 
+Q9. The knot-like mass of blood capillaries inside the Bowman's capsule is called: [2013, 
+1 mark] 
+(a) Glomerulus​
+(b) Afferent arteriole​
+(c) Efferent arteriole​
+(d) Renal tubule 
+Answer: (a) Glomerulus 
+ 
+Q10. The process of maintaining water and salt balance in the blood is called: [2018, 1 
+mark] 
+(a) Osmoregulation​
+(b) Excretion​
+(c) Secretion​
+(d) Filtration 
+Answer: (a) Osmoregulation 
+ 
+Q11. The three main steps involved in the production of urine are: [2022 Sem 2, 3 marks] 
+(a) Filtration, reabsorption, secretion​
+(b) Diffusion, osmosis, active transport​
+(c) Absorption, assimilation, egestion​
+(d) Digestion, absorption, excretion 
+
+Answer: (a) Filtration, reabsorption, secretion 
+ 
+Q12. The renal cortex has a dotted appearance because: [2017, 1 mark] 
+(a) It contains blood vessels​
+(b) It contains numerous nephrons​
+(c) It has medullary pyramids​
+(d) It has collecting ducts 
+Answer: (b) It contains numerous nephrons 
+ 
+Q13. The renal medulla has a striped appearance due to: [2015, 1 mark] 
+(a) Presence of glomeruli​
+(b) Presence of Henle's loop and collecting ducts​
+(c) Presence of blood vessels​
+(d) Presence of renal pyramids 
+Answer: (b) Presence of Henle's loop and collecting ducts 
+ 
+Q14. Ultrafiltration occurs in: [2017, 1 mark] 
+(a) Bowman's capsule​
+(b) Proximal convoluted tubule​
+(c) Loop of Henle​
+(d) Collecting duct 
+Answer: (a) Bowman's capsule 
+ 
+Q15. The hormone that increases reabsorption of water from kidney tubules is: [2012, 1 
+mark] 
+(a) Insulin​
+(b) Glucagon​
+
+(c) ADH​
+(d) Oxytocin 
+Answer: (c) ADH 
+ 
+CHAPTER 7: NERVOUS SYSTEM 
+ 
+Q1. The cell body of a nerve cell is called: [2013, 1 mark] 
+(a) Dendrite​
+(b) Axon​
+(c) Cyton​
+(d) Synapse 
+Answer: (c) Cyton 
+ 
+Q2. The part of the brain associated with memory is: [2014, 1 mark] 
+(a) Cerebrum​
+(b) Cerebellum​
+(c) Medulla oblongata​
+(d) Pons 
+Answer: (a) Cerebrum 
+ 
+Q3. The ventral root ganglion of the spinal cord contains cell bodies of the: [2013, 1 
+mark] 
+(a) Motor neuron​
+(b) Sensory neuron​
+(c) Intermediate neuron​
+(d) Association neuron 
+Answer: (c) Intermediate neuron 
+
+ 
+Q4. Which part of the brain is responsible for maintaining posture and equilibrium? 
+[2015, 1 mark] 
+(a) Cerebrum​
+(b) Cerebellum​
+(c) Medulla oblongata​
+(d) Thalamus 
+Answer: (b) Cerebellum 
+ 
+Q5. Stimulation of the nerves of the sympathetic nervous system: [2023, 1 mark] 
+(a) accelerates heartbeat​
+(b) constricts pupil of eyes​
+(c) increases peristalsis​
+(d) retards heartbeat 
+Answer: (a) accelerates heartbeat 
+ 
+Q6. The number of cranial nerves in humans are: [2022 Sem 2, 1 mark] 
+(a) 12​
+(b) 31 pairs​
+(c) 31​
+(d) 12 pairs 
+Answer: (d) 12 pairs 
+ 
+Q7. The point of contact between two neurons is called: [2011, 1 mark] 
+(a) Synapse​
+(b) Neurotransmitter​
+(c) Receptor​
+(d) Effector 
+
+Answer: (a) Synapse 
+ 
+Q8. A reflex arc in man is best described as movement of stimuli from: [2012, 1 mark] 
+(a) Receptor cell, sensory neuron, relaying neuron, effector muscles​
+(b) Receptor cell, efferent nerve, relaying neuron, muscles​
+(c) Receptor cell, spinal cord, motor neuron, relaying neuron​
+(d) Receptor cell, synapse, motor neuron, relaying neuron 
+Answer: (a) Receptor cell, sensory neuron, relaying neuron, effector muscles 
+ 
+Q9. The protective membranes covering the human brain and spinal cord are called: 
+[2011, 1 mark] 
+(a) Meninges​
+(b) Pericardium​
+(c) Pleura​
+(d) Peritoneum 
+Answer: (a) Meninges 
+ 
+Q10. The part of the brain that controls involuntary actions like heartbeat and breathing 
+is: [2015, 1 mark] 
+(a) Cerebrum​
+(b) Cerebellum​
+(c) Medulla oblongata​
+(d) Hypothalamus 
+Answer: (c) Medulla oblongata 
+ 
+Q11. In the brain, the grey matter (cytons) is present on the ______ while in the spinal 
+cord, it is present on the ______: [2014, 1 mark] 
+
+(a) outside, inside​
+(b) inside, outside​
+(c) outside, outside​
+(d) inside, inside 
+Answer: (a) outside, inside 
+ 
+Q12. The neurotransmitter stored at the terminal end of the axon is: [2008, 1 mark] 
+(a) Adrenaline​
+(b) Acetylcholine​
+(c) Dopamine​
+(d) Serotonin 
+Answer: (b) Acetylcholine 
+ 
+Q13. A point of contact between two neurons is termed: [2010, 1 mark] 
+(a) Synapsis​
+(b) Neuromotor junction​
+(c) Synapse​
+(d) Dendrite 
+Answer: (c) Synapse 
+ 
+Q14. The part of the brain that carries impulses from one hemisphere of the cerebellum 
+to the other is: [2016, 1 mark] 
+(a) Pons​
+(b) Medulla​
+(c) Corpus callosum​
+(d) Thalamus 
+Answer: (a) Pons 
+ 
+
+Q15. The outermost layer of meninges is: [2018, 1 mark] 
+(a) Dura mater​
+(b) Arachnoid mater​
+(c) Pia mater​
+(d) Grey matter 
+Answer: (a) Dura mater 
+ 
+CHAPTER 8: SENSE ORGANS - EYE AND EAR 
+ 
+Q1. The part of the human eye where rod cells and cone cells are located is the: [2012, 1 
+mark] 
+(a) Retina​
+(b) Cornea​
+(c) Choroid​
+(d) Sclera 
+Answer: (a) Retina 
+ 
+Q2. A defect in our eyes, in which some parts of the object are in focus while the other 
+parts are blurred is: [2024, 1 mark] 
+(a) Myopia​
+(b) Hypermetropia​
+(c) Astigmatism​
+(d) Presbyopia 
+Answer: (c) Astigmatism 
+ 
+Q3. The structure that lies at the junction of the choroid and the iris and is itself a part of 
+the choroid is called: [2025, 1 mark] 
+
+(a) Ciliary body​
+(b) Suspensory ligament​
+(c) Pupil​
+(d) Lens 
+Answer: (a) Ciliary body 
+ 
+Q4. Owls are nocturnal animals. They can see well at night due to: [2025, 1 mark] 
+(a) Cones and Rhodopsin​
+(b) Rods and Iodopsin​
+(c) Rods and Rhodopsin​
+(d) Cones and Iodopsin 
+Answer: (c) Rods and Rhodopsin 
+Explanation: Rods are photoreceptor cells sensitive to light intensity. Rhodopsin is the 
+light-sensitive pigment found in rod cells. 
+ 
+Q5. Adjusting the focal length of the eye lens to view objects at different distances is 
+done by: [2024, 1 mark] 
+(a) Cornea​
+(b) Iris​
+(c) Ciliary muscles​
+(d) Sclera 
+Answer: (c) Ciliary muscles 
+ 
+Q6. The ear ossicle that transports sound vibrations to the inner ear is: [2024, 1 mark] 
+(a) Stapes​
+(b) Malleus​
+(c) Incus​
+(d) Cochlea 
+Answer: (a) Stapes 
+
+ 
+Q7. The ear ossicle which opens into the oval window of Cochlea is: [2025, 1 mark] 
+(a) Malleus​
+(b) Incus​
+(c) Stapes​
+(d) Pinna 
+Answer: (c) Stapes 
+ 
+Q8. The circular opening in the centre of iris is: [2022 Sem 2, 1 mark] 
+(a) Lens​
+(b) Cornea​
+(c) Sclera​
+(d) Pupil 
+Answer: (d) Pupil 
+ 
+Q9. Organ of Corti is present inside the: [2022 Sem 2, 1 mark] 
+(a) Cochlea​
+(b) Semicircular canals​
+(c) Sacculus​
+(d) Utriculus 
+Answer: (a) Cochlea 
+ 
+Q10. The photosensitive pigment present in the rod cells of the retina is: [2009, 1 mark] 
+(a) Iodopsin​
+(b) Rhodopsin​
+(c) Melanin​
+(d) Haemoglobin 
+Answer: (b) Rhodopsin 
+
+ 
+Q11. The layer of the eyeball that prevents reflection of light is: [2009, 1 mark] 
+(a) Sclera​
+(b) Cornea​
+(c) Choroid​
+(d) Retina 
+Answer: (c) Choroid 
+ 
+Q12. The part of the ear that helps in maintaining static balance is: [2016, 1 mark] 
+(a) Cochlea​
+(b) Semicircular canals​
+(c) Utriculus and sacculus​
+(d) Organ of Corti 
+Answer: (c) Utriculus and sacculus 
+ 
+Q13. Myopia is corrected by using: [2017, 1 mark] 
+(a) Convex lens​
+(b) Concave lens​
+(c) Cylindrical lens​
+(d) Bifocal lens 
+Answer: (b) Concave lens 
+ 
+Q14. Hypermetropia is caused due to: [2012, 1 mark] 
+(a) Elongation of eyeball​
+(b) Shortening of eyeball​
+(c) Irregular cornea​
+(d) Thickening of lens 
+Answer: (b) Shortening of eyeball 
+
+ 
+Q15. The fluid present in the anterior part of the eye in front of the lens is: [2010, 1 mark] 
+(a) Vitreous humour​
+(b) Aqueous humour​
+(c) Endolymph​
+(d) Perilymph 
+Answer: (b) Aqueous humour 
+ 
+CHAPTER 9: ENDOCRINE SYSTEM 
+ 
+Q1. The hormone secreted by islets of Langerhans is: [2014, 1 mark] 
+(a) Insulin and glucagon​
+(b) Thyroxine​
+(c) Adrenaline​
+(d) Growth hormone 
+Answer: (a) Insulin and glucagon 
+ 
+Q2. A gland which secretes both hormone and enzyme is the: [2013, 1 mark] 
+(a) Pituitary​
+(b) Pancreas​
+(c) Thyroid​
+(d) Adrenal 
+Answer: (b) Pancreas 
+ 
+Q3. The hormone that affects urination is: [2024, 1 mark] 
+(a) Adrenaline​
+(b) Vasopressin​
+
+(c) Oestrogen​
+(d) Thyroxine 
+Answer: (b) Vasopressin 
+Explanation: Vasopressin (ADH) plays a crucial role in regulating water balance and urine 
+concentration in the body. 
+ 
+Q4. The hormone that induces vigorous contractions of the uterus in a pregnant mother 
+is: [2025, 1 mark] 
+(a) Oestrogen​
+(b) Prolactin​
+(c) Oxytocin​
+(d) Progesterone 
+Answer: (c) Oxytocin 
+ 
+Q5. The pituitary hormone which stimulates contraction of uterus during child birth is: 
+[2017, 1 mark] 
+(a) Oxytocin​
+(b) Prolactin​
+(c) ADH​
+(d) FSH 
+Answer: (a) Oxytocin 
+ 
+Q6. Gigantism and Acromegaly are due to: [2016, 1 mark] 
+(a) Hyposecretion of Thyroxine​
+(b) Hyposecretion of Growth hormone​
+(c) Hypersecretion of Thyroxine​
+(d) Hypersecretion of Growth hormone 
+Answer: (d) Hypersecretion of Growth hormone 
+
+ 
+Q7. Gigantism and Acromegaly are due to: [2022 Sem 2, 1 mark] 
+(a) Hypersecretion of Growth hormone​
+(b) Hypersecretion of Thyroxine​
+(c) Hyposecretion of Growth hormone​
+(d) Hyposecretion of Thyroxine 
+Answer: (a) Hypersecretion of Growth hormone 
+ 
+Q8. Islets of Langerhans are located in: [2022 Sem 2, 1 mark] 
+(a) Liver​
+(b) Pituitary gland​
+(c) Spleen​
+(d) Pancreas 
+Answer: (d) Pancreas 
+ 
+Q9. Cretinism and Myxoedema are due to: [2014, 1 mark] 
+(a) Hypersecretion of thyroxin​
+(b) Hypersecretion of growth hormone​
+(c) Hyposecretion of thyroxin​
+(d) Hyposecretion of growth hormone 
+Answer: (c) Hyposecretion of thyroxin 
+ 
+Q10. The cells of the testes that produce male hormones are called: [2011, 1 mark] 
+(a) Seminiferous tubules​
+(b) Interstitial cells (Leydig cells)​
+(c) Sertoli cells​
+(d) Germ cells 
+Answer: (b) Interstitial cells (Leydig cells) 
+
+ 
+Q11. The mineral element required for the synthesis of thyroxine is: [2017, 1 mark] 
+(a) Iron​
+(b) Iodine​
+(c) Calcium​
+(d) Sodium 
+Answer: (b) Iodine 
+ 
+Q12. Deficiency of insulin causes: [2017, 1 mark] 
+(a) Diabetes insipidus​
+(b) Diabetes mellitus​
+(c) Goitre​
+(d) Cretinism 
+Answer: (b) Diabetes mellitus 
+ 
+Q13. The hormone that helps increase the reabsorption of water from the kidney 
+tubules is: [2012, 1 mark] 
+(a) ADH​
+(b) Aldosterone​
+(c) Insulin​
+(d) Glucagon 
+Answer: (a) ADH 
+ 
+Q14. The master gland of the body is: [2012, 1 mark] 
+(a) Thyroid​
+(b) Pituitary​
+(c) Adrenal​
+(d) Pancreas 
+
+Answer: (b) Pituitary 
+ 
+Q15. Adrenaline is secreted by: [2015, 1 mark] 
+(a) Adrenal medulla​
+(b) Adrenal cortex​
+(c) Thyroid​
+(d) Pituitary 
+Answer: (a) Adrenal medulla 
+ 
+CHAPTER 10: REPRODUCTIVE SYSTEM 
+ 
+Q1. The hormone secreted by islets of Langerhans is: [2014, 1 mark] 
+(a) Insulin and glucagon​
+(b) Thyroxine​
+(c) Adrenaline​
+(d) Growth hormone 
+Answer: (a) Insulin and glucagon 
+ 
+Q2. The site of maturation of human sperms is the: [2014, 1 mark] 
+(a) Seminiferous tubule​
+(b) Interstitial cells​
+(c) Epididymis​
+(d) Prostate gland 
+Answer: (c) Epididymis 
+ 
+Q3. The hormone that induces vigorous contractions of the uterus in a pregnant mother 
+is: [2025, 1 mark] 
+
+(a) Oestrogen​
+(b) Prolactin​
+(c) Oxytocin​
+(d) Progesterone 
+Answer: (c) Oxytocin 
+ 
+Q4. A single highly coiled tube where sperms are stored, gets concentrated and mature 
+is known as: [2015, 1 mark] 
+(a) Epididymis​
+(b) Vas efferentia​
+(c) Vas deferens​
+(d) Seminiferous tubule 
+Answer: (a) Epididymis 
+ 
+Q5. The permanent stoppage of menstruation in human females around the age of 45 
+years is: [2023, 1 mark] 
+(a) Menarche​
+(b) Menopause​
+(c) Ovulation​
+(d) Menstruation 
+Answer: (b) Menopause 
+ 
+Q6. Surgical method of sterilization in a woman involves cutting and tying of: [2017, 1 
+mark] 
+(a) Ureter​
+(b) Uterus​
+(c) Urethra​
+(d) Oviduct 
+Answer: (d) Oviduct 
+
+ 
+Q7. On which day of the menstrual cycle does ovulation take place? [2019, 1 mark] 
+(a) 5th day​
+(b) 28th day​
+(c) 14th day​
+(d) 1st day 
+Answer: (c) 14th day 
+ 
+Q8. The onset of menstruation in a young girl around the age of 13 years is called: 
+[2008, 1 mark] 
+(a) Menopause​
+(b) Menarche​
+(c) Ovulation​
+(d) Gestation 
+Answer: (b) Menarche 
+ 
+Q9. The structure formed by the villi of the embryo and the uterus of the mother is: 
+[2015, 1 mark] 
+(a) Amnion​
+(b) Placenta​
+(c) Umbilical cord​
+(d) Yolk sac 
+Answer: (b) Placenta 
+ 
+Q10. Fixing of developing zygote on the uterine wall is called: [2015, 1 mark] 
+(a) Fertilization​
+(b) Implantation​
+(c) Gestation​
+(d) Parturition 
+
+Answer: (b) Implantation 
+ 
+Q11. In a human male, a sperm will contain: [2019, 1 mark] 
+(a) Both X and Y chromosomes​
+(b) Only Y chromosome​
+(c) Only X chromosome​
+(d) Either X or Y chromosome 
+Answer: (d) Either X or Y chromosome 
+ 
+Q12. In a human female, ovum consists of: [2020, 1 mark] 
+(a) 23 pairs of autosomes​
+(b) 22 pairs of autosomes and 1 pair of sex chromosomes​
+(c) 22 autosomes and 1 Y-chromosome​
+(d) 22 autosomes and 1 X-chromosome 
+Answer: (d) 22 autosomes and 1 X-chromosome 
+ 
+Q13. The normal gestational period of the developing human embryo is: [2017, 1 mark] 
+(a) 240 days​
+(b) 280 days​
+(c) 300 days​
+(d) 365 days 
+Answer: (b) 280 days 
+ 
+Q14. Seminal vesicles pour an alkaline secretion into the semen to: [2025, 1 mark] 
+(a) provide nutrition​
+(b) neutralize vaginal acidity​
+(c) activate sperms​
+(d) increase sperm count 
+
+Answer: (b) neutralize vaginal acidity 
+ 
+Q15. The surgical method of contraception in males is: [2014, 1 mark] 
+(a) Vasectomy​
+(b) Tubectomy​
+(c) Castration​
+(d) Circumcision 
+Answer: (a) Vasectomy 
+ 
+CHAPTER 11: POPULATION AND HEALTH 
+ 
+Q1. The number of live births per thousand people per year is called: [2025, 1 mark] 
+(a) Mortality​
+(b) Population density​
+(c) Population growth rate​
+(d) Natality 
+Answer: (d) Natality 
+ 
+Q2. Birth rate is the number of live births per thousand persons in: [2024, 1 mark] 
+(a) 1 year​
+(b) 2 years​
+(c) 10 years​
+(d) 20 years 
+Answer: (a) 1 year 
+ 
+Q3. Statistical study of human population is called: [2012, 1 mark] 
+
+(a) Demography​
+(b) Sociology​
+(c) Anthropology​
+(d) Epidemiology 
+Answer: (a) Demography 
+ 
+Q4. The number of individuals inhabiting per unit area is called: [2016, 1 mark] 
+(a) Population density​
+(b) Population growth​
+(c) Natality​
+(d) Mortality 
+Answer: (a) Population density 
+ 
+Q5. BCG vaccine is used to build immunity against: [2012, 1 mark] 
+(a) Poliomyelitis​
+(b) Tuberculosis​
+(c) Malaria​
+(d) Whooping cough 
+Answer: (b) Tuberculosis 
+ 
+Q6. Salk's vaccine is used to build immunity against: [2010, 1 mark] 
+(a) Tuberculosis​
+(b) Poliomyelitis​
+(c) Malaria​
+(d) Tetanus 
+Answer: (b) Poliomyelitis 
+ 
+Q7. The antibiotic penicillin is obtained from: [2014, 1 mark] 
+
+(a) Protozoan​
+(b) Bacteria​
+(c) Virus​
+(d) Fungus 
+Answer: (d) Fungus 
+ 
+Q8. Formalin is an example of: [2015, 1 mark] 
+(a) Antiseptic​
+(b) Disinfectant​
+(c) Antibiotic​
+(d) Vaccine 
+Answer: (b) Disinfectant 
+ 
+Q9. Which one of the following is non-biodegradable? [2018, 1 mark] 
+(a) DDT​
+(b) Vegetable peel​
+(c) Cardboard​
+(d) Bark of trees 
+Answer: (a) DDT 
+ 
+Q10. A non-biodegradable pesticide is: [2013, 1 mark] 
+(a) DDT​
+(b) BHC​
+(c) Malathion​
+(d) Parathion 
+Answer: (a) DDT 
+ 
+Q11. CNG is mainly responsible for: [2015, 1 mark] 
+
+(a) Air pollution​
+(b) Water pollution​
+(c) Soil pollution​
+(d) Noise pollution 
+Answer: (a) Air pollution 
+ 
+Q12. The prime source of chlorofluorocarbons is: [2017, 1 mark] 
+(a) Vehicular emissions​
+(b) Industrial effluents​
+(c) Domestic sewage​
+(d) Refrigeration equipments 
+Answer: (d) Refrigeration equipments 
+ 
+Q13. Which of the following is a Greenhouse gas? [2018, 1 mark] 
+(a) Oxygen​
+(b) Methane​
+(c) Sulphur dioxide​
+(d) Nitrogen 
+Answer: (b) Methane 
+ 
+Q14. One gaseous compound that leads to the depletion of the ozone layer is: [2018, 1 
+mark] 
+(a) CO₂​
+(b) SO₂​
+(c) CFC​
+(d) NO₂ 
+Answer: (c) CFC 
+ 
+
+Q15. Industrial melanism was observed in: [2024, 1 mark] 
+(a) Mice​
+(b) Peppered moth​
+(c) House flies​
+(d) Crow 
+Answer: (b) Peppered moth 
+Explanation: Industrial melanism was observed in the peppered moth (Biston betularia) as 
+an evolutionary adaptation to environmental changes due to industrial pollution. 
+ 
+CHAPTER 12: HUMAN EVOLUTION 
+ 
+Q1. The scientific name of garden pea, which Mendel used for his experiments is: [2015, 
+1 mark] 
+(a) Pisum sativum​
+(b) Phaseolus vulgaris​
+(c) Cicer arietinum​
+(d) Vicia faba 
+Answer: (a) Pisum sativum 
+ 
+Q2. The theory of Inheritance of Acquired Characters was proposed by: [2019, 1 mark] 
+(a) Darwin​
+(b) Lamarck​
+(c) Mendel​
+(d) Watson and Crick 
+Answer: (b) Lamarck 
+ 
+Q3. The theory of Natural Selection was proposed by: [2019, 1 mark] 
+
+(a) Lamarck​
+(b) Darwin​
+(c) Mendel​
+(d) Morgan 
+Answer: (b) Darwin 
+ 
+Q4. The organism used as an example to explain 'Industrial Melanism' is: [2019, 1 mark] 
+(a) Drosophila​
+(b) Peppered moth​
+(c) Earthworm​
+(d) Frog 
+Answer: (b) Peppered moth 
+ 
+Q5. Australopithecus had cranial capacity of about: [2019, 1 mark] 
+(a) 450-600 cc​
+(b) 800-1000 cc​
+(c) 1200-1400 cc​
+(d) 1500-1600 cc 
+Answer: (a) 450-600 cc 
+ 
+Q6. The cranial capacity of Neanderthal man was about: [2019, 1 mark] 
+(a) 600 cc​
+(b) 900 cc​
+(c) 1450 cc​
+(d) 1600 cc 
+Answer: (c) 1450 cc 
+ 
+Q7. The most highly evolved form of man is: [2020, 1 mark] 
+
+(a) Homo erectus​
+(b) Neanderthal man​
+(c) Cro-Magnon man​
+(d) Homo sapiens sapiens 
+Answer: (d) Homo sapiens sapiens 
+ 
+Q8. The correct order of human evolution is: [2020, 1 mark] 
+(a) Australopithecus → Homo erectus → Neanderthal → Cro-Magnon​
+(b) Homo erectus → Australopithecus → Neanderthal → Cro-Magnon​
+(c) Australopithecus → Neanderthal → Homo erectus → Cro-Magnon​
+(d) Neanderthal → Australopithecus → Homo erectus → Cro-Magnon 
+Answer: (a) Australopithecus → Homo erectus → Neanderthal → Cro-Magnon 
+ 
+Q9. Two characteristic features of Cro-Magnon man are: [2025, 1 mark] 
+(a) Large skull, rounded forehead, distinct chin​
+(b) Small skull, flat forehead, no chin​
+(c) Large brow ridges, receding forehead​
+(d) Small brain, prominent brow ridges 
+Answer: (a) Large skull, rounded forehead, distinct chin 
+ 
+Q10. The vestigial organs in humans include: [2019, 1 mark] 
+(a) Vermiform appendix and wisdom teeth​
+(b) Heart and lungs​
+(c) Liver and kidney​
+(d) Brain and spinal cord 
+Answer: (a) Vermiform appendix and wisdom teeth 
+ 
+
+CHAPTER 13: POLLUTION AND WASTE MANAGEMENT 
+ 
+Q1. Which one of the following is non-biodegradable? [2018, 1 mark] 
+(a) DDT​
+(b) Vegetable peel​
+(c) Cardboard​
+(d) Bark of trees 
+Answer: (a) DDT 
+ 
+Q2. A non-biodegradable pesticide is: [2013, 1 mark] 
+(a) DDT​
+(b) BHC​
+(c) Malathion​
+(d) Parathion 
+Answer: (a) DDT 
+ 
+Q3. CNG is mainly responsible for: [2015, 1 mark] 
+(a) Air pollution​
+(b) Water pollution​
+(c) Soil pollution​
+(d) Noise pollution 
+Answer: (a) Air pollution 
+ 
+Q4. The prime source of chlorofluorocarbons is: [2017, 1 mark] 
+(a) Vehicular emissions​
+(b) Industrial effluents​
+(c) Domestic sewage​
+(d) Refrigeration equipments 
+
+Answer: (d) Refrigeration equipments 
+ 
+Q5. Which of the following is a Greenhouse gas? [2018, 1 mark] 
+(a) Oxygen​
+(b) Methane​
+(c) Sulphur dioxide​
+(d) Nitrogen 
+Answer: (b) Methane 
+ 
+Q6. One gaseous compound that leads to the depletion of the ozone layer is: [2018, 1 
+mark] 
+(a) CO₂​
+(b) SO₂​
+(c) CFC​
+(d) NO₂ 
+Answer: (c) CFC 
+ 
+Q7. Industrial melanism was observed in: [2024, 1 mark] 
+(a) Mice​
+(b) Peppered moth​
+(c) House flies​
+(d) Crow 
+Answer: (b) Peppered moth 
+ 
+Q8. Many nuclear power plants are constructed near water sources. They use water for 
+cooling and release it back. This causes: [2025, 1 mark] 
+(a) Radiation pollution​
+(b) Water pollution​
+
+(c) Industrial pollution​
+(d) Thermal pollution 
+Answer: (d) Thermal pollution 
+ 
+Q9. Biomedical waste includes: [2014, 1 mark] 
+(a) Syringes, needles, soiled dressings​
+(b) Vegetable peels​
+(c) Paper​
+(d) Plastic bottles 
+Answer: (a) Syringes, needles, soiled dressings 
+ 
+Q10. Acid rain is caused by: [2013, 1 mark] 
+(a) CO₂​
+(b) SO₂ and NO₂​
+(c) CO​
+(d) O₃ 
+Answer: (b) SO₂ and NO₂ 
+ 
+Q11. Two harmful effects of acid rain are: [2013, 1 mark] 
+(a) Damage to vegetation and aquatic life​
+(b) Increase in crop yield​
+(c) Improvement in soil fertility​
+(d) Growth of beneficial bacteria 
+Answer: (a) Damage to vegetation and aquatic life 
+ 
+Q12. Euro IV norms are related to: [2015, 1 mark] 
+(a) Water pollution control​
+(b) Air pollution control from vehicles​
+
+(c) Noise pollution control​
+(d) Soil pollution control 
+Answer: (b) Air pollution control from vehicles 
+ 
+Q13. The phenomenon of increase in Earth's temperature due to greenhouse gases is 
+called: [2023, 1 mark] 
+(a) Global warming​
+(b) Greenhouse effect​
+(c) Ozone depletion​
+(d) Acid rain 
+Answer: (a) Global warming 
+ 
+Q14. Swachh Bharat Abhiyan was launched to: [2019, 1 mark] 
+(a) eliminate open defecation​
+(b) increase population​
+(c) promote industrialization​
+(d) improve agriculture 
+Answer: (a) eliminate open defecation 
+ 
+Q15. The pollutants that cannot be broken down to simple and harmless products are 
+called: [2016, 1 mark] 
+(a) Biodegradable​
+(b) Non-biodegradable​
+(c) Toxic​
+(d) Hazardous 
+Answer: (b) Non-biodegradable 
+ 
+

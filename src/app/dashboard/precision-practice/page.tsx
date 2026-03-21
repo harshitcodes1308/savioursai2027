@@ -6,6 +6,7 @@ import { physicsQuestions } from "@/data/precision-physics";
 import { mathsQuestions } from "@/data/precision-maths";
 import { chemistryQuestions } from "@/data/precision-chemistry";
 import { PRECISION_BIOLOGY } from "@/data/precision-biology";
+import { computerQuestions } from "@/data/precision-computers";
 import {
   PrecisionQuestion,
   PrecisionSubject,
@@ -24,6 +25,7 @@ const ALL_QUESTIONS: Record<string, PrecisionQuestion[]> = {
   Mathematics: mathsQuestions,
   Chemistry: chemistryQuestions,
   Biology: PRECISION_BIOLOGY,
+  "Computer Applications": computerQuestions,
 };
 
 const SUBJECTS: PrecisionSubject[] = [
@@ -113,6 +115,33 @@ const SUBJECTS: PrecisionSubject[] = [
       { id: "Population and Health", name: "Population and Health" },
       { id: "Pollution and Waste Management", name: "Pollution and Waste Management" },
       { id: "Human Evolution", name: "Human Evolution" }
+    ],
+  },
+  {
+    id: "Computer Applications",
+    name: "Computer Applications",
+    icon: "💻",
+    color: "#6366F1",
+    chapters: [
+      { id: "INTRODUCTION TO OBJECT ORIENTED PROGRAMMING CONCEPTS", name: "Intro to OOP" },
+      { id: "ELEMENTARY CONCEPT OF OBJECTS AND CLASSES", name: "Objects & Classes" },
+      { id: "VALUES AND DATA TYPES", name: "Values & Data Types" },
+      { id: "OPERATORS IN JAVA", name: "Operators in Java" },
+      { id: "INPUT IN JAVA", name: "Input in Java" },
+      { id: "MATHEMATICAL LIBRARY METHODS", name: "Math Library Methods" },
+      { id: "CONDITIONAL CONSTRUCTS IN JAVA", name: "Conditional Constructs" },
+      { id: "ITERATIVE CONSTRUCTS IN JAVA", name: "Iterative Constructs" },
+      { id: "NESTED FOR LOOPS", name: "Nested For Loops" },
+      { id: "CLASS AS THE BASIS OF ALL COMPUTATION", name: "Class as Computation Basis" },
+      { id: "USER-DEFINED METHODS", name: "User-Defined Methods" },
+      { id: "CONSTRUCTORS", name: "Constructors" },
+      { id: "LIBRARY CLASSES (WRAPPER CLASSES)", name: "Library & Wrapper Classes" },
+      { id: "ENCAPSULATION (ACCESS SPECIFIERS)", name: "Encapsulation" },
+      { id: "ARRAYS", name: "Arrays" },
+      { id: "STRING HANDLING", name: "String Handling" },
+      { id: "SORTING AND SEARCHING", name: "Sorting & Searching" },
+      { id: "Method Overloading", name: "Method Overloading" },
+      { id: "Exception Handling", name: "Exception Handling" },
     ],
   },
 ];

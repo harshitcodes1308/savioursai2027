@@ -26,6 +26,7 @@ const menuSections = [
       { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers", accent: "#6366F1" },
       { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy", accent: "#EF4444" },
       { icon: "🌙", label: "Last Night Before", href: "/dashboard/last-night-before", accent: "#F59E0B" },
+      { icon: "🔁", label: "Flip the Question", href: "/dashboard/flip-the-question", accent: "#8B5CF6" },
     ]
   },
   {

@@ -18,6 +18,8 @@ model User {
   createdAt          DateTime            @default(now())
   isPaid             Boolean             @default(false)
   lnbChemistryUnlocked Boolean           @default(false)
+  flipStreak         Int                 @default(0)
+  flipBestStreak     Int                 @default(0)
   phone              String?             @unique
   authProvider       String              @default("credentials")
   aiUsageLogs        AiUsageLog[]
@@ -635,6 +637,7 @@ enum AiFeature {
   DOUBT_SOLVING
   PERFORMANCE_ANALYSIS
   PLAN_ADJUSTMENT
+  FLIP_THE_QUESTION
 }
 
 enum FocusTaskType {

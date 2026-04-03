@@ -63,7 +63,7 @@ export default function PricingPage() {
                 }}>
                     Upgrade to{" "}
                     <span style={{
-                        background: "linear-gradient(135deg, #3B82F6, #06B6D4, #8B5CF6)",
+                        background: "linear-gradient(135deg, #3B82F6, #06B6D4, #00D4FF)",
                         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                     }}>Saviours AI Pro</span>
                 </h1>
@@ -155,7 +155,7 @@ export default function PricingPage() {
                     {/* Popular badge */}
                     <div style={{
                         position: "absolute", top: 16, right: 16,
-                        background: "linear-gradient(135deg, #3B82F6, #8B5CF6)",
+                        background: "linear-gradient(135deg, #3B82F6, #00D4FF)",
                         padding: "4px 12px", borderRadius: 100,
                         fontSize: 10, fontWeight: 700, color: "#FFF",
                         letterSpacing: 0.5, textTransform: "uppercase",

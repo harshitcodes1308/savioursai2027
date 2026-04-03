@@ -33,7 +33,7 @@ export default function TYQPage() {
             fontWeight: 800,
             color: "#FFF",
             margin: 0,
-            background: "linear-gradient(135deg, #8B5CF6, #EC4899)",
+            background: "linear-gradient(135deg, #00D4FF, #EC4899)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}>
@@ -83,7 +83,7 @@ export default function TYQPage() {
         padding: "24px 28px",
         marginBottom: 36,
       }}>
-        <h3 style={{ color: "#8B5CF6", fontSize: 14, fontWeight: 700, margin: "0 0 16px", letterSpacing: 1, textTransform: "uppercase" }}>
+        <h3 style={{ color: "#00D4FF", fontSize: 14, fontWeight: 700, margin: "0 0 16px", letterSpacing: 1, textTransform: "uppercase" }}>
           📋 How It Works
         </h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>

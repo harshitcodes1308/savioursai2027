@@ -28,7 +28,7 @@ export const BATTLE_CONFIG = {
     RANKS: [
         { minScore: 10455, title: "Chrono King 👑", color: "#F59E0B" }, // Only achievable with a PERFECT game
         { minScore: 5000, title: "History Legend", color: "#A855F7" },
-        { minScore: 2500, title: "History Hacker", color: "#8B5CF6" },
+        { minScore: 2500, title: "History Hacker", color: "#00D4FF" },
         { minScore: 1500, title: "Date Destroyer", color: "#3B82F6" },
         { minScore: 800, title: "Time Warrior", color: "#0EA5E9" },
         { minScore: 0, title: "Timeline Trainee", color: "#10B981" }

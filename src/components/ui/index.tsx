@@ -58,7 +58,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
             {action && (
                 <button
                     onClick={action.onClick}
-                    className="px-6 py-3 rounded-lg bg-primary hover:bg-purple-500 text-white font-semibold transition-all transform hover:scale-105"
+                    className="px-6 py-3 rounded-lg bg-primary hover:bg-cyan-500 text-white font-semibold transition-all transform hover:scale-105"
                 >
                     {action.label}
                 </button>
@@ -191,7 +191,7 @@ export function Button({
     ...props
 }: ButtonProps) {
     const variantClasses = {
-        primary: "bg-primary hover:bg-purple-500 text-white",
+        primary: "bg-primary hover:bg-cyan-500 text-white",
         secondary: "bg-gray-700 border border-gray-600 hover:border-primary text-white",
         ghost: "hover:bg-gray-800 text-white",
         danger: "bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 text-red-300",

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { TRPCProvider } from "@/lib/trpc/client";
 import { ConsoleWelcome } from "@/components/ConsoleWelcome";
-import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "ICSE Saviours – AI Student OS",
@@ -24,12 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased bg-gray-950 text-white">
+      <body className="antialiased" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
         <ConsoleWelcome />
         <TRPCProvider>
           {children}
         </TRPCProvider>
-        <Analytics />
       </body>
     </html>
   );

@@ -84,7 +84,7 @@ export function GenerationLoader({ isVisible, label = "Generating...", subLabel 
                     fontWeight: 700,
                     color: "transparent",
                     WebkitBackgroundClip: "text",
-                    backgroundImage: "linear-gradient(135deg, #FFFFFF 0%, #8B5CF6 100%)",
+                    backgroundImage: "linear-gradient(135deg, #FFFFFF 0%, #00D4FF 100%)",
                     marginBottom: "16px",
                     fontVariantNumeric: "tabular-nums"
                 }}>
@@ -128,7 +128,7 @@ export function GenerationLoader({ isVisible, label = "Generating...", subLabel 
                         left: 0,
                         bottom: 0,
                         width: `${progress}%`,
-                        backgroundColor: "#8B5CF6",
+                        backgroundColor: "#00D4FF",
                         boxShadow: "0 0 15px rgba(139, 92, 246, 0.5)",
                         transition: "width 0.1s linear",
                         borderRadius: "999px"

@@ -19,7 +19,7 @@ export default function SubjectsPage() {
                 <div className="animate-float" style={{ fontSize: 48 }}>📚</div>
                 <div style={{
                     fontSize: 15, fontWeight: 600,
-                    background: "linear-gradient(135deg, #A78BFA, #8B5CF6)",
+                    background: "linear-gradient(135deg, #33DFFF, #00D4FF)",
                     WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                 }}>Loading subjects...</div>
                 <div style={{ width: 160, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
@@ -34,7 +34,7 @@ export default function SubjectsPage() {
         "Physics": "#F59E0B",
         "Chemistry": "#10B981",
         "Biology": "#EC4899",
-        "English": "#8B5CF6",
+        "English": "#00D4FF",
         "Hindi": "#EF4444",
         "History": "#F97316",
         "Geography": "#06B6D4",
@@ -54,7 +54,7 @@ export default function SubjectsPage() {
                         display: "inline-flex", alignItems: "center", gap: 6,
                         background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)",
                         borderRadius: 20, padding: "6px 14px", fontSize: 11,
-                        fontWeight: 600, color: "#A78BFA", letterSpacing: 1,
+                        fontWeight: 600, color: "#33DFFF", letterSpacing: 1,
                         textTransform: "uppercase", marginBottom: 16,
                     }}>
                         📚 ICSE Class 10
@@ -62,7 +62,7 @@ export default function SubjectsPage() {
                     <h1 style={{
                         fontSize: isMobile ? "22px" : "32px", fontWeight: 800, marginBottom: "8px",
                         letterSpacing: -0.5,
-                        background: "linear-gradient(135deg, #FFFFFF 0%, #A78BFA 100%)",
+                        background: "linear-gradient(135deg, #FFFFFF 0%, #33DFFF 100%)",
                         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                     }}>
                         Your Subjects
@@ -79,7 +79,7 @@ export default function SubjectsPage() {
                     gap: isMobile ? "12px" : "20px",
                 }}>
                     {subjects?.map((subject, idx) => {
-                        const color = subjectColors[subject.name] || "#8B5CF6";
+                        const color = subjectColors[subject.name] || "#00D4FF";
                         return (
                             <Link
                                 key={subject.id}
@@ -169,7 +169,7 @@ export default function SubjectsPage() {
                         <div className="animate-float" style={{ fontSize: "56px", marginBottom: "16px" }}>📚</div>
                         <h3 style={{
                             fontSize: "18px", fontWeight: 700,
-                            background: "linear-gradient(135deg, #FFF, #A78BFA)",
+                            background: "linear-gradient(135deg, #FFF, #33DFFF)",
                             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                             marginBottom: "8px",
                         }}>

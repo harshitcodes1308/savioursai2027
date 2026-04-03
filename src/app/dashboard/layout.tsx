@@ -1,30 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemedDashboardContent } from "@/components/providers/themed-dashboard";
+import type { SessionUser } from "@/lib/auth";
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const router = useRouter();
-    const { data: profile, isLoading: profileLoading } = trpc.dashboard.getProfile.useQuery();
+    const { data: profile } = trpc.dashboard.getProfile.useQuery();
     const { data: session } = trpc.auth.getSession.useQuery();
 
-    // isPaid from JWT session payload (no extra DB call)
-    const isPaid = !!(session?.user as any)?.isPaid;
+    const user = session?.user as SessionUser | undefined;
 
-    // Phone check: redirect to onboarding if user has no phone number
-    // This replaces the unreliable middleware Prisma query (Edge runtime)
-    useEffect(() => {
-        if (!profileLoading && profile && !profile.phone) {
-            router.replace("/onboarding");
-        }
-    }, [profile, profileLoading, router]);
+    // Paid if legacy isPaid flag OR active subscription
+    const isPaid = !!(
+        user?.isPaid ||
+        ((user?.planType === "MONTHLY" || user?.planType === "YEARLY") &&
+            user?.subscriptionStatus === "ACTIVE")
+    );
 
     return (
         <ThemeProvider>
@@ -32,6 +28,7 @@ export default function DashboardLayout({
                 userName={profile?.name}
                 userEmail={profile?.email}
                 isPaid={isPaid}
+                planType={user?.planType ?? "FREE"}
             >
                 {children}
             </ThemedDashboardContent>

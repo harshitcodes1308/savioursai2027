@@ -490,7 +490,7 @@ export default function LastNightBeforePage() {
                 <div>
                   <span style={{
                     fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
-                    background: "rgba(139,92,246,0.1)", color: "#A78BFA",
+                    background: "rgba(139,92,246,0.1)", color: "#33DFFF",
                   }}>{f.topic}</span>
                   <div style={{
                     fontSize: isMobile ? 20 : 24, fontWeight: 900, color: "#F5F5F5",
@@ -531,7 +531,7 @@ export default function LastNightBeforePage() {
                       background: revealed[d.id] ? "rgba(139,92,246,0.08)" : "rgba(245,158,11,0.08)",
                       border: `1px solid ${revealed[d.id] ? "rgba(139,92,246,0.2)" : "rgba(245,158,11,0.2)"}`,
                       borderRadius: 10, padding: "8px 14px", fontSize: 12, fontWeight: 600,
-                      color: revealed[d.id] ? "#A78BFA" : "#FBBF24", cursor: "pointer",
+                      color: revealed[d.id] ? "#33DFFF" : "#FBBF24", cursor: "pointer",
                       marginBottom: revealed[d.id] ? 12 : 0,
                     }}>
                       {revealed[d.id] ? "Hide Definition ▲" : "Reveal Definition ▼"}

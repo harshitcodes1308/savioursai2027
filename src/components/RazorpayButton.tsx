@@ -115,7 +115,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
                     email,
                 },
                 theme: {
-                    color: "#8B5CF6", // Violet
+                    color: "#00D4FF", // Violet
                 },
             };
 

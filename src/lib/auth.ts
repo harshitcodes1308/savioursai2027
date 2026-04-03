@@ -2,7 +2,7 @@ import { compare, hash } from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { type UserRole } from "@prisma/client";
+import { type UserRole, type PlanType, type SubscriptionStatus } from "@prisma/client";
 
 const JWT_SECRET = new TextEncoder().encode(
     process.env.JWT_SECRET || "your-secret-key-change-in-production"
@@ -13,7 +13,11 @@ export interface SessionUser {
     email: string;
     name: string;
     role: UserRole;
-    isPaid: boolean;
+    isPaid: boolean;                         // kept for grandfathering
+    planType: PlanType;
+    subscriptionStatus: SubscriptionStatus;
+    subscriptionExpiry?: string | null;
+    onboardingComplete: boolean;
     lnbChemistryUnlocked?: boolean;
 }
 
@@ -21,6 +25,9 @@ export interface Session {
     user: SessionUser;
     expires: string;
 }
+
+// Cutoff for grandfathered users (legacy paid access)
+const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
 
 /**
  * Hash password with bcrypt
@@ -70,9 +77,7 @@ export async function verifyToken(token: string): Promise<Session | null> {
 export async function getSession(): Promise<Session | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth-token")?.value;
-
     if (!token) return null;
-
     return await verifyToken(token);
 }
 
@@ -127,6 +132,17 @@ export async function clearSessionCookie(resHeaders?: Headers) {
 }
 
 /**
+ * Returns true if the user has an active paid subscription
+ */
+export function hasActivePlan(user: SessionUser): boolean {
+    const isGrandfathered = user.isPaid;
+    const hasActiveSub =
+        (user.planType === "MONTHLY" || user.planType === "YEARLY") &&
+        user.subscriptionStatus === "ACTIVE";
+    return isGrandfathered || hasActiveSub;
+}
+
+/**
  * Authenticate user with email and password
  */
 export async function authenticate(
@@ -138,16 +154,16 @@ export async function authenticate(
     });
 
     if (!user) return null;
-
-    // Google users cannot login with email/password
-    if (!user.password) return null;
+    if (!user.password) return null; // Google users cannot login with email/password
 
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) return null;
 
-    // GRANDFATHERING LOGIC
-    const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
+    // GRANDFATHERING LOGIC — users before cutoff date treated as paid
     const isLegacyUser = user.createdAt < CUTOFF_DATE;
+    const effectivePlanType: PlanType = (isLegacyUser && user.planType === "FREE")
+        ? "YEARLY"
+        : user.planType;
 
     return {
         id: user.id,
@@ -155,6 +171,11 @@ export async function authenticate(
         name: user.name,
         role: user.role,
         isPaid: user.isPaid || isLegacyUser,
+        planType: effectivePlanType,
+        subscriptionStatus: user.subscriptionStatus,
+        subscriptionExpiry: user.subscriptionExpiry?.toISOString() ?? null,
+        onboardingComplete: user.onboardingComplete,
+        lnbChemistryUnlocked: user.lnbChemistryUnlocked,
     };
 }
 
@@ -166,7 +187,7 @@ export async function createUser(
     password: string,
     name: string,
     role: UserRole = "STUDENT",
-    phone?: string // Optional phone number
+    phone?: string
 ): Promise<SessionUser> {
     const hashedPassword = await hashPassword(password);
 
@@ -175,9 +196,12 @@ export async function createUser(
             email: email.toLowerCase(),
             password: hashedPassword,
             name,
-            phone: phone || null, // Save phone if provided, null otherwise
+            phone: phone || null,
             role,
-            isPaid: false, // Default to unpaid
+            isPaid: false,
+            planType: "FREE",
+            subscriptionStatus: "ACTIVE",
+            onboardingComplete: false,
         },
     });
 
@@ -186,6 +210,9 @@ export async function createUser(
         email: user.email,
         name: user.name,
         role: user.role,
-        isPaid: user.isPaid, // Newly created users are always false (Unpaid)
+        isPaid: false,
+        planType: "FREE",
+        subscriptionStatus: "ACTIVE",
+        onboardingComplete: false,
     };
 }

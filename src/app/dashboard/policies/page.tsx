@@ -33,7 +33,7 @@ export default function PoliciesPage() {
                         <h2 style={{ ...typography.display, fontSize: "18px", marginBottom: "8px", color: "#F3F4F6" }}>
                             {policy.title}
                         </h2>
-                        <span style={{ fontSize: "14px", color: "#8B5CF6", fontWeight: "600" }}>Read Policy →</span>
+                        <span style={{ fontSize: "14px", color: "#00D4FF", fontWeight: "600" }}>Read Policy →</span>
                     </div>
                 ))}
             </div>

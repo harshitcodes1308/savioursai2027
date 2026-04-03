@@ -97,13 +97,18 @@ export async function GET(request: NextRequest) {
             name: user.name,
             role: user.role,
             isPaid,
+            planType: isLegacyUser && user.planType === "FREE" ? "YEARLY" : user.planType,
+            subscriptionStatus: user.subscriptionStatus,
+            subscriptionExpiry: user.subscriptionExpiry?.toISOString() ?? null,
+            onboardingComplete: user.onboardingComplete,
+            lnbChemistryUnlocked: user.lnbChemistryUnlocked,
         };
 
         const token = await createToken(sessionUser);
         await setSessionCookie(token, true); // Remember me = true for Google users
 
-        // Redirect: if no phone, go to onboarding; otherwise dashboard
-        if (!user.phone) {
+        // Redirect: if onboarding not complete, go there; otherwise dashboard
+        if (!user.onboardingComplete) {
             return NextResponse.redirect(`${baseUrl}/onboarding`);
         }
 

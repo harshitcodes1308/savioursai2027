@@ -105,14 +105,10 @@ export default function StrategyPage() {
                         </p>
                         <button
                             onClick={nextStep}
+                            className="btn-gold"
                             style={{
                                 ...typography.text,
                                 padding: '16px 32px',
-                                backgroundColor: '#8B5CF6',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '12px',
-                                cursor: 'pointer',
                                 fontSize: '18px',
                                 fontWeight: 600,
                             }}
@@ -143,14 +139,15 @@ export default function StrategyPage() {
                                         style={{
                                             ...typography.text,
                                             padding: '24px',
-                                            backgroundColor: isSelected ? '#8B5CF6' : '#1A1A1D',
-                                            color: '#FFF',
-                                            border: isSelected ? 'none' : '1px solid #374151',
+                                            backgroundColor: isSelected ? 'rgba(0, 212, 255, 0.15)' : 'rgba(26, 26, 29, 0.6)',
+                                            color: isSelected ? '#00D4FF' : '#FFF',
+                                            border: isSelected ? '1px solid rgba(0, 212, 255, 0.5)' : '1px solid rgba(55, 65, 81, 0.5)',
                                             borderRadius: '12px',
                                             cursor: 'pointer',
                                             fontSize: '16px',
                                             fontWeight: 600,
                                             transition: 'all 0.2s',
+                                            backdropFilter: 'blur(12px)',
                                         }}
                                     >
                                         {sub} {isSelected && '✓'}
@@ -161,28 +158,19 @@ export default function StrategyPage() {
                         <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
                             <button
                                 onClick={prevStep}
-                                style={{
-                                    ...typography.text,
-                                    padding: '12px 24px',
-                                    backgroundColor: '#374151',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                }}
+                                className="btn-ghost"
+                                style={{ ...typography.text, padding: '12px 24px' }}
                             >
                                 Back
                             </button>
                             <button
                                 onClick={nextStep}
                                 disabled={data.subjects.length === 0}
+                                className="btn-gold"
                                 style={{
                                     ...typography.text,
                                     padding: '12px 24px',
-                                    backgroundColor: data.subjects.length > 0 ? '#8B5CF6' : '#4B5563',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
+                                    opacity: data.subjects.length > 0 ? 1 : 0.4,
                                     cursor: data.subjects.length > 0 ? 'pointer' : 'not-allowed',
                                 }}
                             >
@@ -281,29 +269,15 @@ export default function StrategyPage() {
                         <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
                             <button
                                 onClick={prevStep}
-                                style={{
-                                    ...typography.text,
-                                    padding: '12px 24px',
-                                    backgroundColor: '#374151',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                }}
+                                className="btn-ghost"
+                                style={{ ...typography.text, padding: '12px 24px' }}
                             >
                                 Back
                             </button>
                             <button
                                 onClick={nextStep}
-                                style={{
-                                    ...typography.text,
-                                    padding: '12px 24px',
-                                    backgroundColor: '#8B5CF6',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                }}
+                                className="btn-gold"
+                                style={{ ...typography.text, padding: '12px 24px' }}
                             >
                                 Next
                             </button>
@@ -374,8 +348,8 @@ export default function StrategyPage() {
                             </div>
                         </div>
                         <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
-                            <button onClick={prevStep} style={{ ...typography.text, padding: '12px 24px', backgroundColor: '#374151', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Back</button>
-                            <button onClick={nextStep} style={{ ...typography.text, padding: '12px 24px', backgroundColor: '#8B5CF6', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Next</button>
+                            <button onClick={prevStep} className="btn-ghost" style={{ ...typography.text, padding: '12px 24px' }}>Back</button>
+                            <button onClick={nextStep} className="btn-gold" style={{ ...typography.text, padding: '12px 24px' }}>Next</button>
                         </div>
                     </div>
                 );
@@ -411,8 +385,8 @@ export default function StrategyPage() {
                             </div>
                         </div>
                         <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
-                            <button onClick={prevStep} style={{ ...typography.text, padding: '12px 24px', backgroundColor: '#374151', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Back</button>
-                            <button onClick={nextStep} style={{ ...typography.text, padding: '12px 24px', backgroundColor: '#8B5CF6', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Next</button>
+                            <button onClick={prevStep} className="btn-ghost" style={{ ...typography.text, padding: '12px 24px' }}>Back</button>
+                            <button onClick={nextStep} className="btn-gold" style={{ ...typography.text, padding: '12px 24px' }}>Next</button>
                         </div>
                     </div>
                 );
@@ -431,13 +405,14 @@ export default function StrategyPage() {
                                     style={{
                                         ...typography.text,
                                         padding: '24px',
-                                        backgroundColor: data.mode === mode.id ? '#8B5CF6' : '#1A1A1D',
-                                        color: '#FFF',
-                                        border: data.mode === mode.id ? 'none' : '1px solid #374151',
+                                        backgroundColor: data.mode === mode.id ? 'rgba(0, 212, 255, 0.15)' : 'rgba(26, 26, 29, 0.6)',
+                                        color: data.mode === mode.id ? '#00D4FF' : '#FFF',
+                                        border: data.mode === mode.id ? '1px solid rgba(0, 212, 255, 0.5)' : '1px solid rgba(55, 65, 81, 0.5)',
                                         borderRadius: '12px',
                                         cursor: 'pointer',
                                         textAlign: 'left',
                                         transition: 'all 0.2s',
+                                        backdropFilter: 'blur(12px)',
                                     }}
                                 >
                                     <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>{mode.title}</div>
@@ -472,18 +447,20 @@ export default function StrategyPage() {
                     <div className="dashboard-card" style={{ padding: isMobile ? '20px' : '48px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', marginBottom: '32px', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 0 }}>
                             <h2 style={{ ...typography.display, fontSize: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <Brain style={{ color: '#8B5CF6' }} /> Your Strategy
+                                <Brain style={{ color: '#00D4FF' }} /> Your Strategy
                             </h2>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <button
                                     onClick={() => setStep(0)}
-                                    style={{ ...typography.text, padding: '12px 24px', backgroundColor: '#374151', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    className="btn-ghost"
+                                    style={{ ...typography.text, padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
                                     <RotateCcw size={16} /> New
                                 </button>
                                 <button
                                     onClick={() => navigator.clipboard.writeText(generatedStrategy || "")}
-                                    style={{ ...typography.text, padding: '12px 24px', backgroundColor: '#8B5CF6', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                                    className="btn-gold"
+                                    style={{ ...typography.text, padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}
                                 >
                                     <Copy size={16} /> Copy
                                 </button>
@@ -494,7 +471,7 @@ export default function StrategyPage() {
                             <ReactMarkdown
                                 components={{
                                     h1: ({ node, ...props }) => <h1 style={{ ...typography.display, fontSize: '28px', marginTop: '32px', marginBottom: '16px', color: '#FFF', borderBottom: '1px solid #374151', paddingBottom: '8px' }} {...props} />,
-                                    h2: ({ node, ...props }) => <h2 style={{ ...typography.display, fontSize: '22px', marginTop: '24px', marginBottom: '12px', color: '#A78BFA' }} {...props} />,
+                                    h2: ({ node, ...props }) => <h2 style={{ ...typography.display, fontSize: '22px', marginTop: '24px', marginBottom: '12px', color: '#33DFFF' }} {...props} />,
                                     ul: ({ node, ...props }) => <ul style={{ listStyle: 'disc', paddingLeft: '24px', marginBottom: '16px' }} {...props} />,
                                     li: ({ node, ...props }) => <li style={{ marginBottom: '8px' }} {...props} />,
                                     strong: ({ node, ...props }) => <strong style={{ color: '#FFF', fontWeight: 600 }} {...props} />,

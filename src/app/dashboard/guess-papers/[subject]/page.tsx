@@ -91,7 +91,7 @@ export default function TYQExamPage() {
       <div style={{ padding: 40, textAlign: "center" }}>
         <h2 style={{ color: "#EF4444" }}>Subject not found</h2>
         <button onClick={() => router.push("/dashboard/guess-papers")}
-          style={{ marginTop: 16, padding: "12px 24px", background: "#8B5CF6", color: "#FFF", border: "none", borderRadius: 12, cursor: "pointer" }}>
+          style={{ marginTop: 16, padding: "12px 24px", background: "#00D4FF", color: "#FFF", border: "none", borderRadius: 12, cursor: "pointer" }}>
           ← Back to Guess Papers
         </button>
       </div>
@@ -135,7 +135,7 @@ export default function TYQExamPage() {
               background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: "16px 12px",
             }}>
               <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 4 }}>Reading Time</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#8B5CF6" }}>{READING_TIME_MINUTES} min</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: "#00D4FF" }}>{READING_TIME_MINUTES} min</div>
             </div>
             <div style={{
               background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: "16px 12px",
@@ -156,7 +156,7 @@ export default function TYQExamPage() {
               📋 Instructions
             </h3>
             <ul style={{ color: "#9CA3AF", fontSize: 13, lineHeight: 2, paddingLeft: 20, margin: 0 }}>
-              <li>You will be given <strong style={{ color: "#8B5CF6" }}>{READING_TIME_MINUTES} minutes</strong> to read the question paper.</li>
+              <li>You will be given <strong style={{ color: "#00D4FF" }}>{READING_TIME_MINUTES} minutes</strong> to read the question paper.</li>
               <li>Do <strong style={{ color: "#EF4444" }}>not</strong> start writing during reading time.</li>
               <li>After reading time, you have <strong style={{ color: "#EC4899" }}>
                 {subject.examDuration === 180 ? "3 hours" : "2 hours 30 minutes"}
@@ -172,7 +172,7 @@ export default function TYQExamPage() {
               onClick={startReadingTime}
               style={{
                 padding: "16px 48px",
-                background: "linear-gradient(135deg, #8B5CF6, #7C3AED)",
+                background: "linear-gradient(135deg, #00D4FF, #00D4FF)",
                 color: "#FFF",
                 border: "none",
                 borderRadius: 14,
@@ -210,7 +210,7 @@ export default function TYQExamPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{
               background: "rgba(139,92,246,0.2)", padding: "4px 12px",
-              borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#8B5CF6",
+              borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#00D4FF",
             }}>
               📖 READING TIME
             </span>
@@ -219,7 +219,7 @@ export default function TYQExamPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div style={{
               fontSize: 28, fontWeight: 800, fontFamily: "monospace",
-              color: timeLeft <= 60 ? "#EF4444" : "#8B5CF6",
+              color: timeLeft <= 60 ? "#EF4444" : "#00D4FF",
               textShadow: timeLeft <= 60 ? "0 0 12px rgba(239,68,68,0.5)" : "none",
               animation: timeLeft <= 60 ? "pulse 1s infinite" : "none",
             }}>
@@ -230,7 +230,7 @@ export default function TYQExamPage() {
               style={{
                 padding: "8px 14px", background: "rgba(139,92,246,0.15)",
                 border: "1px solid rgba(139,92,246,0.3)", borderRadius: 8,
-                color: "#8B5CF6", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                color: "#00D4FF", fontSize: 12, fontWeight: 600, cursor: "pointer",
               }}
             >
               Skip →
@@ -291,7 +291,7 @@ export default function TYQExamPage() {
             onClick={startExam}
             style={{
               padding: "18px 56px",
-              background: "linear-gradient(135deg, #EC4899, #8B5CF6)",
+              background: "linear-gradient(135deg, #EC4899, #00D4FF)",
               color: "#FFF",
               border: "none",
               borderRadius: 14,
@@ -404,7 +404,7 @@ export default function TYQExamPage() {
             style={{
               padding: "10px 24px",
               background: "rgba(139,92,246,0.12)",
-              color: "#8B5CF6", border: "1px solid rgba(139,92,246,0.25)", borderRadius: 10,
+              color: "#00D4FF", border: "1px solid rgba(139,92,246,0.25)", borderRadius: 10,
               fontSize: 13, fontWeight: 700, cursor: "pointer",
             }}
           >
@@ -426,9 +426,9 @@ export default function TYQExamPage() {
               background: "rgba(139,92,246,0.08)",
               borderBottom: "1px solid rgba(255,255,255,0.06)",
             }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#8B5CF6", textTransform: "uppercase" }}>Q. No.</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#8B5CF6", textTransform: "uppercase" }}>Answer</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#8B5CF6", textTransform: "uppercase" }}>Explanation</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#00D4FF", textTransform: "uppercase" }}>Q. No.</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#00D4FF", textTransform: "uppercase" }}>Answer</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#00D4FF", textTransform: "uppercase" }}>Explanation</div>
             </div>
 
             {/* Answer Rows */}
@@ -468,7 +468,7 @@ export default function TYQExamPage() {
             style={{
               padding: "14px 36px",
               background: "rgba(139,92,246,0.12)",
-              color: "#8B5CF6", border: "1px solid rgba(139,92,246,0.25)", borderRadius: 12,
+              color: "#00D4FF", border: "1px solid rgba(139,92,246,0.25)", borderRadius: 12,
               fontSize: 14, fontWeight: 700, cursor: "pointer",
             }}
           >
@@ -478,7 +478,7 @@ export default function TYQExamPage() {
             onClick={() => router.push("/dashboard/guess-papers")}
             style={{
               padding: "14px 36px",
-              background: "linear-gradient(135deg, #EC4899, #8B5CF6)",
+              background: "linear-gradient(135deg, #EC4899, #00D4FF)",
               color: "#FFF", border: "none", borderRadius: 12,
               fontSize: 14, fontWeight: 700, cursor: "pointer",
               boxShadow: "0 8px 24px rgba(236,72,153,0.2)",
@@ -510,7 +510,7 @@ export default function TYQExamPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{
               background: "rgba(139,92,246,0.2)", padding: "4px 12px",
-              borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#8B5CF6",
+              borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#00D4FF",
             }}>
               📄 QUESTION PAPER
             </span>
@@ -594,7 +594,7 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
             borderRadius: 12, padding: "14px 20px",
             marginBottom: 16,
           }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#8B5CF6", margin: 0 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#00D4FF", margin: 0 }}>
               {section.name}
             </h3>
             <p style={{ fontSize: 12, color: "#9CA3AF", margin: "4px 0 0" }}>
@@ -617,7 +617,7 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
               }}>
                 <div style={{ display: "flex", gap: 8, flex: 1 }}>
                   <span style={{
-                    background: "rgba(139,92,246,0.15)", color: "#8B5CF6",
+                    background: "rgba(139,92,246,0.15)", color: "#00D4FF",
                     padding: "2px 10px", borderRadius: 6,
                     fontSize: 13, fontWeight: 700, flexShrink: 0,
                   }}>
@@ -666,7 +666,7 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
                     alignItems: "flex-start", marginBottom: sub.options ? 10 : 0,
                   }}>
                     <div style={{ display: "flex", gap: 8, flex: 1 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "#8B5CF6", flexShrink: 0 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#00D4FF", flexShrink: 0 }}>
                         {sub.number}
                       </span>
                       <span style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.5 }}>

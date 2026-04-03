@@ -124,7 +124,7 @@ export default function ContentPage() {
                                 <button
                                     onClick={handleUpload}
                                     disabled={!syllabusText}
-                                    className="px-6 py-3 rounded-lg bg-primary hover:bg-purple-500 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-6 py-3 rounded-lg bg-primary hover:bg-cyan-500 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Process with AI ✨
                                 </button>
@@ -171,7 +171,7 @@ export default function ContentPage() {
                                         </div>
                                         <button
                                             onClick={handleUpload}
-                                            className="px-6 py-2 rounded-lg bg-primary hover:bg-purple-500 text-white font-semibold transition-all"
+                                            className="px-6 py-2 rounded-lg bg-primary hover:bg-cyan-500 text-white font-semibold transition-all"
                                         >
                                             Upload ✨
                                         </button>

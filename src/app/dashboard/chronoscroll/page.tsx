@@ -355,7 +355,7 @@ export default function ChronoScrollPage() {
                             <div style={{ marginBottom: "32px" }}>
                                 <h3 style={{ 
                                     fontSize: "16px", 
-                                    color: "#A78BFA", 
+                                    color: "#33DFFF", 
                                     fontWeight: 700, 
                                     marginBottom: "8px",
                                     display: "flex",
@@ -530,7 +530,7 @@ export default function ChronoScrollPage() {
                                                 style={{
                                                     background: "rgba(255,255,255,0.05)",
                                                     border: "1px solid rgba(255,255,255,0.1)",
-                                                    color: "#A78BFA",
+                                                    color: "#33DFFF",
                                                     padding: "10px 20px",
                                                     borderRadius: "8px",
                                                     fontSize: "14px",

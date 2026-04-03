@@ -167,7 +167,7 @@ export default function FocusPage() {
             {state === 'SETUP_CONTEXT' && (
                 <>
                     <h1 style={{ ...typography.display, fontSize: '32px', marginBottom: '24px' }}>🧘 Focus Mode</h1>
-                    <p style={{ fontSize: '16px', color: '#9CA3AF', marginBottom: '32px' }}>
+                    <p style={{ fontSize: '16px', color: 'var(--text-muted)', marginBottom: '32px' }}>
                         Distraction-free study sessions with smart timekeeping
                     </p>
                     
@@ -182,8 +182,8 @@ export default function FocusPage() {
                                 width: '100%',
                                 padding: '12px',
                                 borderRadius: '8px',
-                                border: '1px solid #333',
-                                backgroundColor: '#1A1A1D',
+                                border: '1px solid var(--bg-border)',
+                                backgroundColor: 'var(--bg-base)',
                                 color: '#FFF',
                                 fontSize: '16px'
                             }}
@@ -200,7 +200,7 @@ export default function FocusPage() {
                                     style={{
                                         padding: '16px',
                                         borderRadius: '8px',
-                                        border: `2px solid ${taskType === t.id ? '#8B5CF6' : '#333'}`,
+                                        border: `2px solid ${taskType === t.id ? '#00D4FF' : '#333'}`,
                                         backgroundColor: taskType === t.id ? 'rgba(139,92,246,0.2)' : '#1A1A1D',
                                         color: '#FFF',
                                         cursor: 'pointer',
@@ -217,15 +217,13 @@ export default function FocusPage() {
                     <button
                         onClick={() => setState('SETUP_TIME')}
                         disabled={!subject}
+                        className="btn-gold"
                         style={{
                             width: '100%',
                             padding: '16px',
-                            backgroundColor: subject ? '#8B5CF6' : '#444',
-                            color: '#FFF',
-                            border: 'none',
-                            borderRadius: '8px',
                             fontSize: '16px',
                             fontWeight: 600,
+                            opacity: subject ? 1 : 0.4,
                             cursor: subject ? 'pointer' : 'not-allowed'
                         }}
                     >
@@ -251,12 +249,12 @@ export default function FocusPage() {
                                 fontWeight: 'bold',
                                 textAlign: 'center',
                                 borderRadius: '12px',
-                                border: '2px solid #8B5CF6',
-                                backgroundColor: '#1A1A1D',
+                                border: '2px solid #00D4FF',
+                                backgroundColor: 'var(--bg-base)',
                                 color: '#FFF'
                             }}
                         />
-                        <p style={{ fontSize: '20px', color: '#9CA3AF', marginTop: '16px' }}>minutes</p>
+                        <p style={{ fontSize: '20px', color: 'var(--text-muted)', marginTop: '16px' }}>minutes</p>
                     </div>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
@@ -267,7 +265,7 @@ export default function FocusPage() {
                                 style={{
                                     padding: '12px',
                                     borderRadius: '8px',
-                                    border: `2px solid ${totalMinutes === preset ? '#8B5CF6' : '#333'}`,
+                                    border: `2px solid ${totalMinutes === preset ? '#00D4FF' : '#333'}`,
                                     backgroundColor: totalMinutes === preset ? 'rgba(139,92,246,0.2)' : '#1A1A1D',
                                     color: '#FFF',
                                     cursor: 'pointer'
@@ -279,8 +277,8 @@ export default function FocusPage() {
                     </div>
                     
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={() => setState('SETUP_CONTEXT')} style={{ flex: 1, padding: '16px', backgroundColor: '#444', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Back</button>
-                        <button onClick={() => setState('SETUP_STYLE')} style={{ flex: 2, padding: '16px', backgroundColor: '#8B5CF6', color: '#FFF', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Continue</button>
+                        <button onClick={() => setState('SETUP_CONTEXT')} className="btn-ghost" style={{ flex: 1, padding: '16px' }}>Back</button>
+                        <button onClick={() => setState('SETUP_STYLE')} className="btn-gold" style={{ flex: 2, padding: '16px', fontWeight: 600 }}>Continue</button>
                     </div>
                 </>
             )}
@@ -302,7 +300,7 @@ export default function FocusPage() {
                                 style={{
                                     padding: '24px',
                                     borderRadius: '12px',
-                                    border: `2px solid ${selectedStyle.id === style.id ? '#8B5CF6' : '#333'}`,
+                                    border: `2px solid ${selectedStyle.id === style.id ? '#00D4FF' : '#333'}`,
                                     backgroundColor: selectedStyle.id === style.id ? 'rgba(139,92,246,0.15)' : '#1A1A1D',
                                     color: '#FFF',
                                     cursor: 'pointer',
@@ -310,12 +308,12 @@ export default function FocusPage() {
                                 }}
                             >
                                 <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>{style.name}</div>
-                                <div style={{ fontSize: '14px', color: '#9CA3AF' }}>{style.description}</div>
+                                <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{style.description}</div>
                             </button>
                         ))}
                     </div>
                     
-                    <button onClick={() => setState('SETUP_TIME')} style={{ width: '100%', padding: '16px', backgroundColor: '#444', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Back</button>
+                    <button onClick={() => setState('SETUP_TIME')} className="btn-ghost" style={{ width: '100%', padding: '16px' }}>Back</button>
                 </>
             )}
             
@@ -325,18 +323,18 @@ export default function FocusPage() {
                     <h2 style={{ fontSize: '28px', marginBottom: '24px' }}>⚙️ Custom Timing</h2>
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '16px' }}>
-                        <label style={{ fontSize: '14px', color: '#9CA3AF', display: 'block', marginBottom: '8px' }}>Focus Block (minutes)</label>
-                        <input type="number" value={customFocus} onChange={(e) => setCustomFocus(parseInt(e.target.value) || 25)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #333', backgroundColor: '#1A1A1D', color: '#FFF', fontSize: '16px' }} />
+                        <label style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Focus Block (minutes)</label>
+                        <input type="number" value={customFocus} onChange={(e) => setCustomFocus(parseInt(e.target.value) || 25)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--bg-border)', backgroundColor: 'var(--bg-base)', color: '#FFF', fontSize: '16px' }} />
                     </div>
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '24px' }}>
-                        <label style={{ fontSize: '14px', color: '#9CA3AF', display: 'block', marginBottom: '8px' }}>Break (minutes)</label>
-                        <input type="number" value={customBreak} onChange={(e) => setCustomBreak(parseInt(e.target.value) || 5)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #333', backgroundColor: '#1A1A1D', color: '#FFF', fontSize: '16px' }} />
+                        <label style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Break (minutes)</label>
+                        <input type="number" value={customBreak} onChange={(e) => setCustomBreak(parseInt(e.target.value) || 5)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--bg-border)', backgroundColor: 'var(--bg-base)', color: '#FFF', fontSize: '16px' }} />
                     </div>
                     
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={() => setState('SETUP_STYLE')} style={{ flex: 1, padding: '16px', backgroundColor: '#444', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Back</button>
-                        <button onClick={() => setState('PREVIEW_PLAN')} style={{ flex: 2, padding: '16px', backgroundColor: '#8B5CF6', color: '#FFF', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Continue</button>
+                        <button onClick={() => setState('SETUP_STYLE')} className="btn-ghost" style={{ flex: 1, padding: '16px' }}>Back</button>
+                        <button onClick={() => setState('PREVIEW_PLAN')} className="btn-gold" style={{ flex: 2, padding: '16px', fontWeight: 600 }}>Continue</button>
                     </div>
                 </>
             )}
@@ -352,7 +350,7 @@ export default function FocusPage() {
                             <strong>Style:</strong> {selectedStyle.name}
                         </div>
                         
-                        <h3 style={{ fontSize: '16px', marginBottom: '12px', color: '#8B5CF6' }}>Structure:</h3>
+                        <h3 style={{ fontSize: '16px', marginBottom: '12px', color: '#00D4FF' }}>Structure:</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {generatePlan(selectedStyle, totalMinutes).map((block, i) => (
                                 <div key={i} style={{ padding: '12px', backgroundColor: block.type === 'FOCUS' ? 'rgba(139,92,246,0.2)' : 'rgba(56,189,248,0.2)', borderRadius: '8px' }}>
@@ -361,14 +359,14 @@ export default function FocusPage() {
                             ))}
                         </div>
                         
-                        <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#1A1A1D', borderRadius: '8px' }}>
+                        <div style={{ marginTop: '16px', padding: '12px', backgroundColor: 'var(--bg-base)', borderRadius: '8px' }}>
                             <strong>{generatePlan(selectedStyle, totalMinutes).filter(b => b.type === 'FOCUS').length}</strong> focus blocks, <strong>{generatePlan(selectedStyle, totalMinutes).filter(b => b.type === 'BREAK').length}</strong> breaks
                         </div>
                     </div>
                     
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={() => setState('SETUP_STYLE')} style={{ flex: 1, padding: '16px', backgroundColor: '#444', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Change Plan</button>
-                        <button onClick={handleStartSession} style={{ flex: 2, padding: '16px', backgroundColor: '#10B981', color: '#FFF', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '18px', cursor: 'pointer' }}>🚀 Start Session</button>
+                        <button onClick={() => setState('SETUP_STYLE')} className="btn-ghost" style={{ flex: 1, padding: '16px' }}>Change Plan</button>
+                        <button onClick={handleStartSession} className="btn-gold" style={{ flex: 2, padding: '16px', fontWeight: 600, fontSize: '18px' }}>🚀 Start Session</button>
                     </div>
                 </>
             )}
@@ -377,28 +375,28 @@ export default function FocusPage() {
             {state === 'ACTIVE' && currentBlock && (
                 <>
                     <div className="dashboard-card" style={{ padding: '48px', textAlign: 'center', marginBottom: '24px' }}>
-                        <div style={{ fontSize: '18px', color: '#9CA3AF', marginBottom: '16px' }}>
+                        <div style={{ fontSize: '18px', color: 'var(--text-muted)', marginBottom: '16px' }}>
                             {currentBlock.type === 'FOCUS' ? '🎯 Focus Block' : '☕ Break Time'}
                         </div>
                         
-                        <div style={{ fontSize: isMobile ? '48px' : '72px', fontWeight: 'bold', color: currentBlock.type === 'FOCUS' ? '#8B5CF6' : '#38BDF8', marginBottom: '16px' }}>
+                        <div style={{ fontSize: isMobile ? '48px' : '72px', fontWeight: 'bold', color: currentBlock.type === 'FOCUS' ? '#00D4FF' : '#38BDF8', marginBottom: '16px' }}>
                             {formatTime(timeRemaining)}
                         </div>
                         
-                        <div style={{ fontSize: '16px', color: '#9CA3AF' }}>
+                        <div style={{ fontSize: '16px', color: 'var(--text-muted)' }}>
                             Block {Math.floor(currentBlockIndex / 2) + 1} of {Math.ceil(blocks.length / 2)}
                         </div>
                         
                         <div style={{ height: '8px', backgroundColor: '#333', borderRadius: '4px', marginTop: '24px', overflow: 'hidden' }}>
-                            <div style={{ width: `${(currentBlockIndex / blocks.length) * 100}%`, height: '100%', backgroundColor: '#8B5CF6', transition: 'width 0.3s' }} />
+                            <div style={{ width: `${(currentBlockIndex / blocks.length) * 100}%`, height: '100%', backgroundColor: '#00D4FF', transition: 'width 0.3s' }} />
                         </div>
                     </div>
                     
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={() => setIsPaused(!isPaused)} style={{ flex: 1, padding: '16px', backgroundColor: '#444', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px' }}>
+                        <button onClick={() => setIsPaused(!isPaused)} className="btn-ghost" style={{ flex: 1, padding: '16px', fontSize: '16px' }}>
                             {isPaused ? '▶️ Resume' : '⏸️ Pause'}
                         </button>
-                        <button onClick={() => setState('REFLECTION')} style={{ flex: 1, padding: '16px', backgroundColor: '#EF4444', color: '#FFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px' }}>
+                        <button onClick={() => setState('REFLECTION')} style={{ flex: 1, padding: '16px', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', backdropFilter: 'blur(12px)' }}>
                             🛑 End Early
                         </button>
                     </div>
@@ -421,11 +419,12 @@ export default function FocusPage() {
                                         width: '50px',
                                         height: '50px',
                                         borderRadius: '50%',
-                                        border: `2px solid ${productivity === rating ? '#8B5CF6' : '#333'}`,
-                                        backgroundColor: productivity === rating ? '#8B5CF6' : '#1A1A1D',
-                                        color: '#FFF',
+                                        border: `2px solid ${productivity === rating ? 'rgba(0, 212, 255, 0.6)' : '#333'}`,
+                                        backgroundColor: productivity === rating ? 'rgba(0, 212, 255, 0.15)' : 'rgba(26, 26, 29, 0.6)',
+                                        color: productivity === rating ? '#00D4FF' : '#FFF',
                                         cursor: 'pointer',
-                                        fontSize: '20px'
+                                        fontSize: '20px',
+                                        backdropFilter: 'blur(12px)',
                                     }}
                                 >
                                     {rating}
@@ -440,11 +439,11 @@ export default function FocusPage() {
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="What did you accomplish?"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #333', backgroundColor: '#1A1A1D', color: '#FFF', fontSize: '16px', minHeight: '100px', fontFamily: 'inherit' }}
+                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--bg-border)', backgroundColor: 'var(--bg-base)', color: '#FFF', fontSize: '16px', minHeight: '100px', fontFamily: 'inherit' }}
                         />
                     </div>
                     
-                    <button onClick={handleFinishSession} style={{ width: '100%', padding: '16px', backgroundColor: '#8B5CF6', color: '#FFF', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '16px', cursor: 'pointer' }}>
+                    <button onClick={handleFinishSession} className="btn-gold" style={{ width: '100%', padding: '16px', fontWeight: 600, fontSize: '16px' }}>
                         Finish Session
                     </button>
                 </>
@@ -456,23 +455,23 @@ export default function FocusPage() {
                     <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                         <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
                         <h2 style={{ fontSize: '32px', marginBottom: '12px' }}>Session Complete!</h2>
-                        <p style={{ fontSize: '18px', color: '#9CA3AF' }}>Great work staying focused!</p>
+                        <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>Great work staying focused!</p>
                     </div>
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '24px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                             <div>
-                                <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Focus Blocks</div>
+                                <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Focus Blocks</div>
                                 <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{focusBlocksCompleted}/{totalFocusBlocks}</div>
                             </div>
                             <div>
-                                <div style={{ fontSize: '14px', color: '#9CA3AF' }}>Productivity</div>
+                                <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Productivity</div>
                                 <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{productivity}/5</div>
                             </div>
                         </div>
                     </div>
                     
-                    <button onClick={() => router.push('/dashboard')} style={{ width: '100%', padding: '16px', backgroundColor: '#8B5CF6', color: '#FFF', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '16px', cursor: 'pointer' }}>
+                    <button onClick={() => router.push('/dashboard')} className="btn-gold" style={{ width: '100%', padding: '16px', fontWeight: 600, fontSize: '16px' }}>
                         Back to Dashboard
                     </button>
                 </>

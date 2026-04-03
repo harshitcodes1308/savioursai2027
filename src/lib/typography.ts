@@ -1,17 +1,19 @@
-// Typography constants following Apple's SF Pro style using Inter
+// Typography constants — SF Pro Display system
 export const typography = {
-    // Headings (Manrope)
+    // Headings — SF Pro Display Bold
     display: {
-        fontFamily: "'Manrope', sans-serif",
+        fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif",
         lineHeight: 1.2,
-        letterSpacing: '-0.01em',
+        letterSpacing: '-0.02em',
+        fontWeight: 700,
     },
 
-    // Body text (DM Sans)
+    // Body text — SF Pro Text / Inter fallback
     text: {
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'DM Sans', 'Helvetica Neue', sans-serif",
         lineHeight: 1.6,
         letterSpacing: 0,
+        fontWeight: 400,
     },
 
     // Weight shortcuts

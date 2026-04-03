@@ -2,47 +2,94 @@
 
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
-import { useEffect, useMemo } from "react";
-import { typography } from "@/lib/typography";
-import { LazyCard } from "@/components/ui/LazyCard";
+import { useEffect, useMemo, useState } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
+import { FEATURE_FLAGS } from "@/lib/featureFlags";
+import ShimmerText from "@/components/ui/shimmer-text";
+
+const PLAN_LABELS: Record<string, string> = {
+    FREE: "Free",
+    MONTHLY: "Monthly",
+    YEARLY: "Yearly",
+};
+
+function getGreeting(): string {
+    const h = new Date().getHours();
+    if (h < 5) return "Burning the midnight oil,";
+    if (h < 12) return "Good morning,";
+    if (h < 17) return "Good afternoon,";
+    if (h < 21) return "Good evening,";
+    return "Still going strong,";
+}
+
+function getMotivationalTagline(): string {
+    const h = new Date().getHours();
+    if (h < 5) return "The quiet hours build the loudest results.";
+    if (h < 12) return "A fresh start, a new chapter of progress.";
+    if (h < 17) return "Stay sharp. The afternoon push matters.";
+    if (h < 21) return "Consistency is your quiet superpower.";
+    return "Great things happen when the world sleeps.";
+}
+
+// Circular ring stat card
+function RingStatCard({
+    label, value, sub, percent, color, size = 52,
+}: {
+    label: string; value: string; sub: string; percent: number; color: string; size?: number;
+}) {
+    const r = (size - 8) / 2;
+    const circ = 2 * Math.PI * r;
+    const dash = circ * Math.min(Math.max(percent, 0), 100) / 100;
+
+    return (
+        <div style={{
+            display: "flex", alignItems: "center", gap: 14,
+        }}>
+            <svg width={size} height={size} style={{ flexShrink: 0, transform: "rotate(-90deg)" }}>
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={3.5} />
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={3.5}
+                    strokeLinecap="round" strokeDasharray={`${dash} ${circ}`}
+                    style={{ transition: "stroke-dasharray 1s cubic-bezier(0.4,0,0.2,1)" }} />
+            </svg>
+            <div>
+                <div style={{
+                    fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700,
+                    letterSpacing: "0.12em", textTransform: "uppercase",
+                    color: "var(--text-muted)", marginBottom: 3, opacity: 0.6,
+                }}>{label}</div>
+                <div style={{
+                    fontFamily: "var(--font-display)", fontSize: 26,
+                    color: "var(--text-primary)", letterSpacing: "-0.03em",
+                    lineHeight: 1,
+                }}>{value}</div>
+                <div style={{
+                    fontFamily: "var(--font-body)", fontSize: 10,
+                    color: "var(--text-muted)", marginTop: 2,
+                }}>{sub}</div>
+            </div>
+        </div>
+    );
+}
 
 export default function DashboardPage() {
     const router = useRouter();
     const { isMobile, isTablet } = useResponsive();
+    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     const { data: profile, isLoading: profileLoading } = trpc.dashboard.getProfile.useQuery(undefined, {
-        refetchOnWindowFocus: true,
-        refetchOnMount: true,
+        refetchOnWindowFocus: true, refetchOnMount: true,
     });
-
     const { data: stats } = trpc.dashboard.getStudyStats.useQuery(undefined, {
-        refetchInterval: 30000,
-        refetchOnWindowFocus: true,
-        refetchOnMount: true,
+        refetchInterval: 30000, refetchOnWindowFocus: true, refetchOnMount: true,
     });
-
-    const { data: todayPlans } = trpc.planner.getTodayPlans.useQuery(undefined, {
-        refetchInterval: 30000,
-        refetchOnWindowFocus: true,
-        refetchOnMount: true,
-    });
-
     const logoutMutation = trpc.auth.logout.useMutation({
-        onSuccess: () => {
-            router.push("/login");
-        },
+        onSuccess: () => router.push("/login"),
     });
 
     const todayDate = useMemo(() =>
-        new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric"
-        }),
-        []
+        new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }), []
     );
-
     const todayProgress = useMemo(() =>
         Math.round(((stats?.todayHours || 0) / (stats?.todayGoal || 1)) * 100),
         [stats?.todayHours, stats?.todayGoal]
@@ -53,402 +100,311 @@ export default function DashboardPage() {
         const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(0, 0, 0, 0);
-        const msUntilMidnight = tomorrow.getTime() - now.getTime();
-        const timer = setTimeout(() => { window.location.reload(); }, msUntilMidnight);
-        return () => clearTimeout(timer);
+        const ms = tomorrow.getTime() - now.getTime();
+        const t = setTimeout(() => window.location.reload(), ms);
+        return () => clearTimeout(t);
     }, []);
 
-    const handleLogout = () => { logoutMutation.mutate(); };
+    const featureCards = [
+        { flag: "aiDoubtSolver" as const, label: "AI Doubt Solver", desc: "Ask anything, get instant answers", path: "/dashboard/ai-assistant", icon: "◈", tagline: "Your 24/7 academic companion" },
+        { flag: "smartPlanner" as const, label: "Smart Planner", desc: "Your day, mapped intelligently", path: "/dashboard/planner", icon: "◎", tagline: "Because time waits for no one" },
+        { flag: "competencyTest" as const, label: "Competency Test", desc: "PYQ-based timed practice", path: "/dashboard/precision-practice", icon: "◉", tagline: "Practice like it's the real thing" },
+        { flag: "customiseTest" as const, label: "Customise Test", desc: "Build your own MCQ set", path: "/dashboard/tests", icon: "◈", tagline: "Your test, your rules" },
+        { flag: "flipTheQuestion" as const, label: "Flip the Question", desc: "Reverse-engineer from answers", path: "/dashboard/flip-the-question", icon: "⇌", tagline: "See questions from the other side" },
+        { flag: "focusMode" as const, label: "Focus Mode", desc: "Distraction-free deep work", path: "/dashboard/focus", icon: "◎", tagline: "Where deep work happens" },
+        { flag: "todoList" as const, label: "To-do List", desc: "Track what needs doing", path: "/dashboard/planner", icon: "○", tagline: "Small steps, big results" },
+    ].filter(card => FEATURE_FLAGS[card.flag]);
 
     if (profileLoading || !stats) {
         return (
             <div style={{
-                minHeight: "100vh",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                background: "#030303", flexDirection: "column", gap: 16,
+                minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+                background: "var(--bg-base)", flexDirection: "column", gap: 16,
             }}>
-                <div className="animate-float" style={{ fontSize: 48 }}>✨</div>
                 <div style={{
-                    fontSize: 16, fontWeight: 600,
-                    background: "linear-gradient(135deg, #A78BFA, #8B5CF6)",
-                    WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                }}>Loading your dashboard...</div>
-                <div style={{
-                    width: 200, height: 3, borderRadius: 2,
-                    background: "rgba(255,255,255,0.06)", overflow: "hidden",
-                }}>
-                    <div className="animate-shimmer" style={{ width: "100%", height: "100%" }} />
+                    width: 32, height: 32, borderRadius: "50%",
+                    border: "2px solid var(--bg-border)", borderTopColor: "var(--accent-gold)",
+                    animation: "spin360 0.7s linear infinite",
+                }} />
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>
+                    Loading your workspace...
                 </div>
             </div>
         );
     }
 
-    const greeting = profile?.createdAt && (new Date().getTime() - new Date(profile.createdAt).getTime() < 300000)
-        ? `Welcome, ${profile?.name}!`
-        : `Welcome back, ${profile?.name}!`;
+    const planType = (profile as any)?.planType ?? "FREE";
 
-    const quickActions = [
-        { label: "Study Planner", icon: "📅", path: "/dashboard/planner", color: "#8B5CF6", desc: "Plan your day" },
-        { label: "Subjects", icon: "📚", path: "/dashboard/subjects", color: "#3B82F6", desc: "Browse syllabus" },
-        { label: "AI Assistant", icon: "🤖", path: "/dashboard/ai-assistant", color: "#10B981", desc: "Ask anything" },
-        { label: "Competency Test", icon: "⚡", path: "/dashboard/precision-practice", color: "#F59E0B", desc: "Test yourself" },
+    const ringStats = [
+        { label: "Today", value: `${todayProgress}%`, sub: "of daily goal", percent: todayProgress, color: "var(--accent-gold)" },
+        { label: "Streak", value: `${stats?.currentStreak ?? 0}d`, sub: "days running", percent: Math.min((stats?.currentStreak ?? 0) * 10, 100), color: "#22c55e" },
+        { label: "This week", value: `${stats?.weeklyProgress ?? 0}%`, sub: "completed", percent: stats?.weeklyProgress ?? 0, color: "#60a5fa" },
+        { label: "Readiness", value: `${stats?.examReadiness ?? 0}%`, sub: "syllabus covered", percent: stats?.examReadiness ?? 0, color: "#33DFFF" },
     ];
 
     return (
-        <div style={{
-            minHeight: "100vh",
-            background: "radial-gradient(ellipse at 0% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303",
-            padding: isMobile ? "12px" : isTablet ? "20px" : "32px",
-            transition: "all 0.2s ease-in-out",
-            boxSizing: "border-box" as const,
-            overflowX: "hidden" as const,
-        }}>
-            {/* Header */}
-            <div className="animate-fadeIn" style={{
-                maxWidth: "1400px", margin: isMobile ? "0 auto 20px" : "0 auto 36px",
-                display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center",
-                flexDirection: isMobile ? "column" : "row",
-                gap: isMobile ? 12 : 0,
-            }}>
-                <div>
-                    <h1 style={{
-                        fontSize: isMobile ? "22px" : isTablet ? "28px" : "34px", fontWeight: 800,
-                        marginBottom: "6px", letterSpacing: -0.5,
-                        background: "linear-gradient(135deg, #FFFFFF 0%, #A78BFA 100%)",
-                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                    }}>
-                        {greeting} 👋
-                    </h1>
-                    <p style={{
-                        fontSize: "14px", color: "#6B7280", fontWeight: 500,
-                        display: "flex", alignItems: "center", gap: 8,
-                    }}>
-                        <span style={{
-                            display: "inline-block", width: 6, height: 6, borderRadius: "50%",
-                            background: "#8B5CF6", boxShadow: "0 0 8px rgba(139,92,246,0.5)",
-                        }} />
-                        {todayDate}
-                    </p>
-                </div>
-                <button
-                    onClick={handleLogout}
-                    disabled={logoutMutation.isPending}
-                    style={{
-                        background: "rgba(255,255,255,0.03)",
-                        color: "#9CA3AF",
-                        padding: "10px 20px",
-                        borderRadius: "12px",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        cursor: logoutMutation.isPending ? "not-allowed" : "pointer",
-                        opacity: logoutMutation.isPending ? 0.5 : 1,
-                        transition: "all 0.3s ease",
-                        backdropFilter: "blur(10px)",
-                    }}
-                >
-                    {logoutMutation.isPending ? "Logging out..." : "Logout"}
-                </button>
-            </div>
+        <div
+            onMouseMove={e => setMousePos({ x: e.clientX, y: e.clientY })}
+            style={{
+                minHeight: "100vh", background: "var(--bg-base)",
+                padding: isMobile ? "20px 16px 100px" : isTablet ? "32px 28px" : "44px 48px",
+                boxSizing: "border-box", position: "relative", overflow: "hidden",
+            }}
+        >
+            {/* Ambient gradient orb */}
+            {!isMobile && (
+                <div style={{
+                    position: "fixed",
+                    left: mousePos.x, top: mousePos.y,
+                    width: 500, height: 500, borderRadius: "50%",
+                    background: "radial-gradient(circle, rgba(0,212,255,0.03) 0%, transparent 70%)",
+                    transform: "translate(-50%, -50%)",
+                    transition: "left 1s ease-out, top 1s ease-out",
+                    pointerEvents: "none", zIndex: 0,
+                }} />
+            )}
 
-            <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
-                <div className="dashboard-grid" style={{
-                    display: "grid",
-                    gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(280px, 1fr))",
-                    gap: isMobile ? "12px" : "20px",
+            <div style={{ maxWidth: 1280, margin: "0 auto", position: "relative", zIndex: 1 }}>
+
+                {/* ── Hero Section ── */}
+                <div style={{
+                    display: "flex", justifyContent: "space-between",
+                    alignItems: isMobile ? "flex-start" : "flex-end",
+                    flexDirection: isMobile ? "column" : "row",
+                    gap: isMobile ? 20 : 0,
+                    marginBottom: isMobile ? 28 : 40,
+                    animation: "pageEnter 0.4s ease-out both",
                 }}>
+                    <div>
+                        <div style={{
+                            fontFamily: "var(--font-body)", fontSize: 13,
+                            color: "var(--text-muted)", marginBottom: 6, letterSpacing: "0.01em",
+                        }}>
+                            {getGreeting()}
+                        </div>
+                        <h1 style={{
+                            fontFamily: "var(--font-display)",
+                            fontSize: isMobile ? 36 : 54,
+                            color: "var(--text-primary)",
+                            letterSpacing: "-0.03em", lineHeight: 1,
+                            margin: "0 0 8px",
+                        }}>
+                            <ShimmerText
+                                className=""
+                                duration={2.5}
+                                delay={2}
+                            >
+                                <span style={{ color: 'var(--accent-gold)' }}>{profile?.name}</span>
+                            </ShimmerText>
+                        </h1>
+                        {/* Premium tagline in ScotchDisplay */}
+                        <div style={{
+                            fontFamily: "var(--font-tagline)",
+                            fontSize: isMobile ? 14 : 16,
+                            fontWeight: 400,
+                            fontStyle: "italic",
+                            color: "rgba(180, 175, 200, 0.9)",
+                            marginBottom: 12,
+                            textShadow: "0 0 20px rgba(0, 212, 255, 0.15)",
+                        }}>
+                            {getMotivationalTagline()}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                            <span style={{
+                                fontFamily: "var(--font-body)", fontSize: 12,
+                                color: "var(--text-muted)", opacity: 0.7,
+                            }}>
+                                {todayDate}
+                            </span>
+                            <span style={{
+                                fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700,
+                                color: "var(--accent-gold)",
+                                background: "rgba(0,212,255,0.08)",
+                                border: "1px solid rgba(0,212,255,0.18)",
+                                borderRadius: 100, padding: "3px 10px",
+                                letterSpacing: "0.1em", textTransform: "uppercase",
+                            }}>
+                                {PLAN_LABELS[planType] ?? "Free"}
+                            </span>
+                        </div>
+                    </div>
 
-                    {/* Today's Study Plan */}
-                    <div className="dashboard-card animate-slideInUp" style={{
-                        padding: isMobile ? "18px" : "28px", minHeight: isMobile ? "220px" : "280px",
-                        display: "flex", flexDirection: "column",
+                    <button
+                        onClick={() => logoutMutation.mutate()}
+                        disabled={logoutMutation.isPending}
+                        style={{
+                            fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 500,
+                            color: "var(--text-muted)", background: "transparent",
+                            border: "1px solid var(--bg-border)", borderRadius: 8,
+                            padding: "8px 18px", cursor: logoutMutation.isPending ? "not-allowed" : "pointer",
+                            opacity: logoutMutation.isPending ? 0.5 : 1, transition: "all 0.2s ease",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--text-muted)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--bg-border)"; e.currentTarget.style.color = "var(--text-muted)"; }}
+                    >
+                        {logoutMutation.isPending ? "Logging out..." : "Log out"}
+                    </button>
+                </div>
+
+                {/* ── Stats Strip ── */}
+                <div style={{
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--bg-border)",
+                    borderRadius: 18,
+                    padding: isMobile ? "18px 16px" : "24px 32px",
+                    marginBottom: isMobile ? 28 : 40,
+                    display: "grid",
+                    gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
+                    gap: isMobile ? 18 : 24,
+                    animation: "slideInUp 0.5s ease-out 100ms both",
+                }}>
+                    {ringStats.map((s, i) => (
+                        <RingStatCard key={s.label} {...s} />
+                    ))}
+                </div>
+
+                {/* ── Feature Cards ── */}
+                <div>
+                    <div style={{
+                        display: "flex", alignItems: "baseline", justifyContent: "space-between",
+                        marginBottom: 18,
                     }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                <div style={{
-                                    width: 36, height: 36, borderRadius: 10,
-                                    background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05))",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    fontSize: 18,
-                                }}>📋</div>
-                                <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Today&apos;s Progress</h3>
-                            </div>
-                            <button
-                                onClick={() => router.push('/dashboard/planner')}
+                        <div style={{
+                            fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700,
+                            color: "var(--text-muted)", letterSpacing: "0.14em",
+                            textTransform: "uppercase", opacity: 0.5,
+                        }}>
+                            Your Tools
+                        </div>
+                        <div style={{
+                            fontFamily: "var(--font-tagline)",
+                            fontSize: 12, fontWeight: 400, fontStyle: "italic",
+                            color: "rgba(180, 175, 200, 0.7)",
+                            textShadow: "0 0 12px rgba(0, 212, 255, 0.1)",
+                        }}>
+                            Everything you need, nothing you don't.
+                        </div>
+                    </div>
+
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+                        gap: isMobile ? 10 : 14,
+                    }}>
+                        {featureCards.map((card, i) => (
+                            <div
+                                key={card.path}
+                                onClick={() => router.push(card.path)}
+                                onMouseEnter={() => setHoveredCard(card.path)}
+                                onMouseLeave={() => setHoveredCard(null)}
                                 style={{
-                                    color: "#8B5CF6", fontSize: "12px", fontWeight: 600,
-                                    background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)",
-                                    borderRadius: 8, padding: "5px 12px", cursor: "pointer",
-                                    transition: "all 0.2s",
+                                    background: hoveredCard === card.path
+                                        ? "linear-gradient(145deg, var(--bg-elevated), var(--bg-surface))"
+                                        : "var(--bg-surface)",
+                                    border: `1px solid ${hoveredCard === card.path ? "var(--accent-gold-border)" : "var(--bg-border)"}`,
+                                    borderRadius: 16,
+                                    padding: isMobile ? "20px 18px" : "26px 26px",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
+                                    animation: `slideInUp 0.5s ease-out ${200 + i * 60}ms both`,
+                                    position: "relative",
+                                    overflow: "hidden",
+                                    transform: hoveredCard === card.path ? "translateY(-3px)" : "translateY(0)",
+                                    boxShadow: hoveredCard === card.path
+                                        ? "0 0 0 1px rgba(0,212,255,0.06), 0 20px 48px -8px rgba(0,0,0,0.45)"
+                                        : "none",
                                 }}
-                            >View All</button>
-                        </div>
-
-                        {/* Circular Progress */}
-                        <div style={{ display: "flex", justifyContent: "center", flex: 1, alignItems: "center" }}>
-                            <div style={{ position: "relative", width: 130, height: 130 }}>
-                                <svg style={{ width: "100%", height: "100%", transform: "rotate(-90deg)" }}>
-                                    <circle cx="65" cy="65" r="56" stroke="rgba(255,255,255,0.04)" strokeWidth="10" fill="none" />
-                                    <circle cx="65" cy="65" r="56" stroke="url(#progressGrad)" strokeWidth="10" fill="none"
-                                        strokeDasharray="352" strokeDashoffset={352 - (352 * Math.min(todayProgress, 100) / 100)} strokeLinecap="round"
-                                        style={{
-                                            filter: "drop-shadow(0 0 8px rgba(139,92,246,0.4))",
-                                            transition: "stroke-dashoffset 1s ease",
-                                        }} />
-                                    <defs>
-                                        <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor="#8B5CF6" />
-                                            <stop offset="100%" stopColor="#EC4899" />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
+                            >
+                                {/* Hover shimmer */}
                                 <div style={{
-                                    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    flexDirection: "column",
-                                }}>
-                                    <span style={{
-                                        fontSize: 36, fontWeight: 800, letterSpacing: -1,
-                                        background: "linear-gradient(135deg, #FFF, #A78BFA)",
-                                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                                    }}>{todayProgress}%</span>
-                                    <span style={{ fontSize: 11, color: "#6B7280", fontWeight: 500 }}>complete</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Exam Readiness */}
-                    <div className="dashboard-card animate-slideInUp delay-100" style={{
-                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
-                        minHeight: isMobile ? "220px" : undefined,
-                        display: "flex", flexDirection: "column",
-                        overflow: "hidden",
-                    }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "20px" }}>
-                            <div style={{
-                                width: 36, height: 36, borderRadius: 10,
-                                background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.05))",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                fontSize: 18,
-                            }}>🎯</div>
-                            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Exam Readiness</h3>
-                        </div>
-
-                        <div style={{
-                            display: "grid", gridTemplateColumns: "repeat(6, 1fr)",
-                            gridTemplateRows: "repeat(4, 1fr)", gap: 5,
-                            height: 100, marginBottom: 16,
-                        }}>
-                            {Array.from({ length: 24 }).map((_, i) => {
-                                const isComplete = i < Math.floor(24 * ((stats?.examReadiness || 0) / 100));
-                                return (
-                                    <div key={i} style={{
-                                        background: isComplete
-                                            ? `linear-gradient(135deg, #8B5CF6, ${i % 3 === 0 ? '#EC4899' : '#7C3AED'})`
-                                            : "rgba(255,255,255,0.03)",
-                                        borderRadius: 4,
-                                        transition: `all 0.4s ease ${i * 30}ms`,
-                                        boxShadow: isComplete ? "0 0 8px rgba(139,92,246,0.3)" : "none",
-                                        border: isComplete ? "none" : "1px solid rgba(255,255,255,0.04)",
-                                    }} />
-                                );
-                            })}
-                        </div>
-
-                        <div style={{ marginTop: "auto" }}>
-                            <div style={{
-                                fontSize: 44, fontWeight: 800, letterSpacing: -1,
-                                background: "linear-gradient(135deg, #8B5CF6, #3B82F6)",
-                                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                                marginBottom: 2,
-                                filter: "drop-shadow(0 0 20px rgba(139,92,246,0.2))",
-                            }}>
-                                {stats?.examReadiness}%
-                            </div>
-                            <p style={{ color: "#6B7280", fontSize: 12, fontWeight: 500 }}>
-                                Syllabus coverage
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Learning Streak */}
-                    <div className="dashboard-card animate-slideInUp delay-200" style={{
-                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
-                        minHeight: isMobile ? "220px" : undefined,
-                        overflow: "hidden", display: "flex", flexDirection: "column",
-                        position: "relative",
-                    }}>
-                        {/* Background glow */}
-                        <div style={{
-                            position: "absolute", top: -40, right: -40,
-                            width: 120, height: 120, borderRadius: "50%",
-                            background: "radial-gradient(circle, rgba(245,158,11,0.08), transparent 70%)",
-                            pointerEvents: "none",
-                        }} />
-
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, position: "relative" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                <div style={{
-                                    width: 36, height: 36, borderRadius: 10,
-                                    background: "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    fontSize: 18,
-                                }}>🔥</div>
-                                <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Learning Streak</h3>
-                            </div>
-                        </div>
-
-                        <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", position: "relative" }}>
-                            <div style={{
-                                fontSize: 64, fontWeight: 900, letterSpacing: -2,
-                                background: "linear-gradient(135deg, #F59E0B, #EF4444)",
-                                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                                marginBottom: 4,
-                                filter: "drop-shadow(0 0 20px rgba(245,158,11,0.2))",
-                                lineHeight: 1,
-                            }}>
-                                {stats?.currentStreak || 0}
-                            </div>
-                            <p style={{ color: "#F59E0B", fontSize: 14, fontWeight: 600 }}>Day Streak</p>
-                            <p style={{
-                                color: "#6B7280", fontSize: 12, marginTop: 4,
-                                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                            }}>
-                                <span style={{
-                                    display: "inline-block", width: 6, height: 6, borderRadius: "50%",
-                                    background: "#10B981",
+                                    position: "absolute", inset: 0,
+                                    background: hoveredCard === card.path
+                                        ? "linear-gradient(135deg, rgba(0,212,255,0.05) 0%, transparent 50%)"
+                                        : "transparent",
+                                    transition: "background 0.3s ease",
+                                    pointerEvents: "none",
                                 }} />
-                                {stats?.avgHoursPerDay}h avg/day
-                            </p>
-                        </div>
-                    </div>
 
-                    {/* Quick Actions */}
-                    <div className="dashboard-card animate-slideInUp delay-300" style={{
-                        padding: isMobile ? "18px" : "28px", minHeight: isMobile ? "220px" : "280px",
-                        display: "flex", flexDirection: "column",
-                    }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-                            <div style={{
-                                width: 36, height: 36, borderRadius: 10,
-                                background: "linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                fontSize: 18,
-                            }}>🚀</div>
-                            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Quick Actions</h3>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-                            {quickActions.map((action, i) => (
-                                <button
-                                    key={action.label}
-                                    onClick={() => router.push(action.path)}
-                                    style={{
-                                        display: "flex", alignItems: "center", gap: 12,
-                                        padding: "12px 14px", borderRadius: 12,
-                                        background: "rgba(255,255,255,0.02)",
-                                        border: "1px solid rgba(255,255,255,0.04)",
-                                        color: "#FFF", cursor: "pointer",
-                                        textAlign: "left",
-                                        transition: "all 0.3s ease",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = `${action.color}10`;
-                                        e.currentTarget.style.borderColor = `${action.color}30`;
-                                        e.currentTarget.style.transform = "translateX(6px)";
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-                                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.04)";
-                                        e.currentTarget.style.transform = "none";
-                                    }}
-                                >
-                                    <span style={{ fontSize: 20, minWidth: 28 }}>{action.icon}</span>
-                                    <div>
-                                        <div style={{ fontSize: 13, fontWeight: 600 }}>{action.label}</div>
-                                        <div style={{ fontSize: 11, color: "#6B7280" }}>{action.desc}</div>
+                                <div style={{ position: "relative", zIndex: 1 }}>
+                                    {/* Icon */}
+                                    <div style={{
+                                        fontFamily: "var(--font-display)", fontSize: isMobile ? 22 : 26,
+                                        color: "var(--accent-gold)", marginBottom: 14, lineHeight: 1,
+                                        opacity: hoveredCard === card.path ? 0.9 : 0.5,
+                                        transition: "opacity 0.3s ease",
+                                    }}>
+                                        {card.icon}
                                     </div>
-                                    <span style={{ marginLeft: "auto", color: "#4B5563", fontSize: 14 }}>→</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
 
-                    {/* Weekly Progress */}
-                    <div className="dashboard-card animate-slideInUp delay-400" style={{
-                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
-                        minHeight: isMobile ? "220px" : undefined,
-                        overflow: "hidden", display: "flex", flexDirection: "column",
+                                    {/* Title */}
+                                    <div style={{
+                                        fontFamily: "var(--font-display)", fontSize: isMobile ? 16 : 18,
+                                        color: "var(--text-primary)", marginBottom: 5,
+                                        letterSpacing: "-0.01em",
+                                    }}>
+                                        {card.label}
+                                    </div>
+
+                                    {/* Description */}
+                                    <div style={{
+                                        fontFamily: "var(--font-body)", fontSize: 13,
+                                        color: "var(--text-muted)", lineHeight: 1.55,
+                                        marginBottom: 10,
+                                    }}>
+                                        {card.desc}
+                                    </div>
+
+                                    <div style={{
+                                        fontFamily: "var(--font-tagline)",
+                                        fontSize: 11, fontWeight: 400, fontStyle: "italic",
+                                        color: hoveredCard === card.path ? "var(--accent-gold)" : "rgba(180, 175, 200, 0.65)",
+                                        opacity: hoveredCard === card.path ? 0.9 : 1,
+                                        transition: "all 0.3s ease",
+                                        marginBottom: 14,
+                                        textShadow: hoveredCard === card.path ? "0 0 12px rgba(0, 212, 255, 0.2)" : "none",
+                                    }}>
+                                        {card.tagline}
+                                    </div>
+
+                                    {/* Arrow */}
+                                    <div style={{
+                                        fontFamily: "var(--font-body)", fontSize: 12,
+                                        color: "var(--accent-gold)",
+                                        letterSpacing: "0.02em",
+                                        opacity: hoveredCard === card.path ? 1 : 0.5,
+                                        transform: hoveredCard === card.path ? "translateX(4px)" : "translateX(0)",
+                                        transition: "all 0.3s ease",
+                                    }}>
+                                        Open →
+                                    </div>
+                                </div>
+
+                                {/* Bottom accent line on hover */}
+                                <div style={{
+                                    position: "absolute", bottom: 0, left: 0, right: 0,
+                                    height: hoveredCard === card.path ? 2 : 0,
+                                    background: "linear-gradient(90deg, transparent, var(--accent-gold), transparent)",
+                                    transition: "height 0.3s ease",
+                                }} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* ── Bottom Tagline ── */}
+                <div style={{
+                    textAlign: "center",
+                    marginTop: isMobile ? 40 : 56,
+                    paddingBottom: 20,
+                }}>
+                    <div style={{
+                        fontFamily: "var(--font-tagline)",
+                        fontSize: 13, fontWeight: 400, fontStyle: "italic",
+                        color: "rgba(180, 175, 200, 0.45)",
+                        textShadow: "0 0 16px rgba(0, 212, 255, 0.08)",
                     }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                            <div style={{
-                                width: 36, height: 36, borderRadius: 10,
-                                background: "linear-gradient(135deg, rgba(236,72,153,0.15), rgba(236,72,153,0.05))",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                fontSize: 18,
-                            }}>📈</div>
-                            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#FFF" }}>Weekly Progress</h3>
-                        </div>
-
-                        <div style={{
-                            fontSize: 44, fontWeight: 800, letterSpacing: -1,
-                            background: "linear-gradient(135deg, #EC4899, #8B5CF6)",
-                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                            marginBottom: 4,
-                        }}>
-                            {stats?.weeklyProgress}%
-                        </div>
-                        <p style={{ color: "#6B7280", fontSize: 12, fontWeight: 500, marginBottom: 16 }}>
-                            Completed this week
-                        </p>
-
-                        <div style={{ flex: 1, position: "relative" }}>
-                            <svg style={{ width: "100%", height: "100%" }} viewBox="0 0 280 60" preserveAspectRatio="none">
-                                <defs>
-                                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#EC4899" />
-                                        <stop offset="100%" stopColor="#8B5CF6" />
-                                    </linearGradient>
-                                    <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stopColor="rgba(139,92,246,0.15)" />
-                                        <stop offset="100%" stopColor="rgba(139,92,246,0)" />
-                                    </linearGradient>
-                                </defs>
-                                <path d="M 0 45 Q 50 35, 100 40 T 200 25 T 280 20 L 280 60 L 0 60 Z" fill="url(#areaGrad)" />
-                                <path d="M 0 45 Q 50 35, 100 40 T 200 25 T 280 20" stroke="url(#lineGrad)" strokeWidth="2.5" fill="none"
-                                    style={{ filter: "drop-shadow(0 0 6px rgba(139,92,246,0.4))" }} />
-                                <circle cx="280" cy="20" r="4" fill="#8B5CF6" style={{ filter: "drop-shadow(0 0 6px rgba(139,92,246,0.8))" }} />
-                            </svg>
-                        </div>
+                        Saviours AI — Where preparation meets precision.
                     </div>
-
-                    {/* Insights Coming Soon */}
-                    <div className="dashboard-card animate-slideInUp delay-500" style={{
-                        padding: isMobile ? "18px" : "28px", height: isMobile ? "auto" : "280px",
-                        minHeight: isMobile ? "180px" : undefined,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        position: "relative", overflow: "hidden",
-                    }}>
-                        <div className="animate-orb" style={{
-                            position: "absolute", top: "50%", left: "50%",
-                            width: 200, height: 200, borderRadius: "50%",
-                            background: "radial-gradient(circle, rgba(139,92,246,0.06), transparent 70%)",
-                            transform: "translate(-50%, -50%)",
-                            pointerEvents: "none",
-                        }} />
-                        <div style={{ textAlign: "center", position: "relative" }}>
-                            <div className="animate-float" style={{ fontSize: 40, marginBottom: 12, opacity: 0.6 }}>📊</div>
-                            <div style={{
-                                fontSize: 14, fontWeight: 600,
-                                background: "linear-gradient(135deg, #A78BFA, #8B5CF6)",
-                                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                                marginBottom: 4,
-                            }}>More Insights</div>
-                            <div style={{ fontSize: 12, color: "#4B5563" }}>Coming soon</div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>

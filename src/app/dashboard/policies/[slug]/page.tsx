@@ -16,7 +16,7 @@ export default function PolicyViewerPage() {
         return (
             <div style={{ padding: "32px", textAlign: "center", color: "#FFF" }}>
                 <h2>Policy not found</h2>
-                <button onClick={() => router.back()} style={{ color: "#8B5CF6", marginTop: "16px", background: "none", border: "none", cursor: "pointer" }}>Go Back</button>
+                <button onClick={() => router.back()} style={{ color: "#00D4FF", marginTop: "16px", background: "none", border: "none", cursor: "pointer" }}>Go Back</button>
             </div>
         );
     }

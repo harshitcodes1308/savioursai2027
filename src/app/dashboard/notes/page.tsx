@@ -62,14 +62,10 @@ export default function NotesPage() {
                 {hasNotes && (
                     <button
                         onClick={() => setIsCreating(true)}
+                        className="btn-gold"
                         style={{
                             ...typography.text,
                             padding: '12px 24px',
-                            backgroundColor: '#8B5CF6',
-                            color: '#FFF',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
                             fontSize: '16px',
                             fontWeight: 600,
                         }}
@@ -187,14 +183,10 @@ export default function NotesPage() {
                             <button
                                 onClick={() => setIsCreating(false)}
                                 disabled={createMutation.isPending}
+                                className="btn-ghost"
                                 style={{
                                     ...typography.text,
                                     padding: '12px 24px',
-                                    backgroundColor: '#374151',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
                                     fontSize: '16px',
                                 }}
                             >
@@ -231,14 +223,10 @@ export default function NotesPage() {
                             </div>
                             <button
                                 onClick={() => setSelectedNote(null)}
+                                className="btn-ghost"
                                 style={{
                                     ...typography.text,
                                     padding: '8px 16px',
-                                    backgroundColor: '#374151',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
                                 }}
                             >
                                 ✕
@@ -257,14 +245,10 @@ export default function NotesPage() {
                                         setCurrentCardIndex(0);
                                         setIsFlipped(false);
                                     }}
+                                    className="btn-gold"
                                     style={{
                                         ...typography.text,
                                         padding: '12px 24px',
-                                        backgroundColor: '#8B5CF6',
-                                        color: '#FFF',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
                                         fontSize: '16px',
                                         fontWeight: 600,
                                     }}
@@ -331,12 +315,12 @@ export default function NotesPage() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 cursor: 'pointer',
-                                border: '2px solid #8B5CF6',
+                                border: '2px solid #00D4FF',
                                 transition: 'transform 0.3s',
                             }}
                         >
                             <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '14px', fontWeight: 600, color: '#8B5CF6', marginBottom: '16px' }}>
+                                <div style={{ fontSize: '14px', fontWeight: 600, color: '#00D4FF', marginBottom: '16px' }}>
                                     {isFlipped ? 'ANSWER' : 'QUESTION'}
                                 </div>
                                 <div style={{ ...typography.text, fontSize: '20px', lineHeight: '1.6' }}>
@@ -355,13 +339,11 @@ export default function NotesPage() {
                                     setIsFlipped(false);
                                 }}
                                 disabled={currentCardIndex === 0}
+                                className="btn-gold"
                                 style={{
                                     ...typography.text,
                                     padding: '12px 24px',
-                                    backgroundColor: currentCardIndex === 0 ? '#374151' : '#8B5CF6',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
+                                    opacity: currentCardIndex === 0 ? 0.4 : 1,
                                     cursor: currentCardIndex === 0 ? 'not-allowed' : 'pointer',
                                 }}
                             >
@@ -369,14 +351,10 @@ export default function NotesPage() {
                             </button>
                             <button
                                 onClick={() => setViewingFlashcards(false)}
+                                className="btn-ghost"
                                 style={{
                                     ...typography.text,
                                     padding: '12px 24px',
-                                    backgroundColor: '#374151',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
                                 }}
                             >
                                 Close
@@ -387,13 +365,11 @@ export default function NotesPage() {
                                     setIsFlipped(false);
                                 }}
                                 disabled={currentCardIndex === selectedNote.flashCards.length - 1}
+                                className="btn-gold"
                                 style={{
                                     ...typography.text,
                                     padding: '12px 24px',
-                                    backgroundColor: currentCardIndex === selectedNote.flashCards.length - 1 ? '#374151' : '#8B5CF6',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '8px',
+                                    opacity: currentCardIndex === selectedNote.flashCards.length - 1 ? 0.4 : 1,
                                     cursor: currentCardIndex === selectedNote.flashCards.length - 1 ? 'not-allowed' : 'pointer',
                                 }}
                             >
@@ -416,14 +392,10 @@ export default function NotesPage() {
                     </p>
                     <button
                         onClick={() => setIsCreating(true)}
+                        className="btn-gold"
                         style={{
                             ...typography.text,
                             padding: '16px 32px',
-                            backgroundColor: '#8B5CF6',
-                            color: '#FFF',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
                             fontSize: '18px',
                             fontWeight: 600,
                         }}
@@ -445,7 +417,7 @@ export default function NotesPage() {
                                 border: '2px solid transparent',
                             }}
                             onMouseOver={(e) => {
-                                e.currentTarget.style.borderColor = '#8B5CF6';
+                                e.currentTarget.style.borderColor = '#00D4FF';
                                 e.currentTarget.style.transform = 'translateY(-4px)';
                             }}
                             onMouseOut={(e) => {
@@ -464,7 +436,7 @@ export default function NotesPage() {
                                     {new Date(note.createdAt).toLocaleDateString()}
                                 </span>
                                 {note.flashCards && note.flashCards.length > 0 && (
-                                    <span style={{ ...typography.text, fontSize: '12px', color: '#8B5CF6', fontWeight: 600 }}>
+                                    <span style={{ ...typography.text, fontSize: '12px', color: '#00D4FF', fontWeight: 600 }}>
                                         🎴 {note.flashCards.length} cards
                                     </span>
                                 )}

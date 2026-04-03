@@ -156,7 +156,7 @@ export default function NumericalMasteryPage() {
               <div>
                 <h1 style={{
                   fontSize: 34, fontWeight: 900, margin: 0, letterSpacing: -0.5,
-                  background: "linear-gradient(135deg, #3B82F6, #06B6D4, #8B5CF6)",
+                  background: "linear-gradient(135deg, #3B82F6, #06B6D4, #00D4FF)",
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                   lineHeight: 1.2,
                 }}>
@@ -670,7 +670,7 @@ export default function NumericalMasteryPage() {
         }}>
           <span style={{ fontSize: 22, flexShrink: 0 }}>💡</span>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#8B5CF6", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>Pro Tip</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#00D4FF", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>Pro Tip</div>
             <p style={{ fontSize: 13, color: "#C4B5FD", margin: 0, lineHeight: 1.7 }}>
               {selectedTopic.aiTip}
             </p>
@@ -728,7 +728,7 @@ export default function NumericalMasteryPage() {
                 color: !isMastered
                   ? "#4B5563"
                   : isLastTopic
-                  ? "#A78BFA"
+                  ? "#33DFFF"
                   : "#60A5FA",
                 transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,

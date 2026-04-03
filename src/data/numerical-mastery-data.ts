@@ -305,7 +305,7 @@ export const numericalMasteryData: NumericalChapter[] = [
     id: "light",
     name: "Light",
     icon: "💡",
-    color: "#8B5CF6",
+    color: "#00D4FF",
     topics: [
       {
         id: "refractive-index",

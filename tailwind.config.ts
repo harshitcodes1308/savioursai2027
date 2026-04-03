@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#8B5CF6", // Futuristic Purple (Violet 500)
-        "primary-glow": "#A78BFA", // Lighter lavender for glows
+        primary: "#00D4FF", // Electric Cyan
+        "primary-glow": "#33DFFF", // Lighter cyan for glows
         background: "#030303", // Deep Void Black
         card: {
           dark: "#0E0E10", // Soft Graphite
@@ -20,8 +20,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["DM Sans", "sans-serif"],
-        display: ["Manrope", "sans-serif"],
+        sans: ["SF Pro Text", "SF Pro Display", "-apple-system", "BlinkMacSystemFont", "Inter", "DM Sans", "Helvetica Neue", "sans-serif"],
+        display: ["SF Pro Display", "-apple-system", "BlinkMacSystemFont", "Inter", "Helvetica Neue", "sans-serif"],
       },
       borderRadius: {
         "2xl": "1rem",

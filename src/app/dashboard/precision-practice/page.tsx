@@ -305,7 +305,7 @@ export default function CompetencyTestPage() {
   // =============================================
   if (phase === "subject") {
     return (
-      <div style={{ padding: isMobile ? "16px" : "32px 24px", maxWidth: 1000, margin: "0 auto", boxSizing: "border-box" as const, overflowX: "hidden" as const }}>
+      <div style={{ padding: isMobile ? "16px" : "32px 24px", maxWidth: 1000, margin: "0 auto", boxSizing: "border-box" as const, overflowX: "hidden" as const, minHeight: "100vh", background: "var(--bg-base)" }}>
         {/* Hero */}
         <div
           style={{
@@ -333,7 +333,7 @@ export default function CompetencyTestPage() {
               <div>
                 <h1 style={{
                   fontSize: 30, fontWeight: 900, margin: 0,
-                  background: "linear-gradient(135deg, #F59E0B, #EF4444, #8B5CF6)",
+                  background: "linear-gradient(135deg, #F59E0B, #EF4444, #00D4FF)",
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                 }}>
                   Competency Based Test
@@ -375,7 +375,7 @@ export default function CompetencyTestPage() {
           {[
             { marks: "1 Mark", time: "60s", color: "#10B981" },
             { marks: "2 Marks", time: "2m 30s", color: "#3B82F6" },
-            { marks: "3 Marks", time: "4m", color: "#8B5CF6" },
+            { marks: "3 Marks", time: "4m", color: "#00D4FF" },
             { marks: "4 Marks", time: "5m 30s", color: "#F59E0B" },
           ].map((r) => (
             <div key={r.marks} style={{
@@ -562,7 +562,7 @@ export default function CompetencyTestPage() {
     return (
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-        background: "radial-gradient(ellipse at center, #0E0E1A 0%, #030303 100%)",
+        background: "var(--bg-base)",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         zIndex: 1000,
       }}>
@@ -610,15 +610,15 @@ export default function CompetencyTestPage() {
     const progress = ((currentIdx + 1) / questions.length) * 100;
 
     return (
-      <div style={{ minHeight: "100vh", background: "#030303" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg-base)" }}>
         {/* Top Bar */}
         <div style={{
           position: "sticky", top: 0, zIndex: 50,
           background: isCritical
-            ? "linear-gradient(135deg, #1A0808, #120505)"
+            ? "rgba(239,68,68,0.08)"
             : isOvertime
-            ? "linear-gradient(135deg, #1A1408, #120E04)"
-            : "linear-gradient(135deg, #0E0E1A, #0A0A14)",
+            ? "rgba(245,158,11,0.08)"
+            : "var(--bg-surface)",
           borderBottom: `1px solid ${isCritical ? "rgba(239,68,68,0.4)" : isOvertime ? "rgba(245,158,11,0.3)" : "rgba(255,255,255,0.06)"}`,
           padding: "12px 24px",
           display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -634,7 +634,7 @@ export default function CompetencyTestPage() {
             <span style={{
               background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.2)",
               padding: "5px 12px", borderRadius: 8,
-              fontSize: 12, fontWeight: 700, color: "#8B5CF6",
+              fontSize: 12, fontWeight: 700, color: "#00D4FF",
             }}>
               {q.marks} {q.marks === 1 ? "Mark" : "Marks"}
             </span>
@@ -666,7 +666,7 @@ export default function CompetencyTestPage() {
         <div style={{ height: 3, background: "rgba(255,255,255,0.04)" }}>
           <div style={{
             height: "100%", width: `${progress}%`,
-            background: "linear-gradient(90deg, #F59E0B, #EF4444, #8B5CF6)",
+            background: "linear-gradient(90deg, #F59E0B, #EF4444, #00D4FF)",
             borderRadius: 2, transition: "width 0.5s ease",
           }} />
         </div>
@@ -841,7 +841,7 @@ export default function CompetencyTestPage() {
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20,
         }}>
           {[
-            { label: "Raw Score", value: `${result.rawScore}%`, color: "#8B5CF6", icon: "📊" },
+            { label: "Raw Score", value: `${result.rawScore}%`, color: "#00D4FF", icon: "📊" },
             { label: "Accuracy", value: `${result.accuracy}%`, color: "#10B981", icon: "🎯" },
             { label: "Time Efficiency", value: `${result.timeEfficiencyScore}%`, color: "#3B82F6", icon: "⏱" },
           ].map((card) => (
@@ -937,14 +937,14 @@ export default function CompetencyTestPage() {
           border: "1px solid rgba(139,92,246,0.15)",
           borderRadius: 18, padding: "22px", marginBottom: 28,
         }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#8B5CF6", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: "#00D4FF", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 16 }}>🧠</span> AI Insights
           </h3>
           {result.insights.map((insight, idx) => (
             <div key={idx} style={{
               display: "flex", gap: 10, marginBottom: 10,
               padding: "14px 16px", background: "rgba(0,0,0,0.25)",
-              borderRadius: 12, borderLeft: "3px solid #8B5CF6",
+              borderRadius: 12, borderLeft: "3px solid #00D4FF",
             }}>
               <span style={{ fontSize: 14, flexShrink: 0 }}>💡</span>
               <span style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.6 }}>{insight}</span>
@@ -1010,7 +1010,7 @@ export default function CompetencyTestPage() {
           }}>🔄 Retry Chapter</button>
           <button onClick={resetAll} style={{
             padding: "16px 36px",
-            background: "rgba(139,92,246,0.1)", color: "#8B5CF6",
+            background: "rgba(139,92,246,0.1)", color: "#00D4FF",
             border: "1px solid rgba(139,92,246,0.2)", borderRadius: 14,
             fontSize: 15, fontWeight: 700, cursor: "pointer",
             transition: "all 0.3s",

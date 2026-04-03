@@ -83,7 +83,7 @@ export default function SubjectChaptersPage() {
                                 padding: "4px 12px",
                                 borderRadius: "16px",
                                 fontSize: "12px",
-                                color: "#8B5CF6",
+                                color: "#00D4FF",
                                 fontWeight: "600"
                             }}>
                                 📝 Notes coming soon

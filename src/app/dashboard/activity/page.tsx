@@ -76,7 +76,7 @@ export default function ActivityPage() {
                                         <div style={{
                                             fontSize: "24px",
                                             fontWeight: "700",
-                                            color: percentage === 100 ? "#10B981" : "#8B5CF6"
+                                            color: percentage === 100 ? "#10B981" : "#00D4FF"
                                         }}>
                                             {percentage}%
                                         </div>

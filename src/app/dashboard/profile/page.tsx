@@ -61,13 +61,15 @@ export default function ProfilePage() {
                         width: '96px',
                         height: '96px',
                         borderRadius: '50%',
-                        backgroundColor: '#8B5CF6',
+                        background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,180,220,0.12))',
+                        border: '1.5px solid rgba(0,212,255,0.3)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
+                        backdropFilter: 'blur(12px)',
                     }}>
-                        <span style={{ ...typography.display, fontSize: '36px', fontWeight: 700, color: '#FFF' }}>
+                        <span style={{ ...typography.display, fontSize: '36px', fontWeight: 700, color: 'var(--accent-gold)' }}>
                             {initials}
                         </span>
                     </div>
@@ -127,14 +129,10 @@ export default function ProfilePage() {
                                     </button>
                                     <button
                                         onClick={() => setIsEditing(false)}
+                                        className="btn-ghost"
                                         style={{
                                             ...typography.text,
                                             padding: '8px 16px',
-                                            backgroundColor: '#374151',
-                                            color: '#FFF',
-                                            border: 'none',
-                                            borderRadius: '6px',
-                                            cursor: 'pointer',
                                         }}
                                     >
                                         Cancel
@@ -155,14 +153,11 @@ export default function ProfilePage() {
                                         setEmail(user?.email || '');
                                         setIsEditing(true);
                                     }}
+                                    className="btn-gold"
                                     style={{
                                         ...typography.text,
                                         padding: '8px 16px',
-                                        backgroundColor: '#8B5CF6',
-                                        color: '#FFF',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        cursor: 'pointer',
+                                        fontSize: '14px',
                                     }}
                                 >
                                     Edit Profile
@@ -202,7 +197,7 @@ export default function ProfilePage() {
 
                         <div className="dashboard-card" style={{ padding: '24px' }}>
                             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📚</div>
-                            <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px', color: '#8B5CF6' }}>
+                            <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px', color: '#00D4FF' }}>
                                 {stats.subjectsStudied.length}
                             </div>
                             <div style={{ ...typography.text, fontSize: '14px', color: '#9CA3AF' }}>
@@ -297,13 +292,10 @@ export default function ProfilePage() {
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                         <a
                             href="/dashboard/tests"
+                            className="btn-gold"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#8B5CF6',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
                                 textDecoration: 'none',
                                 display: 'inline-block',
                                 fontWeight: 600,
@@ -313,13 +305,10 @@ export default function ProfilePage() {
                         </a>
                         <a
                             href="/dashboard/ai-assistant"
+                            className="btn-ghost"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#374151',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
                                 textDecoration: 'none',
                                 display: 'inline-block',
                                 fontWeight: 600,

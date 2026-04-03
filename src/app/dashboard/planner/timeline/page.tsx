@@ -20,14 +20,10 @@ export default function TimelineViewPage() {
                 <h2 style={{ color: "#FFFFFF", marginBottom: "16px" }}>No Study Plan Yet</h2>
                 <button
                     onClick={() => router.push("/dashboard/planner")}
+                    className="btn-gold"
                     style={{
                         padding: "12px 24px",
-                        backgroundColor: "#8B5CF6",
-                        color: "#FFFFFF",
-                        border: "none",
-                        borderRadius: "8px",
                         fontWeight: "600",
-                        cursor: "pointer",
                     }}
                 >
                     Create Study Plan
@@ -59,15 +55,11 @@ export default function TimelineViewPage() {
                     </h1>
                     <button
                         onClick={() => router.push("/dashboard/planner")}
+                        className="btn-ghost"
                         style={{
                             padding: "8px 16px",
-                            backgroundColor: "#374151",
-                            color: "#FFFFFF",
-                            border: "none",
-                            borderRadius: "6px",
                             fontSize: "13px",
                             fontWeight: "600",
-                            cursor: "pointer",
                         }}
                     >
                         ← Back to Planner
@@ -143,7 +135,7 @@ export default function TimelineViewPage() {
                                                 <div style={{ fontSize: "12px", color: "#9CA3AF", marginBottom: "6px" }}>
                                                     {plan.subject?.icon} {plan.subject?.name || "Subject"}
                                                 </div>
-                                                <div style={{ fontSize: "12px", color: "#8B5CF6" }}>
+                                                <div style={{ fontSize: "12px", color: "#00D4FF" }}>
                                                     {getDifficultyStars(plan.difficulty || 3)}
                                                 </div>
                                             </div>

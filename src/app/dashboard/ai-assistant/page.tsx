@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
-import { typography } from "@/lib/typography";
 import ReactMarkdown from "react-markdown";
 import "../markdown-styles.css";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
+import { canAccess, getUserPlan, AI_DOUBT_FREE_LIMIT } from "@/lib/planAccess";
 
 interface Message {
     role: "user" | "assistant";
@@ -22,20 +22,25 @@ interface Message {
 }
 
 export default function AIAssistantPage() {
-    const { isMobile, isTablet } = useResponsive();
+    const { isMobile } = useResponsive();
+    const { data: session } = trpc.auth.getSession.useQuery();
+    const user = session?.user as any;
+    const userPlan = getUserPlan(!!user?.isPaid, user?.planType);
+    const canUseAI = canAccess("aiDoubtSolver", userPlan);
 
     const [messages, setMessages] = useState<Message[]>([
         {
             role: "assistant",
-            content: "Hi! I'm your ICSE AI tutor. Ask me anything about your subjects, doubts, or study strategies!",
+            content: "Hi! I'm your ICSE AI tutor. Ask me anything about your Class X subjects.",
         },
     ]);
-    const [uploadedFile, setUploadedFile] = useState<{ type: 'image' | 'pdf'; data: string; name: string } | null>(null);
+    const [dailyCount, setDailyCount] = useState(0);
+    const [uploadedFile, setUploadedFile] = useState<{ type: "image" | "pdf"; data: string; name: string } | null>(null);
     const [input, setInput] = useState("");
     const [subject, setSubject] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Flashcard State
+    // Flashcard state
     const [mode, setMode] = useState<"chat" | "flashcards_setup" | "flashcards_active" | "flashcards_summary">("chat");
     const [flashcardInput, setFlashcardInput] = useState("");
     const [flashcards, setFlashcards] = useState<any[]>([]);
@@ -46,11 +51,8 @@ export default function AIAssistantPage() {
     const [feedbackState, setFeedbackState] = useState<"idle" | "correct" | "wrong">("idle");
     const setupRef = useRef<HTMLInputElement>(null);
 
-
-    // Mutations
     const generateFlashcards = trpc.ai.generateFlashcards.useMutation({
         onSuccess: (data) => {
-            console.log("Flashcard mutation success:", data);
             if (data.flashcards && data.flashcards.length > 0) {
                 setFlashcards(data.flashcards);
                 setMode("flashcards_active");
@@ -58,29 +60,16 @@ export default function AIAssistantPage() {
                 setScore(0);
                 setAttempts(0);
                 setFeedbackState("idle");
-            } else {
-                console.warn("No flashcards returned in data");
-                alert("Could not generate flashcards. Please try a different topic.");
             }
         },
-        onError: (err) => {
-            console.error("Flashcard mutation error:", err);
-            alert(`Error generating flashcards: ${err.message}`);
-        }
+        onError: (err) => alert(`Error: ${err.message}`),
     });
 
-    const handleGenerateFlashcards = () => {
-        generateFlashcards.mutate({ topics: flashcardInput, subject: subject || undefined });
-    };
-
-    // Flashcard Handlers
     const handleOptionClick = (option: string) => {
         if (feedbackState !== "idle") return;
-
         setSelectedOption(option);
-        const currentCard = flashcards[currentCardIndex];
-
-        if (option === currentCard.correctAnswer) {
+        const card = flashcards[currentCardIndex];
+        if (option === card.correctAnswer) {
             setFeedbackState("correct");
             if (attempts === 0) setScore(s => s + 1);
         } else {
@@ -90,7 +79,7 @@ export default function AIAssistantPage() {
 
     const handleNextCard = () => {
         if (currentCardIndex < flashcards.length - 1) {
-            setCurrentCardIndex(prev => prev + 1);
+            setCurrentCardIndex(i => i + 1);
             setAttempts(0);
             setFeedbackState("idle");
             setSelectedOption(null);
@@ -101,232 +90,224 @@ export default function AIAssistantPage() {
 
     const askMutation = trpc.ai.askDoubt.useMutation({
         onSuccess: (data) => {
-            setMessages((prev) => [
-                ...prev,
-                {
-                    role: "assistant",
-                    content: data.response,
-                    videos: data.videos,
-                },
-            ]);
+            setMessages(prev => [...prev, { role: "assistant", content: data.response, videos: data.videos }]);
+            setDailyCount(c => c + 1);
         },
-        onError: (error) => {
-            setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: `Error: ${error.message}` },
-            ]);
+        onError: (err) => {
+            setMessages(prev => [...prev, { role: "assistant", content: `Error: ${err.message}` }]);
         },
     });
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
     useEffect(() => {
-        scrollToBottom();
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        const fileType = file.type;
-
-        if (fileType.startsWith('image/')) {
-            // Handle image
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setUploadedFile({
-                    type: 'image',
-                    data: e.target?.result as string,
-                    name: file.name
-                });
+        const reader = new FileReader();
+        if (file.type.startsWith("image/")) {
+            reader.onload = ev => setUploadedFile({ type: "image", data: ev.target?.result as string, name: file.name });
+            reader.readAsDataURL(file);
+        } else if (file.type === "application/pdf") {
+            reader.onload = ev => {
+                const base64 = (ev.target?.result as string).split(",")[1];
+                setUploadedFile({ type: "pdf", data: base64, name: file.name });
             };
             reader.readAsDataURL(file);
-        } else if (fileType === 'application/pdf') {
-            // Handle PDF
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64 = (e.target?.result as string).split(',')[1];
-                setUploadedFile({
-                    type: 'pdf',
-                    data: base64,
-                    name: file.name
-                });
-            };
-            reader.readAsDataURL(file);
-        } else {
-            alert('Please upload only images or PDF files');
         }
     };
 
+    const hitFreeLimit = userPlan === "free" && dailyCount >= AI_DOUBT_FREE_LIMIT;
+
     const handleSend = () => {
-        if (!input.trim()) return;
-
-        const userMessage: Message = { role: "user", content: input };
-        setMessages((prev) => [...prev, userMessage]);
-
-        askMutation.mutate({
-            question: input,
-            subject: subject || undefined,
-            conversation: messages,
-        });
-
+        if (!input.trim() || hitFreeLimit) return;
+        setMessages(prev => [...prev, { role: "user", content: input }]);
+        askMutation.mutate({ question: input, subject: subject || undefined, conversation: messages });
         setInput("");
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    };
+    const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History & Civics", "Geography"];
 
     return (
-        <div style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1000px", margin: "0 auto", height: "calc(100vh - 64px)", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.03) 0%, transparent 50%), #030303", overflowX: "hidden" as const, boxSizing: "border-box" as const }}>
-            {/* Header */}
-            <div className="dashboard-card animate-fadeIn" style={{
-                padding: isMobile ? "12px 14px" : "16px 28px",
-                marginBottom: isMobile ? "12px" : "20px",
+        <div style={{
+            height: isMobile ? "calc(100vh - 128px)" : "100vh",
+            display: "flex",
+            flexDirection: "column",
+            background: "var(--bg-base)",
+            padding: isMobile ? "12px" : "24px",
+            boxSizing: "border-box",
+        }}>
+
+            {/* ── Header ── */}
+            <div style={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: isMobile ? "flex-start" : "center",
-                borderRadius: "18px",
-                flexDirection: isMobile ? "column" : "row",
-                gap: isMobile ? 10 : 0,
+                alignItems: "center",
+                marginBottom: 16,
+                padding: "14px 20px",
+                background: "var(--bg-surface)",
+                border: "1px solid var(--bg-border)",
+                borderRadius: 14,
+                flexWrap: "wrap",
+                gap: 10,
             }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: mode === "chat" ? "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.05))" : "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{mode === "chat" ? "🤖" : "⚡"}</div>
-                    <h1 style={{ fontSize: "18px", fontWeight: 800, margin: 0, background: "linear-gradient(135deg, #FFF, #A78BFA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.3 }}>
-                        {mode === "chat" ? "AI Tutor" : "Flashcard Review"}
-                    </h1>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 20 }}>◈</span>
+                    <div>
+                        <div style={{
+                            fontFamily: "var(--font-display)",
+                            fontSize: 18,
+                            fontWeight: 700,
+                            color: "var(--text-primary)",
+                            letterSpacing: "-0.02em",
+                        }}>
+                            {mode === "chat" ? "AI Doubt Solver" : "Flashcard Review"}
+                        </div>
+                        {userPlan === "free" && (
+                            <div style={{
+                                fontFamily: "var(--font-body)",
+                                fontSize: 11,
+                                color: dailyCount >= AI_DOUBT_FREE_LIMIT ? "var(--status-red, #ef4444)" : "var(--text-muted)",
+                            }}>
+                                {dailyCount}/{AI_DOUBT_FREE_LIMIT} free queries used today
+                            </div>
+                        )}
+                    </div>
                 </div>
-                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     {mode === "chat" && (
                         <select
                             value={subject}
-                            onChange={(e) => setSubject(e.target.value)}
+                            onChange={e => setSubject(e.target.value)}
                             style={{
-                                padding: "6px 12px",
-                                borderRadius: "10px",
-                                background: "rgba(255,255,255,0.03)",
-                                border: "1px solid rgba(255,255,255,0.06)",
-                                color: "#FFFFFF",
-                                fontSize: "12px",
+                                padding: "7px 12px",
+                                borderRadius: 8,
+                                background: "var(--bg-base)",
+                                border: "1px solid var(--bg-border)",
+                                color: "var(--text-secondary)",
+                                fontSize: 12,
+                                fontFamily: "var(--font-body)",
                                 outline: "none",
                             }}
                         >
                             <option value="">All Subjects</option>
-                            <option value="Mathematics">Mathematics</option>
-                            <option value="Physics">Physics</option>
-                            <option value="Chemistry">Chemistry</option>
-                            <option value="Biology">Biology</option>
-                            <option value="English">English</option>
+                            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                     )}
                     <button
                         onClick={() => {
                             if (mode === "chat") {
                                 setMode("flashcards_setup");
-                                setTimeout(() => {
-                                    if (setupRef.current) setupRef.current.focus();
-                                }, 100);
+                                setTimeout(() => setupRef.current?.focus(), 100);
                             } else {
                                 setMode("chat");
                             }
                         }}
-                        style={{
-                            padding: "8px 16px",
-                            background: mode === "chat" ? "linear-gradient(135deg, #8B5CF6, #7C3AED)" : "rgba(255,255,255,0.05)",
-                            color: "#FFFFFF",
-                            borderRadius: "10px",
-                            border: mode === "chat" ? "none" : "1px solid rgba(255,255,255,0.08)",
-                            fontWeight: 600,
-                            fontSize: "12px",
-                            cursor: "pointer",
-                            boxShadow: mode === "chat" ? "0 4px 12px rgba(139,92,246,0.25)" : "none",
-                            transition: "all 0.3s ease",
-                        }}
+                        className="btn-gold"
+                        style={{ fontSize: 12, padding: "8px 16px", borderRadius: 8 }}
                     >
-                        {mode === "chat" ? "⚡ Start Review" : "💬 Back to Chat"}
+                        {mode === "chat" ? "⚡ Review" : "← Chat"}
                     </button>
                 </div>
             </div>
 
-            {/* CHAT MODE */}
+            {/* ── Chat Mode ── */}
             {mode === "chat" && (
                 <>
-                    <div
-                        className="dashboard-card"
-                        style={{
-                            flex: 1,
-                            padding: "20px",
-                            marginBottom: "12px",
-                            overflowY: "auto",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "14px",
-                            borderRadius: "18px",
-                        }}
-                    >
-                        {messages.map((message, index) => (
-                            <div key={index}>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: message.role === "user" ? "flex-end" : "flex-start",
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            maxWidth: "75%",
-                                            padding: "14px 18px",
-                                            borderRadius: message.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-                                            background: message.role === "user" 
-                                                ? "linear-gradient(135deg, #8B5CF6, #7C3AED)" 
-                                                : "rgba(255,255,255,0.03)",
-                                            border: message.role === "user" ? "none" : "1px solid rgba(255,255,255,0.04)",
-                                            color: "#FFFFFF",
-                                            boxShadow: message.role === "user" ? "0 4px 16px rgba(139,92,246,0.2)" : "none",
-                                        }}
-                                    >
-                                        {message.role === "assistant" && (
-                                            <div style={{ fontSize: "18px", marginBottom: "8px" }}>🤖</div>
+                    <div style={{
+                        flex: 1,
+                        overflowY: "auto",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 12,
+                        padding: "4px 0",
+                        marginBottom: 12,
+                    }}>
+                        {messages.map((msg, i) => (
+                            <div key={i}>
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
+                                }}>
+                                    <div style={{
+                                        maxWidth: "78%",
+                                        padding: "12px 16px",
+                                        borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                                        background: msg.role === "user"
+                                            ? "var(--accent-gold)"
+                                            : "var(--bg-surface)",
+                                        border: msg.role === "user" ? "none" : "1px solid var(--bg-border)",
+                                        color: msg.role === "user" ? "var(--bg-base)" : "var(--text-primary)",
+                                        fontFamily: "var(--font-body)",
+                                        fontSize: 14,
+                                        lineHeight: 1.6,
+                                    }}>
+                                        {msg.role === "assistant" && (
+                                            <div style={{
+                                                fontFamily: "var(--font-body)",
+                                                fontSize: 10,
+                                                fontWeight: 700,
+                                                color: "var(--accent-gold)",
+                                                letterSpacing: "0.1em",
+                                                textTransform: "uppercase",
+                                                marginBottom: 8,
+                                            }}>
+                                                AI Tutor
+                                            </div>
                                         )}
-                                        <div className="markdown-content" style={{ fontSize: "14px", lineHeight: "1.5" }}>
-                                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                                        <div className="markdown-content">
+                                            <ReactMarkdown>{msg.content}</ReactMarkdown>
                                         </div>
                                     </div>
                                 </div>
-                                {message.role === "assistant" && message.videos !== undefined && (
-                                    <div style={{ marginTop: "12px", marginLeft: "0" }}>
-                                        {message.videos.length > 0 && (
-                                            <div style={{ fontSize: "13px", color: "#9CA3AF", marginBottom: "8px", fontWeight: "600" }}>
-                                                📺 Recommended Videos:
-                                            </div>
-                                        )}
-                                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                                            {message.videos.map((video) => (
+
+                                {/* Video recommendations */}
+                                {msg.role === "assistant" && msg.videos && msg.videos.length > 0 && (
+                                    <div style={{ marginTop: 10, maxWidth: "78%" }}>
+                                        <div style={{
+                                            fontFamily: "var(--font-body)",
+                                            fontSize: 11,
+                                            fontWeight: 600,
+                                            color: "var(--text-muted)",
+                                            letterSpacing: "0.08em",
+                                            textTransform: "uppercase",
+                                            marginBottom: 8,
+                                        }}>
+                                            Recommended videos
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                            {msg.videos.map(v => (
                                                 <a
-                                                    key={video.videoId}
-                                                    href={video.url}
+                                                    key={v.videoId}
+                                                    href={v.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     style={{
                                                         display: "flex",
-                                                        gap: "12px",
-                                                        backgroundColor: "#131316",
-                                                        borderRadius: "8px",
-                                                        padding: "8px",
+                                                        gap: 10,
+                                                        background: "var(--bg-surface)",
+                                                        border: "1px solid var(--bg-border)",
+                                                        borderRadius: 10,
+                                                        padding: 8,
                                                         textDecoration: "none",
-                                                        transition: "all 0.2s",
-                                                        border: "1px solid #1F1F22",
                                                     }}
                                                 >
-                                                    <img src={video.thumbnail} alt={video.title} style={{ width: "120px", height: "68px", borderRadius: "6px", objectFit: "cover" }} />
-                                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                                        <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFFFFF", marginBottom: "4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{video.title}</div>
-                                                        <div style={{ fontSize: "11px", color: "#8B5CF6" }}>{video.channelTitle}</div>
+                                                    <img src={v.thumbnail} alt={v.title} style={{ width: 100, height: 56, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />
+                                                    <div style={{ minWidth: 0 }}>
+                                                        <div style={{
+                                                            fontFamily: "var(--font-body)",
+                                                            fontSize: 13, fontWeight: 600,
+                                                            color: "var(--text-primary)",
+                                                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                                                            marginBottom: 3,
+                                                        }}>
+                                                            {v.title}
+                                                        </div>
+                                                        <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--accent-gold)" }}>
+                                                            {v.channelTitle}
+                                                        </div>
                                                     </div>
                                                 </a>
                                             ))}
@@ -335,78 +316,136 @@ export default function AIAssistantPage() {
                                 )}
                             </div>
                         ))}
-                        {/* Thinking Indicator */}
+
                         {askMutation.isPending && (
-                            <div style={{ display: "flex", gap: "12px", marginBottom: "16px", padding: "16px" }}>
-                                <div style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#8B5CF6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", flexShrink: 0 }}>🤖</div>
-                                <div style={{ backgroundColor: "#1A1A1D", padding: "12px 16px", borderRadius: "16px 16px 16px 4px", color: "#9CA3AF", display: "flex", gap: "8px", alignItems: "center" }}>
-                                    <div className="thinking-dots"><span>●</span><span>●</span><span>●</span></div>
-                                    <span>Thinking...</span>
-                                </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px" }}>
+                                <div style={{
+                                    width: 8, height: 8, borderRadius: "50%",
+                                    background: "var(--accent-gold)",
+                                    animation: "pulse 1s ease-in-out infinite",
+                                }} />
+                                <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)" }}>
+                                    Thinking...
+                                </span>
                             </div>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Chat Input */}
-                    <div style={{ padding: "16px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-                        {/* File Preview */}
+                    {/* Free limit wall */}
+                    {hitFreeLimit && (
+                        <div style={{
+                            padding: "14px 18px",
+                            background: "rgba(0,212,255,0.06)",
+                            border: "1px solid rgba(0,212,255,0.2)",
+                            borderRadius: 12,
+                            marginBottom: 12,
+                            fontFamily: "var(--font-body)",
+                            fontSize: 13,
+                            color: "var(--accent-gold)",
+                            textAlign: "center",
+                        }}>
+                            You've used all {AI_DOUBT_FREE_LIMIT} free daily queries. Upgrade for unlimited access.
+                        </div>
+                    )}
+
+                    {/* Input */}
+                    <div style={{
+                        background: "var(--bg-surface)",
+                        border: "1px solid var(--bg-border)",
+                        borderRadius: 14,
+                        padding: "12px 14px",
+                    }}>
                         {uploadedFile && (
-                            <div style={{ marginBottom: "12px", padding: "12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                    {uploadedFile.type === 'image' ? (
-                                        <img src={uploadedFile.data} alt="Uploaded" style={{ maxWidth: "60px", maxHeight: "60px", borderRadius: "4px" }} />
-                                    ) : (
-                                        <span style={{ fontSize: "32px" }}>📄</span>
-                                    )}
-                                    <div>
-                                        <div style={{ fontSize: "13px", fontWeight: 600, color: "#FFFFFF" }}>{uploadedFile.name}</div>
-                                        <div style={{ fontSize: "11px", color: "#9CA3AF" }}>{uploadedFile.type === 'image' ? 'Image' : 'PDF'}</div>
-                                    </div>
-                                </div>
-                                <button onClick={() => setUploadedFile(null)} style={{ padding: "4px 12px", backgroundColor: "#EF4444", color: "#FFF", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Remove</button>
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                                marginBottom: 10,
+                                padding: "8px 10px",
+                                background: "var(--bg-base)",
+                                border: "1px solid var(--bg-border)",
+                                borderRadius: 8,
+                            }}>
+                                {uploadedFile.type === "image" ? (
+                                    <img src={uploadedFile.data} alt="Upload" style={{ width: 40, height: 40, borderRadius: 4, objectFit: "cover" }} />
+                                ) : (
+                                    <span style={{ fontSize: 24 }}>📄</span>
+                                )}
+                                <span style={{ flex: 1, fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-secondary)" }}>{uploadedFile.name}</span>
+                                <button
+                                    onClick={() => setUploadedFile(null)}
+                                    style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 16 }}
+                                >
+                                    ✕
+                                </button>
                             </div>
                         )}
-
-                        <div style={{ display: "flex", gap: "12px" }}>
-                            {/* File Upload Button */}
-                            <input type="file" accept="image/*,.pdf" onChange={handleFileUpload} style={{ display: "none" }} id="file-upload-btn" />
-                            <label htmlFor="file-upload-btn" style={{ padding: "12px", backgroundColor: "#374151", color: "#FFF", borderRadius: "8px", cursor: "pointer", fontSize: "18px", display: "flex", alignItems: "center", justifyContent: "center", width: "48px", height: "48px", flexShrink: 0 }} title="Upload image or PDF">📎</label>
-
+                        <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
                             <input
-                                type="text"
+                                type="file"
+                                accept="image/*,.pdf"
+                                onChange={handleFileUpload}
+                                style={{ display: "none" }}
+                                id="file-upload"
+                            />
+                            <label
+                                htmlFor="file-upload"
+                                style={{
+                                    width: 38, height: 38,
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    background: "var(--bg-base)",
+                                    border: "1px solid var(--bg-border)",
+                                    borderRadius: 8,
+                                    cursor: "pointer",
+                                    fontSize: 16,
+                                    flexShrink: 0,
+                                    color: "var(--text-muted)",
+                                }}
+                                title="Attach image or PDF"
+                            >
+                                📎
+                            </label>
+                            <textarea
                                 value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Ask a question or upload a file..."
-                                disabled={askMutation.isPending}
+                                onChange={e => setInput(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSend();
+                                    }
+                                }}
+                                placeholder={hitFreeLimit ? "Upgrade to continue asking..." : "Ask about any ICSE topic..."}
+                                disabled={askMutation.isPending || hitFreeLimit}
+                                rows={1}
                                 style={{
                                     flex: 1,
-                                    padding: "13px 16px",
-                                    borderRadius: "14px",
-                                    background: "rgba(255,255,255,0.03)",
-                                    border: "1px solid rgba(255,255,255,0.06)",
-                                    color: "#FFFFFF",
-                                    fontSize: "14px",
+                                    padding: "10px 12px",
+                                    borderRadius: 8,
+                                    background: "var(--bg-base)",
+                                    border: "1px solid var(--bg-border)",
+                                    color: "var(--text-primary)",
+                                    fontFamily: "var(--font-body)",
+                                    fontSize: 14,
                                     outline: "none",
-                                    transition: "all 0.3s ease",
+                                    resize: "none",
+                                    lineHeight: 1.5,
+                                    transition: "border-color 0.15s ease",
                                 }}
+                                onFocus={e => { e.currentTarget.style.borderColor = "var(--accent-gold-border)"; }}
+                                onBlur={e => { e.currentTarget.style.borderColor = "var(--bg-border)"; }}
                             />
                             <button
                                 onClick={handleSend}
-                                disabled={askMutation.isPending || !input.trim()}
+                                disabled={askMutation.isPending || !input.trim() || hitFreeLimit}
+                                className="btn-gold"
                                 style={{
-                                    padding: "12px 22px",
-                                    borderRadius: "14px",
-                                    background: askMutation.isPending || !input.trim() ? "rgba(139,92,246,0.3)" : "linear-gradient(135deg, #8B5CF6, #7C3AED)",
-                                    color: "#FFFFFF",
-                                    fontSize: "13px",
-                                    fontWeight: 700,
-                                    border: "none",
-                                    cursor: askMutation.isPending ? "not-allowed" : "pointer",
-                                    boxShadow: "0 4px 12px rgba(139,92,246,0.2)",
-                                    transition: "all 0.3s ease",
-                                    letterSpacing: 0.3,
+                                    padding: "10px 18px",
+                                    borderRadius: 8,
+                                    fontSize: 13,
+                                    opacity: (askMutation.isPending || !input.trim() || hitFreeLimit) ? 0.45 : 1,
+                                    cursor: (askMutation.isPending || !input.trim() || hitFreeLimit) ? "not-allowed" : "pointer",
+                                    flexShrink: 0,
                                 }}
                             >
                                 Send →
@@ -416,98 +455,89 @@ export default function AIAssistantPage() {
                 </>
             )}
 
-            {/* FLASHCARD SETUP MODE */}
+            {/* ── Flashcard Setup ── */}
             {mode === "flashcards_setup" && (
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                    <div className="dashboard-card" style={{ padding: "40px", maxWidth: "600px", width: "100%", textAlign: "center" }}>
-                        <div style={{ fontSize: "40px", marginBottom: "20px" }}>⚡</div>
-                        <h2 style={{ ...typography.display, fontSize: "24px", marginBottom: "12px" }}>What are the topics you studied today?</h2>
-                        <p style={{ ...typography.text, color: "#9CA3AF", marginBottom: "32px" }}>
-                            Enter the topics you studied and I'll generate 10 ICSE Class 10 questions to test your understanding.
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{
+                        background: "var(--bg-surface)",
+                        border: "1px solid var(--bg-border)",
+                        borderRadius: 20,
+                        padding: "48px 40px",
+                        maxWidth: 540,
+                        width: "100%",
+                        textAlign: "center",
+                    }}>
+                        <div style={{ fontFamily: "var(--font-sub)", fontSize: 36, color: "var(--accent-gold)", marginBottom: 20, opacity: 0.7 }}>⚡</div>
+                        <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 10 }}>
+                            Quick Review
+                        </h2>
+                        <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", marginBottom: 28, lineHeight: 1.6 }}>
+                            Enter the topics you studied today — I'll generate 10 Class X questions to test you.
                         </p>
-
                         <input
                             ref={setupRef}
                             type="text"
                             value={flashcardInput}
-                            onChange={(e) => setFlashcardInput(e.target.value)}
-                            placeholder="e.g. Newton's Laws of Motion, Chemical Bonding, Quadratic Equations"
-                            style={{
-                                width: "100%",
-                                padding: "16px",
-                                borderRadius: "12px",
-                                backgroundColor: "#131316",
-                                border: "1px solid #374151",
-                                color: "#FFFFFF",
-                                fontSize: "16px",
-                                marginBottom: "24px",
-                                outline: "none"
-                            }}
+                            onChange={e => setFlashcardInput(e.target.value)}
+                            placeholder="e.g. Newton's Laws, Ionic Bonding, Quadratic Equations"
+                            className="sa-input"
+                            style={{ marginBottom: 16, width: "100%", boxSizing: "border-box" }}
                         />
-
                         <button
-                            onClick={handleGenerateFlashcards}
+                            onClick={() => generateFlashcards.mutate({ topics: flashcardInput, subject: subject || undefined })}
                             disabled={generateFlashcards.isPending || !flashcardInput.trim()}
+                            className="btn-gold"
                             style={{
                                 width: "100%",
-                                padding: "16px",
-                                borderRadius: "12px",
-                                backgroundColor: "#8B5CF6",
-                                color: "#FFFFFF",
-                                fontSize: "16px",
-                                fontWeight: "700",
-                                border: "none",
-                                cursor: "pointer",
-                                opacity: generateFlashcards.isPending ? 0.7 : 1,
-                                transition: "transform 0.2s"
+                                padding: "14px",
+                                fontSize: 14,
+                                opacity: (generateFlashcards.isPending || !flashcardInput.trim()) ? 0.5 : 1,
+                                cursor: (generateFlashcards.isPending || !flashcardInput.trim()) ? "not-allowed" : "pointer",
                             }}
-                            onMouseEnter={e => e.currentTarget.style.transform = "scale(1.02)"}
-                            onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
                         >
-                            {generateFlashcards.isPending ? "Generating Questions..." : "Generate Flashcards"}
+                            {generateFlashcards.isPending ? "Generating..." : "Generate Questions →"}
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* FLASHCARD ACTIVE MODE */}
+            {/* ── Flashcard Active ── */}
             {mode === "flashcards_active" && flashcards.length > 0 && (
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ marginBottom: "24px", width: "100%", maxWidth: "600px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", color: "#9CA3AF", fontSize: "14px", fontWeight: "600" }}>
-                            <span>Question {currentCardIndex + 1} of {flashcards.length}</span>
-                            <span>Score: {score}</span>
+                    <div style={{ width: "100%", maxWidth: 640, marginBottom: 16 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)" }}>
+                            <span>Question {currentCardIndex + 1} / {flashcards.length}</span>
+                            <span style={{ color: "var(--accent-gold)", fontWeight: 600 }}>Score: {score}</span>
                         </div>
-                        <div style={{ height: "6px", backgroundColor: "#374151", borderRadius: "3px", overflow: "hidden" }}>
-                            <div style={{ width: `${((currentCardIndex + 1) / flashcards.length) * 100}%`, height: "100%", backgroundColor: "#8B5CF6", transition: "width 0.3s ease" }} />
+                        <div style={{ height: 4, background: "var(--bg-border)", borderRadius: 2, overflow: "hidden" }}>
+                            <div style={{
+                                width: `${((currentCardIndex + 1) / flashcards.length) * 100}%`,
+                                height: "100%",
+                                background: "var(--accent-gold)",
+                                transition: "width 0.3s ease",
+                            }} />
                         </div>
                     </div>
 
-                    <div className="dashboard-card" style={{ padding: "40px", maxWidth: "700px", width: "100%", position: "relative" }}>
-                        <h3 style={{ ...typography.display, fontSize: "22px", marginBottom: "32px", lineHeight: "1.4" }}>
+                    <div style={{
+                        background: "var(--bg-surface)",
+                        border: "1px solid var(--bg-border)",
+                        borderRadius: 20,
+                        padding: isMobile ? "24px 20px" : "36px",
+                        maxWidth: 640,
+                        width: "100%",
+                    }}>
+                        <h3 style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 28, lineHeight: 1.4 }}>
                             {flashcards[currentCardIndex].question}
                         </h3>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
                             {flashcards[currentCardIndex].options.map((option: string, idx: number) => {
-                                const isSelected = selectedOption === option;
                                 const isCorrect = option === flashcards[currentCardIndex].correctAnswer;
-                                const isWrongSelection = isSelected && !isCorrect;
-                                const showCorrect = (feedbackState === "correct" || (feedbackState === "wrong" && attempts >= 1)) && isCorrect;
-
-                                let bgColor = "#131316";
-                                let borderColor = "#374151";
-
-                                if (feedbackState === "correct" && isCorrect) {
-                                    bgColor = "rgba(16, 185, 129, 0.1)";
-                                    borderColor = "#10B981";
-                                } else if (feedbackState === "wrong" && isWrongSelection) {
-                                    bgColor = "rgba(239, 68, 68, 0.1)";
-                                    borderColor = "#EF4444";
-                                } else if (showCorrect) {
-                                    bgColor = "rgba(16, 185, 129, 0.1)";
-                                    borderColor = "#10B981";
-                                }
+                                const isSelected = selectedOption === option;
+                                const showCorrect = (feedbackState === "correct" && isCorrect) ||
+                                    (feedbackState === "wrong" && attempts >= 1 && isCorrect);
+                                const isWrong = isSelected && feedbackState === "wrong";
 
                                 return (
                                     <button
@@ -515,74 +545,69 @@ export default function AIAssistantPage() {
                                         onClick={() => handleOptionClick(option)}
                                         disabled={feedbackState !== "idle"}
                                         style={{
-                                            padding: "20px",
-                                            borderRadius: "12px",
-                                            backgroundColor: bgColor,
-                                            border: `1px solid ${borderColor}`,
-                                            color: "#FFFFFF",
+                                            padding: "16px 18px",
+                                            borderRadius: 12,
+                                            background: showCorrect
+                                                ? "rgba(34,197,94,0.1)"
+                                                : isWrong
+                                                ? "rgba(239,68,68,0.1)"
+                                                : "var(--bg-base)",
+                                            border: `1px solid ${showCorrect ? "rgba(34,197,94,0.4)" : isWrong ? "rgba(239,68,68,0.4)" : "var(--bg-border)"}`,
+                                            color: showCorrect ? "#22c55e" : isWrong ? "#ef4444" : "var(--text-primary)",
+                                            fontFamily: "var(--font-body)",
+                                            fontSize: 14,
                                             textAlign: "left",
-                                            fontSize: "16px",
                                             cursor: feedbackState === "idle" ? "pointer" : "default",
-                                            transition: "all 0.2s",
-                                            position: "relative"
+                                            transition: "all 0.15s ease",
                                         }}
                                     >
-                                        <span style={{ marginRight: "12px", fontWeight: "700", opacity: 0.5 }}>{String.fromCharCode(65 + idx)}.</span>
+                                        <span style={{ fontWeight: 700, opacity: 0.4, marginRight: 10 }}>
+                                            {String.fromCharCode(65 + idx)}.
+                                        </span>
                                         {option}
-                                        {feedbackState === "wrong" && isWrongSelection && (
-                                            <span style={{ position: "absolute", right: "12px", color: "#EF4444" }}>❌</span>
-                                        )}
-                                        {(feedbackState === "correct" && isCorrect || showCorrect) && (
-                                            <span style={{ position: "absolute", right: "12px", color: "#10B981" }}>✅</span>
-                                        )}
                                     </button>
                                 );
                             })}
                         </div>
 
                         {feedbackState !== "idle" && (
-                            <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid #374151" }}>
-                                <p style={{ ...typography.text, color: feedbackState === "correct" ? "#10B981" : "#EF4444", fontWeight: "600", marginBottom: "8px" }}>
-                                    {feedbackState === "correct" ? "🎉 Correct!" : attempts >= 1 ? "👀 The correct answer is highlighted." : "❌ Incorrect. Try one more time!"}
+                            <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid var(--bg-border)" }}>
+                                <p style={{
+                                    fontFamily: "var(--font-body)",
+                                    fontSize: 13, fontWeight: 600,
+                                    color: feedbackState === "correct" ? "#22c55e" : "#ef4444",
+                                    marginBottom: 8,
+                                }}>
+                                    {feedbackState === "correct" ? "Correct!" : attempts >= 1 ? "The correct answer is highlighted." : "Not quite. Try once more!"}
                                 </p>
-                                <p style={{ ...typography.text, color: "#9CA3AF", fontSize: "14px", marginBottom: "16px" }}>
+                                <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
                                     {flashcards[currentCardIndex].explanation}
                                 </p>
                                 {((feedbackState === "wrong" && attempts >= 1) || feedbackState === "correct") && (
                                     <button
                                         onClick={handleNextCard}
-                                        style={{
-                                            padding: "10px 24px",
-                                            backgroundColor: "#8B5CF6",
-                                            color: "#FFFFFF",
-                                            borderRadius: "8px",
-                                            border: "none",
-                                            fontWeight: "700",
-                                            cursor: "pointer",
-                                            float: "right"
-                                        }}
+                                        className="btn-gold"
+                                        style={{ float: "right", padding: "9px 20px", fontSize: 13, borderRadius: 8 }}
                                     >
-                                        {currentCardIndex < flashcards.length - 1 ? "Next Question →" : "Finish Review"}
+                                        {currentCardIndex < flashcards.length - 1 ? "Next →" : "Finish"}
                                     </button>
                                 )}
                                 {feedbackState === "wrong" && attempts < 1 && (
                                     <button
-                                        onClick={() => {
-                                            setFeedbackState("idle");
-                                            setAttempts(1);
-                                        }}
+                                        onClick={() => { setFeedbackState("idle"); setAttempts(1); }}
                                         style={{
-                                            padding: "10px 24px",
-                                            backgroundColor: "#374151",
-                                            color: "#FFFFFF",
-                                            borderRadius: "8px",
-                                            border: "none",
-                                            fontWeight: "600",
+                                            float: "right",
+                                            padding: "9px 20px",
+                                            borderRadius: 8,
+                                            background: "var(--bg-base)",
+                                            border: "1px solid var(--bg-border)",
+                                            color: "var(--text-secondary)",
+                                            fontFamily: "var(--font-body)",
+                                            fontSize: 13,
                                             cursor: "pointer",
-                                            float: "right"
                                         }}
                                     >
-                                        Try Again ↺
+                                        Try again ↺
                                     </button>
                                 )}
                             </div>
@@ -591,70 +616,54 @@ export default function AIAssistantPage() {
                 </div>
             )}
 
-            {/* FLASHCARD SUMMARY MODE */}
+            {/* ── Flashcard Summary ── */}
             {mode === "flashcards_summary" && (
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                    <div className="dashboard-card" style={{ padding: "48px", maxWidth: "500px", width: "100%", textAlign: "center" }}>
-                        <div style={{ fontSize: "64px", marginBottom: "24px" }}>
-                            {score >= 8 ? "🏆" : score >= 5 ? "👍" : "📚"}
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{
+                        background: "var(--bg-surface)",
+                        border: "1px solid var(--bg-border)",
+                        borderRadius: 20,
+                        padding: "48px 40px",
+                        maxWidth: 440,
+                        width: "100%",
+                        textAlign: "center",
+                    }}>
+                        <div style={{ fontFamily: "var(--font-display)", fontSize: 56, marginBottom: 20 }}>
+                            {score >= 8 ? "◈" : score >= 5 ? "◉" : "◎"}
                         </div>
-                        <h2 style={{ ...typography.display, fontSize: "32px", marginBottom: "8px", color: "#FFFFFF" }}>
-                            Review Complete!
+                        <h2 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 8 }}>
+                            Review Complete
                         </h2>
-                        <p style={{ ...typography.text, fontSize: "18px", color: "#9CA3AF", marginBottom: "32px" }}>
-                            You scored <span style={{ color: "#8B5CF6", fontWeight: "700" }}>{score} / {flashcards.length}</span>
+                        <p style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "var(--text-muted)", marginBottom: 32 }}>
+                            You scored{" "}
+                            <span style={{ color: "var(--accent-gold)", fontWeight: 700 }}>
+                                {score} / {flashcards.length}
+                            </span>
                         </p>
-
-                        <div style={{ display: "grid", gap: "12px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                             <button
-                                onClick={() => {
-                                    setMode("flashcards_setup");
-                                    setScore(0);
-                                    setCurrentCardIndex(0);
-                                    setFlashcards([]);
-                                }}
-                                style={{
-                                    padding: "16px",
-                                    borderRadius: "12px",
-                                    backgroundColor: "#8B5CF6",
-                                    color: "#FFFFFF",
-                                    fontSize: "16px",
-                                    fontWeight: "700",
-                                    border: "none",
-                                    cursor: "pointer"
-                                }}
+                                onClick={() => { setMode("flashcards_setup"); setScore(0); setCurrentCardIndex(0); setFlashcards([]); }}
+                                className="btn-gold"
+                                style={{ padding: "13px", fontSize: 14 }}
                             >
-                                Start Another Review
+                                Start another review
                             </button>
                             <button
-                                onClick={() => {
-                                    setMode("chat");
-                                    setScore(0);
-                                    setCurrentCardIndex(0);
-                                    setFlashcards([]);
-                                }}
-                                style={{
-                                    padding: "16px",
-                                    borderRadius: "12px",
-                                    backgroundColor: "transparent",
-                                    border: "1px solid #374151",
-                                    color: "#9CA3AF",
-                                    fontSize: "14px",
-                                    fontWeight: "600",
-                                    cursor: "pointer"
-                                }}
+                                onClick={() => { setMode("chat"); setScore(0); setCurrentCardIndex(0); setFlashcards([]); }}
+                                className="btn-ghost"
+                                style={{ padding: "13px", fontSize: 14 }}
                             >
-                                Back to Chat
+                                Back to chat
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-            
-            <GenerationLoader 
-                isVisible={generateFlashcards.isPending} 
-                label="Generating Questions..." 
-                subLabel="AI is extracting key concepts from your topics..." 
+
+            <GenerationLoader
+                isVisible={generateFlashcards.isPending}
+                label="Generating Questions..."
+                subLabel="Extracting key concepts from your topics..."
             />
         </div>
     );

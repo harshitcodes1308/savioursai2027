@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { useRouter } from "next/navigation";
-import { typography } from "@/lib/typography";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
 
@@ -14,9 +13,19 @@ interface SelectedChapter {
     subjectName: string;
 }
 
+const SUBJECT_COLORS: Record<string, string> = {
+    Mathematics: "#C9A84C",
+    Physics: "#60a5fa",
+    Chemistry: "#33DFFF",
+    Biology: "#22c55e",
+    English: "#f472b6",
+    "History & Civics": "#fb923c",
+    Geography: "#34d399",
+};
+
 export default function SmartPlannerPage() {
     const router = useRouter();
-    const { isMobile, isTablet } = useResponsive();
+    const { isMobile } = useResponsive();
     const [selectedChapters, setSelectedChapters] = useState<SelectedChapter[]>([]);
     const [startDate, setStartDate] = useState("");
     const [targetDate, setTargetDate] = useState("");
@@ -26,9 +35,7 @@ export default function SmartPlannerPage() {
     const { data: plans, refetch: refetchPlans } = trpc.planner.getMyPlans.useQuery({});
 
     const generatePlan = trpc.planner.generateSmartPlan.useMutation();
-    const toggleComplete = trpc.planner.togglePlanComplete.useMutation({
-        onSuccess: () => refetchPlans(),
-    });
+    const toggleComplete = trpc.planner.togglePlanComplete.useMutation({ onSuccess: () => refetchPlans() });
     const clearPlans = trpc.planner.clearAllPlans.useMutation({
         onSuccess: () => {
             setSelectedChapters([]);
@@ -43,71 +50,80 @@ export default function SmartPlannerPage() {
             alert("Please select chapters and dates");
             return;
         }
-
         const chaptersBySubject = selectedChapters.reduce((acc, ch) => {
             if (!acc[ch.subjectId]) acc[ch.subjectId] = [];
             acc[ch.subjectId].push(ch.chapterId);
             return acc;
         }, {} as Record<string, string[]>);
 
-        let totalPlansCreated = 0;
         for (const [subjectId, chapterIds] of Object.entries(chaptersBySubject)) {
             try {
-                const result = await generatePlan.mutateAsync({
-                    subjectId,
-                    chapterIds,
-                    startDate,
-                    targetDate,
-                    dailyHours,
-                });
-                totalPlansCreated += result.plansCreated;
-            } catch (error: any) {
-                alert(`Error: ${error.message}`);
+                await generatePlan.mutateAsync({ subjectId, chapterIds, startDate, targetDate, dailyHours });
+            } catch (err: any) {
+                alert(`Error: ${err.message}`);
                 return;
             }
         }
-
         refetchPlans();
     };
 
     const toggleChapter = (chapter: SelectedChapter) => {
-        setSelectedChapters((prev) => {
-            const exists = prev.find((c) => c.chapterId === chapter.chapterId);
-            if (exists) {
-                return prev.filter((c) => c.chapterId !== chapter.chapterId);
-            } else {
-                return [...prev, chapter];
-            }
+        setSelectedChapters(prev => {
+            const exists = prev.find(c => c.chapterId === chapter.chapterId);
+            return exists ? prev.filter(c => c.chapterId !== chapter.chapterId) : [...prev, chapter];
         });
     };
 
-    const getDifficultyStars = (difficulty: number) => "⭐️".repeat(difficulty);
-
-    // Calculate progress
-    const completedCount = plans?.filter((p) => p.completed).length || 0;
+    const completedCount = plans?.filter(p => p.completed).length || 0;
     const totalPlans = plans?.length || 0;
     const progressPercent = totalPlans > 0 ? Math.round((completedCount / totalPlans) * 100) : 0;
 
-    // Group plans by date
     const plansByDate = (plans || []).reduce((acc, plan: any) => {
-        const dateKey = new Date(plan.planDate).toDateString();
-        if (!acc[dateKey]) acc[dateKey] = [];
-        acc[dateKey].push(plan);
+        const key = new Date(plan.planDate).toDateString();
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(plan);
         return acc;
     }, {} as Record<string, any[]>);
 
-    // Show timeline if there are plans
+    // ── Timeline view ──
     if (plans && plans.length > 0) {
         return (
-            <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.04) 0%, transparent 50%), #030303", overflowX: "hidden" as const }}>
-                {/* Header with Progress */}
-                <div style={{ background: "linear-gradient(180deg, rgba(14,14,20,0.98), rgba(14,14,20,0.95))", padding: isMobile ? "16px" : "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.04)", backdropFilter: "blur(20px)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", marginBottom: "16px", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📅</div>
-                            <h1 style={{ fontSize: isMobile ? "18px" : "24px", fontWeight: 800, margin: 0, background: "linear-gradient(135deg, #FFF, #34D399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -0.5 }}>
-                                Your Study Timeline
+            <div style={{
+                minHeight: "100vh",
+                background: "var(--bg-base)",
+                display: "flex",
+                flexDirection: "column",
+            }}>
+                {/* Header */}
+                <div style={{
+                    padding: isMobile ? "16px" : "24px 32px",
+                    borderBottom: "1px solid var(--bg-border)",
+                    background: "var(--bg-surface)",
+                    flexShrink: 0,
+                }}>
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: isMobile ? "flex-start" : "center",
+                        flexDirection: isMobile ? "column" : "row",
+                        gap: 14,
+                        marginBottom: 16,
+                    }}>
+                        <div>
+                            <h1 style={{
+                                fontFamily: "var(--font-display)",
+                                fontSize: isMobile ? 22 : 28,
+                                fontWeight: 700,
+                                color: "var(--text-primary)",
+                                letterSpacing: "-0.02em",
+                                margin: 0,
+                                marginBottom: 4,
+                            }}>
+                                Study Timeline
                             </h1>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)" }}>
+                                {completedCount} of {totalPlans} chapters completed
+                            </div>
                         </div>
                         <button
                             onClick={() => {
@@ -115,139 +131,125 @@ export default function SmartPlannerPage() {
                                     clearPlans.mutate();
                                 }
                             }}
-                            style={{
-                                padding: "10px 20px",
-                                background: "linear-gradient(135deg, #8B5CF6, #7C3AED)",
-                                color: "#FFFFFF",
-                                border: "none",
-                                borderRadius: "12px",
-                                fontSize: "13px",
-                                fontWeight: 700,
-                                cursor: "pointer",
-                                boxShadow: "0 4px 16px rgba(139,92,246,0.3)",
-                                transition: "all 0.3s ease",
-                            }}
+                            className="btn-gold"
+                            style={{ fontSize: 13, padding: "10px 20px", borderRadius: 10 }}
                         >
-                            ➕ Create New Timeline
+                            + New Timeline
                         </button>
                     </div>
 
-                    {/* Progress Meter */}
+                    {/* Progress bar */}
                     <div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                            <span style={{ fontSize: "13px", color: "#6B7280", fontWeight: 500 }}>
-                                {completedCount} / {totalPlans} chapters completed
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                            <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>
+                                Overall progress
                             </span>
-                            <span style={{ fontSize: "14px", fontWeight: 700, background: "linear-gradient(135deg, #10B981, #34D399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                            <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: "var(--accent-gold)" }}>
                                 {progressPercent}%
                             </span>
                         </div>
-                        <div style={{ height: "6px", background: "rgba(255,255,255,0.04)", borderRadius: "3px", overflow: "hidden" }}>
-                            <div
-                                style={{
-                                    width: `${progressPercent}%`,
-                                    height: "100%",
-                                    background: "linear-gradient(90deg, #10B981, #34D399, #10B981)",
-                                    backgroundSize: "200% 100%",
-                                    transition: "width 0.8s ease",
-                                    boxShadow: "0 0 12px rgba(16,185,129,0.3)",
-                                }}
-                            />
+                        <div style={{ height: 4, background: "var(--bg-border)", borderRadius: 2, overflow: "hidden" }}>
+                            <div style={{
+                                width: `${progressPercent}%`,
+                                height: "100%",
+                                background: "var(--accent-gold)",
+                                transition: "width 0.8s ease",
+                            }} />
                         </div>
                     </div>
                 </div>
 
-                {/* Timeline Content */}
-                <div style={{ flex: 1, overflow: "auto", padding: isMobile ? "16px" : "32px" }}>
-                    <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+                {/* Timeline content */}
+                <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "16px" : "32px" }}>
+                    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
                         {Object.entries(plansByDate).map(([dateStr, dayPlans]) => (
-                            <div key={dateStr} style={{ marginBottom: "40px" }}>
-                                <h3 style={{
-                                    ...typography.display,
-                                    fontSize: "18px",
+                            <div key={dateStr} style={{ marginBottom: 36 }}>
+                                <div style={{
+                                    fontFamily: "var(--font-display)",
+                                    fontSize: 16,
                                     fontWeight: 700,
-                                    color: "#FFFFFF",
-                                    marginBottom: "16px"
+                                    color: "var(--text-primary)",
+                                    letterSpacing: "-0.01em",
+                                    marginBottom: 12,
                                 }}>
-                                    {new Date(dateStr).toLocaleDateString("en-US", {
-                                        weekday: "long",
-                                        month: "long",
-                                        day: "numeric",
-                                        year: "numeric",
-                                    })}
-                                </h3>
+                                    {new Date(dateStr).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                                </div>
 
-                                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(320px, 1fr))", gap: isMobile ? "12px" : "20px" }}>
-                                    {dayPlans.map((plan: any) => (
-                                        <div
-                                            key={plan.id}
-                                            className="dashboard-card"
-                                            style={{
-                                                padding: "20px",
-                                                border: plan.completed ? "3px solid #10B981" : undefined,
-                                            }}
-                                        >
-                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-                                                <div style={{ flex: 1 }}>
-                                                    {/* TOPIC NAME - not chapter repetition */}
-                                                    <div style={{
-                                                        ...typography.display,
-                                                        fontSize: "16px",
-                                                        fontWeight: 700,
-                                                        color: "#FFFFFF",
-                                                        marginBottom: "6px"
-                                                    }}>
-                                                        {plan.topicName || plan.chapter?.name}
-                                                    </div>
-                                                    <div style={{ ...typography.text, fontSize: "13px", color: "#9CA3AF", marginBottom: "8px" }}>
-                                                        {plan.subject?.icon} {plan.subject?.name || "Subject"}
-                                                    </div>
-                                                    <div style={{ ...typography.text, fontSize: "13px", color: "#8B5CF6", fontWeight: 600 }}>
-                                                        {getDifficultyStars(plan.difficulty || 3)} Difficulty
-                                                    </div>
-                                                </div>
-                                                {/* CHECKBOX - updates state, NO navigation */}
-                                                <input
-                                                    type="checkbox"
-                                                    checked={plan.completed}
-                                                    onChange={(e) => {
-                                                        e.stopPropagation();
-                                                        toggleComplete.mutate({
-                                                            planId: plan.id,
-                                                            completed: !plan.completed,
-                                                        });
-                                                    }}
-                                                    style={{ width: "24px", height: "24px", accentColor: "#10B981", cursor: "pointer" }}
-                                                />
-                                            </div>
-
-                                            {/* OPTIONAL AI Review Button - user-initiated, not forced */}
-                                            <button
-                                                onClick={() => router.push(`/dashboard/ai-assistant?topic=${encodeURIComponent(plan.topicName || plan.chapter?.name)}&subject=${plan.subject?.name}`)}
+                                <div style={{
+                                    display: "grid",
+                                    gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(300px, 1fr))",
+                                    gap: 12,
+                                }}>
+                                    {dayPlans.map((plan: any) => {
+                                        const color = SUBJECT_COLORS[plan.subject?.name] || "var(--accent-gold)";
+                                        return (
+                                            <div
+                                                key={plan.id}
                                                 style={{
-                                                    ...typography.text,
-                                                    width: "100%",
-                                                    padding: "10px 16px",
-                                                    backgroundColor: "#374151",
-                                                    borderRadius: "8px",
-                                                    fontSize: "13px",
-                                                    color: "#8B5CF6",
-                                                    textAlign: "center",
-                                                    fontWeight: 600,
-                                                    border: "1px solid #4B5563",
-                                                    cursor: "pointer",
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.backgroundColor = "#4B5563";
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.backgroundColor = "#374151";
+                                                    background: "var(--bg-surface)",
+                                                    border: `1px solid ${plan.completed ? "rgba(34,197,94,0.3)" : "var(--bg-border)"}`,
+                                                    borderLeft: `3px solid ${plan.completed ? "#22c55e" : color}`,
+                                                    borderRadius: 12,
+                                                    padding: "16px 18px",
+                                                    opacity: plan.completed ? 0.65 : 1,
+                                                    transition: "opacity 0.2s ease",
                                                 }}
                                             >
-                                                🤖 Review with AI Assistant
-                                            </button>
-                                        </div>
-                                    ))}
+                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{
+                                                            fontFamily: "var(--font-body)",
+                                                            fontSize: 14, fontWeight: 600,
+                                                            color: plan.completed ? "var(--text-muted)" : "var(--text-primary)",
+                                                            marginBottom: 4,
+                                                            textDecoration: plan.completed ? "line-through" : "none",
+                                                            letterSpacing: "-0.01em",
+                                                        }}>
+                                                            {plan.topicName || plan.chapter?.name}
+                                                        </div>
+                                                        <div style={{
+                                                            fontFamily: "var(--font-body)",
+                                                            fontSize: 12,
+                                                            color: color,
+                                                            marginBottom: 10,
+                                                        }}>
+                                                            {plan.subject?.name || "Subject"}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => router.push(`/dashboard/ai-assistant?topic=${encodeURIComponent(plan.topicName || plan.chapter?.name)}&subject=${plan.subject?.name}`)}
+                                                            style={{
+                                                                fontFamily: "var(--font-body)",
+                                                                fontSize: 11,
+                                                                color: "var(--text-muted)",
+                                                                background: "none",
+                                                                border: "1px solid var(--bg-border)",
+                                                                borderRadius: 6,
+                                                                padding: "4px 10px",
+                                                                cursor: "pointer",
+                                                            }}
+                                                        >
+                                                            Ask AI →
+                                                        </button>
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={plan.completed}
+                                                        onChange={e => {
+                                                            e.stopPropagation();
+                                                            toggleComplete.mutate({ planId: plan.id, completed: !plan.completed });
+                                                        }}
+                                                        style={{
+                                                            width: 20, height: 20,
+                                                            accentColor: "#22c55e",
+                                                            cursor: "pointer",
+                                                            flexShrink: 0,
+                                                            marginTop: 2,
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         ))}
@@ -257,36 +259,57 @@ export default function SmartPlannerPage() {
         );
     }
 
-    // Show plan creation form
+    // ── Plan creation form ──
     return (
-        <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.04) 0%, transparent 50%), #030303", padding: isMobile ? "16px" : "40px", overflowY: "auto", overflowX: "hidden" as const }}>
-            <div className="animate-fadeIn" style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
-                <div style={{ textAlign: "center", marginBottom: 16 }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", borderRadius: 20, padding: "6px 14px", fontSize: 11, fontWeight: 600, color: "#A78BFA", letterSpacing: 1, textTransform: "uppercase" }}>🎯 AI-Powered</div>
+        <div style={{
+            minHeight: "100vh",
+            background: "var(--bg-base)",
+            padding: isMobile ? "24px 16px" : "48px",
+            overflowY: "auto",
+        }}>
+            <div style={{ maxWidth: 720, margin: "0 auto" }}>
+                <div style={{ marginBottom: 32, animation: "pageEnter 0.4s ease-out both" }}>
+                    <h1 style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: isMobile ? 32 : 44,
+                        fontWeight: 700,
+                        color: "var(--text-primary)",
+                        letterSpacing: "-0.03em",
+                        margin: "0 0 8px",
+                    }}>
+                        Smart Planner
+                    </h1>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                        Select chapters and dates — AI builds a day-by-day revision timeline.
+                    </p>
                 </div>
-                <h1 style={{ fontSize: isMobile ? "22px" : "32px", fontWeight: 800, marginBottom: "10px", textAlign: "center", letterSpacing: -0.5, background: "linear-gradient(135deg, #FFF, #A78BFA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                    Smart Study Planner
-                </h1>
-                <p style={{ color: "#6B7280", fontSize: isMobile ? "13px" : "14px", marginBottom: isMobile ? "24px" : "36px", textAlign: "center" }}>
-                    Select subjects and chapters, AI will create a smart timeline with difficulty prediction
-                </p>
 
-                <div className="dashboard-card" style={{ padding: isMobile ? "16px" : "32px" }}>
-                    {/* Subjects and Chapters */}
-                    <div style={{ marginBottom: "28px" }}>
-                        <label style={{
-                            ...typography.display,
-                            display: "block",
-                            fontSize: "15px",
+                <div style={{
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--bg-border)",
+                    borderRadius: 20,
+                    padding: isMobile ? "20px 16px" : "36px",
+                }}>
+                    {/* Chapter selector */}
+                    <div style={{ marginBottom: 28 }}>
+                        <div style={{
+                            fontFamily: "var(--font-body)",
+                            fontSize: 12,
                             fontWeight: 700,
-                            color: "#FFFFFF",
-                            marginBottom: "16px"
+                            color: "var(--text-muted)",
+                            letterSpacing: "0.1em",
+                            textTransform: "uppercase",
+                            marginBottom: 14,
                         }}>
-                            Select Subjects & Chapters ({selectedChapters.length} chapters selected)
-                        </label>
-
-                        <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                            {subjects?.map((subject) => (
+                            Chapters{" "}
+                            {selectedChapters.length > 0 && (
+                                <span style={{ color: "var(--accent-gold)", fontFamily: "var(--font-body)" }}>
+                                    — {selectedChapters.length} selected
+                                </span>
+                            )}
+                        </div>
+                        <div style={{ maxHeight: 300, overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
+                            {subjects?.map(subject => (
                                 <SubjectChapterSelector
                                     key={subject.id}
                                     subject={subject}
@@ -297,111 +320,79 @@ export default function SmartPlannerPage() {
                         </div>
                     </div>
 
-                    {/* Date Inputs */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "28px" }}>
-                        <div>
-                            <label style={{ ...typography.display, display: "block", fontSize: "14px", fontWeight: 700, color: "#FFFFFF", marginBottom: "8px" }}>
-                                Start Date
-                            </label>
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                style={{
-                                    ...typography.text,
-                                    width: "100%",
-                                    padding: "14px",
-                                    backgroundColor: "#1F2937",
-                                    color: "#FFFFFF",
-                                    border: "2px solid #374151",
-                                    borderRadius: "10px",
-                                    fontSize: "14px",
-                                }}
-                            />
-                        </div>
-                        <div>
-                            <label style={{ ...typography.display, display: "block", fontSize: "14px", fontWeight: 700, color: "#FFFFFF", marginBottom: "8px" }}>
-                                Target Date
-                            </label>
-                            <input
-                                type="date"
-                                value={targetDate}
-                                onChange={(e) => setTargetDate(e.target.value)}
-                                style={{
-                                    ...typography.text,
-                                    width: "100%",
-                                    padding: "14px",
-                                    backgroundColor: "#1F2937",
-                                    color: "#FFFFFF",
-                                    border: "2px solid #374151",
-                                    borderRadius: "10px",
-                                    fontSize: "14px",
-                                }}
-                            />
-                        </div>
+                    {/* Date inputs */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }}>
+                        {[
+                            { label: "Start Date", val: startDate, set: setStartDate },
+                            { label: "Target Date", val: targetDate, set: setTargetDate },
+                        ].map(({ label, val, set }) => (
+                            <div key={label}>
+                                <div style={{ fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
+                                    {label}
+                                </div>
+                                <input
+                                    type="date"
+                                    value={val}
+                                    onChange={e => set(e.target.value)}
+                                    className="sa-input"
+                                    style={{ width: "100%", boxSizing: "border-box" }}
+                                />
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Daily Hours Slider */}
-                    <div style={{ marginBottom: "32px" }}>
-                        <label style={{ ...typography.display, display: "block", fontSize: "14px", fontWeight: 700, color: "#FFFFFF", marginBottom: "12px" }}>
-                            Daily Study Hours: <span style={{ color: "#8B5CF6" }}>{dailyHours}h</span>
-                        </label>
+                    {/* Daily hours slider */}
+                    <div style={{ marginBottom: 32 }}>
+                        <div style={{
+                            fontFamily: "var(--font-body)",
+                            fontSize: 11, fontWeight: 700,
+                            color: "var(--text-muted)",
+                            letterSpacing: "0.1em",
+                            textTransform: "uppercase",
+                            marginBottom: 12,
+                        }}>
+                            Daily study hours:{" "}
+                            <span style={{ color: "var(--accent-gold)" }}>{dailyHours}h</span>
+                        </div>
                         <input
                             type="range"
-                            min="1"
-                            max="8"
+                            min="1" max="8"
                             value={dailyHours}
-                            onChange={(e) => setDailyHours(parseInt(e.target.value))}
-                            style={{ width: "100%", height: "8px", accentColor: "#8B5CF6" }}
+                            onChange={e => setDailyHours(parseInt(e.target.value))}
+                            style={{ width: "100%", accentColor: "var(--accent-gold)", height: 4 }}
                         />
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#6B7280", marginTop: "4px" }}>
-                            <span>1h</span>
-                            <span>8h</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)" }}>
+                            <span>1h</span><span>8h</span>
                         </div>
                     </div>
 
-                    {/* Generate Button */}
                     <button
                         onClick={handleGeneratePlan}
                         disabled={generatePlan.isPending}
+                        className="btn-gold"
                         style={{
                             width: "100%",
-                            padding: "16px",
-                            background: generatePlan.isPending ? "rgba(139,92,246,0.5)" : "linear-gradient(135deg, #8B5CF6, #7C3AED)",
-                            color: "#FFFFFF",
-                            border: "none",
-                            borderRadius: "14px",
-                            fontSize: "16px",
-                            fontWeight: 700,
+                            padding: "15px",
+                            fontSize: 15,
+                            borderRadius: 12,
+                            opacity: generatePlan.isPending ? 0.6 : 1,
                             cursor: generatePlan.isPending ? "not-allowed" : "pointer",
-                            transition: "all 0.3s ease",
-                            boxShadow: "0 8px 24px rgba(139,92,246,0.3)",
-                            letterSpacing: 0.3,
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = "translateY(-2px)";
-                            e.currentTarget.style.boxShadow = "0 12px 32px rgba(139,92,246,0.4)";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "none";
-                            e.currentTarget.style.boxShadow = "0 8px 24px rgba(139,92,246,0.3)";
                         }}
                     >
-                        {generatePlan.isPending ? "⚡ Generating..." : "🎯 Generate Full Plan →"}
+                        {generatePlan.isPending ? "Generating..." : "Generate Plan →"}
                     </button>
                 </div>
             </div>
-            
-            <GenerationLoader 
-                isVisible={generatePlan.isPending} 
-                label="Building Your Plan..." 
-                subLabel="Optimizing timeline based on difficulty..." 
+
+            <GenerationLoader
+                isVisible={generatePlan.isPending}
+                label="Building Your Plan..."
+                subLabel="Optimizing timeline based on difficulty..."
             />
         </div>
     );
 }
 
-// Subject Chapter Selector Component
 function SubjectChapterSelector({
     subject,
     selectedChapters,
@@ -416,65 +407,82 @@ function SubjectChapterSelector({
         { subjectId: subject.id },
         { enabled: isExpanded }
     );
-
-    const selectedCount = selectedChapters.filter((c) => c.subjectId === subject.id).length;
+    const selectedCount = selectedChapters.filter(c => c.subjectId === subject.id).length;
+    const color = SUBJECT_COLORS[subject.name] || "var(--accent-gold)";
 
     return (
-        <div style={{ marginBottom: "8px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: "14px", overflow: "hidden" }}>
+        <div style={{
+            background: "var(--bg-base)",
+            border: "1px solid var(--bg-border)",
+            borderRadius: 10,
+            overflow: "hidden",
+        }}>
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 style={{
                     width: "100%",
-                    padding: "14px 18px",
+                    padding: "12px 16px",
                     background: "transparent",
-                    color: "#FFFFFF",
+                    color: "var(--text-primary)",
                     border: "none",
-                    fontSize: "14px",
-                    fontWeight: 600,
+                    fontFamily: "var(--font-body)",
+                    fontSize: 13, fontWeight: 600,
                     cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    transition: "all 0.2s ease",
                 }}
             >
                 <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {subject.icon} {subject.name} {selectedCount > 0 && <span style={{ background: "rgba(139,92,246,0.15)", color: "#A78BFA", padding: "2px 8px", borderRadius: 8, fontSize: 11, fontWeight: 700 }}>{selectedCount}</span>}
+                    <span style={{ color }}>{subject.icon}</span>
+                    {subject.name}
+                    {selectedCount > 0 && (
+                        <span style={{
+                            background: "rgba(0,212,255,0.12)",
+                            color: "var(--accent-gold)",
+                            padding: "2px 8px",
+                            borderRadius: 6,
+                            fontSize: 10, fontWeight: 700,
+                        }}>
+                            {selectedCount}
+                        </span>
+                    )}
                 </span>
-                <span style={{ fontSize: 14, color: "#6B7280", transition: "transform 0.2s", transform: isExpanded ? "rotate(90deg)" : "none" }}>▶</span>
+                <span style={{
+                    fontSize: 10,
+                    color: "var(--text-muted)",
+                    transform: isExpanded ? "rotate(90deg)" : "none",
+                    transition: "transform 0.2s ease",
+                }}>
+                    ▶
+                </span>
             </button>
 
             {isExpanded && (
-                <div style={{ padding: "16px", maxHeight: "200px", overflowY: "auto", backgroundColor: "#111827" }}>
-                    {chapters?.map((chapter) => {
-                        const isSelected = selectedChapters.some((c) => c.chapterId === chapter.id);
+                <div style={{ borderTop: "1px solid var(--bg-border)", padding: "8px 12px", maxHeight: 200, overflowY: "auto" }}>
+                    {chapters?.map(chapter => {
+                        const isSelected = selectedChapters.some(c => c.chapterId === chapter.id);
                         return (
                             <label
                                 key={chapter.id}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    padding: "10px",
+                                    gap: 10,
+                                    padding: "8px 10px",
+                                    borderRadius: 8,
                                     cursor: "pointer",
-                                    borderRadius: "8px",
-                                    marginBottom: "6px",
-                                    backgroundColor: isSelected ? "#374151" : "transparent",
+                                    background: isSelected ? "rgba(0,212,255,0.06)" : "transparent",
+                                    marginBottom: 2,
                                 }}
                             >
                                 <input
                                     type="checkbox"
                                     checked={isSelected}
-                                    onChange={() =>
-                                        onToggleChapter({
-                                            chapterId: chapter.id,
-                                            chapterName: chapter.name,
-                                            subjectId: subject.id,
-                                            subjectName: subject.name,
-                                        })
-                                    }
-                                    style={{ marginRight: "12px", width: "18px", height: "18px" }}
+                                    onChange={() => onToggleChapter({ chapterId: chapter.id, chapterName: chapter.name, subjectId: subject.id, subjectName: subject.name })}
+                                    style={{ width: 16, height: 16, accentColor: "var(--accent-gold)", cursor: "pointer" }}
                                 />
-                                <span style={{ fontSize: "14px", color: "#FFFFFF" }}>
+                                <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: isSelected ? "var(--text-primary)" : "var(--text-secondary)" }}>
                                     Ch {chapter.order}: {chapter.name}
                                 </span>
                             </label>

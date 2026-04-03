@@ -11,13 +11,13 @@ export function initConsoleWelcome() {
 
     // Styles for different message types
     const styles = {
-        title: 'color: #8B5CF6; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(139, 92, 246, 0.3);',
-        subtitle: 'color: #A78BFA; font-size: 16px; font-weight: 600;',
+        title: 'color: #00D4FF; font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0, 212, 255, 0.3);',
+        subtitle: 'color: #33DFFF; font-size: 16px; font-weight: 600;',
         warning: 'color: #EF4444; font-size: 14px; font-weight: bold; background: #FEE2E2; padding: 8px; border-radius: 4px;',
         info: 'color: #10B981; font-size: 13px;',
         link: 'color: #60A5FA; font-size: 13px; text-decoration: underline;',
         muted: 'color: #9CA3AF; font-size: 12px; font-style: italic;',
-        badge: 'background: linear-gradient(90deg, #8B5CF6, #A78BFA); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;',
+        badge: 'background: linear-gradient(90deg, #00D4FF, #33DFFF); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;',
     };
 
     // Clear console first (optional - comment out if you want to preserve logs)
@@ -34,7 +34,7 @@ export function initConsoleWelcome() {
         ' |_____\\_____|_____/|______|\n' +
         '                            \n' +
         '   SAVIOURS - AI Powered Study Platform',
-        'color: #8B5CF6; font-family: monospace; font-size: 12px; line-height: 1.2;'
+        'color: #00D4FF; font-family: monospace; font-size: 12px; line-height: 1.2;'
     );
 
     console.log(''); // Empty line
@@ -95,20 +95,20 @@ export function initConsoleWelcome() {
     // Easter Egg / Fun Fact
     const funFacts = [
         'Did you know? Our AI has helped generate over 10,000 study questions!',
-        'Fun fact: The purple theme was chosen after analyzing 50+ color palettes!',
+        'Fun fact: The cyan theme was chosen after analyzing 50+ color palettes!',
         'Pro tip: Use Ctrl+K to quickly search topics across subjects!',
         'Behind the scenes: We use GPT-4o-mini to keep costs low while maintaining quality!',
         'Cool fact: Our YouTube integration searches 2 channels simultaneously!',
     ];
 
     const randomFact = funFacts[Math.floor(Math.random() * funFacts.length)];
-    console.log('%c💡 ' + randomFact, 'color: #8B5CF6; font-style: italic; font-size: 12px;');
+    console.log('%c💡 ' + randomFact, 'color: #00D4FF; font-style: italic; font-size: 12px;');
 
     console.log(''); // Empty line
 
     // Footer
     console.log(
-        '%c Made with 💜 by the ICSE Saviours Team | © 2026',
+        '%c Made with 💙 by the ICSE Saviours Team | © 2026',
         'color: #6B7280; font-size: 11px;'
     );
 
@@ -128,7 +128,7 @@ export function initConsoleWelcome() {
 
     // Log current user info (if available)
     console.log(''); // Empty line
-    console.log('%cCurrent Session Info:', 'color: #8B5CF6; font-weight: bold;');
+    console.log('%cCurrent Session Info:', 'color: #00D4FF; font-weight: bold;');
     console.log({
         timestamp: new Date().toLocaleString(),
         userAgent: navigator.userAgent,
@@ -142,7 +142,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     (window as any).icseSaviours = {
         version: '1.0.0',
         logPerformance: () => {
-            console.log('%c📊 Performance Metrics:', 'color: #8B5CF6; font-weight: bold; font-size: 14px;');
+            console.log('%c📊 Performance Metrics:', 'color: #00D4FF; font-weight: bold; font-size: 14px;');
             console.table({
                 'AI Token Reduction': '40%',
                 'YouTube API Savings': '60%',

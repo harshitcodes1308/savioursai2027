@@ -14,7 +14,7 @@ export const TYQ_SUBJECTS: TYQSubject[] = [
   { id: "physics", name: "Physics", icon: "⚡", examDuration: 150, papers: 2, color: "#F59E0B" },
   { id: "chemistry", name: "Chemistry", icon: "🧪", examDuration: 150, papers: 2, color: "#10B981" },
   { id: "biology", name: "Biology", icon: "🧬", examDuration: 150, papers: 2, color: "#EC4899" },
-  { id: "english-language", name: "English Language", icon: "📝", examDuration: 150, papers: 2, color: "#8B5CF6" },
+  { id: "english-language", name: "English Language", icon: "📝", examDuration: 150, papers: 2, color: "#00D4FF" },
   { id: "english-literature", name: "English Literature", icon: "📖", examDuration: 150, papers: 2, color: "#6366F1" },
   { id: "history-civics", name: "History & Civics", icon: "🏛️", examDuration: 150, papers: 2, color: "#EF4444" },
   { id: "geography", name: "Geography", icon: "🌍", examDuration: 150, papers: 2, color: "#14B8A6" },

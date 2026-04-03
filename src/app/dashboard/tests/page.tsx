@@ -122,20 +122,13 @@ export default function CustomiseTestPage() {
                                     setSubject(sub);
                                     setStep('chapters');
                                 }}
+                                className="btn-gold"
                                 style={{
                                     ...typography.text,
                                     padding: '24px',
-                                    backgroundColor: '#8B5CF6',
-                                    color: '#FFF',
-                                    border: 'none',
-                                    borderRadius: '12px',
-                                    cursor: 'pointer',
                                     fontSize: '16px',
                                     fontWeight: 600,
-                                    transition: 'all 0.2s',
                                 }}
-                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#7C3AED'}
-                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#8B5CF6'}
                             >
                                 {sub}
                             </button>
@@ -172,14 +165,10 @@ export default function CustomiseTestPage() {
                     <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
                         <button
                             onClick={() => setStep('subject')}
+                            className="btn-ghost"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#374151',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
                             }}
                         >
                             Back
@@ -187,13 +176,11 @@ export default function CustomiseTestPage() {
                         <button
                             onClick={() => setStep('config')}
                             disabled={selectedChapters.length === 0}
+                            className="btn-gold"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: selectedChapters.length > 0 ? '#8B5CF6' : '#4B5563',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
+                                opacity: selectedChapters.length > 0 ? 1 : 0.4,
                                 cursor: selectedChapters.length > 0 ? 'pointer' : 'not-allowed',
                             }}
                         >
@@ -234,28 +221,20 @@ export default function CustomiseTestPage() {
                     <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
                         <button
                             onClick={() => setStep('chapters')}
+                            className="btn-ghost"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#374151',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
                             }}
                         >
                             Back
                         </button>
                         <button
                             onClick={() => setStep('timer')}
+                            className="btn-gold"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#8B5CF6',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
                             }}
                         >
                             Next
@@ -298,28 +277,20 @@ export default function CustomiseTestPage() {
                     <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
                         <button
                             onClick={() => setStep('config')}
+                            className="btn-ghost"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#374151',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
                             }}
                         >
                             Back
                         </button>
                         <button
                             onClick={() => setStep('preview')}
+                            className="btn-gold"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#8B5CF6',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
                             }}
                         >
                             Next
@@ -345,14 +316,10 @@ export default function CustomiseTestPage() {
                     <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
                         <button
                             onClick={() => setStep('timer')}
+                            className="btn-ghost"
                             style={{
                                 ...typography.text,
                                 padding: '12px 24px',
-                                backgroundColor: '#374151',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
                             }}
                         >
                             Back
@@ -405,12 +372,13 @@ export default function CustomiseTestPage() {
                                         alignItems: 'center',
                                         padding: '16px',
                                         marginBottom: '12px',
-                                        backgroundColor: answers[currentQ.id] === idx ? '#8B5CF6' : '#1A1A1D',
+                                        backgroundColor: answers[currentQ.id] === idx ? 'rgba(0, 212, 255, 0.12)' : 'rgba(26, 26, 29, 0.6)',
                                         border: '2px solid',
-                                        borderColor: answers[currentQ.id] === idx ? '#8B5CF6' : '#374151',
+                                        borderColor: answers[currentQ.id] === idx ? 'rgba(0, 212, 255, 0.5)' : 'rgba(55, 65, 81, 0.5)',
                                         borderRadius: '8px',
                                         cursor: 'pointer',
                                         transition: 'all 0.2s',
+                                        backdropFilter: 'blur(12px)',
                                     }}
                                     onClick={() => handleAnswerSelect(currentQ.id, idx)}
                                 >
@@ -432,14 +400,10 @@ export default function CustomiseTestPage() {
                                 {currentQuestion > 0 && (
                                     <button
                                         onClick={() => setCurrentQuestion(prev => prev - 1)}
+                                        className="btn-ghost"
                                         style={{
                                             ...typography.text,
                                             padding: '12px 24px',
-                                            backgroundColor: '#374151',
-                                            color: '#FFF',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            cursor: 'pointer',
                                         }}
                                     >
                                         ← Previous
@@ -447,14 +411,10 @@ export default function CustomiseTestPage() {
                                 )}
                                 <button
                                     onClick={() => handleMarkReview(currentQ.id)}
+                                    className={markedReview.includes(currentQ.id) ? 'btn-gold' : 'btn-ghost'}
                                     style={{
                                         ...typography.text,
                                         padding: '12px 24px',
-                                        backgroundColor: markedReview.includes(currentQ.id) ? '#F59E0B' : '#374151',
-                                        color: '#FFF',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
                                     }}
                                 >
                                     {markedReview.includes(currentQ.id) ? '⭐ Marked' : 'Mark for Review'}
@@ -484,14 +444,10 @@ export default function CustomiseTestPage() {
                                 {currentQuestion < questions.length - 1 ? (
                                     <button
                                         onClick={() => setCurrentQuestion(prev => prev + 1)}
+                                        className="btn-gold"
                                         style={{
                                             ...typography.text,
                                             padding: '12px 24px',
-                                            backgroundColor: '#8B5CF6',
-                                            color: '#FFF',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            cursor: 'pointer',
                                         }}
                                     >
                                         Save & Next →
@@ -532,7 +488,7 @@ export default function CustomiseTestPage() {
                                         ...typography.text,
                                         padding: '8px',
                                         backgroundColor:
-                                            idx === currentQuestion ? '#8B5CF6' :
+                                            idx === currentQuestion ? '#00D4FF' :
                                                 answers[q.id] !== undefined ? '#10B981' :
                                                     markedReview.includes(q.id) ? '#F59E0B' : '#374151',
                                         color: '#FFF',
@@ -573,7 +529,7 @@ export default function CustomiseTestPage() {
                         </div>
                         <div style={{ padding: '24px', backgroundColor: '#1A1A1D', borderRadius: '12px' }}>
                             <div style={{ ...typography.text, fontSize: '14px', color: '#9CA3AF', marginBottom: '8px' }}>Accuracy</div>
-                            <div style={{ ...typography.display, fontSize: '32px', color: '#8B5CF6' }}>
+                            <div style={{ ...typography.display, fontSize: '32px', color: '#00D4FF' }}>
                                 {result.accuracy.toFixed(1)}%
                             </div>
                         </div>
@@ -586,15 +542,11 @@ export default function CustomiseTestPage() {
                     </div>
                     <button
                         onClick={() => setStep('analysis')}
+                        className="btn-gold"
                         style={{
                             ...typography.text,
                             marginTop: '32px',
                             padding: '16px 32px',
-                            backgroundColor: '#8B5CF6',
-                            color: '#FFF',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
                             fontSize: '16px',
                             fontWeight: 600,
                         }}
@@ -652,14 +604,10 @@ export default function CustomiseTestPage() {
 
                     <button
                         onClick={() => setStep('solutions')}
+                        className="btn-gold"
                         style={{
                             ...typography.text,
                             padding: '12px 32px',
-                            backgroundColor: '#8B5CF6',
-                            color: '#FFF',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
                             fontSize: '16px',
                             fontWeight: 600,
                         }}
@@ -732,9 +680,9 @@ export default function CustomiseTestPage() {
                                     padding: '16px',
                                     backgroundColor: '#1A1A1D',
                                     borderRadius: '8px',
-                                    borderLeft: '4px solid #8B5CF6',
+                                    borderLeft: '4px solid #00D4FF',
                                 }}>
-                                    <div style={{ ...typography.text, fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#8B5CF6' }}>
+                                    <div style={{ ...typography.text, fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#00D4FF' }}>
                                         💡 Explanation:
                                     </div>
                                     <p style={{ ...typography.text, fontSize: '14px', lineHeight: '1.6', color: '#D1D5DB' }}>
@@ -761,14 +709,10 @@ export default function CustomiseTestPage() {
                                 setMarkedReview([]);
                                 setResult(null);
                             }}
+                            className="btn-gold"
                             style={{
                                 ...typography.text,
                                 padding: '16px 32px',
-                                backgroundColor: '#8B5CF6',
-                                color: '#FFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
                                 fontSize: '16px',
                                 fontWeight: 600,
                             }}

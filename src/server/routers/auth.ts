@@ -18,7 +18,7 @@ export const authRouter = createTRPCRouter({
         .input(
             z.object({
                 email: z.string().email(),
-                password: z.string().min(8),
+                password: z.string().min(6),
                 name: z.string().min(2),
                 phone: z.string().optional(), // Optional phone number
                 role: z.enum(["STUDENT", "TEACHER"]).optional().default("STUDENT"),
@@ -112,9 +112,10 @@ export const authRouter = createTRPCRouter({
                 
                 // Keep TRPCErrors intact, wrap others
                 if (error instanceof TRPCError) throw error;
+                console.error("Signup error:", error);
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "An expected error occurred during signup"
+                    message: "An unexpected error occurred during signup: " + (error instanceof Error ? error.message : String(error))
                 });
             }
         }),

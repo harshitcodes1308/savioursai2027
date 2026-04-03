@@ -65,9 +65,16 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
 
         // 4. REFRESH SESSION COOKIE
         const newToken = await createToken({
-            ...updatedUser,
+            id: updatedUser.id,
+            email: updatedUser.email,
+            name: updatedUser.name,
+            role: updatedUser.role,
             isPaid: updatedUser.isPaid,
-            lnbChemistryUnlocked: updatedUser.lnbChemistryUnlocked
+            planType: updatedUser.planType,
+            subscriptionStatus: updatedUser.subscriptionStatus,
+            subscriptionExpiry: updatedUser.subscriptionExpiry?.toISOString() ?? null,
+            onboardingComplete: updatedUser.onboardingComplete,
+            lnbChemistryUnlocked: updatedUser.lnbChemistryUnlocked,
         });
         await setSessionCookie(newToken, true);
 

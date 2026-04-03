@@ -1,79 +1,122 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
-const menuSections = [
+const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
+  "/dashboard/ai-assistant": "aiDoubtSolver",
+  "/dashboard/planner": "smartPlanner",
+  "/dashboard/tests": "customiseTest",
+  "/dashboard/precision-practice": "competencyTest",
+  "/dashboard/flip-the-question": "flipTheQuestion",
+  "/dashboard/focus": "focusMode",
+  "/dashboard/numerical-mastery": "numericalMastery",
+  "/dashboard/guess-papers": "guessPapers",
+  "/dashboard/strategy": "strategyAI",
+  "/dashboard/last-night-before": "lastNightBefore",
+  "/dashboard/chronoscroll": "chronoScroll",
+  "/dashboard/date-battle": "dateBattleArena",
+  "/dashboard/notes": "notesFlashcards",
+};
+
+function isVisible(href: string): boolean {
+  const flag = ROUTE_FLAG_MAP[href];
+  if (!flag) return true;
+  return FEATURE_FLAGS[flag] === true;
+}
+
+const DiamondLogo = ({ size = 28 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5"/>
+    <path d="M24 4L44 18L24 32L4 18L24 4Z" fill="var(--accent-gold-glow)"/>
+    <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1" opacity="0.5"/>
+  </svg>
+);
+
+const NAV_GROUPS = [
   {
-    title: "Primary",
+    label: "HOME",
     items: [
-      { icon: "📊", label: "Dashboard", href: "/dashboard", accent: "#8B5CF6" },
-      { icon: "📚", label: "Subjects", href: "/dashboard/subjects", accent: "#3B82F6" },
-      { icon: "📅", label: "Planner", href: "/dashboard/planner", accent: "#10B981" },
-      { icon: "🤖", label: "AI Assistant", href: "/dashboard/ai-assistant", accent: "#F59E0B" },
-    ]
+      { icon: "⊞", label: "Dashboard", href: "/dashboard" },
+    ],
   },
   {
-    title: "Practice & Test",
+    label: "STUDY",
     items: [
-      { icon: "📝", label: "Customise Test", href: "/dashboard/tests", accent: "#EC4899" },
-      { icon: "⚡", label: "Competency Test", href: "/dashboard/precision-practice", accent: "#F97316" },
-      { icon: "🧮", label: "Numerical Mastery", href: "/dashboard/numerical-mastery", accent: "#3B82F6" },
-      { icon: "📄", label: "Guess Papers", href: "/dashboard/guess-papers", accent: "#6366F1" },
-      { icon: "🎯", label: "Customise Strategy", href: "/dashboard/strategy", accent: "#EF4444" },
-      { icon: "🌙", label: "Last Night Before", href: "/dashboard/last-night-before", accent: "#F59E0B" },
-      { icon: "🔁", label: "Flip the Question", href: "/dashboard/flip-the-question", accent: "#8B5CF6" },
-    ]
+      { icon: "◈", label: "AI Doubt Solver", href: "/dashboard/ai-assistant" },
+      { icon: "◎", label: "Smart Planner", href: "/dashboard/planner" },
+      { icon: "◉", label: "Focus Mode", href: "/dashboard/focus" },
+    ],
   },
   {
-    title: "History",
+    label: "PRACTICE",
     items: [
-      { icon: "⏳", label: "ChronoScroll", href: "/dashboard/chronoscroll", accent: "#0EA5E9" },
-      { icon: "⚔️", label: "Date Battle Arena", href: "/dashboard/date-battle", accent: "#D946EF" },
-    ]
+      { icon: "◉", label: "Competency Test", href: "/dashboard/precision-practice" },
+      { icon: "◈", label: "Customise Test", href: "/dashboard/tests" },
+      { icon: "⇌", label: "Flip the Question", href: "/dashboard/flip-the-question" },
+      { icon: "◎", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
+      { icon: "◈", label: "Guess Papers", href: "/dashboard/guess-papers" },
+      { icon: "◉", label: "Strategy AI", href: "/dashboard/strategy" },
+      { icon: "◎", label: "Last Night Before", href: "/dashboard/last-night-before" },
+    ],
   },
   {
-    title: "Library",
+    label: "FREE TOOLS",
     items: [
-      { icon: "📖", label: "Notes", href: "/dashboard/notes", accent: "#14B8A6" },
-      { icon: "🧘", label: "Focus Mode", href: "/dashboard/focus", accent: "#06B6D4" },
-    ]
+      { icon: "○", label: "To-do List", href: "/dashboard/planner?tab=todo" },
+      { icon: "◎", label: "ChronoScroll", href: "/dashboard/chronoscroll" },
+      { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
+      { icon: "◈", label: "Notes & Flashcards", href: "/dashboard/notes" },
+    ],
   },
   {
-    title: "Account",
+    label: "ACCOUNT",
     items: [
-      { icon: "👤", label: "Profile", href: "/dashboard/profile", accent: "#A78BFA" },
-      { icon: "📜", label: "Policies", href: "/dashboard/policies", accent: "#6B7280" },
-    ]
-  }
+      { icon: "○", label: "Profile", href: "/dashboard/profile" },
+      { icon: "○", label: "Policies", href: "/dashboard/policies" },
+    ],
+  },
+];
+
+// Mobile bottom tab bar items
+const MOBILE_TABS = [
+  { icon: "⊞", label: "Home", href: "/dashboard" },
+  { icon: "◈", label: "Study", href: "/dashboard/ai-assistant" },
+  { icon: "◉", label: "Practice", href: "/dashboard/precision-practice" },
+  { icon: "◎", label: "Focus", href: "/dashboard/focus" },
+  { icon: "○", label: "Account", href: "/dashboard/profile" },
 ];
 
 export default function DashboardSidebar({
   userName,
   userEmail,
   isPaid = true,
+  planType = "FREE",
 }: {
   userName?: string;
   userEmail?: string;
   isPaid?: boolean;
+  planType?: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [upgradeFeature, setUpgradeFeature] = useState<{ name: string; description: string } | null>(null);
-  const isMobile = useIsMobile();
 
   const initials = userName
     ? userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
+  const planLabel =
+    planType === "MONTHLY" ? "Monthly Plan" :
+    planType === "YEARLY" ? "Yearly Plan" :
+    "Free Plan";
+
   const handleNavigation = (href: string) => {
-    // If free user clicks a locked route, show UpgradePrompt
     if (!isPaid && isLockedRoute(href)) {
       const info = getFeatureInfo(href);
       if (info) {
@@ -86,214 +129,133 @@ export default function DashboardSidebar({
     router.push(href);
   };
 
-  return (
-    <>
-      {/* HAMBURGER */}
-      <button
-        className="mobile-only"
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          position: "fixed",
-          top: 16,
-          left: 16,
-          zIndex: 200,
-          width: 46,
-          height: 46,
-          background: isOpen
-            ? "linear-gradient(135deg, #8B5CF6, #7C3AED)"
-            : "rgba(14,14,16,0.9)",
-          backdropFilter: "blur(20px)",
-          border: "1px solid rgba(139,92,246,0.3)",
-          borderRadius: 14,
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          color: "#FFF",
-          fontSize: 22,
-          boxShadow: isOpen
-            ? "0 8px 32px rgba(139,92,246,0.4)"
-            : "0 4px 20px rgba(0,0,0,0.4)",
-          transition: "all 0.3s ease",
-        }}
-      >
-        {isOpen ? "✕" : "☰"}
-      </button>
-
-      {/* OVERLAY */}
-      <div
-        className={isOpen ? "mobile-only" : ""}
-        onClick={() => setIsOpen(false)}
-        style={{
-          position: "fixed",
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.7)",
-          backdropFilter: "blur(8px)",
-          zIndex: 140,
-          opacity: isOpen ? 1 : 0,
-          pointerEvents: isOpen ? "auto" : "none",
-          transition: "opacity 0.3s ease",
-          display: isOpen ? "block" : "none",
-        }}
-      />
-
-      {/* SIDEBAR */}
-      <aside
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "280px",
-          height: "100vh",
-          background: "linear-gradient(180deg, #08080D 0%, #0B0B12 40%, #0E0E16 100%)",
-          borderRight: "1px solid rgba(139,92,246,0.06)",
-          display: "flex",
-          flexDirection: "column",
-          zIndex: 150,
-          boxShadow: isOpen ? "10px 0 40px rgba(0,0,0,0.6)" : "none",
-          overflow: "hidden",
-        }}
-        className={`sidebar-transition ${!isMobile || isOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        {/* Ambient glow orbs */}
-        <div style={{
-          position: "absolute", top: -80, left: -60,
-          width: 200, height: 200, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(139,92,246,0.06), transparent 70%)",
-          pointerEvents: "none",
-        }} />
-        <div style={{
-          position: "absolute", bottom: -100, right: -80,
-          width: 250, height: 250, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(59,130,246,0.04), transparent 70%)",
-          pointerEvents: "none",
-        }} />
-
-        {/* Logo */}
-        <div style={{
-          padding: "22px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.03)",
-          flexShrink: 0,
-          position: "relative",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{
-              width: 46, height: 46,
-              position: "relative", flexShrink: 0,
-              borderRadius: 14,
-              background: "linear-gradient(135deg, rgba(139,92,246,0.12), rgba(59,130,246,0.06))",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              border: "1px solid rgba(139,92,246,0.12)",
-              overflow: "hidden",
-              boxShadow: "0 0 20px rgba(139,92,246,0.08)",
-            }}>
-              <Image src="/logo.png" alt="Logo" width={46} height={46} style={{ objectFit: "contain" }} />
-            </div>
-            <div>
-              <div style={{
-                fontSize: 15, fontWeight: 800, letterSpacing: -0.3,
-                background: "linear-gradient(135deg, #FFFFFF 20%, #C4B5FD 50%, #818CF8 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}>
-                ICSE Saviours
-              </div>
-              <div style={{
-                fontSize: 9, fontWeight: 600,
-                letterSpacing: 2, textTransform: "uppercase",
-                display: "flex", alignItems: "center", gap: 6,
-              }}>
-                <span style={{
-                  background: "linear-gradient(135deg, #8B5CF6, #6366F1)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}>Student OS</span>
-                <span style={{
-                  background: "linear-gradient(135deg, #8B5CF6, #7C3AED)",
-                  padding: "1px 6px",
-                  borderRadius: 4,
-                  fontSize: 8,
-                  fontWeight: 700,
-                  color: "#FFF",
-                  letterSpacing: 0.5,
-                }}>v1.2</span>
-              </div>
-            </div>
+  const SidebarContent = () => (
+    <aside style={{
+      width: 240,
+      height: "100vh",
+      background: "rgba(10,10,18,0.85)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      borderRight: "1px solid rgba(255,255,255,0.06)",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+    }}>
+      {/* Logo */}
+      <div style={{
+        padding: "20px 20px 16px",
+        borderBottom: "1px solid var(--bg-border)",
+        flexShrink: 0,
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+      }}>
+        <DiamondLogo size={28} />
+        <div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 15,
+            color: "var(--text-primary)",
+            letterSpacing: "0.08em",
+            lineHeight: 1.1,
+            textTransform: "uppercase",
+          }}>
+            Saviours AI
+          </div>
+          <div style={{
+            fontFamily: "var(--font-tagline)",
+            fontSize: 9,
+            fontWeight: 400,
+            fontStyle: "italic",
+            color: "rgba(180, 175, 200, 0.6)",
+            marginTop: 3,
+          }}>
+            Class X · 2027 Edition
           </div>
         </div>
+      </div>
 
-        {/* User Profile Card */}
+      {/* User section */}
+      <div style={{
+        padding: "12px 14px",
+        margin: "10px 10px 0",
+        borderRadius: 10,
+        background: "var(--bg-base)",
+        border: "1px solid var(--bg-border)",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        flexShrink: 0,
+      }}>
         <div style={{
-          padding: "14px 16px",
-          margin: "8px 12px",
-          borderRadius: 14,
-          background: "linear-gradient(135deg, rgba(139,92,246,0.06), rgba(59,130,246,0.03))",
-          border: "1px solid rgba(139,92,246,0.08)",
-          display: "flex", alignItems: "center", gap: 12,
+          width: 36, height: 36, minWidth: 36,
+          borderRadius: 8,
+          background: "rgba(0,212,255,0.12)",
+          border: "1px solid rgba(0,212,255,0.2)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "var(--font-body)",
+          fontSize: 12, fontWeight: 700,
+          color: "var(--accent-gold)",
           flexShrink: 0,
-          position: "relative",
-          overflow: "hidden",
         }}>
-          {/* Subtle shimmer overlay */}
+          {initials}
+        </div>
+        <div style={{ flex: 1, overflow: "hidden" }}>
           <div style={{
-            position: "absolute", inset: 0,
-            background: "linear-gradient(110deg, transparent 30%, rgba(139,92,246,0.04) 50%, transparent 70%)",
-            pointerEvents: "none",
+            fontFamily: "var(--font-body)",
+            fontSize: 13, fontWeight: 600,
+            color: "var(--text-primary)",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            letterSpacing: "-0.01em",
+          }}>
+            {userName || "Student"}
+          </div>
+          <div style={{
+            fontFamily: "var(--font-body)",
+            fontSize: 11,
+            color: "var(--text-muted)",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+          }}>
+            {userEmail || ""}
+          </div>
+        </div>
+        {/* Pulsing online dot */}
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <div style={{
+            width: 8, height: 8, borderRadius: "50%",
+            background: "#22c55e",
           }} />
           <div style={{
-            width: 38, height: 38, minWidth: 38,
-            borderRadius: 11,
-            background: "linear-gradient(135deg, #8B5CF6, #6366F1)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 13, fontWeight: 800, color: "#FFF",
-            flexShrink: 0,
-            boxShadow: "0 4px 14px rgba(139,92,246,0.35), inset 0 1px 0 rgba(255,255,255,0.1)",
-            position: "relative",
-          }}>
-            {initials}
-          </div>
-          <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
-            <div style={{
-              fontSize: 13, fontWeight: 650, color: "#F3F4F6",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-              letterSpacing: -0.1,
-            }}>
-              {userName || "User"}
-            </div>
-            <div style={{
-              fontSize: 10, color: "#6B7280", fontWeight: 500,
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>
-              {userEmail || "user@example.com"}
-            </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
-            <div style={{
-              width: 7, height: 7, borderRadius: "50%",
-              background: "linear-gradient(135deg, #10B981, #34D399)",
-              boxShadow: "0 0 8px rgba(16,185,129,0.5), 0 0 3px rgba(16,185,129,0.8)",
-            }} />
-            <span style={{ fontSize: 9, color: "#10B981", fontWeight: 600, letterSpacing: 0.3 }}>Live</span>
-          </div>
+            position: "absolute", inset: -3,
+            borderRadius: "50%",
+            background: "rgba(34,197,94,0.25)",
+            animation: "pulse 2s ease-in-out infinite",
+          }} />
         </div>
+      </div>
 
-        {/* Nav Links */}
-        <nav style={{ padding: "0 10px 20px", flex: 1, overflowY: "auto" }}>
-          {menuSections.map((section, sIdx) => (
-            <div key={section.title} style={{ marginBottom: sIdx === menuSections.length - 1 ? 0 : 16 }}>
-              {/* Section Header */}
+      {/* Nav */}
+      <nav style={{ flex: 1, overflowY: "auto", padding: "8px 10px 12px" }}>
+        {NAV_GROUPS.map((group) => {
+          const visibleItems = group.items.filter(item => isVisible(item.href));
+          if (visibleItems.length === 0) return null;
+          return (
+            <div key={group.label} style={{ marginBottom: 4 }}>
               <div style={{
-                padding: "8px 12px 6px",
-                fontSize: 9, fontWeight: 700, letterSpacing: 1.5,
-                textTransform: "uppercase", color: "#4B5563",
+                padding: "10px 10px 4px",
+                fontFamily: "var(--font-body)",
+                fontSize: 9, fontWeight: 700,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "var(--text-muted)",
+                opacity: 0.5,
               }}>
-                {section.title}
+                {group.label}
               </div>
-              
-              {/* Items in section */}
-              {section.items.map((item) => {
-                const isActive = pathname === item.href;
+              {visibleItems.map((item) => {
+                const isActive = pathname === item.href ||
+                  (item.href !== "/dashboard" && item.href.split("?")[0] !== "/dashboard" && pathname.startsWith(item.href.split("?")[0]));
                 const isHovered = hoveredItem === item.href;
-                const activeColor = item.accent;
                 return (
                   <button
                     key={item.href}
@@ -301,123 +263,262 @@ export default function DashboardSidebar({
                     onMouseEnter={() => setHoveredItem(item.href)}
                     onMouseLeave={() => setHoveredItem(null)}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 11,
+                      display: "flex", alignItems: "center", gap: 10,
                       width: "100%",
-                      padding: "10px 12px",
+                      padding: "8px 10px",
                       marginBottom: 1,
-                      borderRadius: 12,
-                      position: "relative",
-                      overflow: "hidden",
+                      borderRadius: 8,
                       background: isActive
-                        ? `linear-gradient(135deg, ${activeColor}14, ${activeColor}08)`
+                        ? "var(--accent-gold-glow)"
                         : isHovered
-                        ? "rgba(255,255,255,0.02)"
+                        ? "rgba(255,255,255,0.03)"
                         : "transparent",
-                      color: isActive ? activeColor : isHovered ? "#E5E7EB" : "#9CA3AF",
-                      border: isActive
-                        ? `1px solid ${activeColor}25`
-                        : "1px solid transparent",
+                      color: isActive ? "var(--accent-gold)" : isHovered ? "var(--text-primary)" : "var(--text-muted)",
+                      border: "none",
+                      borderLeft: isActive ? "2px solid var(--accent-gold)" : "2px solid transparent",
                       cursor: "pointer",
                       textAlign: "left",
+                      fontFamily: "var(--font-body)",
                       fontSize: 13,
-                      fontWeight: isActive ? 650 : 500,
-                      letterSpacing: isActive ? 0.1 : 0,
-                      transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-                      transform: isHovered && !isActive ? "translateX(4px)" : "none",
+                      fontWeight: isActive ? 600 : 400,
+                      letterSpacing: "-0.01em",
+                      transition: "all 0.15s ease",
+                      paddingLeft: isActive ? 8 : 10,
                     }}
                   >
-                {/* Active indicator bar — colored per item */}
-                {isActive && (
-                  <div style={{
-                    position: "absolute",
-                    left: 0,
-                    top: "15%",
-                    bottom: "15%",
-                    width: 3,
-                    borderRadius: 2,
-                    background: `linear-gradient(180deg, ${activeColor}, ${activeColor}AA)`,
-                    boxShadow: `0 0 10px ${activeColor}60`,
-                  }} />
-                )}
-                {/* Active background glow */}
-                {isActive && (
-                  <div style={{
-                    position: "absolute",
-                    left: 0, top: 0, bottom: 0,
-                    width: 80,
-                    background: `linear-gradient(90deg, ${activeColor}10, transparent)`,
-                    pointerEvents: "none",
-                  }} />
-                )}
-                <div style={{
-                  width: 30, height: 30, minWidth: 30,
-                  borderRadius: 9,
-                  background: isActive
-                    ? `linear-gradient(135deg, ${activeColor}18, ${activeColor}08)`
-                    : isHovered
-                    ? "rgba(255,255,255,0.04)"
-                    : "rgba(255,255,255,0.02)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 16,
-                  border: isActive ? `1px solid ${activeColor}20` : "1px solid transparent",
-                  filter: isActive ? "none" : "grayscale(0.2)",
-                  transition: "all 0.25s ease",
-                }}>
-                  {item.icon}
-                </div>
-                <span style={{ whiteSpace: "nowrap", flex: 1 }}>{item.label}</span>
-                {/* Lock icon for free users on locked routes */}
-                {!isPaid && isLockedRoute(item.href) && (
-                  <span style={{
-                    fontSize: 12,
-                    opacity: 0.6,
-                    marginLeft: "auto",
-                    flexShrink: 0,
-                  }}>🔒</span>
-                )}
-                {isActive && (
-                  <div style={{
-                    position: "absolute",
-                    right: 12,
-                    display: "flex", alignItems: "center", gap: 3,
-                  }}>
-                    <div style={{
-                      width: 5, height: 5,
-                      borderRadius: "50%",
-                      background: activeColor,
-                      boxShadow: `0 0 8px ${activeColor}80`,
-                    }} />
-                  </div>
-                )}
-              </button>
-            );
-          })}
+                    <span style={{
+                      fontSize: 13,
+                      color: isActive ? "var(--accent-gold)" : "var(--text-muted)",
+                      minWidth: 16,
+                      textAlign: "center",
+                      opacity: isActive ? 1 : 0.5,
+                      flexShrink: 0,
+                    }}>
+                      {item.icon}
+                    </span>
+                    <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {item.label}
+                    </span>
+                    {!isPaid && isLockedRoute(item.href) && (
+                      <span style={{ fontSize: 10, opacity: 0.35, flexShrink: 0 }}>⌁</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          ))}
-        </nav>
+          );
+        })}
+      </nav>
 
-        {/* Footer */}
+      {/* Bottom plan badge */}
+      <div style={{
+        padding: "12px 14px",
+        borderTop: "1px solid var(--bg-border)",
+        flexShrink: 0,
+      }}>
         <div style={{
-          padding: "14px 16px",
-          borderTop: "1px solid rgba(255,255,255,0.03)",
-          textAlign: "center",
-          flexShrink: 0,
-          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "8px 12px",
+          borderRadius: 8,
+          background: isPaid
+            ? "rgba(0,212,255,0.06)"
+            : "var(--bg-base)",
+          border: isPaid
+            ? "1px solid rgba(0,212,255,0.15)"
+            : "1px solid var(--bg-border)",
         }}>
-          <div style={{
-            fontSize: 9, fontWeight: 600, letterSpacing: 0.8,
-            background: "linear-gradient(135deg, #4B5563, #6B7280)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}>
-            © 2026 ICSE Saviours • Made with 💜
+          <div>
+            <div style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 11, fontWeight: 600,
+              color: isPaid ? "var(--accent-gold)" : "var(--text-muted)",
+              letterSpacing: "0.02em",
+            }}>
+              {planLabel}
+            </div>
+            {!isPaid && (
+              <div style={{
+                fontFamily: "var(--font-body)",
+                fontSize: 10,
+                color: "var(--text-muted)",
+                marginTop: 1,
+              }}>
+                Upgrade for full access
+              </div>
+            )}
           </div>
+          {isPaid ? (
+            <span style={{ fontSize: 14 }}>◈</span>
+          ) : (
+            <button
+              onClick={() => router.push("/dashboard/profile")}
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: 10, fontWeight: 600,
+                color: "var(--accent-gold)",
+                background: "rgba(0,212,255,0.1)",
+                border: "1px solid rgba(0,212,255,0.2)",
+                borderRadius: 6,
+                padding: "4px 8px",
+                cursor: "pointer",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Upgrade
+            </button>
+          )}
         </div>
-      </aside>
+        {/* Premium tagline */}
+        <div style={{
+          fontFamily: "var(--font-tagline)",
+          fontSize: 9,
+          fontWeight: 400,
+          fontStyle: "italic",
+          color: "rgba(180, 175, 200, 0.45)",
+          textAlign: "center",
+          marginTop: 10,
+          letterSpacing: "0.02em",
+        }}>
+          Where preparation meets precision.
+        </div>
+      </div>
+    </aside>
+  );
 
-      {/* UpgradePrompt overlay for free users */}
+  return (
+    <>
+      {/* ── DESKTOP SIDEBAR ── */}
+      <div
+        className="desktop-only"
+        style={{
+          position: "fixed",
+          top: 0, left: 0,
+          height: "100vh",
+          zIndex: 150,
+        }}
+      >
+        <SidebarContent />
+      </div>
+
+      {/* ── MOBILE HAMBURGER ── */}
+      <button
+        className="mobile-only"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          position: "fixed",
+          top: 14, left: 14, zIndex: 200,
+          width: 42, height: 42,
+          background: isOpen ? "var(--accent-gold)" : "rgba(17,17,24,0.9)",
+          backdropFilter: "blur(16px)",
+          border: `1px solid ${isOpen ? "var(--accent-gold)" : "var(--bg-border)"}`,
+          borderRadius: 10,
+          display: "flex",
+          alignItems: "center", justifyContent: "center",
+          cursor: "pointer",
+          color: isOpen ? "var(--bg-base)" : "var(--text-primary)",
+          fontSize: 16,
+          transition: "all 0.2s ease",
+        }}
+      >
+        {isOpen ? "✕" : "☰"}
+      </button>
+
+      {/* ── MOBILE OVERLAY ── */}
+      {isOpen && (
+        <div
+          className="mobile-only"
+          onClick={() => setIsOpen(false)}
+          style={{
+            position: "fixed", inset: 0,
+            background: "rgba(0,0,0,0.65)",
+            backdropFilter: "blur(4px)",
+            zIndex: 140,
+          }}
+        />
+      )}
+
+      {/* ── MOBILE DRAWER ── */}
+      <div
+        className="mobile-only"
+        style={{
+          position: "fixed",
+          top: 0, left: 0,
+          height: "100vh",
+          zIndex: 150,
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1)",
+        }}
+      >
+        <SidebarContent />
+      </div>
+
+      {/* ── MOBILE BOTTOM TAB BAR ── */}
+      <nav
+        className="mobile-only"
+        style={{
+          position: "fixed",
+          bottom: 0, left: 0, right: 0,
+          height: 64,
+          background: "rgba(10,10,18,0.92)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderTop: "1px solid var(--bg-border)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          zIndex: 130,
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        }}
+      >
+        {MOBILE_TABS.map((tab) => {
+          const isActive = pathname === tab.href ||
+            (tab.href !== "/dashboard" && pathname.startsWith(tab.href));
+          return (
+            <button
+              key={tab.href}
+              onClick={() => handleNavigation(tab.href)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 3,
+                padding: "8px 12px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: isActive ? "var(--accent-gold)" : "var(--text-muted)",
+                transition: "color 0.15s ease",
+                position: "relative",
+              }}
+            >
+              <span style={{ fontSize: 18, lineHeight: 1 }}>{tab.icon}</span>
+              <span style={{
+                fontFamily: "var(--font-body)",
+                fontSize: 9,
+                fontWeight: isActive ? 600 : 400,
+                letterSpacing: "0.04em",
+              }}>
+                {tab.label}
+              </span>
+              {isActive && (
+                <div style={{
+                  position: "absolute",
+                  bottom: -1,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: 4, height: 4,
+                  borderRadius: "50%",
+                  background: "var(--accent-gold)",
+                }} />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
       {upgradeFeature && (
         <UpgradePrompt
           featureName={upgradeFeature.name}

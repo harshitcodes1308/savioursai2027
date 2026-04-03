@@ -20,8 +20,13 @@ model User {
   lnbChemistryUnlocked Boolean           @default(false)
   flipStreak         Int                 @default(0)
   flipBestStreak     Int                 @default(0)
-  phone              String?             @unique
-  authProvider       String              @default("credentials")
+  phone                  String?             @unique
+  authProvider           String              @default("credentials")
+  planType               PlanType            @default(FREE)
+  subscriptionStatus     SubscriptionStatus  @default(ACTIVE)
+  subscriptionExpiry     DateTime?
+  razorpaySubscriptionId String?             @unique
+  onboardingComplete     Boolean             @default(false)
   aiUsageLogs        AiUsageLog[]
   auditLogs          AuditLog[]
   dailyPlans         DailyPlan[]
@@ -670,4 +675,16 @@ enum Sprint15Status {
   ACTIVE
   COMPLETED
   ABANDONED
+}
+
+enum PlanType {
+  FREE
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
 }

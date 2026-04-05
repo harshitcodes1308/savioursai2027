@@ -96,6 +96,12 @@ export async function middleware(request: NextRequest) {
 
     // 6. Auth routes → dashboard if already logged in
     if (isAuthRoute && isAuthenticated) {
+        if (!onboardingComplete) {
+            // Un-authenticated the user so they can go back to sign in / sign up
+            const res = NextResponse.next();
+            res.cookies.delete('auth-token');
+            return res;
+        }
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 

@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
  *
  * Razorpay webhook handler — keeps the DB in sync with subscription state.
  * Configure in Razorpay Dashboard → Webhooks with URL:
- *   https://yourdomain.com/api/razorpay/webhook
+ *   https://savioursai2027.vercel.app/api/razorpay/webhook
  * with secret = RAZORPAY_WEBHOOK_SECRET, and events:
  *   - subscription.charged       (recurring payment succeeded → extend expiry)
  *   - subscription.cancelled     (user/admin cancelled)

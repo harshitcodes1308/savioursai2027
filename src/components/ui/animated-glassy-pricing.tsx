@@ -400,10 +400,10 @@ const savioursPlans: PricingCardProps[] = [
   {
     planName: 'Yearly',
     description: 'Commit to your boards. Best value.',
-    price: '499',
+    price: '599',
     priceSymbol: '₹',
     billingLabel: '/year',
-    savingsLabel: 'Save ₹1,889 vs monthly',
+    savingsLabel: 'Save ₹1,789 vs monthly',
     features: [
       'Everything in Monthly',
       'Priority AI responses',

@@ -205,14 +205,14 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                                 </div>
                                             )}
                                             <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: isSelected ? "var(--accent-gold)" : "var(--text-primary)", letterSpacing: "-0.02em" }}>
-                                                {plan === "MONTHLY" ? "₹199" : "₹499"}
+                                                {plan === "MONTHLY" ? "₹199" : "₹599"}
                                             </div>
                                             <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                                                 {plan === "MONTHLY" ? "per month" : "per year"}
                                             </div>
                                             {isYearly && (
                                                 <div style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--accent-gold)", marginTop: 4 }}>
-                                                    Save ₹1,889
+                                                    Save ₹1,789
                                                 </div>
                                             )}
                                         </button>
@@ -237,7 +237,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                             </div>
 
                             <RazorpayButton
-                                amount={selectedPlan === "MONTHLY" ? 199 : 499}
+                                amount={selectedPlan === "MONTHLY" ? 199 : 599}
                                 type="PRO"
                                 email={(user as any)?.email || ""}
                                 name={(user as any)?.name || ""}

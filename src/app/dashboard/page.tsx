@@ -227,6 +227,26 @@ export default function DashboardPage() {
                             }}>
                                 {PLAN_LABELS[planType] ?? "Free"}
                             </span>
+                            {planType === "FREE" && (
+                                <button
+                                    onClick={() => router.push("/pricing")}
+                                    style={{
+                                        fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700,
+                                        color: "#0A0A0F",
+                                        background: "var(--accent-gold)",
+                                        border: "1px solid var(--accent-gold)",
+                                        borderRadius: 100, padding: "3px 12px",
+                                        letterSpacing: "0.1em", textTransform: "uppercase",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s ease",
+                                        display: "inline-flex", alignItems: "center", gap: 5,
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.filter = "brightness(1.1)"; }}
+                                    onMouseLeave={e => { e.currentTarget.style.filter = "none"; }}
+                                >
+                                    ✦ Upgrade
+                                </button>
+                            )}
                         </div>
                     </div>
 

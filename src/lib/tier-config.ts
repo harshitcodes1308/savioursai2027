@@ -8,7 +8,6 @@
 /** Routes that require Pro (isPaid = true) */
 export const LOCKED_ROUTES = [
     "/dashboard/ai-assistant",
-    "/dashboard/planner",
     "/dashboard/tests",
     "/dashboard/precision-practice",
     "/dashboard/strategy",
@@ -16,20 +15,21 @@ export const LOCKED_ROUTES = [
     "/dashboard/chronoscroll",
     "/dashboard/date-battle",
     "/dashboard/numerical-mastery",
+    "/dashboard/flip-the-question",
+    "/dashboard/focus",
 ] as const;
 
 /** Routes accessible to free users */
 export const FREE_ROUTES = [
     "/dashboard",
+    "/dashboard/planner",
+    "/dashboard/todo",
     "/dashboard/subjects",
     "/dashboard/guess-papers",
-    "/dashboard/focus",
     "/dashboard/profile",
     "/dashboard/policies",
     "/dashboard/activity",
     "/dashboard/last-night-before",
-    // TODO: Add Formula Chain route once built
-    // TODO: Add Physics Readiness Scan route once built
 ] as const;
 
 /** Feature info for UpgradePrompt — maps route to display name + description */

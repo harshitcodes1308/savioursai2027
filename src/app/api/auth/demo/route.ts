@@ -6,6 +6,7 @@ import type { SessionUser } from "@/lib/auth";
 const DEMO_EMAIL = "demo@saviours.test";
 const DEMO_NAME = "Demo Student";
 const DEMO_PASSWORD = "demo123456";
+const DEMO_PHONE = "9999900000";
 
 /**
  * POST /api/auth/demo
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
         email: DEMO_EMAIL,
         password: hashed,
         name: DEMO_NAME,
+        phone: DEMO_PHONE,
         role: "STUDENT",
         planType: "YEARLY",
         subscriptionStatus: "ACTIVE",

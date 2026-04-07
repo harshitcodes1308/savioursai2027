@@ -6,14 +6,19 @@ import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
 
 // HARDCODED: Server-side pricing — NEVER trust frontend amount
 const PRICING = {
-    PRO: 9900, // ₹99 in paise
-    LNB_CHEMISTRY: 1900, // ₹19 in paise
-};
+    PRO_YEARLY: 49900,    // ₹499 — one-time yearly
+    LNB_CHEMISTRY: 1900,  // ₹19 in paise
+} as const;
+
+type PurchaseType = keyof typeof PRICING;
 
 export async function POST(req: Request) {
     try {
         const body = await req.json().catch(() => ({}));
-        const purchaseType = (body.type === "LNB_CHEMISTRY") ? "LNB_CHEMISTRY" : "PRO";
+        // Accept "PRO_YEARLY" or legacy "PRO" → both map to yearly one-time
+        const requested = String(body.type || "PRO_YEARLY");
+        const purchaseType: PurchaseType =
+            requested === "LNB_CHEMISTRY" ? "LNB_CHEMISTRY" : "PRO_YEARLY";
         const amountPaise = PRICING[purchaseType];
 
         const user = await getCurrentUser();
@@ -37,7 +42,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        if (purchaseType === "PRO") {
+        if (purchaseType === "PRO_YEARLY") {
             const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
             if (dbUser.isPaid || dbUser.createdAt < CUTOFF_DATE) {
                 return NextResponse.json({ error: "Already paid for Pro" }, { status: 409 });

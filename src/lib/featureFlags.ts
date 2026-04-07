@@ -10,7 +10,7 @@ export const FEATURE_FLAGS = {
 
   // Hidden — activate later by flipping to true
   numericalMastery:  false,
-  chronoScroll:      false,
+  chronoScroll:      true,
   guessPapers:       false,
   dateBattleArena:   false,
   strategyAI:        false,

@@ -1,13 +1,14 @@
 export type Plan = 'free' | 'monthly' | 'yearly';
 
 export const PLAN_FEATURES: Record<string, Plan[]> = {
-  aiDoubtSolver:   ['free', 'monthly', 'yearly'], // free gets 3/day limit
-  smartPlanner:    ['monthly', 'yearly'],
+  aiDoubtSolver:   ['monthly', 'yearly'],
+  smartPlanner:    ['free', 'monthly', 'yearly'],
   competencyTest:  ['monthly', 'yearly'],
   customiseTest:   ['monthly', 'yearly'],
   flipTheQuestion: ['monthly', 'yearly'],
   focusMode:       ['monthly', 'yearly'],
   todoList:        ['free', 'monthly', 'yearly'],
+  chronoScroll:    ['monthly', 'yearly'],
 };
 
 export const AI_DOUBT_FREE_LIMIT = 3; // queries per day for free users

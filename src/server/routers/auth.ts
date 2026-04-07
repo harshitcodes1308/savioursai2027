@@ -20,7 +20,7 @@ export const authRouter = createTRPCRouter({
                 email: z.string().email(),
                 password: z.string().min(6),
                 name: z.string().min(2),
-                phone: z.string().optional(), // Optional phone number
+                phone: z.string().min(10, "Phone must be at least 10 digits"),
                 role: z.enum(["STUDENT", "TEACHER"]).optional().default("STUDENT"),
             })
         )

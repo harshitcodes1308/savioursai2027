@@ -52,6 +52,9 @@ export default function OnboardingFlow() {
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number; delay: number }>>([]);
   const [showTagline, setShowTagline] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const [phoneInput, setPhoneInput] = useState('');
+  const [profileError, setProfileError] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   const video1Ref = useRef<HTMLVideoElement>(null);
   const video6Ref = useRef<HTMLVideoElement>(null);
@@ -132,6 +135,41 @@ export default function OnboardingFlow() {
     setTimeout(() => { setFadeOut(false); setStep(2); }, 600);
   }
 
+  async function handleSaveProfile() {
+    setProfileError('');
+    const finalName = (nameInput || userName.split(' ')[0]).trim();
+    const cleanedPhone = phoneInput.replace(/\D/g, '');
+
+    if (!finalName || finalName.length < 2) {
+      setProfileError('Please enter your name.');
+      return;
+    }
+    if (cleanedPhone.length < 10) {
+      setProfileError('Please enter a valid 10-digit phone number.');
+      return;
+    }
+
+    setSavingProfile(true);
+    try {
+      const res = await fetch('/api/auth/save-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: finalName, phone: cleanedPhone }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setProfileError(data.error || 'Failed to save profile. Please try again.');
+        setSavingProfile(false);
+        return;
+      }
+      setSavingProfile(false);
+      setStep(5);
+    } catch {
+      setProfileError('Network error. Please try again.');
+      setSavingProfile(false);
+    }
+  }
+
   async function doComplete() {
     try { await fetch('/api/auth/complete-onboarding', { method: 'POST' }); } catch {}
     window.location.href = '/dashboard';
@@ -166,45 +204,76 @@ export default function OnboardingFlow() {
       return;
     }
 
-    try {
-      const orderRes = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'PRO' }),
-      });
-      const orderData = await orderRes.json();
-
-      if (!orderData.success) {
-        alert(`Payment Error: ${orderData.error}`);
-        return;
+    const commonHandler = async (response: any) => {
+      try {
+        const { verifyPaymentAction } = await import('@/actions/verify-payment');
+        const result = await verifyPaymentAction(response);
+        if (result.success) {
+          setStep(6);
+        } else {
+          alert('Payment verification failed: ' + result.error);
+        }
+      } catch {
+        alert('Verification failed. Please contact support if money was deducted.');
       }
+    };
 
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
-        amount: orderData.order.amount,
-        currency: orderData.order.currency,
-        name: 'ICSE Saviours',
-        description: `${planKey === 'YEARLY' ? 'Yearly' : 'Monthly'} Access`,
-        order_id: orderData.order.id,
-        handler: async function (response: any) {
-          try {
-            const { verifyPaymentAction } = await import('@/actions/verify-payment');
-            const result = await verifyPaymentAction(response);
-            if (result.success) {
-              setStep(6);
-            } else {
-              alert('Payment verification failed: ' + result.error);
-            }
-          } catch {
-            alert('Verification failed. Please contact support if money was deducted.');
-          }
-        },
-        prefill: { name: nameInput || userName, email: userEmail },
-        theme: { color: '#00D4FF' },
-      };
+    const prefill = { name: nameInput || userName, email: userEmail };
+    const themeColor = '#00D4FF';
+    const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '';
 
-      const paymentObject = new (window as any).Razorpay(options);
-      paymentObject.open();
+    try {
+      if (planKey === 'MONTHLY') {
+        // ── Recurring subscription flow (₹199/month) ──
+        const subRes = await fetch('/api/create-subscription', { method: 'POST' });
+        const subData = await subRes.json();
+
+        if (!subData.success) {
+          alert(`Subscription Error: ${subData.error || 'Failed to create subscription'}`);
+          return;
+        }
+
+        const options = {
+          key,
+          name: 'Saviours AI',
+          description: 'Monthly Access — ₹199/month',
+          subscription_id: subData.subscription.id,
+          handler: commonHandler,
+          prefill,
+          theme: { color: themeColor },
+        };
+
+        const paymentObject = new (window as any).Razorpay(options);
+        paymentObject.open();
+      } else {
+        // ── One-time order flow (₹499 yearly) ──
+        const orderRes = await fetch('/api/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'PRO_YEARLY' }),
+        });
+        const orderData = await orderRes.json();
+
+        if (!orderData.success) {
+          alert(`Payment Error: ${orderData.error}`);
+          return;
+        }
+
+        const options = {
+          key,
+          amount: orderData.order.amount,
+          currency: orderData.order.currency,
+          name: 'Saviours AI',
+          description: 'Yearly Access — ₹499 one-time',
+          order_id: orderData.order.id,
+          handler: commonHandler,
+          prefill,
+          theme: { color: themeColor },
+        };
+
+        const paymentObject = new (window as any).Razorpay(options);
+        paymentObject.open();
+      }
     } catch {
       alert('Payment failed. Please try again.');
     }
@@ -558,23 +627,23 @@ export default function OnboardingFlow() {
           color: 'var(--text-primary)',
           marginBottom: 8,
         }}>
-          What should we call you?
+          A few quick details.
         </h1>
         <p style={{
           fontFamily: 'var(--font-tagline)',
           fontSize: 14,
           fontStyle: 'italic',
           color: 'var(--text-muted)',
-          marginBottom: 36,
+          marginBottom: 28,
         }}>
-          Just your first name is fine.
+          We'll use these to personalise your experience.
         </p>
 
         <input
           type="text"
           value={nameInput || userName.split(' ')[0]}
           onChange={(e) => setNameInput(e.target.value)}
-          placeholder="Your name"
+          placeholder="Your first name"
           autoFocus
           className="sa-input"
           style={{
@@ -588,29 +657,73 @@ export default function OnboardingFlow() {
             color: 'var(--text-primary)',
             textAlign: 'center',
             outline: 'none',
-            marginBottom: 24,
+            marginBottom: 14,
+            transition: 'border-color 0.2s ease',
+          }}
+          onFocus={(e) => e.currentTarget.style.borderColor = 'var(--accent-gold-border)'}
+          onBlur={(e) => e.currentTarget.style.borderColor = 'var(--bg-border)'}
+        />
+
+        <input
+          type="tel"
+          inputMode="numeric"
+          value={phoneInput}
+          onChange={(e) => setPhoneInput(e.target.value.replace(/[^\d+\s-]/g, ''))}
+          placeholder="10-digit mobile number"
+          maxLength={15}
+          className="sa-input"
+          style={{
+            width: '100%',
+            padding: '16px 20px',
+            fontSize: '18px',
+            fontFamily: 'var(--font-body)',
+            background: 'var(--bg-surface)',
+            border: '1.5px solid var(--bg-border)',
+            borderRadius: '14px',
+            color: 'var(--text-primary)',
+            textAlign: 'center',
+            outline: 'none',
+            marginBottom: profileError ? 10 : 24,
             transition: 'border-color 0.2s ease',
           }}
           onFocus={(e) => e.currentTarget.style.borderColor = 'var(--accent-gold-border)'}
           onBlur={(e) => e.currentTarget.style.borderColor = 'var(--bg-border)'}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && (nameInput || userName)) setStep(5);
+            if (e.key === 'Enter') handleSaveProfile();
           }}
         />
 
+        {profileError && (
+          <div style={{
+            marginBottom: 18,
+            padding: '10px 14px',
+            background: 'rgba(248,113,113,0.08)',
+            border: '1px solid rgba(248,113,113,0.25)',
+            borderRadius: 10,
+            fontFamily: 'var(--font-body)',
+            fontSize: 13,
+            color: 'var(--status-red)',
+          }}>
+            {profileError}
+          </div>
+        )}
+
         <button
-          onClick={() => setStep(5)}
-          disabled={!nameInput && !userName}
+          onClick={handleSaveProfile}
+          disabled={savingProfile}
           className="btn-gold"
           style={{
             fontSize: 'var(--text-md)',
             padding: '14px 44px',
-            opacity: (nameInput || userName) ? 1 : 0.4,
+            opacity: savingProfile ? 0.6 : 1,
+            cursor: savingProfile ? 'wait' : 'pointer',
             position: 'relative',
             overflow: 'hidden',
           }}
         >
-          <span style={{ position: 'relative', zIndex: 1 }}>Continue &rarr;</span>
+          <span style={{ position: 'relative', zIndex: 1 }}>
+            {savingProfile ? 'Saving…' : 'Continue →'}
+          </span>
         </button>
       </div>
     </div>

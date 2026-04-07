@@ -373,7 +373,7 @@ const savioursPlans: PricingCardProps[] = [
     price: '0',
     priceSymbol: '₹',
     billingLabel: 'forever',
-    features: ['To-do List', 'AI Doubt Solver (3/day)', 'Class schedule view'],
+    features: ['Smart Planner', 'Monthly Mission', 'Dashboard & Subjects'],
     buttonText: 'Get Started Free',
     buttonVariant: 'secondary',
     isPopular: false,

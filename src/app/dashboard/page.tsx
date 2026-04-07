@@ -112,7 +112,8 @@ export default function DashboardPage() {
         { flag: "customiseTest" as const, label: "Customise Test", desc: "Build your own MCQ set", path: "/dashboard/tests", icon: "◈", tagline: "Your test, your rules" },
         { flag: "flipTheQuestion" as const, label: "Flip the Question", desc: "Reverse-engineer from answers", path: "/dashboard/flip-the-question", icon: "⇌", tagline: "See questions from the other side" },
         { flag: "focusMode" as const, label: "Focus Mode", desc: "Distraction-free deep work", path: "/dashboard/focus", icon: "◎", tagline: "Where deep work happens" },
-        { flag: "todoList" as const, label: "To-do List", desc: "Track what needs doing", path: "/dashboard/planner", icon: "○", tagline: "Small steps, big results" },
+        { flag: "todoList" as const, label: "Monthly Mission", desc: "12-month ICSE board prep checklist", path: "/dashboard/todo", icon: "○", tagline: "One month at a time" },
+        { flag: "chronoScroll" as const, label: "ChronoScroll", desc: "Scroll through history, snap dates", path: "/dashboard/chronoscroll", icon: "◎", tagline: "Scroll. Snap. Remember." },
     ].filter(card => FEATURE_FLAGS[card.flag]);
 
     if (profileLoading || !stats) {

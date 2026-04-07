@@ -17,7 +17,7 @@ export const FEATURE_FLAGS = {
 
   // ── HIDDEN — built but not exposed in UI ────────────────────
   numericalMastery: false,
-  chronoScroll: false,
+  chronoScroll: true,
   guessPapers: false,
   dateBattleArena: false,
   strategyAI: false,

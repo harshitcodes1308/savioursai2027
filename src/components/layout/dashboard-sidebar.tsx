@@ -44,11 +44,18 @@ const NAV_GROUPS = [
     ],
   },
   {
+    label: "FREE TOOLS",
+    items: [
+      { icon: "◎", label: "Smart Planner", href: "/dashboard/planner" },
+      { icon: "○", label: "Monthly Mission", href: "/dashboard/todo" },
+    ],
+  },
+  {
     label: "STUDY",
     items: [
       { icon: "◈", label: "AI Doubt Solver", href: "/dashboard/ai-assistant" },
-      { icon: "◎", label: "Smart Planner", href: "/dashboard/planner" },
       { icon: "◉", label: "Focus Mode", href: "/dashboard/focus" },
+      { icon: "◎", label: "ChronoScroll", href: "/dashboard/chronoscroll" },
     ],
   },
   {
@@ -61,13 +68,6 @@ const NAV_GROUPS = [
       { icon: "◈", label: "Guess Papers", href: "/dashboard/guess-papers" },
       { icon: "◉", label: "Strategy AI", href: "/dashboard/strategy" },
       { icon: "◎", label: "Last Night Before", href: "/dashboard/last-night-before" },
-    ],
-  },
-  {
-    label: "FREE TOOLS",
-    items: [
-      { icon: "○", label: "To-do List", href: "/dashboard/planner?tab=todo" },
-      { icon: "◎", label: "ChronoScroll", href: "/dashboard/chronoscroll" },
       { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
       { icon: "◈", label: "Notes & Flashcards", href: "/dashboard/notes" },
     ],

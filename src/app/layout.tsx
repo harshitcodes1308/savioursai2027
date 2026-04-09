@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { TRPCProvider } from "@/lib/trpc/client";
 import { ConsoleWelcome } from "@/components/ConsoleWelcome";
@@ -28,6 +29,7 @@ export default function RootLayout({
         <TRPCProvider>
           {children}
         </TRPCProvider>
+        <Analytics />
       </body>
     </html>
   );

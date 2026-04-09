@@ -21,6 +21,7 @@
     "@trpc/react-query": "^11.8.1",
     "@trpc/server": "^11.8.1",
     "@uiw/react-codemirror": "^4.25.8",
+    "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.66.5",
     "class-variance-authority": "^0.7.1",

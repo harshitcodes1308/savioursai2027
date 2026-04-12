@@ -418,7 +418,7 @@ const savioursPlans: PricingCardProps[] = [
 
 interface AnimatedGlassyPricingProps {
   isMobile: boolean;
-  onSelectPlan: (plan: 'FREE' | 'MONTHLY' | 'YEARLY') => void;
+  onSelectPlan: (plan: 'FREE' | 'MONTHLY' | 'YEARLY' | 'DOMIN8', domin8Code?: string) => void;
   userName?: string;
 }
 
@@ -427,6 +427,22 @@ export default function AnimatedGlassyPricing({
   onSelectPlan,
   userName,
 }: AnimatedGlassyPricingProps) {
+  const [showDomin8Modal, setShowDomin8Modal] = useState(false);
+  const [domin8Code, setDomin8Code] = useState('');
+  const [domin8Error, setDomin8Error] = useState('');
+  const [domin8Loading, setDomin8Loading] = useState(false);
+
+  const handleDomin8Submit = () => {
+    const code = domin8Code.trim();
+    if (!code || !code.startsWith('W')) {
+      setDomin8Error('Invalid code. Please try again.');
+      return;
+    }
+    setDomin8Error('');
+    setDomin8Loading(true);
+    onSelectPlan('DOMIN8', code);
+  };
+
   return (
     <div
       style={{
@@ -509,6 +525,52 @@ export default function AnimatedGlassyPricing({
           ))}
         </div>
 
+        {/* Domin8 Pro CTA */}
+        <div
+          onClick={() => { setShowDomin8Modal(true); setDomin8Code(''); setDomin8Error(''); }}
+          style={{
+            textAlign: 'center',
+            marginBottom: '20px',
+            padding: isMobile ? '16px 20px' : '18px 28px',
+            background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(139,92,246,0.06))',
+            border: '1.5px solid rgba(0,212,255,0.18)',
+            borderRadius: '14px',
+            cursor: 'pointer',
+            transition: 'all 300ms ease',
+            maxWidth: '480px',
+            margin: '0 auto 20px',
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.borderColor = 'var(--accent-gold-border)';
+            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.1), rgba(139,92,246,0.1))';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(0,212,255,0.18)';
+            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(139,92,246,0.06))';
+          }}
+        >
+          <div
+            style={{
+              fontFamily: 'ScotchDisplay, serif',
+              fontSize: isMobile ? '16px' : '18px',
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              marginBottom: '4px',
+            }}
+          >
+            Student from <span style={{ color: 'var(--accent-gold)' }}>Domin8 Pro</span>?
+          </div>
+          <div
+            style={{
+              fontFamily: 'Helvetica Neue, sans-serif',
+              fontSize: isMobile ? '13px' : '14px',
+              color: 'var(--text-muted)',
+            }}
+          >
+            Tap here to activate your free access
+          </div>
+        </div>
+
         {/* Footer */}
         <p
           style={{
@@ -522,6 +584,176 @@ export default function AnimatedGlassyPricing({
           Secure payment via Razorpay. Cancel anytime.
         </p>
       </div>
+
+      {/* ── Domin8 Pro Code Modal ── */}
+      {showDomin8Modal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 2000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(8px)',
+            animation: 'fadeIn 200ms ease-out both',
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget && !domin8Loading) setShowDomin8Modal(false); }}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, rgba(26,26,36,0.95), rgba(17,17,24,0.9))',
+              border: '1.5px solid var(--accent-gold-border)',
+              borderRadius: '20px',
+              backdropFilter: 'blur(14px)',
+              padding: isMobile ? '28px 22px' : '36px 32px',
+              maxWidth: '420px',
+              width: isMobile ? 'calc(100% - 32px)' : '100%',
+              boxShadow: '0 0 40px rgba(0,212,255,0.12)',
+              animation: 'slideInUp 0.4s ease-out both',
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                fontFamily: 'ScotchDisplay, serif',
+                fontSize: '24px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                textAlign: 'center',
+                marginBottom: '6px',
+              }}
+            >
+              Domin8 <span style={{ color: 'var(--accent-gold)' }}>Pro</span>
+            </div>
+            <p
+              style={{
+                fontFamily: 'Helvetica Neue, sans-serif',
+                fontSize: '13px',
+                color: 'var(--text-muted)',
+                textAlign: 'center',
+                marginBottom: '24px',
+                lineHeight: 1.5,
+              }}
+            >
+              Enter the special code provided to you
+            </p>
+
+            {domin8Loading ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                gap: '16px', padding: '20px 0',
+              }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  border: '3px solid rgba(255,255,255,0.08)',
+                  borderTopColor: 'var(--accent-gold)',
+                  animation: 'spin360 0.7s linear infinite',
+                }} />
+                <div style={{
+                  fontFamily: 'Helvetica Neue, sans-serif',
+                  fontSize: '14px', color: 'var(--text-muted)',
+                }}>
+                  Activating your access...
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Code Input */}
+                <input
+                  type="text"
+                  value={domin8Code}
+                  onChange={(e) => { setDomin8Code(e.target.value); setDomin8Error(''); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleDomin8Submit(); }}
+                  placeholder="Enter your code"
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    border: domin8Error
+                      ? '1.5px solid rgba(239,68,68,0.5)'
+                      : '1.5px solid var(--bg-border)',
+                    background: 'rgba(255,255,255,0.04)',
+                    color: 'var(--text-primary)',
+                    fontFamily: 'Coolvetica, sans-serif',
+                    fontSize: '16px',
+                    letterSpacing: '0.08em',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 200ms ease',
+                    textAlign: 'center',
+                  }}
+                  onFocus={(e) => {
+                    if (!domin8Error) e.currentTarget.style.borderColor = 'var(--accent-gold-border)';
+                  }}
+                  onBlur={(e) => {
+                    if (!domin8Error) e.currentTarget.style.borderColor = 'var(--bg-border)';
+                  }}
+                />
+
+                {/* Error */}
+                {domin8Error && (
+                  <div
+                    style={{
+                      fontFamily: 'Helvetica Neue, sans-serif',
+                      fontSize: '12px',
+                      color: '#ef4444',
+                      textAlign: 'center',
+                      marginTop: '10px',
+                    }}
+                  >
+                    {domin8Error}
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  onClick={handleDomin8Submit}
+                  style={{
+                    width: '100%',
+                    padding: '13px 24px',
+                    borderRadius: '100px',
+                    fontFamily: 'Coolvetica, sans-serif',
+                    fontSize: '15px',
+                    letterSpacing: '0.03em',
+                    cursor: 'pointer',
+                    background: 'var(--accent-gold)',
+                    color: '#0A0A0F',
+                    border: 'none',
+                    fontWeight: 600,
+                    marginTop: '18px',
+                    transition: 'all 200ms ease',
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.filter = 'brightness(1.1)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.filter = 'none'; }}
+                >
+                  Activate Access
+                </button>
+
+                {/* Cancel */}
+                <button
+                  onClick={() => setShowDomin8Modal(false)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: 'transparent',
+                    border: 'none',
+                    fontFamily: 'Helvetica Neue, sans-serif',
+                    fontSize: '12px',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    marginTop: '10px',
+                  }}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

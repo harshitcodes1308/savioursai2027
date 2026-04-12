@@ -135,6 +135,7 @@ export default function DashboardPage() {
     }
 
     const planType = (profile as any)?.planType ?? "FREE";
+    const paymentWarning = (profile as any)?.paymentWarning as "CANCELLED" | "EXPIRED" | null | undefined;
 
     const ringStats = [
         { label: "Today", value: `${todayProgress}%`, sub: "of daily goal", percent: todayProgress, color: "var(--accent-gold)" },
@@ -166,6 +167,81 @@ export default function DashboardPage() {
             )}
 
             <div style={{ maxWidth: 1280, margin: "0 auto", position: "relative", zIndex: 1 }}>
+
+                {/* ── Payment Warning Banner ── */}
+                {paymentWarning && (
+                    <div style={{
+                        background: paymentWarning === "EXPIRED"
+                            ? "linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))"
+                            : "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04))",
+                        border: `1px solid ${paymentWarning === "EXPIRED" ? "rgba(239,68,68,0.35)" : "rgba(245,158,11,0.35)"}`,
+                        borderRadius: 14,
+                        padding: isMobile ? "14px 16px" : "16px 22px",
+                        marginBottom: 20,
+                        display: "flex",
+                        flexDirection: isMobile ? "column" : "row",
+                        alignItems: isMobile ? "flex-start" : "center",
+                        justifyContent: "space-between",
+                        gap: 14,
+                        animation: "slideInUp 0.4s ease-out both",
+                    }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                            <div style={{
+                                fontSize: 22,
+                                color: paymentWarning === "EXPIRED" ? "#ef4444" : "#f59e0b",
+                                lineHeight: 1,
+                            }}>
+                                ⚠
+                            </div>
+                            <div>
+                                <div style={{
+                                    fontFamily: "var(--font-display)",
+                                    fontSize: isMobile ? 14 : 15,
+                                    color: "var(--text-primary)",
+                                    marginBottom: 3,
+                                    letterSpacing: "-0.01em",
+                                }}>
+                                    {paymentWarning === "EXPIRED"
+                                        ? "Your last payment didn't go through"
+                                        : "Autopay was cancelled"}
+                                </div>
+                                <div style={{
+                                    fontFamily: "var(--font-body)",
+                                    fontSize: 12,
+                                    color: "var(--text-muted)",
+                                    lineHeight: 1.5,
+                                }}>
+                                    {paymentWarning === "EXPIRED"
+                                        ? "You've been moved to the Free plan. Re-enroll to restore full access to all features."
+                                        : "You'll keep access until your current cycle ends, after which you'll be moved to Free. Re-enroll to keep your benefits."}
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => router.push("/pricing")}
+                            style={{
+                                fontFamily: "var(--font-body)",
+                                fontSize: 12,
+                                fontWeight: 700,
+                                color: "#0A0A0F",
+                                background: "var(--accent-gold)",
+                                border: "none",
+                                borderRadius: 8,
+                                padding: "10px 18px",
+                                cursor: "pointer",
+                                letterSpacing: "0.04em",
+                                textTransform: "uppercase",
+                                whiteSpace: "nowrap",
+                                flexShrink: 0,
+                                transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.filter = "brightness(1.1)"; }}
+                            onMouseLeave={e => { e.currentTarget.style.filter = "none"; }}
+                        >
+                            Re-enroll Now
+                        </button>
+                    </div>
+                )}
 
                 {/* ── Hero Section ── */}
                 <div style={{

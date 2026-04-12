@@ -279,9 +279,29 @@ export default function OnboardingFlow() {
     }
   }
 
-  function handlePlanSelect(plan: 'FREE' | 'MONTHLY' | 'YEARLY') {
+  async function handleDomin8Activate(code: string) {
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/auth/activate-domin8', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      if (!res.ok) throw new Error('Activation failed');
+    } catch {
+      alert('Activation failed. Please try again.');
+      setSubmitting(false);
+      return;
+    }
+    setSubmitting(false);
+    setStep(6);
+  }
+
+  function handlePlanSelect(plan: 'FREE' | 'MONTHLY' | 'YEARLY' | 'DOMIN8', domin8Code?: string) {
     if (plan === 'FREE') {
       handleFreePlan();
+    } else if (plan === 'DOMIN8') {
+      handleDomin8Activate(domin8Code || '');
     } else {
       handlePaidPlan(plan);
     }

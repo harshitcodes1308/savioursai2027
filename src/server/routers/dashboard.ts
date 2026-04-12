@@ -6,7 +6,7 @@ export const dashboardRouter = createTRPCRouter({
      * Get user profile with student/teacher details
      */
     getProfile: protectedProcedure.query(async ({ ctx }) => {
-        const user = await ctx.prisma.user.findUnique({
+        let user = await ctx.prisma.user.findUnique({
             where: { id: ctx.user.id },
             include: {
                 studentProfile: true,
@@ -16,6 +16,40 @@ export const dashboardRouter = createTRPCRouter({
 
         if (!user) {
             throw new Error("User not found");
+        }
+
+        // ── Lazy demotion: if subscription expired, drop them to FREE ──
+        // Yearly plans are one-time so we let them through; monthly plans
+        // (or any plan with an explicit expiry that has passed) get demoted.
+        const now = new Date();
+        const expired =
+            user.planType === "MONTHLY" &&
+            user.subscriptionExpiry !== null &&
+            user.subscriptionExpiry < now;
+
+        let paymentWarning: "CANCELLED" | "EXPIRED" | null = null;
+
+        if (expired) {
+            user = await ctx.prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    isPaid: false,
+                    planType: "FREE",
+                    subscriptionStatus: "EXPIRED",
+                },
+                include: {
+                    studentProfile: true,
+                    teacherProfile: true,
+                },
+            });
+            paymentWarning = "EXPIRED";
+        } else if (
+            user.planType === "MONTHLY" &&
+            (user.subscriptionStatus === "CANCELLED" || user.subscriptionStatus === "EXPIRED")
+        ) {
+            // Still in grace period — autopay was halted/cancelled but
+            // the current cycle hasn't ended yet
+            paymentWarning = "CANCELLED";
         }
 
         return {
@@ -28,6 +62,12 @@ export const dashboardRouter = createTRPCRouter({
             studentProfile: user.studentProfile,
             teacherProfile: user.teacherProfile,
             lnbChemistryUnlocked: user.lnbChemistryUnlocked,
+            // Plan state
+            isPaid: user.isPaid,
+            planType: user.planType,
+            subscriptionStatus: user.subscriptionStatus,
+            subscriptionExpiry: user.subscriptionExpiry,
+            paymentWarning,
         };
     }),
 

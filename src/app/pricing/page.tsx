@@ -1,16 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { RazorpayButton } from "@/components/RazorpayButton";
 
 export default function PricingPage() {
+    const router = useRouter();
     const { data: session } = trpc.auth.getSession.useQuery();
     const [mounted, setMounted] = useState(false);
+    const [showDomin8Modal, setShowDomin8Modal] = useState(false);
+    const [domin8Code, setDomin8Code] = useState('');
+    const [domin8Error, setDomin8Error] = useState('');
+    const [domin8Loading, setDomin8Loading] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    async function handleDomin8Submit() {
+        const code = domin8Code.trim();
+        if (!code || !code.startsWith('W')) {
+            setDomin8Error('Invalid code. Please try again.');
+            return;
+        }
+        setDomin8Loading(true);
+        try {
+            const res = await fetch('/api/auth/activate-domin8', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code }),
+            });
+            if (!res.ok) throw new Error('Failed');
+            router.push('/dashboard');
+        } catch {
+            setDomin8Error('Activation failed. Please try again.');
+        }
+        setDomin8Loading(false);
+    }
 
     if (!mounted) return null;
 
@@ -201,11 +228,120 @@ export default function PricingPage() {
                 </div>
             </div>
 
+            {/* Domin8 Pro CTA */}
+            <div
+                onClick={() => { setShowDomin8Modal(true); setDomin8Code(''); setDomin8Error(''); }}
+                style={{
+                    textAlign: "center", marginBottom: 20,
+                    padding: "18px 28px",
+                    background: "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.06))",
+                    border: "1.5px solid rgba(59,130,246,0.2)",
+                    borderRadius: 14, cursor: "pointer",
+                    transition: "all 300ms ease",
+                    maxWidth: 480, width: "100%",
+                }}
+                onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)";
+                    e.currentTarget.style.background = "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.1))";
+                }}
+                onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = "rgba(59,130,246,0.2)";
+                    e.currentTarget.style.background = "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.06))";
+                }}
+            >
+                <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF", marginBottom: 4 }}>
+                    Student from <span style={{ color: "#3B82F6" }}>Domin8 Pro</span>?
+                </div>
+                <div style={{ fontSize: 14, color: "#9CA3AF" }}>
+                    Tap here to activate your free access
+                </div>
+            </div>
+
             {/* Footer */}
             <p style={{ fontSize: 12, color: "#4B5563", textAlign: "center", maxWidth: 400, lineHeight: 1.6 }}>
                 Secure payment via Razorpay. No subscriptions. No hidden fees.
                 Once you pay, your account is upgraded instantly and permanently.
             </p>
+
+            {/* Domin8 Pro Code Modal */}
+            {showDomin8Modal && (
+                <div
+                    style={{
+                        position: "fixed", inset: 0, zIndex: 2000,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
+                    }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setShowDomin8Modal(false); }}
+                >
+                    <div style={{
+                        background: "linear-gradient(135deg, rgba(26,26,36,0.95), rgba(17,17,24,0.9))",
+                        border: "2px solid rgba(59,130,246,0.3)",
+                        borderRadius: 22, padding: "36px 32px",
+                        maxWidth: 420, width: "calc(100% - 32px)",
+                        boxShadow: "0 0 40px rgba(59,130,246,0.12)",
+                    }}>
+                        <div style={{
+                            fontSize: 24, fontWeight: 800, color: "#FFF",
+                            textAlign: "center", marginBottom: 6,
+                        }}>
+                            Domin8 <span style={{ color: "#3B82F6" }}>Pro</span>
+                        </div>
+                        <p style={{
+                            fontSize: 13, color: "#9CA3AF", textAlign: "center",
+                            marginBottom: 24, lineHeight: 1.5,
+                        }}>
+                            Enter the special code provided to you
+                        </p>
+
+                        <input
+                            type="text"
+                            value={domin8Code}
+                            onChange={(e) => { setDomin8Code(e.target.value); setDomin8Error(''); }}
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleDomin8Submit(); }}
+                            placeholder="Enter your code"
+                            autoFocus
+                            style={{
+                                width: "100%", padding: "14px 16px", borderRadius: 12,
+                                border: domin8Error ? "1.5px solid rgba(239,68,68,0.5)" : "1.5px solid rgba(255,255,255,0.1)",
+                                background: "rgba(255,255,255,0.04)", color: "#FFF",
+                                fontSize: 16, letterSpacing: "0.08em", outline: "none",
+                                boxSizing: "border-box", textAlign: "center",
+                            }}
+                        />
+
+                        {domin8Error && (
+                            <div style={{ fontSize: 12, color: "#ef4444", textAlign: "center", marginTop: 10 }}>
+                                {domin8Error}
+                            </div>
+                        )}
+
+                        <button
+                            onClick={handleDomin8Submit}
+                            disabled={domin8Loading}
+                            style={{
+                                width: "100%", padding: "13px 24px", borderRadius: 100,
+                                fontSize: 15, fontWeight: 700, cursor: domin8Loading ? "not-allowed" : "pointer",
+                                background: "linear-gradient(135deg, #3B82F6, #00D4FF)",
+                                color: "#FFF", border: "none", marginTop: 18,
+                                opacity: domin8Loading ? 0.6 : 1,
+                            }}
+                        >
+                            {domin8Loading ? "Activating..." : "Activate Access"}
+                        </button>
+
+                        <button
+                            onClick={() => setShowDomin8Modal(false)}
+                            style={{
+                                width: "100%", padding: 10, background: "transparent",
+                                border: "none", fontSize: 12, color: "#6B7280",
+                                cursor: "pointer", marginTop: 10,
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

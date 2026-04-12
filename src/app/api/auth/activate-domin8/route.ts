@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, createToken, setSessionCookie } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { PlanType } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
     try {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Refresh session token
-        const updatedUser = { ...session.user, planType: 'YEARLY' };
+        const updatedUser = { ...session.user, planType: 'YEARLY' as PlanType };
         const newToken = await createToken(updatedUser);
 
         const response = NextResponse.json({ success: true });

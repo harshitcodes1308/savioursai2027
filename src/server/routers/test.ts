@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, paidProcedure as protectedProcedure } from "../trpc";
 import { generateMCQs, evaluateTest } from "@/lib/test-generator";
 
 export const testRouter = createTRPCRouter({

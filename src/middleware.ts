@@ -21,9 +21,7 @@ export async function middleware(request: NextRequest) {
 
     if (token) {
         try {
-            const secret = new TextEncoder().encode(
-                process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-            );
+            const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
             const { payload } = await jwtVerify(token, secret);
             isAuthenticated = true;
             user = payload.user as SessionUser;
@@ -79,7 +77,10 @@ export async function middleware(request: NextRequest) {
             res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
             return res;
         }
-        if (isPaid) {
+        // Allow access if subscription is cancelled/expired (user needs to re-enroll)
+        const subStatus = user?.subscriptionStatus ?? 'ACTIVE';
+        const needsReenroll = subStatus === 'CANCELLED' || subStatus === 'EXPIRED';
+        if (isPaid && !needsReenroll) {
             const res = NextResponse.redirect(new URL('/dashboard', request.url));
             res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
             return res;

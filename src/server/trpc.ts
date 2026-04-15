@@ -93,6 +93,50 @@ export const protectedProcedure = t.procedure
     });
 
 /**
+ * Paid procedure — requires active subscription (checks DB, not stale JWT)
+ */
+const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
+
+export const paidProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+    const freshUser = await ctx.prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        select: {
+            isPaid: true,
+            planType: true,
+            subscriptionStatus: true,
+            subscriptionExpiry: true,
+            createdAt: true,
+        },
+    });
+
+    if (!freshUser) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    // Grandfathered users (created before cutoff) always have access
+    const isGrandfathered = freshUser.createdAt < CUTOFF_DATE;
+
+    // Active subscription check
+    const hasActiveSub =
+        (freshUser.planType === "MONTHLY" || freshUser.planType === "YEARLY") &&
+        freshUser.subscriptionStatus === "ACTIVE";
+
+    // Check if subscription has expired
+    const isExpired =
+        freshUser.subscriptionExpiry !== null &&
+        new Date(freshUser.subscriptionExpiry) < new Date();
+
+    if (!isGrandfathered && !freshUser.isPaid && (!hasActiveSub || isExpired)) {
+        throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "This feature requires an active subscription.",
+        });
+    }
+
+    return next({ ctx });
+});
+
+/**
  * Role-based procedure
  */
 export const createRoleProcedure = (allowedRoles: UserRole[]) => {

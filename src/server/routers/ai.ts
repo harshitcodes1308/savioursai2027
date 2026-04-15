@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import { createTRPCRouter, paidProcedure as protectedProcedure } from "@/server/trpc";
 import { askAI, generateStudyPlan, summarizeContent, generateQuestions } from "@/lib/ai";
 import { checkAiRateLimit } from "@/lib/rate-limit";
 

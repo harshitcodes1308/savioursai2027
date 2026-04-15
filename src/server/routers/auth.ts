@@ -115,7 +115,7 @@ export const authRouter = createTRPCRouter({
                 console.error("Signup error:", error);
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "An unexpected error occurred during signup: " + (error instanceof Error ? error.message : String(error))
+                    message: "An unexpected error occurred. Please try again."
                 });
             }
         }),
@@ -227,7 +227,7 @@ export const authRouter = createTRPCRouter({
                 if (error instanceof TRPCError) throw error;
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
-                    message: "Failed to authenticate user: " + (error instanceof Error ? error.message : String(error))
+                    message: "Authentication failed. Please try again."
                 });
             }
         }),

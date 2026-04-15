@@ -10,7 +10,8 @@ export async function POST(request: NextRequest) {
         }
 
         const { planType } = await request.json();
-        if (!['FREE', 'MONTHLY', 'YEARLY'].includes(planType)) {
+        // Only allow setting to FREE (downgrade). Upgrades must go through payment verification.
+        if (planType !== 'FREE') {
             return NextResponse.json({ error: 'Invalid plan type' }, { status: 400 });
         }
 

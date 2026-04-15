@@ -7,10 +7,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
     const error = searchParams.get("error");
+    const state = searchParams.get("state");
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     if (error || !code) {
         return NextResponse.redirect(`${baseUrl}/login?error=google_auth_failed`);
+    }
+
+    // Verify CSRF state token
+    const storedState = request.cookies.get("oauth-state")?.value;
+    if (!state || !storedState || state !== storedState) {
+        return NextResponse.redirect(`${baseUrl}/login?error=csrf_validation_failed`);
     }
 
     try {
@@ -108,11 +115,14 @@ export async function GET(request: NextRequest) {
         await setSessionCookie(token, true); // Remember me = true for Google users
 
         // Redirect: if onboarding not complete, go there; otherwise dashboard
-        if (!user.onboardingComplete) {
-            return NextResponse.redirect(`${baseUrl}/onboarding`);
-        }
+        const redirectUrl = !user.onboardingComplete
+            ? `${baseUrl}/onboarding`
+            : `${baseUrl}/dashboard`;
 
-        return NextResponse.redirect(`${baseUrl}/dashboard`);
+        const response = NextResponse.redirect(redirectUrl);
+        // Clear the CSRF state cookie
+        response.cookies.set("oauth-state", "", { maxAge: 0, path: "/" });
+        return response;
     } catch (err) {
         console.error("Google auth callback error:", err);
         return NextResponse.redirect(`${baseUrl}/login?error=google_auth_error`);

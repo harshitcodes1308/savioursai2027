@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, paidProcedure as protectedProcedure } from "../trpc";
 
 export const precisionRouter = createTRPCRouter({
     /**

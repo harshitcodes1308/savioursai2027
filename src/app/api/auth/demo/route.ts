@@ -16,6 +16,11 @@ const DEMO_PHONE = "9999900000";
  * "signin" → sets onboardingComplete to true  → redirects to /dashboard
  */
 export async function POST(req: NextRequest) {
+  // Only allow demo in development (localhost)
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const { mode } = await req.json();
 
   if (mode !== "signup" && mode !== "signin") {

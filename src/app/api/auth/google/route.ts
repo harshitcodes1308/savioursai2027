@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, GOOGLE_AUTH_RATE_LIMIT } from "@/lib/api-rate-limit";
+import crypto from "crypto";
 
 export async function GET(request: NextRequest) {
     // Rate limit Google auth attempts by IP
@@ -17,6 +18,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Google OAuth not configured" }, { status: 500 });
     }
 
+    // Generate CSRF state token
+    const state = crypto.randomBytes(32).toString("hex");
+
     const params = new URLSearchParams({
         client_id: clientId,
         redirect_uri: redirectUri,
@@ -24,8 +28,20 @@ export async function GET(request: NextRequest) {
         scope: "openid email profile",
         access_type: "offline",
         prompt: "consent",
+        state,
     });
 
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-    return NextResponse.redirect(googleAuthUrl);
+    const response = NextResponse.redirect(googleAuthUrl);
+
+    // Store state in HttpOnly cookie for callback verification
+    response.cookies.set("oauth-state", state, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 600, // 10 minutes
+        path: "/",
+    });
+
+    return response;
 }

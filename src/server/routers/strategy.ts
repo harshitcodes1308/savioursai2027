@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, paidProcedure as protectedProcedure } from "../trpc";
 import { generateStrategy } from "@/lib/strategy-ai";
 import { checkAiRateLimit } from "@/lib/rate-limit";
 

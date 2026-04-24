@@ -9,10 +9,10 @@ export const FEATURE_FLAGS = {
   todoList:        true,
 
   // Hidden — activate later by flipping to true
-  numericalMastery:  false,
+  numericalMastery:  true,
   chronoScroll:      true,
   guessPapers:       false,
-  dateBattleArena:   false,
+  dateBattleArena:   true,
   strategyAI:        false,
   lastNightBefore:   false,
   notesFlashcards:   false,

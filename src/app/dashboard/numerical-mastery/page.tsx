@@ -7,9 +7,6 @@ import {
   type NumericalTopic,
 } from "@/data/numerical-mastery-data";
 
-// ═══════════════════════════════════════
-// State & Types
-// ═══════════════════════════════════════
 type Phase = "chapters" | "topics" | "numerical";
 
 export default function NumericalMasteryPage() {
@@ -26,181 +23,118 @@ export default function NumericalMasteryPage() {
 
   useEffect(() => { setMounted(true); }, []);
 
-  const togglePYQ = (idx: number) => {
-    setRevealedPYQs((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  const togglePYQ = (idx: number) => setRevealedPYQs(p => ({ ...p, [idx]: !p[idx] }));
+  const toggleMastered = (id: string) => setMasteredTopics(p => ({ ...p, [id]: !p[id] }));
+
+  const getChapterCompletion = (ch: NumericalChapter) => {
+    const mastered = ch.topics.filter(t => masteredTopics[t.id]).length;
+    return Math.round((mastered / ch.topics.length) * 100);
   };
 
-  const toggleMastered = (topicId: string) => {
-    setMasteredTopics((prev) => ({ ...prev, [topicId]: !prev[topicId] }));
+  const selectChapter = (ch: NumericalChapter) => { setSelectedChapter(ch); setPhase("topics"); };
+  const selectTopic = (t: NumericalTopic, idx: number) => {
+    setSelectedTopic(t); setTopicIndex(idx); setRevealedPYQs({}); setPhase("numerical");
   };
-
-  const getChapterCompletion = (chapter: NumericalChapter) => {
-    const mastered = chapter.topics.filter((t) => masteredTopics[t.id]).length;
-    return Math.round((mastered / chapter.topics.length) * 100);
-  };
-
-  const selectChapter = (ch: NumericalChapter) => {
-    setSelectedChapter(ch);
-    setPhase("topics");
-  };
-
-  const selectTopic = (topic: NumericalTopic, idx: number) => {
-    setSelectedTopic(topic);
-    setTopicIndex(idx);
-    setRevealedPYQs({});
-    setPhase("numerical");
-  };
-
   const goBack = () => {
     if (phase === "numerical") { setPhase("topics"); setShowFormulaRecap(false); }
     else if (phase === "topics") { setPhase("chapters"); setSelectedChapter(null); }
   };
-
   const goToNextTopic = () => {
     if (!selectedChapter) return;
     const isLast = topicIndex >= selectedChapter.topics.length - 1;
-    if (isLast) {
-      // Last topic — go back to topic selection
-      setPhase("topics");
-      setShowFormulaRecap(false);
-    } else {
-      // Move to next topic
-      const nextIdx = topicIndex + 1;
-      const nextTopic = selectedChapter.topics[nextIdx];
-      setSelectedTopic(nextTopic);
-      setTopicIndex(nextIdx);
-      setRevealedPYQs({});
-      setShowFormulaRecap(false);
-      // Scroll to top — covers both window and scrollable container
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      // Also scroll the nearest scrollable parent (dashboard layout)
-      const scrollable = document.querySelector("[data-dashboard-content], main, [class*='overflow']");
-      if (scrollable) scrollable.scrollTop = 0;
-    }
+    if (isLast) { setPhase("topics"); setShowFormulaRecap(false); return; }
+    const nextIdx = topicIndex + 1;
+    setSelectedTopic(selectedChapter.topics[nextIdx]);
+    setTopicIndex(nextIdx);
+    setRevealedPYQs({});
+    setShowFormulaRecap(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   if (!mounted) return null;
 
-  // ═══════════════════════════════════════
-  // CSS Keyframes (injected once)
-  // ═══════════════════════════════════════
   const keyframes = `
-    @keyframes glowPulse {
-      0%, 100% { text-shadow: 0 0 20px rgba(59,130,246,0.4), 0 0 40px rgba(59,130,246,0.2); }
-      50% { text-shadow: 0 0 30px rgba(59,130,246,0.6), 0 0 60px rgba(59,130,246,0.3), 0 0 80px rgba(6,182,212,0.2); }
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes expandIn {
-      from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
-      to { opacity: 1; max-height: 600px; padding-top: 20px; padding-bottom: 20px; }
-    }
-    @keyframes orbFloat {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(10px, -15px) scale(1.05); }
-      66% { transform: translate(-8px, 8px) scale(0.95); }
-    }
-    @keyframes cardEntry {
-      from { opacity: 0; transform: translateY(24px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
+    @keyframes nmSlideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes nmExpand { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 800px; } }
+    @keyframes nmGlow { 0%,100% { box-shadow: 0 0 0 1px var(--accent-gold-border), 0 0 20px var(--accent-gold-glow); } 50% { box-shadow: 0 0 0 1px var(--accent-gold-border), 0 0 32px var(--accent-gold-glow); } }
   `;
 
-  // ═══════════════════════════════════════
-  // PHASE 1: Chapter Selection
-  // ═══════════════════════════════════════
+  // ═══════════════ PHASE 1: Chapters ═══════════════
   if (phase === "chapters") {
     return (
-      <div style={{ padding: "32px 24px", maxWidth: 1000, margin: "0 auto" }}>
+      <div style={{ padding: "36px 24px", maxWidth: 1080, margin: "0 auto", background: "var(--bg-base)", minHeight: "100vh" }}>
         <style>{keyframes}</style>
 
-        {/* Hero Banner */}
+        {/* Hero */}
         <div style={{
           position: "relative",
-          background: "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.05), rgba(139,92,246,0.06))",
-          border: "1px solid rgba(59,130,246,0.18)",
-          borderRadius: 28,
-          padding: "52px 40px",
-          marginBottom: 40,
+          background: "var(--bg-surface)",
+          border: "1px solid var(--bg-border)",
+          borderRadius: 20,
+          padding: "40px 36px",
+          marginBottom: 36,
           overflow: "hidden",
+          animation: "nmSlideUp 0.5s ease-out both",
         }}>
-          {/* Animated orbs */}
-          <div style={{ position: "absolute", top: -80, right: -60, width: 240, height: 240, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.14), transparent 70%)", pointerEvents: "none", animation: "orbFloat 8s ease-in-out infinite" }} />
-          <div style={{ position: "absolute", bottom: -50, left: -40, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(6,182,212,0.1), transparent 70%)", pointerEvents: "none", animation: "orbFloat 10s ease-in-out infinite 2s" }} />
-          <div style={{ position: "absolute", top: "40%", left: "60%", width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.08), transparent 70%)", pointerEvents: "none", animation: "orbFloat 12s ease-in-out infinite 4s" }} />
-
-          {/* Top gradient line */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, transparent, #3B82F6, #06B6D4, transparent)" }} />
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, var(--accent-gold), transparent)" }} />
+          <div style={{ position: "absolute", top: -80, right: -60, width: 240, height: 240, borderRadius: "50%", background: "radial-gradient(circle, var(--accent-gold-glow), transparent 70%)", pointerEvents: "none" }} />
 
           <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: 20,
-                background: "linear-gradient(135deg, #3B82F6, #06B6D4)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 32, boxShadow: "0 8px 32px rgba(59,130,246,0.35)",
-                animation: "float 3s ease-in-out infinite",
-              }}>⚡</div>
-              <div>
-                <h1 style={{
-                  fontSize: 34, fontWeight: 900, margin: 0, letterSpacing: -0.5,
-                  background: "linear-gradient(135deg, #3B82F6, #06B6D4, #00D4FF)",
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                  lineHeight: 1.2,
-                }}>
-                  Physics Numerical Mastery
-                </h1>
-                <p style={{ color: "#9CA3AF", fontSize: 14, margin: "6px 0 0", letterSpacing: 0.3 }}>
-                  Master every formula. Solve every numerical. Ace your exam.
-                </p>
-              </div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--accent-gold)", opacity: 0.8, marginBottom: 10 }}>
+              Physics · Paid Feature
+            </div>
+            <h1 style={{
+              fontFamily: "var(--font-display)",
+              fontSize: 42, margin: 0, letterSpacing: "-0.03em", lineHeight: 1.05,
+              color: "var(--text-primary)",
+            }}>
+              Numerical Mastery
+            </h1>
+            <div style={{
+              fontFamily: "var(--font-tagline)",
+              fontSize: 15, fontStyle: "italic", color: "var(--text-secondary)",
+              marginTop: 8, opacity: 0.85,
+            }}>
+              Every formula. Every numerical. Until it&apos;s muscle memory.
             </div>
 
-            {/* Info banner */}
             <div style={{
-              background: "rgba(0,0,0,0.35)",
-              borderRadius: 16,
-              padding: "22px 26px",
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--bg-border)",
+              borderRadius: 14,
+              padding: "18px 22px",
               marginTop: 24,
-              borderLeft: "4px solid #3B82F6",
-              backdropFilter: "blur(12px)",
+              borderLeft: "2px solid var(--accent-gold)",
             }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-                <span style={{ fontSize: 26, flexShrink: 0 }}>🧮</span>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#FFF", marginBottom: 8 }}>
-                    Formula → Solved Example → Practice PYQs
-                  </div>
-                  <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0, lineHeight: 1.8 }}>
-                    Each topic gives you the <span style={{ color: "#3B82F6", fontWeight: 600 }}>key formula</span>,
-                    a fully worked-out solved example, and real <span style={{ color: "#06B6D4", fontWeight: 600 }}>Previous Year Questions</span> with
-                    step-by-step solutions you can reveal when ready.
-                  </p>
-                </div>
+              <div style={{
+                fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600,
+                color: "var(--text-primary)", marginBottom: 6,
+              }}>
+                Formula → Solved Example → Practice PYQs
+              </div>
+              <div style={{
+                fontFamily: "var(--font-body)", fontSize: 12,
+                color: "var(--text-muted)", lineHeight: 1.7,
+              }}>
+                Each topic gives you the key formula, a fully worked-out example, and real Previous Year Questions with step-by-step solutions you can reveal when ready.
               </div>
             </div>
           </div>
         </div>
 
-        {/* Chapter Grid */}
-        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#FFF", marginBottom: 20, letterSpacing: 0.3, display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 4, height: 20, borderRadius: 4, background: "linear-gradient(180deg, #3B82F6, #06B6D4)" }} />
-          Select Chapter
-        </h3>
+        {/* Section label */}
+        <div style={{
+          fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700,
+          letterSpacing: "0.14em", textTransform: "uppercase",
+          color: "var(--text-muted)", opacity: 0.5, marginBottom: 14,
+        }}>
+          Select a Chapter
+        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 18 }}>
+        {/* Chapter grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
           {numericalMasteryData.map((ch, idx) => {
             const isHovered = hoveredChapter === ch.id;
             const completion = getChapterCompletion(ch);
@@ -212,75 +146,60 @@ export default function NumericalMasteryPage() {
                 onMouseLeave={() => setHoveredChapter(null)}
                 style={{
                   position: "relative",
-                  background: isHovered
-                    ? `linear-gradient(135deg, ${ch.color}14, ${ch.color}08)`
-                    : "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
-                  border: `1px solid ${isHovered ? ch.color + "40" : "rgba(255,255,255,0.06)"}`,
-                  borderRadius: 22,
-                  padding: "30px 26px",
+                  background: isHovered ? "var(--bg-elevated)" : "var(--bg-surface)",
+                  border: `1px solid ${isHovered ? "var(--accent-gold-border)" : "var(--bg-border)"}`,
+                  borderRadius: 16,
+                  padding: "24px 22px",
                   cursor: "pointer",
                   textAlign: "left",
-                  transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-                  transform: isHovered ? "translateY(-5px)" : "none",
-                  boxShadow: isHovered
-                    ? `0 16px 40px ${ch.color}20, 0 0 0 1px ${ch.color}15`
-                    : "0 2px 8px rgba(0,0,0,0.1)",
+                  transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                  transform: isHovered ? "translateY(-3px)" : "none",
+                  boxShadow: isHovered ? "0 0 0 1px var(--accent-gold-glow), 0 20px 48px -8px rgba(0,0,0,0.45)" : "none",
                   overflow: "hidden",
-                  animation: `cardEntry 0.5s ease-out ${idx * 0.08}s both`,
+                  animation: `nmSlideUp 0.45s ease-out ${idx * 0.06}s both`,
                 }}
               >
-                {/* Corner glow */}
-                {isHovered && (
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
                   <div style={{
-                    position: "absolute", top: -30, right: -30,
-                    width: 120, height: 120, borderRadius: "50%",
-                    background: `radial-gradient(circle, ${ch.color}25, transparent 70%)`,
-                    pointerEvents: "none",
-                  }} />
-                )}
+                    width: 48, height: 48, borderRadius: 12,
+                    background: "var(--accent-gold-glow)",
+                    border: "1px solid var(--accent-gold-border)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 22,
+                  }}>{ch.icon}</div>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--text-primary)", letterSpacing: "-0.01em", lineHeight: 1.25 }}>
+                      {ch.name}
+                    </div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", marginTop: 3 }}>
+                      {ch.topics.length} topics · {ch.topics.reduce((s, t) => s + t.pyqs.length, 0)} PYQs
+                    </div>
+                  </div>
+                </div>
 
-                <div style={{ position: "relative", zIndex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 18 }}>
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", opacity: 0.6 }}>Mastery</span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, color: completion > 0 ? "var(--accent-gold)" : "var(--text-muted)" }}>{completion}%</span>
+                  </div>
+                  <div style={{ height: 3, borderRadius: 4, background: "var(--bg-border)", overflow: "hidden" }}>
                     <div style={{
-                      width: 58, height: 58, borderRadius: 18,
-                      background: `linear-gradient(135deg, ${ch.color}20, ${ch.color}08)`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 28, border: `1px solid ${ch.color}25`,
-                      boxShadow: isHovered ? `0 4px 16px ${ch.color}20` : "none",
-                      transition: "all 0.3s ease",
-                    }}>{ch.icon}</div>
-                    <div>
-                      <div style={{ fontSize: 17, fontWeight: 700, color: "#FFF", lineHeight: 1.3 }}>{ch.name}</div>
-                      <div style={{ fontSize: 12, color: "#6B7280", marginTop: 4 }}>
-                        {ch.topics.length} Topics • {ch.topics.reduce((sum, t) => sum + t.pyqs.length, 0)} PYQs
-                      </div>
-                    </div>
+                      height: "100%", width: `${completion}%`,
+                      background: "var(--accent-gold)",
+                      transition: "width 0.5s ease",
+                      boxShadow: completion > 0 ? "0 0 8px var(--accent-gold-glow)" : "none",
+                    }} />
                   </div>
+                </div>
 
-                  {/* Completion bar */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, color: "#6B7280", textTransform: "uppercase", letterSpacing: 0.5 }}>Mastery</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: completion > 0 ? ch.color : "#4B5563" }}>{completion}%</span>
-                    </div>
-                    <div style={{ height: 4, borderRadius: 4, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                      <div style={{
-                        height: "100%", borderRadius: 4, width: `${completion}%`,
-                        background: `linear-gradient(90deg, ${ch.color}, ${ch.color}CC)`,
-                        transition: "width 0.5s ease",
-                        boxShadow: completion > 0 ? `0 0 8px ${ch.color}40` : "none",
-                      }} />
-                    </div>
-                  </div>
-
-                  <div style={{
-                    fontSize: 12, fontWeight: 600, color: ch.color,
-                    padding: "10px 18px", background: `${ch.color}0D`, borderRadius: 12,
-                    textAlign: "center", border: `1px solid ${ch.color}18`,
-                    transition: "all 0.3s ease",
-                  }}>
-                    Explore Chapter →
-                  </div>
+                <div style={{
+                  fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 500,
+                  color: isHovered ? "var(--accent-gold)" : "var(--text-muted)",
+                  letterSpacing: "0.02em",
+                  transform: isHovered ? "translateX(4px)" : "translateX(0)",
+                  transition: "all 0.3s ease",
+                }}>
+                  Explore chapter →
                 </div>
               </button>
             );
@@ -290,62 +209,64 @@ export default function NumericalMasteryPage() {
     );
   }
 
-  // ═══════════════════════════════════════
-  // PHASE 2: Topic Selection
-  // ═══════════════════════════════════════
+  // ═══════════════ PHASE 2: Topics ═══════════════
   if (phase === "topics" && selectedChapter) {
     const completion = getChapterCompletion(selectedChapter);
     return (
-      <div style={{ padding: "32px 24px", maxWidth: 800, margin: "0 auto" }}>
+      <div style={{ padding: "36px 24px", maxWidth: 820, margin: "0 auto", background: "var(--bg-base)", minHeight: "100vh" }}>
         <style>{keyframes}</style>
 
-        {/* Back button */}
         <button onClick={goBack} style={{
-          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-          color: "#9CA3AF", cursor: "pointer", fontSize: 13, fontWeight: 600,
-          marginBottom: 30, display: "flex", alignItems: "center", gap: 8,
-          padding: "10px 18px", borderRadius: 12,
-          transition: "all 0.2s ease",
-        }}>← Back to Chapters</button>
+          background: "transparent",
+          border: "1px solid var(--bg-border)",
+          color: "var(--text-muted)",
+          fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 500,
+          marginBottom: 28, padding: "8px 16px", borderRadius: 8,
+          cursor: "pointer", transition: "all 0.2s ease",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--text-muted)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--bg-border)"; e.currentTarget.style.color = "var(--text-muted)"; }}
+        >← Back to Chapters</button>
 
-        {/* Chapter header */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          marginBottom: 36, flexWrap: "wrap", gap: 16,
+          marginBottom: 32, flexWrap: "wrap", gap: 16,
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div style={{
-              width: 64, height: 64, borderRadius: 20,
-              background: `linear-gradient(135deg, ${selectedChapter.color}25, ${selectedChapter.color}10)`,
+              width: 56, height: 56, borderRadius: 14,
+              background: "var(--accent-gold-glow)",
+              border: "1px solid var(--accent-gold-border)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 32, border: `1px solid ${selectedChapter.color}25`,
-              boxShadow: `0 8px 28px ${selectedChapter.color}18`,
+              fontSize: 26,
             }}>{selectedChapter.icon}</div>
             <div>
-              <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFF", margin: 0 }}>
+              <h1 style={{
+                fontFamily: "var(--font-display)", fontSize: 28, letterSpacing: "-0.02em",
+                color: "var(--text-primary)", margin: 0,
+              }}>
                 {selectedChapter.name}
               </h1>
-              <p style={{ color: "#9CA3AF", fontSize: 14, margin: "4px 0 0" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
                 Select a topic to start mastering numericals
-              </p>
+              </div>
             </div>
           </div>
-          {/* Chapter completion pill */}
           <div style={{
-            background: `${selectedChapter.color}12`, border: `1px solid ${selectedChapter.color}25`,
-            borderRadius: 100, padding: "8px 20px",
-            display: "flex", alignItems: "center", gap: 10,
+            background: "var(--accent-gold-glow)",
+            border: "1px solid var(--accent-gold-border)",
+            borderRadius: 100, padding: "6px 16px",
+            display: "flex", alignItems: "center", gap: 8,
           }}>
-            <span style={{ fontSize: 12, color: "#9CA3AF" }}>Chapter Mastery</span>
-            <span style={{ fontSize: 14, fontWeight: 800, color: selectedChapter.color }}>{completion}%</span>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)" }}>Mastery</span>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 14, color: "var(--accent-gold)", letterSpacing: "-0.01em" }}>{completion}%</span>
           </div>
         </div>
 
-        {/* Topic cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {selectedChapter.topics.map((topic, idx) => {
             const isHovered = hoveredTopic === topic.id;
-            const isMastered = masteredTopics[topic.id];
+            const isMastered = !!masteredTopics[topic.id];
             return (
               <button
                 key={topic.id}
@@ -353,304 +274,291 @@ export default function NumericalMasteryPage() {
                 onMouseEnter={() => setHoveredTopic(topic.id)}
                 onMouseLeave={() => setHoveredTopic(null)}
                 style={{
-                  position: "relative",
-                  background: isHovered
-                    ? `linear-gradient(135deg, ${selectedChapter.color}0A, ${selectedChapter.color}05)`
-                    : "rgba(255,255,255,0.025)",
-                  border: `1px solid ${isHovered ? selectedChapter.color + "35" : "rgba(255,255,255,0.06)"}`,
-                  borderRadius: 18,
-                  padding: "24px 26px",
+                  background: isHovered ? "var(--bg-elevated)" : "var(--bg-surface)",
+                  border: `1px solid ${isHovered ? "var(--accent-gold-border)" : "var(--bg-border)"}`,
+                  borderRadius: 14,
+                  padding: "20px 22px",
                   cursor: "pointer",
                   textAlign: "left",
-                  transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  transform: isHovered ? "translateX(6px)" : "none",
-                  boxShadow: isHovered ? `0 8px 24px ${selectedChapter.color}12` : "none",
-                  animation: `slideUp 0.4s ease-out ${idx * 0.06}s both`,
+                  transition: "all 0.25s ease",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  transform: isHovered ? "translateX(4px)" : "none",
+                  animation: `nmSlideUp 0.35s ease-out ${idx * 0.05}s both`,
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                     <span style={{
-                      width: 32, height: 32, borderRadius: 10,
-                      background: isMastered
-                        ? "linear-gradient(135deg, #10B981, #059669)"
-                        : `linear-gradient(135deg, ${selectedChapter.color}20, ${selectedChapter.color}08)`,
+                      width: 26, height: 26, borderRadius: 8,
+                      background: isMastered ? "rgba(62,207,142,0.14)" : "var(--bg-border)",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 14, color: isMastered ? "#FFF" : selectedChapter.color,
-                      border: `1px solid ${isMastered ? "#10B981" : selectedChapter.color}20`,
-                      transition: "all 0.3s ease",
+                      fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700,
+                      color: isMastered ? "var(--status-green)" : "var(--text-muted)",
+                      border: `1px solid ${isMastered ? "rgba(62,207,142,0.3)" : "var(--bg-border)"}`,
                     }}>{isMastered ? "✓" : idx + 1}</span>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#FFF" }}>{topic.name}</div>
-                    {isMastered && <span style={{ fontSize: 10, fontWeight: 700, color: "#10B981", background: "rgba(16,185,129,0.12)", padding: "3px 10px", borderRadius: 100, border: "1px solid rgba(16,185,129,0.2)" }}>MASTERED</span>}
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>{topic.name}</div>
+                    {isMastered && (
+                      <span style={{
+                        fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.1em",
+                        color: "var(--status-green)", background: "rgba(62,207,142,0.1)",
+                        padding: "2px 8px", borderRadius: 100,
+                        border: "1px solid rgba(62,207,142,0.2)",
+                        textTransform: "uppercase",
+                      }}>Mastered</span>
+                    )}
                   </div>
-                  <div style={{ display: "flex", gap: 16, fontSize: 12, color: "#6B7280" }}>
-                    <span>🧮 {topic.formula.split("|")[0].trim()}</span>
-                    <span>📝 {topic.pyqs.length} PYQ{topic.pyqs.length !== 1 ? "s" : ""}</span>
+                  <div style={{ display: "flex", gap: 14, fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)" }}>
+                    <span>∫ {topic.formula.split("|")[0].trim()}</span>
+                    <span>· {topic.pyqs.length} PYQ{topic.pyqs.length !== 1 ? "s" : ""}</span>
                   </div>
                 </div>
                 <div style={{
-                  width: 44, height: 44, borderRadius: 14,
-                  background: `linear-gradient(135deg, ${selectedChapter.color}20, ${selectedChapter.color}0A)`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 20, color: selectedChapter.color, fontWeight: 700,
-                  border: `1px solid ${selectedChapter.color}20`,
-                  transition: "all 0.3s ease",
+                  color: isHovered ? "var(--accent-gold)" : "var(--text-muted)",
+                  fontFamily: "var(--font-body)", fontSize: 18,
                   transform: isHovered ? "translateX(4px)" : "none",
+                  transition: "all 0.25s ease",
                 }}>→</div>
               </button>
             );
           })}
         </div>
 
-        {/* Progress indicator */}
         <div style={{
-          marginTop: 32, padding: "16px 20px",
-          background: "rgba(255,255,255,0.02)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          borderRadius: 14, textAlign: "center",
-          fontSize: 13, color: "#6B7280",
+          marginTop: 28, padding: "14px 18px",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--bg-border)",
+          borderRadius: 10, textAlign: "center",
+          fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)",
         }}>
-          Topic {selectedChapter.topics.filter(t => masteredTopics[t.id]).length} / {selectedChapter.topics.length} mastered
+          {selectedChapter.topics.filter(t => masteredTopics[t.id]).length} / {selectedChapter.topics.length} topics mastered
         </div>
       </div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // PHASE 3: Interactive Numerical Card
-  // ═══════════════════════════════════════
+  // ═══════════════ PHASE 3: Numerical Card ═══════════════
   if (phase === "numerical" && selectedTopic && selectedChapter) {
-    const isMastered = masteredTopics[selectedTopic.id];
+    const isMastered = !!masteredTopics[selectedTopic.id];
+    const isLastTopic = topicIndex >= selectedChapter.topics.length - 1;
 
     return (
-      <div style={{ padding: "32px 24px", maxWidth: 800, margin: "0 auto", position: "relative" }}>
+      <div style={{ padding: "36px 24px", maxWidth: 820, margin: "0 auto", background: "var(--bg-base)", minHeight: "100vh", position: "relative" }}>
         <style>{keyframes}</style>
 
-        {/* Back button */}
         <button onClick={goBack} style={{
-          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-          color: "#9CA3AF", cursor: "pointer", fontSize: 13, fontWeight: 600,
-          marginBottom: 24, display: "flex", alignItems: "center", gap: 8,
-          padding: "10px 18px", borderRadius: 12,
-          transition: "all 0.2s ease",
+          background: "transparent",
+          border: "1px solid var(--bg-border)",
+          color: "var(--text-muted)",
+          fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 500,
+          marginBottom: 20, padding: "8px 16px", borderRadius: 8,
+          cursor: "pointer", transition: "all 0.2s ease",
         }}>← Back to Topics</button>
 
-        {/* Topic header with progress */}
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
-          marginBottom: 32, flexWrap: "wrap", gap: 12,
+          marginBottom: 28, flexWrap: "wrap", gap: 12,
         }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <span style={{ fontSize: 12, color: selectedChapter.color, fontWeight: 600, opacity: 0.8 }}>
-                {selectedChapter.name}
-              </span>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--accent-gold)", opacity: 0.8, marginBottom: 6 }}>
+              {selectedChapter.name}
             </div>
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#FFF", margin: 0 }}>
+            <h1 style={{
+              fontFamily: "var(--font-display)", fontSize: 28, margin: 0,
+              color: "var(--text-primary)", letterSpacing: "-0.02em",
+            }}>
               {selectedTopic.name}
             </h1>
           </div>
           <div style={{
-            background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
-            borderRadius: 100, padding: "8px 18px",
-            fontSize: 13, fontWeight: 700, color: "#3B82F6",
+            background: "var(--accent-gold-glow)",
+            border: "1px solid var(--accent-gold-border)",
+            borderRadius: 100, padding: "6px 14px",
+            fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, color: "var(--accent-gold)",
+            letterSpacing: "0.04em",
           }}>
-            Topic {topicIndex + 1} / {selectedChapter.topics.length}
+            {topicIndex + 1} / {selectedChapter.topics.length}
           </div>
         </div>
 
-        {/* ═══ FORMULA SECTION ═══ */}
+        {/* Formula card */}
         <div style={{
           position: "relative",
-          background: "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.05))",
-          border: "1px solid rgba(59,130,246,0.2)",
-          borderRadius: 24,
-          padding: "36px 32px",
-          marginBottom: 28,
+          background: "var(--bg-surface)",
+          border: "1px solid var(--accent-gold-border)",
+          borderRadius: 18,
+          padding: "30px 28px",
+          marginBottom: 22,
           overflow: "hidden",
-          animation: "slideUp 0.5s ease-out",
+          animation: "nmSlideUp 0.45s ease-out",
         }}>
-          <div style={{ position: "absolute", top: -40, right: -40, width: 140, height: 140, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.1), transparent 70%)", pointerEvents: "none" }} />
-
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#3B82F6", textTransform: "uppercase", letterSpacing: 2, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span>🧮</span> Formula
-          </div>
-
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, var(--accent-gold), transparent)" }} />
           <div style={{
-            fontSize: 36, fontWeight: 900, color: "#FFF",
-            fontFamily: "'Georgia', 'Times New Roman', serif",
-            letterSpacing: 2,
-            animation: "glowPulse 3s ease-in-out infinite",
-            marginBottom: 14,
-            lineHeight: 1.4,
+            fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700,
+            letterSpacing: "0.18em", textTransform: "uppercase",
+            color: "var(--accent-gold)", marginBottom: 14,
+          }}>
+            Formula
+          </div>
+          <div style={{
+            fontFamily: "var(--font-tagline)",
+            fontSize: 32, color: "var(--text-primary)",
+            letterSpacing: "0.02em", lineHeight: 1.4, marginBottom: 12,
+            textShadow: "0 0 20px var(--accent-gold-glow)",
           }}>
             {selectedTopic.formula}
           </div>
-
-          <p style={{ fontSize: 14, color: "#9CA3AF", margin: 0, lineHeight: 1.6 }}>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.65 }}>
             {selectedTopic.formulaDescription}
-          </p>
+          </div>
         </div>
 
-        {/* ═══ SOLVED EXAMPLE ═══ */}
+        {/* Solved Example */}
         <div style={{
-          background: "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: 22,
-          padding: "32px 28px",
-          marginBottom: 28,
-          animation: "slideUp 0.5s ease-out 0.1s both",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--bg-border)",
+          borderRadius: 18, padding: "28px 26px",
+          marginBottom: 22,
+          animation: "nmSlideUp 0.45s ease-out 0.08s both",
         }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#10B981", textTransform: "uppercase", letterSpacing: 2, marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}>
-            <span>📘</span> Solved Example
-          </div>
-
-          {/* Question */}
           <div style={{
-            background: "rgba(16,185,129,0.06)",
-            border: "1px solid rgba(16,185,129,0.15)",
-            borderRadius: 16,
-            padding: "20px 24px",
-            marginBottom: 22,
+            fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700,
+            letterSpacing: "0.18em", textTransform: "uppercase",
+            color: "var(--status-green)", marginBottom: 16,
           }}>
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#F1F5F9", margin: 0, lineHeight: 1.7 }}>
-              {selectedTopic.solvedExample.question}
-            </p>
+            Solved Example
           </div>
 
-          {/* Steps */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+          <div style={{
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--bg-border)",
+            borderRadius: 12, padding: "16px 20px", marginBottom: 18,
+            borderLeft: "2px solid var(--status-green)",
+          }}>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 500, color: "var(--text-primary)", lineHeight: 1.7 }}>
+              {selectedTopic.solvedExample.question}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
             {selectedTopic.solvedExample.steps.map((step, i) => (
               <div key={i} style={{
-                display: "flex", gap: 14, alignItems: "flex-start",
-                padding: "12px 16px",
-                background: "rgba(255,255,255,0.02)",
-                borderRadius: 12,
-                borderLeft: "3px solid rgba(16,185,129,0.3)",
+                display: "flex", gap: 12, alignItems: "flex-start",
+                padding: "10px 14px",
+                background: "var(--bg-elevated)",
+                borderRadius: 10,
               }}>
                 <span style={{
-                  width: 26, height: 26, borderRadius: 8, flexShrink: 0,
-                  background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.2)",
+                  width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                  background: "rgba(62,207,142,0.1)",
+                  border: "1px solid rgba(62,207,142,0.2)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 11, fontWeight: 700, color: "#10B981",
+                  fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, color: "var(--status-green)",
                 }}>{i + 1}</span>
-                <span style={{ fontSize: 14, color: "#D1D5DB", lineHeight: 1.6 }}>{step}</span>
+                <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.65 }}>{step}</span>
               </div>
             ))}
           </div>
 
-          {/* Final Answer */}
           <div style={{
-            background: "linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05))",
-            border: "2px solid rgba(16,185,129,0.3)",
-            borderRadius: 16,
-            padding: "18px 24px",
+            background: "rgba(62,207,142,0.08)",
+            border: "1px solid rgba(62,207,142,0.25)",
+            borderRadius: 12, padding: "14px 20px",
             display: "flex", alignItems: "center", gap: 12,
           }}>
-            <span style={{ fontSize: 24 }}>⚡</span>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#10B981", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Final Answer</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#FFF" }}>{selectedTopic.solvedExample.finalAnswer}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--status-green)", marginBottom: 4 }}>
+                Final Answer
+              </div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+                {selectedTopic.solvedExample.finalAnswer}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ═══ PYQ SECTION ═══ */}
+        {/* PYQs */}
         {selectedTopic.pyqs.map((pyq, idx) => (
           <div key={idx} style={{
-            background: "linear-gradient(135deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01))",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 22,
-            padding: "28px 28px",
-            marginBottom: 20,
-            animation: `slideUp 0.5s ease-out ${0.2 + idx * 0.08}s both`,
+            background: "var(--bg-surface)",
+            border: "1px solid var(--bg-border)",
+            borderRadius: 18, padding: "24px 26px", marginBottom: 16,
+            animation: `nmSlideUp 0.4s ease-out ${0.16 + idx * 0.06}s both`,
           }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#F59E0B", textTransform: "uppercase", letterSpacing: 2, display: "flex", alignItems: "center", gap: 8 }}>
-                <span>🎯</span> Previous Year Question
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{
+                fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700,
+                letterSpacing: "0.18em", textTransform: "uppercase",
+                color: "var(--status-orange)",
+              }}>
+                Previous Year Question
               </div>
               <span style={{
-                background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.2)",
-                padding: "4px 14px", borderRadius: 100,
-                fontSize: 12, fontWeight: 700, color: "#F59E0B",
-              }}>📅 {pyq.year}</span>
+                background: "rgba(251,146,60,0.1)",
+                border: "1px solid rgba(251,146,60,0.25)",
+                padding: "3px 12px", borderRadius: 100,
+                fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, color: "var(--status-orange)",
+                letterSpacing: "0.04em",
+              }}>{pyq.year}</span>
             </div>
 
-            {/* PYQ Question */}
             <div style={{
-              background: "rgba(245,158,11,0.05)",
-              border: "1px solid rgba(245,158,11,0.12)",
-              borderRadius: 14,
-              padding: "18px 22px",
-              marginBottom: 18,
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--bg-border)",
+              borderLeft: "2px solid var(--status-orange)",
+              borderRadius: 12, padding: "14px 18px", marginBottom: 16,
             }}>
-              <p style={{ fontSize: 15, fontWeight: 600, color: "#F1F5F9", margin: 0, lineHeight: 1.7 }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 13.5, fontWeight: 500, color: "var(--text-primary)", lineHeight: 1.7 }}>
                 {pyq.question}
-              </p>
+              </div>
             </div>
 
-            {/* Reveal Button */}
             <button
               onClick={() => togglePYQ(idx)}
               style={{
-                width: "100%",
-                padding: "14px 20px",
-                background: revealedPYQs[idx]
-                  ? "rgba(245,158,11,0.08)"
-                  : "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.06))",
-                border: `1px solid rgba(245,158,11,${revealedPYQs[idx] ? "0.15" : "0.25"})`,
-                borderRadius: 14,
+                width: "100%", padding: "12px 18px",
+                background: "transparent",
+                border: `1px solid ${revealedPYQs[idx] ? "var(--bg-border)" : "rgba(251,146,60,0.25)"}`,
+                borderRadius: 10,
                 cursor: "pointer",
-                fontSize: 14, fontWeight: 700,
-                color: "#F59E0B",
-                transition: "all 0.3s ease",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em",
+                color: revealedPYQs[idx] ? "var(--text-muted)" : "var(--status-orange)",
+                transition: "all 0.2s ease",
               }}
             >
-              {revealedPYQs[idx] ? "▲ Hide Solution" : "▼ Reveal Answer"}
+              {revealedPYQs[idx] ? "▲ HIDE SOLUTION" : "▼ REVEAL SOLUTION"}
             </button>
 
-            {/* Revealed solution with smooth expand */}
             {revealedPYQs[idx] && (
-              <div style={{
-                marginTop: 16,
-                animation: "expandIn 0.4s ease-out",
-                overflow: "hidden",
-              }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+              <div style={{ marginTop: 14, animation: "nmExpand 0.35s ease-out", overflow: "hidden" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
                   {pyq.steps.map((step, i) => (
                     <div key={i} style={{
-                      display: "flex", gap: 12, alignItems: "flex-start",
-                      padding: "10px 14px",
-                      background: "rgba(255,255,255,0.02)",
-                      borderRadius: 10,
-                      borderLeft: "3px solid rgba(245,158,11,0.25)",
+                      display: "flex", gap: 10, alignItems: "flex-start",
+                      padding: "8px 12px",
+                      background: "var(--bg-elevated)",
+                      borderRadius: 8,
                     }}>
                       <span style={{
-                        width: 24, height: 24, borderRadius: 7, flexShrink: 0,
-                        background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.2)",
+                        width: 20, height: 20, borderRadius: 6, flexShrink: 0,
+                        background: "rgba(251,146,60,0.1)",
+                        border: "1px solid rgba(251,146,60,0.2)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 10, fontWeight: 700, color: "#F59E0B",
+                        fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, color: "var(--status-orange)",
                       }}>{i + 1}</span>
-                      <span style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.6 }}>{step}</span>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--text-secondary)", lineHeight: 1.6 }}>{step}</span>
                     </div>
                   ))}
                 </div>
-
                 <div style={{
-                  background: "linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.04))",
-                  border: "2px solid rgba(245,158,11,0.25)",
-                  borderRadius: 14,
-                  padding: "14px 20px",
-                  display: "flex", alignItems: "center", gap: 10,
+                  background: "rgba(251,146,60,0.08)",
+                  border: "1px solid rgba(251,146,60,0.25)",
+                  borderRadius: 10, padding: "12px 18px",
                 }}>
-                  <span style={{ fontSize: 20 }}>⚡</span>
-                  <div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#F59E0B", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Answer</div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>{pyq.finalAnswer}</div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--status-orange)", marginBottom: 3 }}>
+                    Answer
+                  </div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+                    {pyq.finalAnswer}
                   </div>
                 </div>
               </div>
@@ -658,181 +566,119 @@ export default function NumericalMasteryPage() {
           </div>
         ))}
 
-        {/* ═══ AI TIP BOX ═══ */}
+        {/* Pro tip */}
         <div style={{
-          background: "linear-gradient(135deg, rgba(139,92,246,0.08), rgba(139,92,246,0.04))",
-          border: "1px solid rgba(139,92,246,0.2)",
-          borderRadius: 18,
-          padding: "22px 24px",
-          marginBottom: 24,
-          display: "flex", alignItems: "flex-start", gap: 14,
-          animation: "slideUp 0.5s ease-out 0.4s both",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--accent-gold-border)",
+          borderRadius: 14, padding: "18px 22px", marginBottom: 22,
+          animation: "nmSlideUp 0.4s ease-out 0.3s both",
         }}>
-          <span style={{ fontSize: 22, flexShrink: 0 }}>💡</span>
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#00D4FF", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>Pro Tip</div>
-            <p style={{ fontSize: 13, color: "#C4B5FD", margin: 0, lineHeight: 1.7 }}>
-              {selectedTopic.aiTip}
-            </p>
+          <div style={{
+            fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700,
+            letterSpacing: "0.14em", textTransform: "uppercase",
+            color: "var(--accent-gold)", marginBottom: 6,
+          }}>
+            Pro Tip
+          </div>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7 }}>
+            {selectedTopic.aiTip}
           </div>
         </div>
 
-        {/* ═══ MARK AS MASTERED ═══ */}
         <button
           onClick={() => toggleMastered(selectedTopic.id)}
           style={{
-            width: "100%",
-            padding: "18px 24px",
-            background: isMastered
-              ? "linear-gradient(135deg, #10B981, #059669)"
-              : "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
-            border: `2px solid ${isMastered ? "#10B981" : "rgba(255,255,255,0.1)"}`,
-            borderRadius: 18,
-            cursor: "pointer",
-            fontSize: 16, fontWeight: 700,
-            color: isMastered ? "#FFF" : "#9CA3AF",
-            transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-            boxShadow: isMastered ? "0 8px 24px rgba(16,185,129,0.25)" : "none",
-            marginBottom: 14,
+            width: "100%", padding: "16px 24px",
+            background: isMastered ? "rgba(62,207,142,0.14)" : "var(--bg-surface)",
+            border: `1px solid ${isMastered ? "rgba(62,207,142,0.45)" : "var(--bg-border)"}`,
+            borderRadius: 14, cursor: "pointer",
+            fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, letterSpacing: "0.04em",
+            color: isMastered ? "var(--status-green)" : "var(--text-secondary)",
+            transition: "all 0.25s ease",
+            marginBottom: 12,
           }}
         >
-          {isMastered ? "✓ Mastered!" : "☐ Mark as Mastered"}
+          {isMastered ? "✓ MASTERED" : "MARK AS MASTERED"}
         </button>
 
-        {/* ═══ NEXT TOPIC / CHAPTER MASTERED BUTTON ═══ */}
-        {(() => {
-          const isLastTopic = topicIndex >= selectedChapter.topics.length - 1;
-          return (
-            <button
-              onClick={goToNextTopic}
-              disabled={!isMastered}
-              style={{
-                width: "100%",
-                padding: "18px 24px",
-                background: !isMastered
-                  ? "rgba(255,255,255,0.02)"
-                  : isLastTopic
-                  ? "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.08))"
-                  : "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(6,182,212,0.08))",
-                border: `2px solid ${
-                  !isMastered
-                    ? "rgba(255,255,255,0.06)"
-                    : isLastTopic
-                    ? "rgba(139,92,246,0.35)"
-                    : "rgba(59,130,246,0.35)"
-                }`,
-                borderRadius: 18,
-                cursor: isMastered ? "pointer" : "not-allowed",
-                fontSize: 16, fontWeight: 700,
-                color: !isMastered
-                  ? "#4B5563"
-                  : isLastTopic
-                  ? "#33DFFF"
-                  : "#60A5FA",
-                transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                boxShadow: isMastered
-                  ? isLastTopic
-                    ? "0 6px 20px rgba(139,92,246,0.2)"
-                    : "0 6px 20px rgba(59,130,246,0.2)"
-                  : "none",
-                opacity: isMastered ? 1 : 0.5,
-                marginBottom: 20,
-              }}
-            >
-              {!isMastered
-                ? "🔒 Master this topic to continue"
-                : isLastTopic
-                ? "🏆 Chapter Mastered — Back to Topics"
-                : `Next Topic → ${selectedChapter.topics[topicIndex + 1]?.name}`}
-            </button>
-          );
-        })()}
+        <button
+          onClick={goToNextTopic}
+          disabled={!isMastered}
+          style={{
+            width: "100%", padding: "16px 24px",
+            background: !isMastered ? "var(--bg-surface)" : "var(--accent-gold-glow)",
+            border: `1px solid ${!isMastered ? "var(--bg-border)" : "var(--accent-gold-border)"}`,
+            borderRadius: 14,
+            cursor: isMastered ? "pointer" : "not-allowed",
+            fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, letterSpacing: "0.04em",
+            color: !isMastered ? "var(--text-disabled)" : "var(--accent-gold)",
+            transition: "all 0.25s ease",
+            opacity: isMastered ? 1 : 0.6,
+            marginBottom: 20,
+          }}
+        >
+          {!isMastered
+            ? "MASTER THIS TOPIC TO CONTINUE"
+            : isLastTopic
+            ? "CHAPTER COMPLETE — BACK TO TOPICS"
+            : `NEXT TOPIC → ${selectedChapter.topics[topicIndex + 1]?.name}`}
+        </button>
 
-        {/* ═══ QUICK FORMULA RECAP (Floating) ═══ */}
+        {/* Floating formula recap button */}
         <button
           onClick={() => setShowFormulaRecap(!showFormulaRecap)}
           style={{
             position: "fixed", bottom: 28, right: 28,
-            width: 56, height: 56, borderRadius: 18,
-            background: "linear-gradient(135deg, #3B82F6, #06B6D4)",
-            border: "none", cursor: "pointer",
+            width: 52, height: 52, borderRadius: 14,
+            background: "var(--accent-gold-glow)",
+            border: "1px solid var(--accent-gold-border)",
+            cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 24, color: "#FFF",
-            boxShadow: "0 8px 28px rgba(59,130,246,0.4)",
+            fontFamily: "var(--font-display)", fontSize: 20,
+            color: "var(--accent-gold)",
+            boxShadow: "0 0 24px var(--accent-gold-glow)",
             zIndex: 100,
-            transition: "all 0.3s ease",
-            animation: "float 3s ease-in-out infinite",
+            transition: "all 0.25s ease",
           }}
           title="Quick Formula Recap"
         >
-          🧮
+          ∫
         </button>
 
         {showFormulaRecap && (
           <div style={{
-            position: "fixed", bottom: 96, right: 28,
+            position: "fixed", bottom: 92, right: 28,
             width: 320, maxWidth: "calc(100vw - 56px)",
-            background: "rgba(15,15,25,0.97)",
-            border: "1px solid rgba(59,130,246,0.3)",
-            borderRadius: 20,
-            padding: "24px 22px",
+            background: "rgba(19,19,31,0.97)",
+            border: "1px solid var(--accent-gold-border)",
+            borderRadius: 16, padding: "20px 18px",
             zIndex: 100,
-            boxShadow: "0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.1)",
+            boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
             backdropFilter: "blur(20px)",
-            animation: "slideUp 0.3s ease-out",
+            animation: "nmSlideUp 0.25s ease-out",
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", textTransform: "uppercase", letterSpacing: 1, marginBottom: 16 }}>
-              📋 All Formulas — {selectedChapter.name}
+            <div style={{
+              fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700,
+              letterSpacing: "0.14em", textTransform: "uppercase",
+              color: "var(--accent-gold)", marginBottom: 14,
+            }}>
+              All Formulas · {selectedChapter.name}
             </div>
             {selectedChapter.topics.map((t) => (
               <div key={t.id} style={{
-                padding: "10px 14px", marginBottom: 8,
-                background: t.id === selectedTopic.id ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.02)",
-                border: `1px solid ${t.id === selectedTopic.id ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.04)"}`,
-                borderRadius: 12,
+                padding: "10px 12px", marginBottom: 6,
+                background: t.id === selectedTopic.id ? "var(--accent-gold-glow)" : "var(--bg-elevated)",
+                border: `1px solid ${t.id === selectedTopic.id ? "var(--accent-gold-border)" : "var(--bg-border)"}`,
+                borderRadius: 10,
               }}>
-                <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 4 }}>{t.name}</div>
-                <div style={{
-                  fontSize: 15, fontWeight: 700, color: "#FFF",
-                  fontFamily: "'Georgia', 'Times New Roman', serif",
-                }}>{t.formula.split("|")[0].trim()}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--text-muted)", marginBottom: 3 }}>{t.name}</div>
+                <div style={{ fontFamily: "var(--font-tagline)", fontSize: 14, color: "var(--text-primary)" }}>
+                  {t.formula.split("|")[0].trim()}
+                </div>
               </div>
             ))}
           </div>
         )}
-
-        {/* ═══ STICKY FORMULA BANNER ═══ */}
-        <div style={{
-          position: "sticky", bottom: 0,
-          background: "linear-gradient(135deg, rgba(10,10,18,0.95), rgba(15,15,28,0.95))",
-          borderTop: "1px solid rgba(59,130,246,0.15)",
-          backdropFilter: "blur(16px)",
-          padding: "14px 24px",
-          borderRadius: "18px 18px 0 0",
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          zIndex: 50,
-          marginLeft: -24, marginRight: -24,
-        }}>
-          <div>
-            <div style={{ fontSize: 10, color: "#6B7280", textTransform: "uppercase", letterSpacing: 1 }}>Current Formula</div>
-            <div style={{
-              fontSize: 18, fontWeight: 800, color: "#FFF",
-              fontFamily: "'Georgia', 'Times New Roman', serif",
-              textShadow: "0 0 15px rgba(59,130,246,0.3)",
-            }}>{selectedTopic.formula.split("|")[0].trim()}</div>
-          </div>
-          <div style={{
-            background: isMastered ? "rgba(16,185,129,0.15)" : "rgba(59,130,246,0.12)",
-            border: `1px solid ${isMastered ? "rgba(16,185,129,0.25)" : "rgba(59,130,246,0.2)"}`,
-            padding: "6px 14px", borderRadius: 100,
-            fontSize: 11, fontWeight: 700,
-            color: isMastered ? "#10B981" : "#3B82F6",
-          }}>
-            {isMastered ? "✓ Mastered" : `Topic ${topicIndex + 1}/${selectedChapter.topics.length}`}
-          </div>
-        </div>
       </div>
     );
   }

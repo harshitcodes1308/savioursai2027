@@ -47,6 +47,48 @@ export async function POST(req: NextRequest) {
         const subscriptionId: string | undefined = subscription?.id;
         const notesUserId: string | undefined = subscription?.notes?.userId;
 
+        // ── Handle payment.captured (one-time orders: yearly, LNB chemistry) ──
+        if (event === "payment.captured") {
+            const payment = payload.payload?.payment?.entity;
+            const notes = payment?.notes;
+            const userEmail = notes?.userEmail || payment?.email;
+            const paymentAmount = payment?.amount || 0;
+            const purchaseType = notes?.purchaseType || "PRO";
+
+            // Validate minimum amount
+            const expectedMinAmount = purchaseType === "LNB_CHEMISTRY" ? 1900 : 9900;
+            if (paymentAmount < expectedMinAmount) {
+                console.error(`[razorpay-webhook] Suspicious payment: amount ${paymentAmount} below minimum ${expectedMinAmount} for ${userEmail}`);
+                return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
+            }
+
+            if (userEmail) {
+                const user = await prisma.user.findUnique({
+                    where: { email: userEmail },
+                    select: { id: true, isPaid: true, lnbChemistryUnlocked: true },
+                });
+
+                if (user) {
+                    if (purchaseType === "LNB_CHEMISTRY" && !user.lnbChemistryUnlocked) {
+                        await prisma.user.update({
+                            where: { id: user.id },
+                            data: { lnbChemistryUnlocked: true },
+                        });
+                        console.log("[razorpay-webhook] LNB Chemistry unlocked:", userEmail);
+                    } else if (!user.isPaid) {
+                        await prisma.user.update({
+                            where: { id: user.id },
+                            data: { isPaid: true },
+                        });
+                        console.log("[razorpay-webhook] User upgraded to PAID:", userEmail);
+                    }
+                }
+            }
+
+            return NextResponse.json({ received: true });
+        }
+
+        // ── Handle subscription events ──
         if (!subscriptionId) {
             // Not a subscription event we care about — ack and move on
             return NextResponse.json({ received: true });

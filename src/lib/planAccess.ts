@@ -9,6 +9,8 @@ export const PLAN_FEATURES: Record<string, Plan[]> = {
   focusMode:       ['monthly', 'yearly'],
   todoList:        ['free', 'monthly', 'yearly'],
   chronoScroll:    ['monthly', 'yearly'],
+  numericalMastery:['monthly', 'yearly'],
+  dateBattleArena: ['monthly', 'yearly'],
 };
 
 export const AI_DOUBT_FREE_LIMIT = 3; // queries per day for free users

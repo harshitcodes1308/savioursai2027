@@ -165,8 +165,12 @@ export const authRouter = createTRPCRouter({
                     authenticatedUser = await authenticate(input.email, input.password);
 
                     // 2. If failed, try compatible match (e.g. user typed "Wpass", DB has "pass")
+                    // TODO: Remove this fallback once no users hit it (check logs)
                     if (!authenticatedUser) {
                         authenticatedUser = await authenticate(input.email, input.password.substring(1));
+                        if (authenticatedUser) {
+                            console.warn(`[auth] DEPRECATION: substring(1) fallback used for ${input.email} — user should reset password`);
+                        }
                     }
 
                     if (!authenticatedUser) {
@@ -177,25 +181,10 @@ export const authRouter = createTRPCRouter({
                     }
 
                 } else {
-                    // --- SCENARIO B: User Does Not Exist (Auto-Signup) ---
-                    
-                    // We need a name for the new user. Use provided name or default.
-                    const newName = input.name || input.email.split('@')[0];
-
-                    // Create the user with the STRICT password (starts with W)
-                    authenticatedUser = await createUser(
-                        input.email,
-                        input.password,
-                        newName,
-                        "STUDENT" // Default to STUDENT for auto-signup
-                    );
-
-                    // Create default Student Profile
-                    await ctx.prisma.studentProfile.create({
-                        data: {
-                            userId: authenticatedUser.id,
-                            grade: 10, // Default grade
-                        },
+                    // --- User does not exist — do not auto-create ---
+                    throw new TRPCError({
+                        code: "UNAUTHORIZED",
+                        message: "Invalid email or password",
                     });
                 }
 

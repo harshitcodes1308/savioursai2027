@@ -236,10 +236,12 @@ export default function AIAssistantPage() {
                                         padding: "12px 16px",
                                         borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
                                         background: msg.role === "user"
-                                            ? "var(--accent-gold)"
+                                            ? "var(--accent-gold-glow)"
                                             : "var(--bg-surface)",
-                                        border: msg.role === "user" ? "none" : "1px solid var(--bg-border)",
-                                        color: msg.role === "user" ? "var(--bg-base)" : "var(--text-primary)",
+                                        border: msg.role === "user"
+                                            ? "1px solid var(--accent-gold-border)"
+                                            : "1px solid var(--bg-border)",
+                                        color: "var(--text-primary)",
                                         fontFamily: "var(--font-body)",
                                         fontSize: 14,
                                         lineHeight: 1.6,

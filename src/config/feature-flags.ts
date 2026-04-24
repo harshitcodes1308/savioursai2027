@@ -16,10 +16,10 @@ export const FEATURE_FLAGS = {
   todoList: true,
 
   // ── HIDDEN — built but not exposed in UI ────────────────────
-  numericalMastery: false,
+  numericalMastery: true,
   chronoScroll: true,
   guessPapers: false,
-  dateBattleArena: false,
+  dateBattleArena: true,
   strategyAI: false,
   lastNightBefore: false,
   notesFlashcards: false,

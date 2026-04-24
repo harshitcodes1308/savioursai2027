@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hashPassword, createToken, setSessionCookie } from "@/lib/auth";
+import { hashPassword, createToken } from "@/lib/auth";
 import type { SessionUser } from "@/lib/auth";
 
 const DEMO_EMAIL = "demo@saviours.test";
@@ -80,9 +80,16 @@ export async function POST(req: NextRequest) {
   };
 
   const token = await createToken(sessionUser);
-  await setSessionCookie(token, true);
 
   const redirectTo = mode === "signup" ? "/onboarding" : "/dashboard";
 
-  return NextResponse.json({ success: true, redirectTo });
+  const maxAge = 60 * 60 * 24 * 30; // 30 days
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  const response = NextResponse.json({ success: true, redirectTo });
+  response.headers.append(
+    "Set-Cookie",
+    `auth-token=${token}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`
+  );
+
+  return response;
 }

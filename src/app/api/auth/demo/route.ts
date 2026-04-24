@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   const redirectTo = mode === "signup" ? "/onboarding" : "/dashboard";
 
   const maxAge = 60 * 60 * 24 * 30; // 30 days
-  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  const secure = (process.env.NODE_ENV as string) === "production" ? "; Secure" : "";
   const response = NextResponse.json({ success: true, redirectTo });
   response.headers.append(
     "Set-Cookie",

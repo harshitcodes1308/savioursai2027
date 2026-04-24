@@ -8,13 +8,19 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get("code");
     const error = searchParams.get("error");
     const state = searchParams.get("state");
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    // Must match the baseUrl used in /api/auth/google so the token-exchange
+    // redirect_uri and post-auth redirects stay on the same host.
+    const forwardedProto = request.headers.get("x-forwarded-proto");
+    const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host");
+    const baseUrl = forwardedHost
+        ? `${forwardedProto || (forwardedHost.startsWith("localhost") ? "http" : "https")}://${forwardedHost}`
+        : process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     if (error || !code) {
         return NextResponse.redirect(`${baseUrl}/login?error=google_auth_failed`);
     }
 
-    // Verify CSRF state token
+    // Verify CSRF state token against the cookie we set on the outbound leg.
     const storedState = request.cookies.get("oauth-state")?.value;
     if (!state || !storedState || state !== storedState) {
         return NextResponse.redirect(`${baseUrl}/login?error=csrf_validation_failed`);
@@ -119,10 +125,15 @@ export async function GET(request: NextRequest) {
             ? `${baseUrl}/onboarding`
             : `${baseUrl}/dashboard`;
 
-        const response = NextResponse.redirect(redirectUrl);
-        // Clear the CSRF state cookie
-        response.cookies.set("oauth-state", "", { maxAge: 0, path: "/" });
-        return response;
+        // Clear the oauth-state cookie by emitting an expired Set-Cookie.
+        return new NextResponse(null, {
+            status: 302,
+            headers: {
+                Location: redirectUrl,
+                "Set-Cookie": "oauth-state=; Path=/; Max-Age=0",
+                "Cache-Control": "no-store",
+            },
+        });
     } catch (err) {
         console.error("Google auth callback error:", err);
         return NextResponse.redirect(`${baseUrl}/login?error=google_auth_error`);

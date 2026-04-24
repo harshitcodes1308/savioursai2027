@@ -116,12 +116,9 @@ export default function SignupPage() {
   };
 
   const handleGoogleSignup = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const baseUrl = window.location.origin;
-    const redirectUri = `${baseUrl}/api/auth/google/callback`;
-    const scope = "openid email profile";
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&prompt=select_account`;
-    window.location.href = authUrl;
+    // Route through our server endpoint so it can set the oauth-state cookie
+    // and include a CSRF state parameter before redirecting to Google.
+    window.location.href = "/api/auth/google";
   };
 
   return (

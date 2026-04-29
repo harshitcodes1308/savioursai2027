@@ -34,7 +34,7 @@ declare global {
 
 interface RazorpayButtonProps {
     amount?: number; // legacy prop
-    type?: "PRO" | "LNB_CHEMISTRY";
+    type?: "PRO" | "MONTHLY" | "LNB_CHEMISTRY";
     email: string;
     name: string;
     onSuccess?: () => void;
@@ -66,14 +66,59 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
         }
 
         try {
-            // 1. Create Order on Backend
+            const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "";
+            const prefill = { name, email };
+
+            if (type === "MONTHLY") {
+                // ── Recurring subscription flow (₹199/month) ──
+                const subRes = await fetch("/api/create-subscription", { method: "POST" });
+                const subData = await subRes.json();
+
+                if (!subData.success) {
+                    alert(`Subscription Error: ${subData.error || "Failed to create subscription"}`);
+                    setLoading(false);
+                    return;
+                }
+
+                const subOptions = {
+                    key,
+                    name: "Saviours AI",
+                    description: "Monthly Plan — ₹199/month",
+                    subscription_id: subData.subscription.id,
+                    handler: async (response: any) => {
+                        setLoading(true);
+                        try {
+                            const { verifyPaymentAction } = await import("@/actions/verify-payment");
+                            const result = await verifyPaymentAction(response);
+                            if (result.success) {
+                                if (onSuccess) onSuccess();
+                            } else {
+                                alert("Payment verification failed: " + result.error);
+                            }
+                        } catch {
+                            alert("Verification failed. Please contact support if money was deducted.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                    prefill,
+                    theme: { color: "#00D4FF" },
+                };
+
+                const paymentObject = new (window as any).Razorpay(subOptions);
+                paymentObject.open();
+                setLoading(false);
+                return;
+            }
+
+            // ── One-time order flow (PRO_YEARLY or LNB_CHEMISTRY) ──
             const orderRes = await fetch("/api/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ type }),
             });
             const orderData = await orderRes.json();
-            
+
             if (!orderData.success) {
                 console.error("Order creation failed", orderData);
                 alert(`Payment Error: ${orderData.error}`);
@@ -82,11 +127,11 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
             }
 
             const options: RazorpayOptions = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+                key,
                 amount: orderData.order.amount,
                 currency: orderData.order.currency,
                 name: "ICSE Saviours",
-                description: type === "LNB_CHEMISTRY" ? "Unlock Chemistry Sets" : "Lifetime Access",
+                description: type === "LNB_CHEMISTRY" ? "Unlock Chemistry Sets" : "Yearly Access",
                 order_id: orderData.order.id,
                 handler: async function (response: any) {
                     setLoading(true); // Keep loading state

@@ -238,7 +238,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
 
                             <RazorpayButton
                                 amount={selectedPlan === "MONTHLY" ? 199 : 599}
-                                type="PRO"
+                                type={selectedPlan === "MONTHLY" ? "MONTHLY" : "PRO"}
                                 email={(user as any)?.email || ""}
                                 name={(user as any)?.name || ""}
                                 buttonText={`Get ${selectedPlan === "MONTHLY" ? "Monthly" : "Yearly"} Plan →`}

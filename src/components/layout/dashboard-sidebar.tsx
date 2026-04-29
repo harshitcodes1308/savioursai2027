@@ -7,6 +7,7 @@ import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
+  "/dashboard/webinar": "webinar",
   "/dashboard/ai-assistant": "aiDoubtSolver",
   "/dashboard/planner": "smartPlanner",
   "/dashboard/tests": "customiseTest",
@@ -36,49 +37,85 @@ const DiamondLogo = ({ size = 28 }: { size?: number }) => (
   </svg>
 );
 
-const NAV_GROUPS = [
+type NavItem = { icon: string; label: string; href: string };
+type NavGroup = { label: string; items: NavItem[] };
+
+const ACCOUNT_GROUP: NavGroup = {
+  label: "ACCOUNT",
+  items: [
+    { icon: "○", label: "Profile",  href: "/dashboard/profile" },
+    { icon: "○", label: "Policies", href: "/dashboard/policies" },
+  ],
+};
+
+// ── Free users: only accessible items, paid features shown with lock icon ──────
+const FREE_NAV_GROUPS: NavGroup[] = [
   {
     label: "HOME",
-    items: [
-      { icon: "⊞", label: "Dashboard", href: "/dashboard" },
-    ],
+    items: [{ icon: "⊞", label: "Dashboard", href: "/dashboard" }],
   },
   {
-    label: "FREE TOOLS",
+    label: "FREE",
     items: [
-      { icon: "◎", label: "Smart Planner", href: "/dashboard/planner" },
+      { icon: "◎", label: "Smart Planner",   href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission", href: "/dashboard/todo" },
+      { icon: "◈", label: "Live Webinar",    href: "/dashboard/webinar" },
     ],
   },
   {
     label: "STUDY",
     items: [
-      { icon: "◈", label: "AI Doubt Solver", href: "/dashboard/ai-assistant" },
-      { icon: "◉", label: "Focus Mode", href: "/dashboard/focus" },
-      { icon: "◎", label: "ChronoScroll", href: "/dashboard/chronoscroll" },
+      { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
+      { icon: "◎", label: "ChronoScroll",      href: "/dashboard/chronoscroll" },
+      { icon: "◈", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
+      { icon: "◉", label: "Focus Mode",        href: "/dashboard/focus" },
     ],
   },
   {
     label: "PRACTICE",
     items: [
-      { icon: "◉", label: "Competency Test", href: "/dashboard/precision-practice" },
-      { icon: "◈", label: "Customise Test", href: "/dashboard/tests" },
+      { icon: "◉", label: "Competency Test",   href: "/dashboard/precision-practice" },
+      { icon: "◈", label: "Customise Test",    href: "/dashboard/tests" },
       { icon: "⇌", label: "Flip the Question", href: "/dashboard/flip-the-question" },
-      { icon: "◎", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
-      { icon: "◈", label: "Guess Papers", href: "/dashboard/guess-papers" },
-      { icon: "◉", label: "Strategy AI", href: "/dashboard/strategy" },
-      { icon: "◎", label: "Last Night Before", href: "/dashboard/last-night-before" },
       { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
-      { icon: "◈", label: "Notes & Flashcards", href: "/dashboard/notes" },
+    ],
+  },
+  ACCOUNT_GROUP,
+];
+
+// ── Paid users: everything properly categorised, no "FREE" label ───────────────
+const PAID_NAV_GROUPS: NavGroup[] = [
+  {
+    label: "HOME",
+    items: [{ icon: "⊞", label: "Dashboard", href: "/dashboard" }],
+  },
+  {
+    label: "PLAN",
+    items: [
+      { icon: "◎", label: "Smart Planner",   href: "/dashboard/planner" },
+      { icon: "○", label: "Monthly Mission", href: "/dashboard/todo" },
+      { icon: "◈", label: "Live Webinar",    href: "/dashboard/webinar" },
     ],
   },
   {
-    label: "ACCOUNT",
+    label: "STUDY",
     items: [
-      { icon: "○", label: "Profile", href: "/dashboard/profile" },
-      { icon: "○", label: "Policies", href: "/dashboard/policies" },
+      { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
+      { icon: "◎", label: "ChronoScroll",      href: "/dashboard/chronoscroll" },
+      { icon: "◈", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
+      { icon: "◉", label: "Focus Mode",        href: "/dashboard/focus" },
     ],
   },
+  {
+    label: "PRACTICE",
+    items: [
+      { icon: "◉", label: "Competency Test",   href: "/dashboard/precision-practice" },
+      { icon: "◈", label: "Customise Test",    href: "/dashboard/tests" },
+      { icon: "⇌", label: "Flip the Question", href: "/dashboard/flip-the-question" },
+      { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
+    ],
+  },
+  ACCOUNT_GROUP,
 ];
 
 // Mobile bottom tab bar items
@@ -234,9 +271,10 @@ export default function DashboardSidebar({
         </div>
       </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, overflowY: "auto", padding: "8px 10px 12px" }}>
-        {NAV_GROUPS.map((group) => {
+      {/* Nav — minHeight:0 lets the flex child shrink below content size so
+           overflowY:auto actually triggers instead of clipping items silently */}
+      <nav style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "8px 10px 12px" }}>
+        {(isPaid ? PAID_NAV_GROUPS : FREE_NAV_GROUPS).map((group) => {
           const visibleItems = group.items.filter(item => isVisible(item.href));
           if (visibleItems.length === 0) return null;
           return (

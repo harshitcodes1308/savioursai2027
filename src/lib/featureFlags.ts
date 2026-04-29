@@ -1,5 +1,6 @@
 export const FEATURE_FLAGS = {
   // Currently live
+  webinar:         true,
   aiDoubtSolver:   true,
   smartPlanner:    true,
   competencyTest:  true,

@@ -6,6 +6,51 @@ import { useEffect, useMemo, useState } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import ShimmerText from "@/components/ui/shimmer-text";
+import { MONTHLY_MISSION, getCurrentMonthIndex, getMonthTaskCounts } from "@/data/monthly-mission";
+
+const MM_KEY = "saviours-monthly-mission-v2";
+const MODE_KEY = "saviours-stats-mode";
+
+function calcMMStats(checked: Record<string, boolean>) {
+    const mi = getCurrentMonthIndex();
+    const month = MONTHLY_MISSION[mi];
+
+    // Current week: approximate by day-of-month (1-7→w1, 8-14→w2, etc.)
+    const day = new Date().getDate();
+    const weekIdx = Math.min(Math.floor((day - 1) / 7), month.weeks.length - 1);
+    const curWeek = month.weeks[weekIdx];
+    const wkTotal = curWeek.tasks.length + curWeek.addons.length;
+    const wkDone = curWeek.tasks.filter(t => checked[`${mi}:${curWeek.id}:${t.id}`]).length
+        + curWeek.addons.filter((_, i) => checked[`${mi}:${curWeek.id}:a${i}`]).length;
+    const weekPct = wkTotal > 0 ? Math.round((wkDone / wkTotal) * 100) : 0;
+
+    // Current month
+    const { done: mDone, total: mTotal } = getMonthTaskCounts(mi, checked);
+    const monthPct = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0;
+
+    // Completed weeks across all months
+    let completedWeeks = 0, totalWeeks = 0;
+    MONTHLY_MISSION.forEach((m, idx) => {
+        m.weeks.forEach(w => {
+            totalWeeks++;
+            const count = w.tasks.length + w.addons.length;
+            if (count === 0) return;
+            const done = w.tasks.filter(t => checked[`${idx}:${w.id}:${t.id}`]).length
+                + w.addons.filter((_, i) => checked[`${idx}:${w.id}:a${i}`]).length;
+            if (done === count) completedWeeks++;
+        });
+    });
+
+    // All-time readiness
+    let allDone = 0, allTotal = 0;
+    MONTHLY_MISSION.forEach((_, idx) => {
+        const { done, total } = getMonthTaskCounts(idx, checked);
+        allDone += done; allTotal += total;
+    });
+    const readiness = allTotal > 0 ? Math.round((allDone / allTotal) * 100) : 0;
+
+    return { weekPct, monthPct, completedWeeks, totalWeeks, readiness };
+}
 
 const PLAN_LABELS: Record<string, string> = {
     FREE: "Free",
@@ -76,6 +121,26 @@ export default function DashboardPage() {
     const { isMobile, isTablet } = useResponsive();
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const [statsMode, setStatsModeState] = useState<"planner" | "mission">("planner");
+    const [mmChecked, setMmChecked] = useState<Record<string, boolean>>({});
+
+    // Load saved mode + MM data from localStorage after mount
+    useEffect(() => {
+        const saved = localStorage.getItem(MODE_KEY);
+        if (saved === "mission" || saved === "planner") setStatsModeState(saved);
+        try { setMmChecked(JSON.parse(localStorage.getItem(MM_KEY) || "{}")); }
+        catch { /* ignore */ }
+    }, []);
+
+    const setStatsMode = (m: "planner" | "mission") => {
+        setStatsModeState(m);
+        localStorage.setItem(MODE_KEY, m);
+        // Refresh MM data whenever user switches to mission mode
+        if (m === "mission") {
+            try { setMmChecked(JSON.parse(localStorage.getItem(MM_KEY) || "{}")); }
+            catch { /* ignore */ }
+        }
+    };
 
     const { data: profile, isLoading: profileLoading } = trpc.dashboard.getProfile.useQuery(undefined, {
         refetchOnWindowFocus: true, refetchOnMount: true,
@@ -113,6 +178,7 @@ export default function DashboardPage() {
         { flag: "flipTheQuestion" as const, label: "Flip the Question", desc: "Reverse-engineer from answers", path: "/dashboard/flip-the-question", icon: "⇌", tagline: "See questions from the other side" },
         { flag: "focusMode" as const, label: "Focus Mode", desc: "Distraction-free deep work", path: "/dashboard/focus", icon: "◎", tagline: "Where deep work happens" },
         { flag: "todoList" as const, label: "Monthly Mission", desc: "12-month ICSE board prep checklist", path: "/dashboard/todo", icon: "○", tagline: "One month at a time" },
+        { flag: "webinar" as const, label: "Live Webinar", desc: "Free sessions with Pranay Bhaiya", path: "/dashboard/webinar", icon: "◈", tagline: "Your questions, answered live." },
         { flag: "chronoScroll" as const, label: "ChronoScroll", desc: "Scroll through history, snap dates", path: "/dashboard/chronoscroll", icon: "◎", tagline: "Scroll. Snap. Remember." },
         { flag: "numericalMastery" as const, label: "Numerical Mastery", desc: "Physics formulas, solved examples & PYQs", path: "/dashboard/numerical-mastery", icon: "◈", tagline: "Every formula, every numerical, mastered." },
         { flag: "dateBattleArena" as const, label: "Date Battle Arena", desc: "Gamified history dates, 60-second battles", path: "/dashboard/date-battle", icon: "◉", tagline: "Speed meets memory in the arena." },
@@ -139,11 +205,18 @@ export default function DashboardPage() {
     const planType = (profile as any)?.planType ?? "FREE";
     const paymentWarning = (profile as any)?.paymentWarning as "CANCELLED" | "EXPIRED" | null | undefined;
 
-    const ringStats = [
-        { label: "Today", value: `${todayProgress}%`, sub: "of daily goal", percent: todayProgress, color: "var(--accent-gold)" },
-        { label: "Streak", value: `${stats?.currentStreak ?? 0}d`, sub: "days running", percent: Math.min((stats?.currentStreak ?? 0) * 10, 100), color: "#22c55e" },
-        { label: "This week", value: `${stats?.weeklyProgress ?? 0}%`, sub: "completed", percent: stats?.weeklyProgress ?? 0, color: "#60a5fa" },
-        { label: "Readiness", value: `${stats?.examReadiness ?? 0}%`, sub: "syllabus covered", percent: stats?.examReadiness ?? 0, color: "#33DFFF" },
+    const mmStats = calcMMStats(mmChecked);
+
+    const ringStats = statsMode === "planner" ? [
+        { label: "Today",     value: `${todayProgress}%`,           sub: "of daily goal",    percent: todayProgress,                                color: "var(--accent-gold)" },
+        { label: "Streak",    value: `${stats?.currentStreak ?? 0}d`, sub: "days running",  percent: Math.min((stats?.currentStreak ?? 0) * 10, 100), color: "#22c55e" },
+        { label: "This week", value: `${stats?.weeklyProgress ?? 0}%`, sub: "completed",    percent: stats?.weeklyProgress ?? 0,                     color: "#60a5fa" },
+        { label: "Readiness", value: `${stats?.examReadiness ?? 0}%`,  sub: "syllabus covered", percent: stats?.examReadiness ?? 0,                  color: "#33DFFF" },
+    ] : [
+        { label: "This Week",   value: `${mmStats.weekPct}%`,        sub: "week tasks done",  percent: mmStats.weekPct,                                                         color: "var(--accent-gold)" },
+        { label: "Weeks Done",  value: `${mmStats.completedWeeks}`,   sub: `of ${mmStats.totalWeeks} weeks`, percent: mmStats.totalWeeks > 0 ? Math.round((mmStats.completedWeeks / mmStats.totalWeeks) * 100) : 0, color: "#22c55e" },
+        { label: "This Month",  value: `${mmStats.monthPct}%`,        sub: "month complete",   percent: mmStats.monthPct,                                                        color: "#60a5fa" },
+        { label: "Readiness",   value: `${mmStats.readiness}%`,       sub: "syllabus done",    percent: mmStats.readiness,                                                       color: "#33DFFF" },
     ];
 
     return (
@@ -343,6 +416,42 @@ export default function DashboardPage() {
                     >
                         {logoutMutation.isPending ? "Logging out..." : "Log out"}
                     </button>
+                </div>
+
+                {/* ── Stats Mode Selector ── */}
+                <div style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    marginBottom: 10,
+                    animation: "slideInUp 0.4s ease-out 80ms both",
+                }}>
+                    <span style={{
+                        fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700,
+                        letterSpacing: "0.12em", textTransform: "uppercase",
+                        color: "var(--text-muted)", opacity: 0.6,
+                        flexShrink: 0,
+                    }}>Stats from</span>
+                    {(["planner", "mission"] as const).map(mode => {
+                        const active = statsMode === mode;
+                        return (
+                            <button
+                                key={mode}
+                                onClick={() => setStatsMode(mode)}
+                                style={{
+                                    padding: "4px 14px", borderRadius: 100,
+                                    border: active ? "1px solid var(--accent-gold)" : "1px solid var(--bg-border)",
+                                    background: active ? "var(--accent-gold-glow)" : "transparent",
+                                    color: active ? "var(--accent-gold)" : "var(--text-muted)",
+                                    fontFamily: "var(--font-body)", fontSize: 11,
+                                    fontWeight: active ? 700 : 400,
+                                    cursor: "pointer",
+                                    transition: "all 0.18s ease",
+                                    letterSpacing: "0.02em",
+                                }}
+                            >
+                                {mode === "planner" ? "Smart Planner" : "Monthly Mission"}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* ── Stats Strip ── */}

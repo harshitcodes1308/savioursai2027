@@ -7,6 +7,7 @@
  */
 export const FEATURE_FLAGS = {
   // ── LIVE on launch ──────────────────────────────────────────
+  webinar: true,
   aiDoubtSolver: true,
   smartPlanner: true,
   customiseTest: true,

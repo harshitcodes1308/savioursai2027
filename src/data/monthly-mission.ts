@@ -1,1258 +1,527 @@
 /**
  * Monthly Mission — 12-Month ICSE Class 10 Board Prep Plan
- * Each month has 10 subjects, each subject has a monthly focus + pre-fed to-do checklist.
- * This is a standalone free-tier feature.
+ * Weekly format: each month → weeks → per-subject tasks + add-ons
  */
 
-export interface TodoItem {
+// ── Types ────────────────────────────────────────────────────────────────────
+
+export interface WeekTask {
   id: string;
-  text: string;
+  subject: string;  // "" for general tasks (Dec, Jan, Feb, Mar)
+  task: string;
 }
 
-export interface SubjectMonth {
-  subject: string;
-  icon: string;
-  color: string;
-  focus: string;
-  todos: TodoItem[];
+export interface WeekPlan {
+  id: string;       // stable key for localStorage: "w1", "w2", "w34", "every", etc.
+  label: string;    // "Week 1", "Weeks 1–2", "Every Week", "For Every Exam"
+  tasks: WeekTask[];
+  addons: string[];
 }
 
 export interface MonthPlan {
   month: string;
   tagline: string;
   brief: string;
-  subjects: SubjectMonth[];
+  weeks: WeekPlan[];
 }
 
-const ICONS: Record<string, string> = {
-  Mathematics: '🔢',
-  Physics: '⚡',
-  Chemistry: '🧪',
-  Biology: '🧬',
-  'History & Civics': '🏛️',
-  Geography: '🌍',
-  'English Language': '📝',
-  'English Literature': '📖',
-  Hindi: '🪷',
-  'Computer Applications': '💻',
+// ── Subject meta ─────────────────────────────────────────────────────────────
+
+const META: Record<string, { icon: string; color: string; short: string }> = {
+  'Maths':                { icon: '🔢', color: '#3B82F6', short: 'Maths'   },
+  'Mathematics':          { icon: '🔢', color: '#3B82F6', short: 'Maths'   },
+  'Physics':              { icon: '⚡', color: '#F59E0B', short: 'Physics' },
+  'Chemistry':            { icon: '🧪', color: '#00D4FF', short: 'Chem'   },
+  'Biology':              { icon: '🧬', color: '#22c55e', short: 'Bio'     },
+  'History & Civics':     { icon: '🏛️', color: '#FB923C', short: 'History' },
+  'History':              { icon: '🏛️', color: '#FB923C', short: 'History' },
+  'Geography':            { icon: '🌍', color: '#14B8A6', short: 'Geo'     },
+  'English Language':     { icon: '📝', color: '#A78BFA', short: 'English' },
+  'English':              { icon: '📝', color: '#A78BFA', short: 'English' },
+  'English Literature':   { icon: '📖', color: '#EC4899', short: 'Lit'     },
+  'Literature':           { icon: '📖', color: '#EC4899', short: 'Lit'     },
+  'Hindi':                { icon: '🪷', color: '#F472B6', short: 'Hindi'   },
+  'Computer Applications':{ icon: '💻', color: '#F97316', short: 'CS'      },
+  'Computer':             { icon: '💻', color: '#F97316', short: 'CS'      },
 };
 
-const COLORS: Record<string, string> = {
-  Mathematics: '#3B82F6',
-  Physics: '#F59E0B',
-  Chemistry: '#00D4FF',
-  Biology: '#22c55e',
-  'History & Civics': '#FB923C',
-  Geography: '#14B8A6',
-  'English Language': '#A78BFA',
-  'English Literature': '#EC4899',
-  Hindi: '#F472B6',
-  'Computer Applications': '#F97316',
-};
-
-function s(subject: string, focus: string, todos: string[]): SubjectMonth {
-  return {
-    subject,
-    icon: ICONS[subject] || '📚',
-    color: COLORS[subject] || '#60A5FA',
-    focus,
-    todos: todos.map((t, i) => ({ id: `${subject.toLowerCase().replace(/\s+/g, '-')}-${i}`, text: t })),
-  };
+export function getSubjectMeta(subject: string) {
+  return META[subject] ?? { icon: '◈', color: '#6B7280', short: subject };
 }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function t(subject: string, task: string, idx: number, weekId: string): WeekTask {
+  return { id: `${weekId}-t${idx}`, subject, task };
+}
+
+function tasks(weekId: string, entries: [string, string][]): WeekTask[] {
+  return entries.map(([s, task], i) => t(s, task, i, weekId));
+}
+
+function week(id: string, label: string, ts: WeekTask[], addons: string[] = []): WeekPlan {
+  return { id, label, tasks: ts, addons };
+}
+
+// ── Data ──────────────────────────────────────────────────────────────────────
 
 export const MONTHLY_MISSION: MonthPlan[] = [
-  // ── APRIL ─────────────────────────────────────────────
-  {
-    month: 'April',
-    tagline: 'Strong Basics',
-    brief: 'School just started. The student who locks in their fundamentals in April doesn\'t panic in January. This month is about knowing your syllabus, setting up your study space, and touching every subject at least once.',
-    subjects: [
-      s('Mathematics',
-        'Understanding the exam format, syllabus overview, and beginning with high-weightage foundational chapters — Commercial Math and Algebra entry points.',
-        [
-          'Download and read the full ICSE Maths syllabus for 2027',
-          'Complete textbook exercises for GST (Goods & Services Tax)',
-          'Solve 10 basic Banking problems (interest, deposits)',
-          'Read and take notes on Shares & Dividends introduction',
-          'Solve 5 previous year questions from Commercial Math',
-        ]),
-      s('Physics',
-        'Getting comfortable with the Class 10 Physics syllabus structure. Starting with Force and its effects — the most conceptually foundational unit.',
-        [
-          'Read the full Physics syllabus and mark high-weightage units',
-          'Complete textbook notes for Force — types, effects, units',
-          'Solve 10 numericals on turning effect of force (moments)',
-          'Draw and label all diagrams for levers and simple machines',
-          'Revise Class 9 motion concepts as a refresher',
-        ]),
-      s('Chemistry',
-        'Periodic table, atomic structure, and chemical bonding basics. These underpin everything else in Chemistry all year.',
-        [
-          'Memorise the first 20 elements with symbols and atomic numbers',
-          'Study Periodic Table trends — atomic size, electronegativity, metallic character',
-          'Complete notes on Atomic Structure — shells, subshells, electronic configuration',
-          'Read Chemical Bonding chapter — ionic vs covalent, draw electron dot structures',
-          'Solve 10 textbook questions on periodicity and bonding',
-        ]),
-      s('Biology',
-        'Cell biology — structure, functions, and cell division (Mitosis and Meiosis). The building block of the entire Biology paper.',
-        [
-          'Draw and label a plant cell and animal cell from memory',
-          'Complete notes on cell organelles — functions of each',
-          'Study Mitosis — stages, diagrams, significance',
-          'Study Meiosis — stages, crossing over, significance',
-          'Compare Mitosis vs Meiosis in a table format',
-        ]),
-      s('History & Civics',
-        'Starting Civics — the Indian Constitution, Fundamental Rights, and Directive Principles. Civics is scoring and often left for last — start it early.',
-        [
-          'Read the Preamble of the Indian Constitution and understand every word',
-          'Make notes on all 6 Fundamental Rights with examples',
-          'Study Directive Principles of State Policy — key articles',
-          'Learn the process of Constitutional Amendments',
-          'Answer 3 textbook long-answer questions on Rights and Duties',
-        ]),
-      s('Geography',
-        'Map work orientation and introduction to natural resources — soils and vegetation. Building the habit of map practice from day one.',
-        [
-          'Get an India outline map set (10 blank maps minimum)',
-          'Practice marking major mountain ranges, rivers, and cities',
-          'Read and make notes on types of soils in India',
-          'Study natural vegetation — tropical, deciduous, thorn forests',
-          'Mark soil distribution on a map of India',
-        ]),
-      s('English Language',
-        'Grammar foundations — tenses, clauses, transformation of sentences, common error types. This month is about identifying your weak grammar zones.',
-        [
-          'Revise all 12 tenses with 2 examples each',
-          'Complete 20 transformation of sentences exercises',
-          'Practice 10 error correction (spotting) exercises',
-          'Study active/passive voice rules and complete 15 exercises',
-          'Identify your 3 weakest grammar areas for focused work',
-        ]),
-      s('English Literature',
-        'Reading and annotating the first 2–3 poems. Understanding how to write a poetry appreciation answer from scratch.',
-        [
-          'Read and annotate the first 2 prescribed poems',
-          'Write a summary and central idea for each poem',
-          'Practice writing a reference-to-context answer for one poem',
-          'Learn 5 literary devices with examples from the poems',
-          'Study the model answer format for poetry appreciation',
-        ]),
-      s('Hindi',
-        'Grammar foundation — Sandhi, Samas, Karak, Kriya. These are the predictable high-weightage grammar sections that appear every year.',
-        [
-          'Revise all Sandhi types with 5 examples each',
-          'Complete exercises on Samas — identification and breakdown',
-          'Study all 8 Karak types with vibhakti signs',
-          'Practice Kriya identification and classification (15 sentences)',
-          'Solve one previous year Hindi grammar paper',
-        ]),
-      s('Computer Applications',
-        'Revisiting Class 9 Java fundamentals — OOP concepts, data types, operators, basic I/O. You cannot build Class 10 programs without this base.',
-        [
-          'Revise Class 9 Java — variables, data types, operators',
-          'Write 5 simple programs using Scanner for input',
-          'Study OOP concepts — class, object, encapsulation, abstraction',
-          'Practice 10 questions on type casting and operator precedence',
-          'Set up your Java development environment if not already done',
-        ]),
-    ],
-  },
 
-  // ── MAY ───────────────────────────────────────────────
+  // ── MAY ──────────────────────────────────────────────────────────────────
   {
     month: 'May',
-    tagline: 'Build Momentum',
-    brief: 'The novelty of a new session is gone. Now real work begins. This month you push deeper into every subject and build the daily study habit that will carry you through the year. No subject gets skipped.',
-    subjects: [
-      s('Mathematics',
-        'Quadratic equations, Ratio & Proportion, and introduction to AP/GP. These chapters appear every single year in boards — master them now.',
-        [
-          'Complete all textbook exercises on Quadratic Equations',
-          'Solve 15 problems on Ratio and Proportion',
-          'Study AP — nth term, sum of n terms, solve 10 problems',
-          'Study GP — nth term, sum of n terms, solve 10 problems',
-          'Solve 5 previous year board questions from these chapters',
-        ]),
-      s('Physics',
-        'Work, Power & Energy, and Laws of Motion. Numericals begin in earnest this month — daily problem practice is non-negotiable.',
-        [
-          'Complete notes on Work Done — formula, units, solved examples',
-          'Solve 15 numericals on Power and Energy',
-          'Study different forms of energy and energy transformations',
-          'Make a formula sheet for Force, Work, Power, Energy',
-          'Practice 5 ICSE-style numericals daily this month',
-        ]),
-      s('Chemistry',
-        'Mole Concept and Chemical Bonding in depth. These are the two chapters students most commonly under-prepare and regret.',
-        [
-          'Study Mole Concept — Avogadro number, molar mass, molar volume',
-          'Solve 15 numericals on mole concept (mass-mole-particle conversions)',
-          'Study types of Chemical Bonding — ionic, covalent, coordinate',
-          'Draw electron dot structures for 10 common compounds',
-          'Complete textbook exercises for both chapters',
-        ]),
-      s('Biology',
-        'Genetics — Mendelian inheritance, monohybrid and dihybrid crosses, sex determination. Diagrams and Punnett squares must be practiced by hand.',
-        [
-          'Study Mendel\'s Laws of Inheritance (Dominance, Segregation, Independent Assortment)',
-          'Practice drawing 5 monohybrid cross Punnett squares',
-          'Practice drawing 3 dihybrid cross Punnett squares',
-          'Study sex determination in humans with diagram',
-          'Solve 10 genetics problems from textbook',
-        ]),
-      s('History & Civics',
-        'Parliament — Lok Sabha, Rajya Sabha, legislative process. Moving into History — Nationalism in Europe, French Revolution context.',
-        [
-          'Complete notes on Lok Sabha — composition, powers, Speaker',
-          'Complete notes on Rajya Sabha — composition, powers, Chairman',
-          'Study the legislative process — how a bill becomes law',
-          'Read Nationalism in Europe — key events and dates',
-          'Write one long answer on Parliament (practice structure)',
-        ]),
-      s('Geography',
-        'Climate of India — monsoon mechanism, seasons, rainfall distribution. This is one of the most concept-heavy Geography chapters.',
-        [
-          'Study the monsoon mechanism — origin, branches, withdrawal',
-          'Make notes on all 4 seasons of India with characteristics',
-          'Mark rainfall distribution patterns on an India map',
-          'Study factors affecting climate — latitude, altitude, distance from sea',
-          'Complete 5 textbook questions on Climate of India',
-        ]),
-      s('English Language',
-        'Formal letter writing and notice/email formats. Practice 2 letters every week under timed conditions — format errors are avoidable marks lost.',
-        [
-          'Study formal letter format — sender, receiver, subject, body, closing',
-          'Write 4 formal letters (complaint, request, inquiry, job application)',
-          'Study notice and email writing formats',
-          'Write 2 notices and 2 emails under timed conditions',
-          'Get feedback on your letters — check format accuracy',
-        ]),
-      s('English Literature',
-        'First 2 prose pieces — summary, character analysis, and model answer writing. Practice writing long answers, not just reading.',
-        [
-          'Read and annotate the first 2 prose pieces',
-          'Write a character sketch for the main character of each piece',
-          'Practice 2 reference-to-context answers from prose',
-          'Write one long answer (150+ words) from each prose piece',
-          'Maintain a vocabulary log — 10 new words from the prose',
-        ]),
-      s('Hindi',
-        'Essay writing (Nibandh) and formal letter formats. These are the highest-weightage sections in the Hindi paper.',
-        [
-          'Study Nibandh format — introduction, body paragraphs, conclusion',
-          'Write 3 essays on common topics (environment, technology, education)',
-          'Study Patra Lekhan formats — formal and informal',
-          'Write 2 formal letters and 1 informal letter',
-          'Memorise 10 muhavare (idioms) for use in essays',
-        ]),
-      s('Computer Applications',
-        'Arrays (1D and 2D), loops, and basic program writing. Students who can write clean loop-based programs here have a massive advantage later.',
-        [
-          'Study 1D arrays — declaration, initialization, traversal',
-          'Write 5 programs using 1D arrays (search, sort, sum, reverse)',
-          'Study 2D arrays — row/column operations',
-          'Write 3 programs using 2D arrays (matrix addition, transpose)',
-          'Practice all loop types — for, while, do-while with 10 programs',
-        ]),
+    tagline: 'Foundation + Habit Building',
+    brief: 'The novelty is gone. Real work begins. Push deeper into every subject and build the daily study habit that will carry you through the year.',
+    weeks: [
+      week('w1', 'Week 1', tasks('w1', [
+        ['Maths',            'GST basics + 10 sums'],
+        ['Physics',          'Force (definitions + 5 numericals)'],
+        ['Chemistry',        'Periodic Table (groups overview)'],
+        ['Biology',          'Cell Division (concept + 2 diagrams)'],
+        ['History & Civics', '1857 (causes)'],
+        ['Geography',        'Climate (factors)'],
+        ['English',          '1 Essay + 1 Letter'],
+        ['Literature',       'Julius Caesar Act 1 Scene 1–2'],
+        ['Computer',         'Basics + variables'],
+      ]), ['Revise same topics (2 quick sessions)', 'PYQs: Maths (GST basic)', '1 light mixed test (Maths + Sci)']),
+
+      week('w2', 'Week 2', tasks('w2', [
+        ['Maths',            'GST mixed + Banking intro'],
+        ['Physics',          'Force numericals + WEP intro'],
+        ['Chemistry',        'Periodic trends (detailed)'],
+        ['Biology',          'Cell Division PYQs'],
+        ['History & Civics', '1857 complete + Nationalism intro'],
+        ['Geography',        'Climate (monsoon)'],
+        ['English',          'Grammar (tenses) + Essay'],
+        ['Literature',       'Act 1 revision'],
+        ['Computer',         'Data types + operators'],
+      ]), ['Revise Week 1', '1 Maths test', 'PYQs (Bio/Geo)']),
+
+      week('w3', 'Week 3', tasks('w3', [
+        ['Maths',            'Banking (RD problems)'],
+        ['Physics',          'Work Energy Power (numericals)'],
+        ['Chemistry',        'Chemical Bonding intro'],
+        ['Biology',          'Genetics (basics)'],
+        ['History & Civics', 'Nationalism (events)'],
+        ['Geography',        'Climate revision + map'],
+        ['English',          'Precis + Letter'],
+        ['Literature',       'Act 2 start'],
+        ['Computer',         'If-else'],
+      ]), ['Revise Week 2', 'Mixed Sci test', 'Start error notebook']),
+
+      week('w4', 'Week 4', tasks('w4', [
+        ['Maths',            'GST + Banking revision + 15 PYQs'],
+        ['Physics',          'Force + WEP revision (10 numericals)'],
+        ['Chemistry',        'Bonding basics + 10 PYQs'],
+        ['Biology',          'Genetics diagrams + 5 PYQs'],
+        ['History & Civics', '1857 + Nationalism revision'],
+        ['Geography',        'Climate full revision + map'],
+        ['English',          '1 full Language paper (timed)'],
+        ['Literature',       'Act 1–2 revision'],
+        ['Computer',         'Practice 6 programs'],
+      ]), ['Mini mock (3 subjects)', 'Monthly review']),
     ],
   },
 
-  // ── JUNE ──────────────────────────────────────────────
+  // ── JUNE ─────────────────────────────────────────────────────────────────
   {
     month: 'June',
-    tagline: 'Slow Burn',
-    brief: 'Vacations are here. You don\'t need to grind — but you cannot stop. One focused hour a day in June is worth ten hours of panic in December. Use this month to consolidate, not rush forward.',
-    subjects: [
-      s('Mathematics',
-        'Revision of April–May chapters. Solve 15–20 previous year questions from covered topics. Identify which chapter types you\'re making errors in.',
-        [
-          'Revise all Commercial Math formulas and solve 5 mixed problems',
-          'Revise Quadratic Equations — solve 10 different types',
-          'Revise AP/GP — solve 5 application-based problems',
-          'Solve 15 previous year board questions from chapters covered',
-          'Make an error log — note down every mistake type',
-        ]),
-      s('Physics',
-        'Light — reflection and refraction. Introduction to ray diagrams and mirror/lens formulae. Conceptual clarity before numericals.',
-        [
-          'Study Laws of Reflection and Refraction (Snell\'s Law)',
-          'Practice drawing ray diagrams for mirrors (5 cases)',
-          'Practice drawing ray diagrams for lenses (5 cases)',
-          'Study mirror formula and magnification — solve 10 numericals',
-          'Study lens formula and power of lens — solve 10 numericals',
-        ]),
-      s('Chemistry',
-        'Acids, Bases and Salts — reactions, indicators, pH. Clear up all conceptual confusion from earlier months before moving ahead.',
-        [
-          'Study properties of acids, bases, and salts',
-          'Learn all indicator colour changes (litmus, phenolphthalein, methyl orange)',
-          'Understand the pH scale — acids, neutral, bases with examples',
-          'Write and balance 10 key reactions involving acids and bases',
-          'Complete all textbook exercises for this chapter',
-        ]),
-      s('Biology',
-        'Nutrition — autotrophic and heterotrophic, human digestive system. Diagram labelling practice for all organs.',
-        [
-          'Study autotrophic nutrition — photosynthesis equation, factors',
-          'Study heterotrophic nutrition — types (holozoic, saprophytic, parasitic)',
-          'Draw and label the human digestive system from memory',
-          'Write the function of each digestive organ',
-          'Practice 5 diagram-based questions from textbook',
-        ]),
-      s('History & Civics',
-        'Judiciary — Supreme Court, High Court, their powers and functions. Finish Civics syllabus up to this point.',
-        [
-          'Study Supreme Court — composition, powers, jurisdiction',
-          'Study High Court — composition, powers, jurisdiction',
-          'Compare Supreme Court vs High Court in a table',
-          'Revise all Civics chapters covered so far — quick notes review',
-          'Write 2 long answers on Judiciary from memory',
-        ]),
-      s('Geography',
-        'Agriculture in India — types, major crops, Green Revolution. Maps showing agricultural distribution must be practiced.',
-        [
-          'Study types of farming — subsistence, commercial, plantation',
-          'Make notes on Rabi, Kharif, and Zaid crops with examples',
-          'Study the Green Revolution — causes, effects, achievements',
-          'Mark major crop-producing states on a map of India',
-          'Complete 5 map-based questions on agriculture',
-        ]),
-      s('English Language',
-        'Descriptive and narrative composition writing. Focus on structure, vocabulary range, and maintaining tense consistency throughout.',
-        [
-          'Study composition structure — introduction, body, conclusion',
-          'Write 2 descriptive compositions (place, person, event)',
-          'Write 2 narrative compositions (story with a moral)',
-          'Focus on maintaining one tense throughout — review your work',
-          'Build a vocabulary bank — 20 advanced adjectives and adverbs',
-        ]),
-      s('English Literature',
-        'Read through the Shakespeare play (Merchant of Venice) Act 1–3 for plot familiarity. Not answer writing yet — just understanding the story and characters.',
-        [
-          'Read Act 1 of Merchant of Venice — note all characters introduced',
-          'Read Act 2 — note the casket subplot and Shylock\'s conflict',
-          'Read Act 3 — note the trial preparation and Portia\'s plan',
-          'Write a 1-paragraph summary of each Act',
-          'List all major characters with one-line descriptions',
-        ]),
-      s('Hindi',
-        'Unseen comprehension passages and poem explanation practice. Light work but consistent — 3 passages per week.',
-        [
-          'Solve 4 unseen Gadyansh (prose comprehension) passages',
-          'Solve 4 unseen Kavyansh (poetry comprehension) passages',
-          'Practice writing answers in complete sentences (not phrases)',
-          'Revise grammar from April — Sandhi and Samas quick test',
-          'Read one Hindi short story for enjoyment and vocabulary',
-        ]),
-      s('Computer Applications',
-        'String handling functions in Java — all built-in methods. Write small programs using strings daily.',
-        [
-          'Study all String methods — length(), charAt(), substring(), indexOf(), etc.',
-          'Write 5 programs using string manipulation',
-          'Study the difference between String and StringBuffer',
-          'Practice 10 string-based output prediction questions',
-          'Write a program to check if a string is a palindrome',
-        ]),
+    tagline: 'Slow Burn (Vacation)',
+    brief: 'Vacations are here. One focused hour a day in June is worth ten hours of panic in December. Consolidate, don\'t rush forward.',
+    weeks: [
+      week('w1', 'Week 1', tasks('w1', [
+        ['Maths',            'Quadratic (basics + 8 sums)'],
+        ['Physics',          'Machines (concepts)'],
+        ['Chemistry',        'Acids & Bases (intro)'],
+        ['Biology',          'Absorption by Roots'],
+        ['History & Civics', 'Nationalism deeper'],
+        ['Geography',        'Soil'],
+        ['English',          'Essay + grammar'],
+        ['Literature',       'Act 2 scenes'],
+        ['Computer',         'Operators'],
+      ]), ['Revise May W3–4', 'PYQs (Maths/Bio)', '1 test']),
+
+      week('w2', 'Week 2', tasks('w2', [
+        ['Maths',            'Quadratic word problems'],
+        ['Physics',          'Machines numericals (8–10)'],
+        ['Chemistry',        'pH + indicators'],
+        ['Biology',          'Transpiration'],
+        ['History & Civics', 'Gandhian Movement intro'],
+        ['Geography',        'Natural Vegetation'],
+        ['English',          'Letter + Precis'],
+        ['Literature',       'Act 2 key scenes'],
+        ['Computer',         'I/O programs'],
+      ]), ['Revise W1', 'PYQs (Chem/Geo)', 'Physics test']),
+
+      week('w3', 'Week 3', tasks('w3', [
+        ['Maths',            'AP (intro + 6 sums)'],
+        ['Physics',          'Revise Force + Machines (10 numericals)'],
+        ['Chemistry',        'Mole Concept (intro)'],
+        ['Biology',          'Plant Physiology revision (diagrams)'],
+        ['History & Civics', 'Gandhian Movement (events)'],
+        ['Geography',        'Soil + Vegetation revision'],
+        ['English',          'Comprehension'],
+        ['Literature',       'Act 3 start'],
+        ['Computer',         'If-else practice'],
+      ]), ['Mixed PYQs', 'Science test']),
+
+      week('w4', 'Week 4', tasks('w4', [
+        ['Maths',            'AP (word problems + 10 PYQs)'],
+        ['Physics',          'Machines + WEP recap (mixed numericals)'],
+        ['Chemistry',        'Mole (6 numericals)'],
+        ['Biology',          'Absorption + Transpiration PYQs'],
+        ['History & Civics', 'Nationalism + Gandhian revision'],
+        ['Geography',        'Map (soil + veg)'],
+        ['English',          '1 full paper'],
+        ['Literature',       'Act 2–3 revision'],
+        ['Computer',         '6 programs'],
+      ]), ['Mini mock', 'Monthly review']),
     ],
   },
 
-  // ── JULY ──────────────────────────────────────────────
+  // ── JULY ─────────────────────────────────────────────────────────────────
   {
     month: 'July',
-    tagline: 'Test Mode',
-    brief: 'School is back and so is pressure. First unit tests or internal assessments are approaching. This month, treat every piece of work like it\'s the real board exam. Performance habits are formed now.',
-    subjects: [
-      s('Mathematics',
-        'Circle geometry — chords, arcs, tangents, angle properties. One of the most concept-dense and regularly appearing Maths chapters.',
-        [
-          'Study all theorems related to circles — tangent, chord, arc properties',
-          'Practice drawing accurate geometric constructions for circles',
-          'Solve 15 problems on angle properties of circles',
-          'Solve 10 problems on tangent properties',
-          'Complete 5 board-style circle geometry questions',
-        ]),
-      s('Physics',
-        'Current Electricity — Ohm\'s Law, resistance, series-parallel circuits, numericals. The most numerically intensive Physics chapter.',
-        [
-          'Study Ohm\'s Law — statement, formula, graphical representation',
-          'Solve 10 numericals on resistance (series and parallel)',
-          'Study household circuits — fuse, earthing, MCB',
-          'Draw and label series and parallel circuit diagrams',
-          'Solve 10 mixed numericals on current electricity',
-        ]),
-      s('Chemistry',
-        'Electrolysis — electrolytic cells, products at electrodes, industrial applications. Electrochemistry is a frequent board question area.',
-        [
-          'Study electrolysis — definition, electrolyte, electrode, cell setup',
-          'Learn products at electrodes for common electrolytes (CuSO4, NaCl, H2SO4)',
-          'Study electroplating — process and applications',
-          'Write equations for reactions at anode and cathode',
-          'Solve 10 textbook questions on electrolysis',
-        ]),
-      s('Biology',
-        'Photosynthesis (detailed) and Transpiration. These chapters overlap and require both concept clarity and diagram practice.',
-        [
-          'Study photosynthesis — light and dark reactions in detail',
-          'Draw and label the cross-section of a leaf showing photosynthesis',
-          'Study transpiration — process, factors affecting, significance',
-          'Draw and label a stomatal apparatus',
-          'Compare photosynthesis and transpiration in a table',
-        ]),
-      s('History & Civics',
-        'History — Nationalism in India, Indian National Movement overview. Long answer practice with proper structure begins this month.',
-        [
-          'Study the Indian National Movement — early phase (1885–1919)',
-          'Study the Gandhian era — key movements and dates',
-          'Make a timeline of Indian independence movement (1857–1947)',
-          'Write 3 long answers on Nationalism in India with proper structure',
-          'Practice source-based questions on the independence movement',
-        ]),
-      s('Geography',
-        'Industries — Iron & Steel, Textile, Software. Location factors, major centres, challenges — these are frequently asked in 5-mark questions.',
-        [
-          'Study Iron & Steel industry — major centres, raw materials, challenges',
-          'Study Textile industry — cotton and silk, major centres',
-          'Study the IT/Software industry — Bangalore, Hyderabad, Pune',
-          'Mark all major industrial centres on an India map',
-          'Write 2 long answers on industrial location factors',
-        ]),
-      s('English Language',
-        'Timed unseen comprehension practice — one passage every 2 days. Focus on inference-based questions, not just factual retrieval.',
-        [
-          'Solve 6 unseen comprehension passages under timed conditions (20 min each)',
-          'Practice inference questions — what does the author imply?',
-          'Study vocabulary-in-context question techniques',
-          'Practice summary writing from comprehension passages',
-          'Review and correct errors from all 6 passages',
-        ]),
-      s('English Literature',
-        'Writing model answers for all poems studied so far. Practise from memory without looking at the text — exam simulation.',
-        [
-          'Write reference-to-context answers for all 4 poems studied',
-          'Practice writing from memory — no textbook while writing',
-          'Create a poetry quote bank — 3 key quotes per poem',
-          'Study literary devices used in each poem',
-          'Write one full poetry appreciation answer (200+ words)',
-        ]),
-      s('Hindi',
-        'Begin Gadya (prose) section — chapter reading with notes. Identify 2–3 chapters likely to come in unit tests.',
-        [
-          'Read and summarise the first 3 Gadya chapters',
-          'Write character sketches for main characters in each chapter',
-          'Practice 5 short answer questions per chapter',
-          'Identify key themes and moral lessons in each chapter',
-          'Write one long answer from memory for unit test preparation',
-        ]),
-      s('Computer Applications',
-        'Inheritance in Java — single and multilevel. Understanding how objects interact across classes.',
-        [
-          'Study single inheritance — extends keyword, constructor chaining',
-          'Study multilevel inheritance with examples',
-          'Write 3 programs demonstrating single inheritance',
-          'Write 2 programs demonstrating multilevel inheritance',
-          'Practice method overriding and super keyword usage',
-        ]),
+    tagline: 'Serious Mode (~50% coverage)',
+    brief: 'School is back and so is pressure. First unit tests or internal assessments are approaching. Treat every piece of work like it\'s the real board exam.',
+    weeks: [
+      week('w1', 'Week 1', tasks('w1', [
+        ['Maths',            'Trigonometric Identities'],
+        ['Physics',          'Refraction (plane)'],
+        ['Chemistry',        'Electrolysis (intro)'],
+        ['Biology',          'Circulatory System'],
+        ['History & Civics', 'Gandhian Movement complete'],
+        ['Geography',        'Water Resources'],
+        ['English',          'Essay + grammar'],
+        ['Literature',       'Act 3'],
+        ['Computer',         'Loops (for/while)'],
+      ]), ['PYQs (Maths/Phy)', '1 test']),
+
+      week('w2', 'Week 2', tasks('w2', [
+        ['Maths',            'Heights & Distances'],
+        ['Physics',          'Refraction numericals'],
+        ['Chemistry',        'Electrolysis reactions'],
+        ['Biology',          'Excretory System'],
+        ['History & Civics', 'Forward Bloc + INA'],
+        ['Geography',        'Minerals'],
+        ['English',          'Letter + Precis'],
+        ['Literature',       'Act 4'],
+        ['Computer',         'Loop programs'],
+      ]), ['Revise W1', 'Chem/Geo PYQs', 'Physics test']),
+
+      week('w3', 'Week 3', tasks('w3', [
+        ['Maths',            'Trig PYQs (15)'],
+        ['Physics',          'Light revision (10 numericals)'],
+        ['Chemistry',        'Electrolysis PYQs'],
+        ['Biology',          'Circulatory + Excretory revision'],
+        ['History & Civics', '1857 → INA quick revision'],
+        ['Geography',        'Map (water + minerals)'],
+        ['English',          'Comprehension'],
+        ['Literature',       'Act 5 start'],
+        ['Computer',         'Arrays intro'],
+      ]), ['Mixed test', 'Error notebook update']),
+
+      week('w4', 'Week 4', tasks('w4', [
+        ['Maths',            'Trig full revision'],
+        ['Physics',          'Refraction mixed numericals'],
+        ['Chemistry',        'Electrolysis recap'],
+        ['Biology',          'Diagrams practice'],
+        ['History & Civics', 'PYQs (national movement)'],
+        ['Geography',        'Revision'],
+        ['English',          'Full paper'],
+        ['Literature',       'Act 3–5 revision'],
+        ['Computer',         'Arrays basics practice'],
+      ]), ['Mini mock', 'Monthly review']),
     ],
   },
 
-  // ── AUGUST ────────────────────────────────────────────
+  // ── AUGUST ───────────────────────────────────────────────────────────────
   {
     month: 'August',
-    tagline: '60% Done',
-    brief: 'By the end of August, 60% of your syllabus should be complete across all 10 subjects. If you\'re behind, this is your correction month — no panic, but no excuses either. Close the gap.',
-    subjects: [
-      s('Mathematics',
-        'Mensuration — surface area and volume of solids. Trigonometry introduction — standard angles, identities, and basic problems.',
-        [
-          'Study surface area and volume formulas for all solids (cylinder, cone, sphere)',
-          'Solve 15 Mensuration numericals covering all solid types',
-          'Study Trigonometric ratios for standard angles (0°, 30°, 45°, 60°, 90°)',
-          'Memorise all trigonometric identities',
-          'Solve 15 basic trigonometry problems',
-        ]),
-      s('Physics',
-        'Electromagnetic induction — Faraday\'s laws, generators, transformers. Numericals on transformers are a board favourite.',
-        [
-          'Study Faraday\'s Laws of Electromagnetic Induction',
-          'Study AC and DC generators — diagram, working principle',
-          'Study Transformers — step-up, step-down, formula, efficiency',
-          'Solve 10 numericals on transformers (turns ratio, voltage, efficiency)',
-          'Draw and label generator and transformer diagrams from memory',
-        ]),
-      s('Chemistry',
-        'Ammonia and Nitric Acid — laboratory and industrial preparation. These chapters are formulaic and fully predictable — perfect for scoring.',
-        [
-          'Study Ammonia — lab prep, Haber process, properties, tests',
-          'Write all chemical equations related to Ammonia',
-          'Study Nitric Acid — lab prep, Ostwald process, properties',
-          'Write all chemical equations related to Nitric Acid',
-          'Solve 10 textbook questions on both chapters',
-        ]),
-      s('Biology',
-        'Excretion — human excretory system, kidney structure and function, osmoregulation. Detailed diagram labelling is essential.',
-        [
-          'Draw and label the human excretory system from memory',
-          'Draw and label a nephron — all parts with functions',
-          'Study urine formation — filtration, reabsorption, secretion',
-          'Study osmoregulation and role of ADH hormone',
-          'Solve 10 diagram-based and short answer questions',
-        ]),
-      s('History & Civics',
-        'History — Rise of Fascism & Nazism, World War II causes and effects. Heavy content month for History — make concise notes.',
-        [
-          'Study Rise of Fascism in Italy — causes, Mussolini\'s policies',
-          'Study Rise of Nazism in Germany — causes, Hitler\'s policies',
-          'Compare Fascism and Nazism in a detailed table',
-          'Study World War II — causes, major events, results',
-          'Write 3 long answers on WW2 and totalitarianism',
-        ]),
-      s('Geography',
-        'Transport & Communication — roadways, railways, waterways, airways. Maps and data-based questions are common here.',
-        [
-          'Study roadways — National Highways, Golden Quadrilateral, expressways',
-          'Study railways — zones, important routes, Rajdhani/Shatabdi',
-          'Study waterways — inland and sea routes, major ports',
-          'Mark all major transport routes and ports on an India map',
-          'Complete 5 data-based textbook questions on transport',
-        ]),
-      s('English Language',
-        'Formal letter types — complaint, request, job application. Article and report writing formats.',
-        [
-          'Write 2 complaint letters with proper format',
-          'Write 1 job application letter with bio-data',
-          'Study article writing format — headline, byline, body',
-          'Write 2 articles on current topics (300+ words each)',
-          'Study report writing format and write 1 report',
-        ]),
-      s('English Literature',
-        'Merchant of Venice — detailed Act-by-Act summary with key quotes and character notes. Begin writing long answers for Acts 1–3.',
-        [
-          'Write detailed notes for Act 1 — key dialogues, character motives',
-          'Write detailed notes for Act 2 — casket scenes, elopement',
-          'Write detailed notes for Act 3 — trial scene details',
-          'Create a quote bank — 5 key quotes per Act with context',
-          'Practice 3 reference-to-context answers from the play',
-        ]),
-      s('Hindi',
-        'Kavya (poetry) section — poem reading, central idea, and explanation writing. Long answer practice for at least 3 poems.',
-        [
-          'Read and annotate the first 4 prescribed poems',
-          'Write the central idea (Kavya ka bhavarth) for each poem',
-          'Practice Kavya Saundarya (poetic beauty) analysis for 2 poems',
-          'Write long answers for 3 poems from memory',
-          'Memorise key couplets (dohe) from each poem',
-        ]),
-      s('Computer Applications',
-        'Exception handling in Java — try, catch, finally, throw. Writing programs that handle runtime errors gracefully.',
-        [
-          'Study exception handling — try, catch, finally, throw, throws',
-          'Understand checked vs unchecked exceptions',
-          'Write 3 programs demonstrating try-catch-finally',
-          'Write 2 programs that throw custom exceptions',
-          'Practice output prediction questions on exception handling',
-        ]),
+    tagline: 'Build to ~65%',
+    brief: 'By end of August, 65% of your syllabus should be complete. If you\'re behind, this is your correction month — no panic, but no excuses either.',
+    weeks: [
+      week('w1', 'Week 1', tasks('w1', [
+        ['Maths',            'Mensuration (Cylinder/Cone basics)'],
+        ['Physics',          'Lens (concepts)'],
+        ['Chemistry',        'Metallurgy (intro)'],
+        ['Biology',          'Nervous System'],
+        ['History & Civics', 'Independence & Partition (intro)'],
+        ['Geography',        'Agriculture (types)'],
+        ['English',          'Essay + grammar'],
+        ['Literature',       'Poetry 1'],
+        ['Computer',         'Arrays'],
+      ]), ['PYQs (Maths/Bio)', '1 test']),
+
+      week('w2', 'Week 2', tasks('w2', [
+        ['Maths',            'Mensuration numericals'],
+        ['Physics',          'Lens numericals'],
+        ['Chemistry',        'Metallurgy processes'],
+        ['Biology',          'Endocrine System'],
+        ['History & Civics', 'Independence events'],
+        ['Geography',        'Agriculture (crops)'],
+        ['English',          'Letter + Precis'],
+        ['Literature',       'Poetry 2'],
+        ['Computer',         'Strings intro'],
+      ]), ['Revise W1', 'Chem/Geo PYQs', 'Physics test']),
+
+      week('w3', 'Week 3', tasks('w3', [
+        ['Maths',            'Mensuration PYQs'],
+        ['Physics',          'Sound (intro)'],
+        ['Chemistry',        'Metallurgy PYQs'],
+        ['Biology',          'Nervous + Endocrine revision'],
+        ['History & Civics', 'Full revision (movement)'],
+        ['Geography',        'Map (agriculture)'],
+        ['English',          'Comprehension'],
+        ['Literature',       'Prose 1'],
+        ['Computer',         'Strings practice'],
+      ]), ['Mixed test']),
+
+      week('w4', 'Week 4', tasks('w4', [
+        ['Maths',            'Mensuration revision'],
+        ['Physics',          'Lens + Sound numericals'],
+        ['Chemistry',        'Metallurgy recap'],
+        ['Biology',          'Diagrams + PYQs'],
+        ['History & Civics', 'PYQs'],
+        ['Geography',        'Revision'],
+        ['English',          'Full paper'],
+        ['Literature',       'Poetry revision'],
+        ['Computer',         'Practice'],
+      ]), ['2 mixed tests', 'Identify weak areas']),
     ],
   },
 
-  // ── SEPTEMBER ─────────────────────────────────────────
+  // ── SEPTEMBER ────────────────────────────────────────────────────────────
   {
     month: 'September',
-    tagline: 'Mid-Term Crunch',
-    brief: 'Half-yearly exams are here. This is your first full-dress rehearsal before boards. Your performance this month tells you exactly where you stand. Treat it with that seriousness.',
-    subjects: [
-      s('Mathematics',
-        'Full revision of all chapters covered so far. Solve 2 complete half-yearly level papers under timed conditions.',
-        [
-          'Revise formulas for all chapters — write them out by hand',
-          'Solve 1 complete half-yearly paper under 2.5-hour timed conditions',
-          'Analyse mistakes from Paper 1 — categorise by type',
-          'Solve a second complete paper and compare scores',
-          'Create a chapter-wise weakness list for post-exam focus',
-        ]),
-      s('Physics',
-        'Revision of all 5 chapters covered — focus on numericals. Make a formula sheet and drill it daily this month.',
-        [
-          'Create a one-page formula sheet for all Physics chapters',
-          'Solve 5 numericals daily from different chapters (mixed practice)',
-          'Revise all ray diagrams — draw 10 from memory',
-          'Complete 1 half-yearly Physics paper under timed conditions',
-          'Identify your 2 weakest Physics chapters for extra revision',
-        ]),
-      s('Chemistry',
-        'Revise all Chemistry chapters. Focus on reactions, equations, and industrial processes — these are the most commonly asked elements.',
-        [
-          'Write out all key chemical equations from every chapter (30+)',
-          'Revise all industrial processes — Haber, Ostwald, Contact',
-          'Complete 1 half-yearly Chemistry paper under timed conditions',
-          'Review and correct all errors from the practice paper',
-          'Make a "reactions to memorise" flashcard set',
-        ]),
-      s('Biology',
-        'Revision of all Biology chapters. Practice all diagrams from memory — no reference while drawing.',
-        [
-          'Draw all major Biology diagrams from memory (10+ diagrams)',
-          'Revise all chapter notes — spend 20 min per chapter',
-          'Complete 1 half-yearly Biology paper under timed conditions',
-          'Check diagram accuracy against textbook — fix errors',
-          'Write 5 short answers and 3 long answers from memory',
-        ]),
-      s('History & Civics',
-        'Civics full revision + History chapters covered. Write out long answers in full — don\'t just mentally rehearse them.',
-        [
-          'Revise all Civics chapters — quick notes review (30 min)',
-          'Revise all History chapters covered — timeline review',
-          'Write 5 long answers from memory under timed conditions',
-          'Complete 1 half-yearly History & Civics paper',
-          'Identify gaps in your knowledge — chapters that need re-reading',
-        ]),
-      s('Geography',
-        'Map-based revision — locate every industrial, agricultural, and physical feature asked in covered chapters. Timed map practice.',
-        [
-          'Practice all map work from covered chapters (15 min daily)',
-          'Revise all chapter notes — agriculture, climate, industry, transport',
-          'Complete 1 half-yearly Geography paper under timed conditions',
-          'Review map marking accuracy — compare with textbook maps',
-          'Make a list of top 20 most commonly asked map features',
-        ]),
-      s('English Language',
-        '2 full English Language paper simulations. Time yourself — 2 hours, no help. Review and fix your most repeated errors.',
-        [
-          'Solve 1 full English Language paper (2 hours, no assistance)',
-          'Review Paper 1 — mark every error, identify patterns',
-          'Solve a second full paper and compare improvement',
-          'Focus on your weakest section — grammar, comprehension, or composition',
-          'Revise all letter and composition formats one final time',
-        ]),
-      s('English Literature',
-        'Full Literature paper simulation. All poems, prose, and drama answered under timed conditions.',
-        [
-          'Complete 1 full Literature paper under timed conditions',
-          'Review Merchant of Venice answers — are quotes accurate?',
-          'Revise all poem central ideas and literary devices',
-          'Write 3 reference-to-context answers from prose chapters',
-          'Create a revision sheet — one page per chapter/poem',
-        ]),
-      s('Hindi',
-        'Full Hindi paper simulation. Focus on presentation — headings, spacing, handwriting neatness all affect how papers are evaluated.',
-        [
-          'Solve 1 full Hindi paper under timed conditions',
-          'Review grammar section accuracy — fix common errors',
-          'Practice Nibandh writing — one complete essay with proper format',
-          'Revise all Gadya chapter summaries',
-          'Focus on handwriting neatness — presentation matters in boards',
-        ]),
-      s('Computer Applications',
-        'Write 10 programs from scratch covering all topics done so far. Speed and accuracy both matter — practice without IDE hints.',
-        [
-          'Write 10 programs from memory — arrays, strings, inheritance, exceptions',
-          'Practice tracing program output for 10 code snippets',
-          'Complete 1 half-yearly Computer paper under timed conditions',
-          'Review all theory definitions — OOP, data types, keywords',
-          'Fix all logical errors in programs you got wrong',
-        ]),
+    tagline: 'Half-Yearly Mode (60–65% syllabus)',
+    brief: 'Half-yearly exams are here — your first full dress rehearsal before boards. Your performance this month tells you exactly where you stand.',
+    weeks: [
+      week('w1', 'Week 1', tasks('w1', [
+        ['Maths',            'Revise GST, Banking, Quadratic (20 PYQs)'],
+        ['Physics',          'Revise Force, Machines, Light (15 numericals)'],
+        ['Chemistry',        'Revise Bonding, Acids (15 PYQs)'],
+        ['Biology',          'Revise Cell → Excretory (diagrams + 15 PYQs)'],
+        ['History & Civics', '1857 → INA revision'],
+        ['Geography',        'Climate → Agriculture revision + maps'],
+        ['English',          '1 full paper + grammar revision'],
+        ['Literature',       'Acts 1–5 key scenes'],
+        ['Computer',         'Basics → Loops revision'],
+      ]), ['2 subject tests (timed)']),
+
+      week('w2', 'Week 2', tasks('w2', [
+        ['Maths',            'AP + Trig revision (15 PYQs)'],
+        ['Physics',          'Refraction + Lens numericals'],
+        ['Chemistry',        'Electrolysis + Mole revision'],
+        ['Biology',          'Nervous + Endocrine'],
+        ['History & Civics', 'Full movement timeline revision'],
+        ['Geography',        'Minerals + Water'],
+        ['English',          'Letter + Precis + Comprehension'],
+        ['Literature',       'Poetry analysis'],
+        ['Computer',         'Arrays + Strings'],
+      ]), ['2 timed papers (Maths + Sci)']),
+
+      week('w3', 'Week 3', tasks('w3', [
+        ['', 'All subjects: Target weak chapters (from test results)'],
+        ['', '1 full paper each: Maths, Science, English'],
+      ]), ['Deep error analysis — write every mistake']),
+
+      week('w4', 'Week 4 — Exam Week', tasks('w4', [
+        ['', 'Light revision only (formulas + diagrams)'],
+        ['', '1–2 practice sections per subject per day'],
+        ['', 'Maintain sleep schedule + routine'],
+      ]), []),
     ],
   },
 
-  // ── OCTOBER ───────────────────────────────────────────
+  // ── OCTOBER ──────────────────────────────────────────────────────────────
   {
     month: 'October',
-    tagline: 'Second Wind',
-    brief: 'Half-yearlies are done. You know your weaknesses now — those marks you dropped aren\'t bad luck, they\'re information. This month you attack those gaps while also pushing into the remaining syllabus.',
-    subjects: [
-      s('Mathematics',
-        'Statistics — mean, median, mode, ogive. Probability — basic problems and real-paper question types.',
-        [
-          'Study Mean — direct, shortcut, and step-deviation methods',
-          'Study Median and Mode for grouped data + ogive construction',
-          'Solve 15 Statistics problems covering all methods',
-          'Study Probability — basic concepts, solve 15 problems',
-          'Construct 2 ogive graphs from raw data',
-        ]),
-      s('Physics',
-        'Sound — wave properties, frequency, resonance. Calorimetry — heat equations and specific heat capacity numericals.',
-        [
-          'Study Sound — wave characteristics, velocity, reflection, echo',
-          'Solve 10 numericals on sound (frequency, wavelength, velocity)',
-          'Study Calorimetry — specific heat, heat equation Q = mcΔT',
-          'Solve 10 Calorimetry numericals (mixing, phase change)',
-          'Make formula sheet for Sound and Calorimetry',
-        ]),
-      s('Chemistry',
-        'Organic Chemistry introduction — hydrocarbons, homologous series, IUPAC naming, functional groups.',
-        [
-          'Study Organic Chemistry basics — carbon bonding, catenation',
-          'Learn the homologous series — alkanes, alkenes, alkynes',
-          'Practice IUPAC naming for 20 organic compounds',
-          'Study functional groups — alcohol, aldehyde, carboxylic acid, ketone',
-          'Complete all textbook exercises on Organic Chemistry',
-        ]),
-      s('Biology',
-        'Nervous System — neurons, reflex arc, brain structure. Endocrine system — glands and hormones, their functions and disorders.',
-        [
-          'Draw and label a neuron with all parts',
-          'Study reflex arc — draw diagram, explain the process',
-          'Draw and label the human brain — cerebrum, cerebellum, medulla',
-          'Study the Endocrine system — all glands, hormones, functions',
-          'Make a table of glands, hormones, functions, and disorders',
-        ]),
-      s('History & Civics',
-        'History — United Nations, Cold War, Non-Aligned Movement. These chapters are concept-dense — use timelines and flowcharts.',
-        [
-          'Study the United Nations — formation, organs, functions',
-          'Study the Cold War — causes, events, détente, end',
-          'Study the Non-Aligned Movement — formation, principles, relevance',
-          'Make a timeline of major Cold War events',
-          'Write 3 long answers on these chapters',
-        ]),
-      s('Geography',
-        'Population — distribution, density, growth rate, problems. Waste management — types, effects, solutions.',
-        [
-          'Study population distribution and density in India',
-          'Study population growth — causes, effects, government policies',
-          'Study waste management — types of waste, disposal methods',
-          'Mark major population centres on an India map',
-          'Complete 5 textbook questions on population and waste',
-        ]),
-      s('English Language',
-        'Debate and speech writing formats. Argument construction — how to build a point, develop it, and counter the opposition.',
-        [
-          'Study debate writing format — for and against structure',
-          'Write 2 debates on current topics (300+ words each)',
-          'Study speech writing format — opening, body, closing',
-          'Write 2 speeches — one formal, one persuasive',
-          'Practice argument construction — claim + evidence + impact',
-        ]),
-      s('English Literature',
-        'Complete all remaining prose pieces and drama content. Model answers for all chapters — written, not just read.',
-        [
-          'Read and annotate all remaining prose chapters',
-          'Complete Merchant of Venice — Acts 4 and 5',
-          'Write reference-to-context answers for all remaining chapters',
-          'Write 5 long answers across prose and drama',
-          'Create a complete character analysis sheet for the play',
-        ]),
-      s('Hindi',
-        'Complete remaining prose and poetry chapters. Prepare one-page chapter notes for every chapter in the syllabus.',
-        [
-          'Read and summarise all remaining Gadya chapters',
-          'Read and annotate all remaining Kavya poems',
-          'Create one-page notes for every Hindi chapter',
-          'Practice 5 short answers and 3 long answers from new chapters',
-          'Revise all grammar topics covered so far',
-        ]),
-      s('Computer Applications',
-        'Interface in Java — abstract classes, interfaces. Solve past paper programs using all concepts covered so far.',
-        [
-          'Study abstract classes — abstract keyword, when to use',
-          'Study interfaces — implementation, multiple interface inheritance',
-          'Write 3 programs using abstract classes',
-          'Write 2 programs implementing interfaces',
-          'Solve 5 past paper programming questions',
-        ]),
+    tagline: 'Recovery + Continue (~80% target)',
+    brief: 'Half-yearlies are done. You know your weaknesses now — those dropped marks aren\'t bad luck, they\'re information. Attack those gaps while pushing into the remaining syllabus.',
+    weeks: [
+      week('w1', 'Week 1', tasks('w1', [
+        ['Maths',            'Similarity (intro)'],
+        ['Physics',          'Sound numericals'],
+        ['Chemistry',        'Analytical Chemistry'],
+        ['Biology',          'Reproductive System'],
+        ['History & Civics', 'WW1'],
+        ['Geography',        'Manufacturing'],
+        ['English',          'Essay + grammar'],
+        ['Literature',       'Prose 2'],
+        ['Computer',         'Classes & Objects intro'],
+      ]), ['Analyze half-yearly mistakes']),
+
+      week('w2', 'Week 2', tasks('w2', [
+        ['Maths',            'Similarity numericals'],
+        ['Physics',          'Sound PYQs'],
+        ['Chemistry',        'Analytical PYQs'],
+        ['Biology',          'Reproductive diagrams'],
+        ['History & Civics', 'Rise of Dictatorships'],
+        ['Geography',        'Transport'],
+        ['English',          'Letter + Precis'],
+        ['Literature',       'Poetry'],
+        ['Computer',         'Classes programs'],
+      ]), ['PYQs + 1 test']),
+
+      week('w3', 'Week 3', tasks('w3', [
+        ['Maths',            'Circles (intro)'],
+        ['Physics',          'Electricity (intro)'],
+        ['Chemistry',        'Organic Chemistry (intro)'],
+        ['Biology',          'Population'],
+        ['History & Civics', 'WW2'],
+        ['Geography',        'Revision (Manufacturing + Transport)'],
+        ['English',          'Comprehension'],
+        ['Literature',       'Prose'],
+        ['Computer',         'Revision'],
+      ]), ['Mixed test']),
+
+      week('w4', 'Week 4', tasks('w4', [
+        ['Maths',            'Circles numericals'],
+        ['Physics',          'Electricity numericals'],
+        ['Chemistry',        'Organic basics'],
+        ['Biology',          'Full revision (new chapters)'],
+        ['History & Civics', 'UN'],
+        ['Geography',        'Map work'],
+        ['English',          'Full paper'],
+        ['Literature',       'Revision'],
+        ['Computer',         'Practice'],
+      ]), ['Mini mock']),
     ],
   },
 
-  // ── NOVEMBER ──────────────────────────────────────────
+  // ── NOVEMBER ─────────────────────────────────────────────────────────────
   {
     month: 'November',
-    tagline: 'Finish Line Visible',
-    brief: '100% syllabus must be done by November 30th. No exceptions. Boards are now less than 4 months away, and the student who finishes coverage in November has the full advantage in revision months.',
-    subjects: [
-      s('Mathematics',
-        'Complete any pending chapters. Begin full mock papers — minimum 2 this month. Build a chapter-wise error log.',
-        [
-          'Complete any remaining chapters (Similarity, Coordinate Geometry if pending)',
-          'Solve 1 full board-level Maths paper under 2.5 hours',
-          'Analyse errors from mock — categorise as conceptual vs silly',
-          'Solve a second full mock paper and track improvement',
-          'Build a chapter-wise error log — which chapters need more work',
-        ]),
-      s('Physics',
-        'Complete syllabus. Focus on Nuclear Physics and Modern Physics if pending. Start formula sheet — all chapters, one page.',
-        [
-          'Complete Nuclear Physics — radioactivity, alpha/beta/gamma, half-life',
-          'Complete any remaining chapters',
-          'Create a master formula sheet — every Physics formula on one page',
-          'Solve 1 full board-level Physics paper under 2 hours',
-          'Review and fix all errors from the mock paper',
-        ]),
-      s('Chemistry',
-        'Complete Organic Chemistry. Revise all chemical equations and industrial processes into one consolidated revision sheet.',
-        [
-          'Complete Organic Chemistry — reactions of alkanes, alkenes, alkynes',
-          'Complete any remaining chapters (Alloys, Practical Chemistry)',
-          'Create a master equation sheet — all important reactions',
-          'Solve 1 full board-level Chemistry paper under 2 hours',
-          'Review and fix errors — focus on equation balancing',
-        ]),
-      s('Biology',
-        'Complete remaining topics — Reproduction, Environment. Begin one-page chapter notes for all Biology chapters.',
-        [
-          'Complete Reproductive System — male, female, with diagrams',
-          'Complete Population and Pollution chapters',
-          'Create one-page notes for every Biology chapter',
-          'Solve 1 full board-level Biology paper under 2 hours',
-          'Review all diagrams — ensure accuracy',
-        ]),
-      s('History & Civics',
-        'Complete full History syllabus. Civics — revise all chapters. Begin writing long answers from memory without notes.',
-        [
-          'Complete any remaining History chapters',
-          'Revise all Civics chapters — final review',
-          'Write 5 long answers from memory (no notes)',
-          'Solve 1 full History & Civics paper under 2 hours',
-          'Create a timeline summary for all History chapters',
-        ]),
-      s('Geography',
-        'Complete all remaining chapters. Full map work practice — every chapter\'s map-pointing must be done at least twice.',
-        [
-          'Complete any remaining Geography chapters',
-          'Practice map work for ALL chapters — every feature twice',
-          'Create a master list of all map-marking features',
-          'Solve 1 full Geography paper under 2 hours',
-          'Review map accuracy and fix recurring errors',
-        ]),
-      s('English Language',
-        'Full paper simulation every week. Focus on time management — question selection and time allocation within the 2-hour window.',
-        [
-          'Solve 1 full English Language paper per week (4 total)',
-          'Track time spent on each section — identify slow areas',
-          'Practice your weakest section daily for 20 minutes',
-          'Revise all formats — letter, composition, notice, email, report',
-          'Build a vocabulary list of 50 words for compositions',
-        ]),
-      s('English Literature',
-        'Complete all drama, prose, and poetry revision. Start building a quote bank for Merchant of Venice.',
-        [
-          'Complete revision of all poems — central idea + devices',
-          'Complete revision of all prose — summary + character sketches',
-          'Build a comprehensive Merchant of Venice quote bank (30+ quotes)',
-          'Solve 1 full Literature paper under 2 hours',
-          'Write 3 long answers on drama from memory',
-        ]),
-      s('Hindi',
-        'Complete full Hindi syllabus. Prepare model answers for all expected long-answer questions.',
-        [
-          'Complete any remaining Gadya and Kavya chapters',
-          'Prepare model answers for all 10 expected long-answer questions',
-          'Revise all grammar sections — Sandhi, Samas, Karak, Kriya',
-          'Solve 1 full Hindi paper under timed conditions',
-          'Create a one-page grammar revision sheet',
-        ]),
-      s('Computer Applications',
-        'Complete syllabus. Solve 3 full past papers within time limits. Every program must be written by hand at least once.',
-        [
-          'Complete any remaining Java topics',
-          'Solve 3 full past papers under 2 hours each',
-          'Write every important program type by hand once',
-          'Revise all theory — definitions, keywords, concepts',
-          'Fix all logical errors from past papers',
-        ]),
+    tagline: 'Finish Syllabus (100%)',
+    brief: '100% syllabus must be done by November 30th. No exceptions. The student who finishes coverage in November has the full advantage in revision months.',
+    weeks: [
+      week('w12', 'Weeks 1–2', tasks('w12', [
+        ['Maths',            'Remaining topics (Loci + Coordinate Geometry)'],
+        ['Physics',          'Electricity — complete'],
+        ['Chemistry',        'Organic Chemistry — complete'],
+        ['Biology',          'Full revision of all chapters'],
+        ['History & Civics', 'Remaining History + Civics portions'],
+        ['Geography',        'Remaining Geography portions'],
+        ['English',          '1 full paper per week (2 total)'],
+        ['Literature',       'Complete all remaining chapters'],
+        ['Computer',         'Complete remaining Java topics'],
+      ]), []),
+
+      week('w34', 'Weeks 3–4', tasks('w34', [
+        ['', 'Full syllabus revision — ALL subjects'],
+        ['', '1 full paper per subject'],
+        ['', 'Error notebook review'],
+        ['', 'PYQ sets (all subjects)'],
+      ]), ['Error notebook update', 'Chapter-wise weakness list']),
     ],
   },
 
-  // ── DECEMBER ──────────────────────────────────────────
+  // ── DECEMBER ─────────────────────────────────────────────────────────────
   {
     month: 'December',
     tagline: 'Sharpen the Sword',
-    brief: 'Syllabus is done. You don\'t cover new ground now — you sharpen what you have. Mock exams, error analysis, and tight revision cycles. This month separates consistent students from last-minute ones.',
-    subjects: [
-      s('Mathematics',
-        '1 full mock paper every 2 days. Maintain an error log — every wrong answer tracked with the correct method noted beside it.',
-        [
-          'Solve 8 full Maths mock papers this month',
-          'Maintain an error log after every paper',
-          'Revise weak chapters identified from error patterns',
-          'Practice Mensuration and Trigonometry daily (5 problems)',
-          'Time yourself strictly — build exam-speed accuracy',
-        ]),
-      s('Physics',
-        'Full paper simulations with formula sheet removed. You must recall, not refer. Physics diagrams — draw from memory.',
-        [
-          'Solve 4 full Physics papers without formula sheet',
-          'Draw all circuit diagrams, ray diagrams, and device diagrams from memory',
-          'Revise weakest 2 chapters with focused numericals',
-          'Practice unit conversions and SI units recall',
-          'Do a 15-minute daily formula recall drill',
-        ]),
-      s('Chemistry',
-        'Equations and reactions — write out all key equations daily for 10 minutes. This is the single highest-impact Chemistry revision habit.',
-        [
-          'Write all key equations daily — 10 min morning drill',
-          'Solve 4 full Chemistry papers under timed conditions',
-          'Revise Organic Chemistry naming and reactions',
-          'Review industrial processes — Haber, Ostwald, Contact (one final time)',
-          'Fix all recurring mistakes from mock papers',
-        ]),
-      s('Biology',
-        'All diagrams — draw, label, check, redraw. Biology papers reward accurate labelled diagrams more than any other subject.',
-        [
-          'Draw every Biology diagram from memory daily (pick 5 per day)',
-          'Solve 4 full Biology papers under timed conditions',
-          'Write all definitions from memory — check for accuracy',
-          'Revise Genetics problems — Punnett squares from memory',
-          'Review weakest chapter one final time',
-        ]),
-      s('History & Civics',
-        'Full timed paper simulations for both History and Civics. Practice long answers — structure, intro, body, conclusion — consistently.',
-        [
-          'Solve 4 full History & Civics papers under timed conditions',
-          'Practice long answers daily — at least 2 per day',
-          'Revise all dates and events using your timeline',
-          'Review Civics — focus on comparison-type questions',
-          'Test yourself on source-based and map-based questions',
-        ]),
-      s('Geography',
-        'Map drill — 15 minutes of pointing practice every single day. Also revise all data-based and tabular questions from past papers.',
-        [
-          'Do 15-minute daily map pointing practice — no excuses',
-          'Solve 4 full Geography papers under timed conditions',
-          'Revise all data-based questions from past papers',
-          'Review topographical map reading skills',
-          'Focus on your weakest Geography chapter for extra revision',
-        ]),
-      s('English Language',
-        'Composition practice — write 3 compositions in one sitting once this month. Vocabulary building — 5 new words per day integrated into writing.',
-        [
-          'Write 3 compositions in one sitting (timed, 90 minutes)',
-          'Learn 5 new vocabulary words daily — use them in sentences',
-          'Solve 4 full English Language papers under timed conditions',
-          'Revise grammar rules — focus on your weakest areas',
-          'Practice comprehension speed — aim to finish in 15 minutes',
-        ]),
-      s('English Literature',
-        'Model answers for all Literature questions — timed, from memory. Pay special attention to Merchant of Venice extracts and reference-to-context.',
-        [
-          'Write all model answers from memory — no textbook',
-          'Solve 4 full Literature papers under timed conditions',
-          'Review Merchant of Venice quotes — context and significance',
-          'Revise all poem analyses one final time',
-          'Practice writing long prose answers within word limits',
-        ]),
-      s('Hindi',
-        'Timed full paper simulations. Practice handwriting speed — Hindi papers suffer when students run out of time.',
-        [
-          'Solve 4 full Hindi papers under timed conditions',
-          'Practice handwriting speed — complete essays in 20 minutes',
-          'Revise all grammar with one final test',
-          'Review Gadya and Kavya notes one last time',
-          'Fix all errors from practice papers — especially grammar',
-        ]),
-      s('Computer Applications',
-        'Write every important program from memory. No IDE, no autocomplete. Simulate exam conditions completely.',
-        [
-          'Write all 15+ important program types by hand',
-          'Solve 4 full Computer papers under timed conditions',
-          'Practice tracing output for 15 code snippets',
-          'Revise all theory definitions one final time',
-          'Test yourself — can you write any program in under 10 minutes?',
-        ]),
+    brief: 'Syllabus is done. Mock exams, error analysis, tight revision cycles. This month separates consistent students from last-minute ones.',
+    weeks: [
+      week('every', 'Every Week', tasks('every', [
+        ['', '3 full papers (alternate subjects)'],
+        ['', 'Analyze each paper — write every mistake'],
+        ['', 'Redo all wrong questions'],
+        ['', 'Revise weak chapters (formulas + diagrams)'],
+      ]), []),
     ],
   },
 
-  // ── JANUARY ───────────────────────────────────────────
+  // ── JANUARY ──────────────────────────────────────────────────────────────
   {
     month: 'January',
-    tagline: 'The Final Push',
-    brief: 'Preliminary exams are here or approaching. This is your last structured feedback before boards. Every prelim mark tells you something important. Listen to it.',
-    subjects: [
-      s('Mathematics',
-        'Prelim exam + detailed post-exam analysis. Rewrite every wrong answer with full correct solution. Accuracy over speed now.',
-        [
-          'Take your prelim Maths paper with full seriousness',
-          'Rewrite every incorrect answer with the correct complete solution',
-          'Analyse error types — conceptual, calculation, or time-related',
-          'Revise the 3 chapters where you lost most marks',
-          'Solve 3 more board-level papers focusing on accuracy',
-        ]),
-      s('Physics',
-        'Prelim + gap analysis. If numericals are weak, do 5 per day. If theory is weak, rewrite notes for weak chapters.',
-        [
-          'Take your prelim Physics paper seriously — exam conditions',
-          'Do a detailed gap analysis after prelim results',
-          'If numericals are weak: solve 5 per day for 2 weeks',
-          'If theory is weak: rewrite notes for bottom 2 chapters',
-          'Solve 3 additional board-level papers this month',
-        ]),
-      s('Chemistry',
-        'Prelim + targeted revision of lowest-scoring chapters. Special focus on Organic Chemistry and Electrolysis — these trip students last minute.',
-        [
-          'Take your prelim Chemistry paper under real exam conditions',
-          'Identify lowest-scoring chapters from prelim results',
-          'Do intensive revision of Organic Chemistry — naming and reactions',
-          'Do intensive revision of Electrolysis — electrode products',
-          'Write all equations one final time from memory',
-        ]),
-      s('Biology',
-        'Prelim + diagram accuracy review. Recheck all labeled diagrams against textbook — even one wrong label costs marks.',
-        [
-          'Take your prelim Biology paper seriously',
-          'Cross-check every diagram label against the textbook',
-          'Fix any diagrams with incorrect labels — redraw correctly',
-          'Revise weakest 2 Biology chapters based on prelim results',
-          'Practice 5 long answers from memory',
-        ]),
-      s('History & Civics',
-        'Prelim + revise long answer structure. Timing is critical in History paper — practice finishing within 2 hours.',
-        [
-          'Take your prelim History & Civics paper under exam conditions',
-          'Review where you lost marks — structure, content, or time?',
-          'Practice finishing the full paper within 2 hours',
-          'Revise all dates and facts for weak chapters',
-          'Write 5 long answers from memory — timed at 8 minutes each',
-        ]),
-      s('Geography',
-        'Prelim + map-work intensive revision. If map pointing was weak in prelims, double the daily practice in the second half of January.',
-        [
-          'Take your prelim Geography paper seriously',
-          'If map work was weak: do 30-minute daily map practice',
-          'Revise all chapter notes for weak chapters',
-          'Solve 3 additional board-level papers this month',
-          'Review topographical map questions from past papers',
-        ]),
-      s('English Language',
-        'Prelim + identify which section cost the most marks. Rebuild that section specifically with 3 targeted practice attempts.',
-        [
-          'Take your prelim English Language paper under exam conditions',
-          'Identify which section (grammar/comprehension/composition) cost most marks',
-          'Do 3 targeted practice attempts for your weakest section',
-          'Solve 3 additional board-level papers this month',
-          'Review and fix your most common grammar errors',
-        ]),
-      s('English Literature',
-        'Prelim + rewrite model answers for all questions where marks were lost. Focus on how to begin and conclude long answers effectively.',
-        [
-          'Take your prelim Literature paper under exam conditions',
-          'Rewrite every answer where you lost marks — improved version',
-          'Practice strong opening lines for long answers',
-          'Practice effective conclusions for long answers',
-          'Review all Merchant of Venice quotes one more time',
-        ]),
-      s('Hindi',
-        'Prelim + revise all grammar sections. Hindi grammar marks are fully predictable — there\'s no excuse to drop them on boards.',
-        [
-          'Take your prelim Hindi paper under exam conditions',
-          'Revise all grammar — Sandhi, Samas, Karak, Kriya',
-          'Practice Nibandh speed — complete an essay in 20 minutes',
-          'Review Patra Lekhan formats one final time',
-          'Fix all grammar errors from prelim paper',
-        ]),
-      s('Computer Applications',
-        'Prelim + fix all logic errors from incorrect programs. Re-write every failed program correctly within 48 hours of prelim.',
-        [
-          'Take your prelim Computer paper under exam conditions',
-          'Rewrite every failed program correctly within 48 hours',
-          'Trace through all incorrect output predictions',
-          'Revise theory definitions one final time',
-          'Solve 3 additional past papers this month',
-        ]),
+    tagline: 'The Final Push — Pre-Boards',
+    brief: 'Preliminary exams are here. This is your last structured feedback before boards. Every prelim mark tells you something important. Listen to it.',
+    weeks: [
+      week('weekly', 'Weekly Plan', tasks('weekly', [
+        ['', 'Give school pre-boards seriously — full exam conditions'],
+        ['', 'After each exam: list 5 mistakes immediately'],
+        ['', 'Re-practice that chapter on the same day'],
+        ['', '2 extra practice papers/week (beyond school schedule)'],
+      ]), []),
     ],
   },
 
-  // ── FEBRUARY ──────────────────────────────────────────
+  // ── FEBRUARY ─────────────────────────────────────────────────────────────
   {
     month: 'February',
-    tagline: 'Board Ready',
-    brief: 'You\'re ready. This month is not about covering anything new. It\'s about entering each exam with calm, sharp, and complete preparation. Routine and rest are as important as revision now.',
-    subjects: [
-      s('Mathematics',
-        '2 full paper revisions only. No new techniques. Focus on reducing silly errors — check every answer twice within the exam window.',
-        [
-          'Solve 2 final board-level papers — focus on zero silly errors',
-          'Practice double-checking each answer within the paper time',
-          'Revise your formula sheet one final time',
-          'Review your error log — are the same mistakes recurring?',
-          'Get 8 hours of sleep every night this month',
-        ]),
-      s('Physics',
-        'Formula sheet daily scan. All diagrams once more from memory. Numericals — precision over volume.',
-        [
-          'Scan your formula sheet daily — 5 minutes morning routine',
-          'Draw all key diagrams from memory one final time',
-          'Solve 5 numericals daily — focus on accuracy, not speed',
-          'Revise units and SI conversions',
-          'Stay calm — you\'ve prepared well',
-        ]),
-      s('Chemistry',
-        'Reactions and equations — final daily drill. Read the textbook answers for definition-type questions — boards reward exact language.',
-        [
-          'Write key equations daily — morning 10-minute drill',
-          'Read textbook definitions word-for-word — boards reward exact language',
-          'Revise Organic Chemistry naming conventions one final time',
-          'Review industrial processes briefly',
-          'Trust your preparation — no new topics',
-        ]),
-      s('Biology',
-        'All diagrams — final clean redraw with labelling. Read model answers aloud — this builds recall under exam pressure.',
-        [
-          'Do a final clean redraw of all major diagrams',
-          'Read model answers aloud — this builds exam recall',
-          'Revise Genetics — Punnett squares one final time',
-          'Review all definitions from your notes',
-          'Rest well — you know the material',
-        ]),
-      s('History & Civics',
-        'Final read of all long answer notes. Write 5 long answers per week — keep timing tight.',
-        [
-          'Read all long answer notes one final time',
-          'Write 5 long answers per week under timed conditions',
-          'Revise all Civics comparison-type questions',
-          'Review important dates and events from History',
-          'Practice time management — allocate minutes per question',
-        ]),
-      s('Geography',
-        'Map practice — every feature covered in syllabus, at least twice. Last check on data-based questions from past papers.',
-        [
-          'Practice all map features one final time',
-          'Review data-based questions from past 5 years',
-          'Revise chapter notes briefly — 15 min per chapter',
-          'Solve 1 final board-level paper for confidence',
-          'Trust your map practice — you\'ve done it many times',
-        ]),
-      s('English Language',
-        'Grammar drill — one transformation exercise set per day. Final composition practice — aim for quality over quantity.',
-        [
-          'Do one grammar transformation exercise set daily',
-          'Write 2 final compositions — polish your best topics',
-          'Revise all letter and notice formats',
-          'Practice comprehension under timed conditions — one last time',
-          'Review your vocabulary list — integrate into writing',
-        ]),
-      s('English Literature',
-        'Read all model answers twice. Know your quotes. Know your characters. Know how to start any answer within 30 seconds.',
-        [
-          'Read all model answers twice — poems, prose, drama',
-          'Review your complete quote bank for Merchant of Venice',
-          'Practice opening lines — you should start any answer in 30 seconds',
-          'Revise character sketches for all major characters',
-          'Relax — you know this material deeply',
-        ]),
-      s('Hindi',
-        'Read all chapters once more, slowly. Grammar revision — Sandhi, Samas, Karak one final time. Handwriting speed check.',
-        [
-          'Read all Hindi chapters one final time slowly',
-          'Revise grammar one final time — Sandhi, Samas, Karak',
-          'Practice handwriting speed — complete a full paper on time',
-          'Review Nibandh and Patra formats',
-          'Stay calm — Hindi rewards prepared students',
-        ]),
-      s('Computer Applications',
-        'Read and revise theory definitions — OOP, exception handling, interfaces. Write 5 programs from scratch as final practice.',
-        [
-          'Revise all theory definitions — OOP, exceptions, interfaces, arrays',
-          'Write 5 important programs from memory — final practice',
-          'Practice tracing output for 5 final code snippets',
-          'Review all keywords and their usage',
-          'You\'re ready — trust your coding skills',
-        ]),
+    tagline: 'Board Ready — Light + Sharp',
+    brief: 'You\'re ready. This month is not about covering anything new. Entering each exam calm, sharp, and prepared. Routine and rest are as important as revision now.',
+    weeks: [
+      week('every', 'Every Week', tasks('every', [
+        ['Maths',    'Revise formulas daily (20 min morning drill)'],
+        ['Physics',  'Formula sheet scan daily (5 min) + 5 numericals'],
+        ['Biology',  'Diagrams — 1 system per day from memory'],
+        ['Chemistry','Key reactions revision'],
+        ['',         '2 papers per subject per week'],
+        ['',         'Light English practice (grammar + composition)'],
+      ]), []),
     ],
   },
 
-  // ── MARCH ─────────────────────────────────────────────
+  // ── MARCH ────────────────────────────────────────────────────────────────
   {
     month: 'March',
-    tagline: 'Your Moment',
-    brief: 'Exams have begun or are about to. Everything you needed to learn, you\'ve learned. This month isn\'t about studying harder — it\'s about showing up fully for each paper, one at a time.',
-    subjects: [
-      s('Mathematics',
-        'Night before — skim chapter summaries and formula sheet only. Morning of — light breakfast, fresh mind, no last-minute cramming.',
-        [
-          'Night before: skim formula sheet and chapter summaries only',
-          'Morning of: light breakfast, reach centre 30 min early',
-          'In the exam: read all questions first, start with your strongest section',
-          'Double-check every calculation before moving on',
-          'After the exam: close the book, move to the next subject',
-        ]),
-      s('Physics',
-        'Pre-exam day — read formula sheet + 3 diagram checks. Post-exam — close the book, move to the next subject.',
-        [
-          'Night before: read formula sheet + draw 3 key diagrams',
-          'Morning of: stay calm, no new revision',
-          'In the exam: attempt numericals carefully — show all working',
-          'Draw diagrams neatly with labels and arrows',
-          'After the exam: move on, don\'t discuss answers',
-        ]),
-      s('Chemistry',
-        'Pre-exam — review reaction types and equation balancing one final time. Trust your preparation.',
-        [
-          'Night before: review key equations and reaction types',
-          'Morning of: light revision of industrial processes only',
-          'In the exam: write balanced equations carefully',
-          'Organic Chemistry questions — follow IUPAC naming strictly',
-          'Trust your preparation — you\'ve drilled these equations hundreds of times',
-        ]),
-      s('Biology',
-        'Pre-exam — redraw 3 key diagrams from memory. Walk in knowing your diagrams are accurate.',
-        [
-          'Night before: draw 3 key diagrams from memory as final check',
-          'Morning of: review definitions briefly — 10 minutes max',
-          'In the exam: draw diagrams first if they appear in questions',
-          'Label diagrams with clear lines and accurate names',
-          'After the exam: rest, hydrate, prepare for the next paper',
-        ]),
-      s('History & Civics',
-        'Pre-exam — read long answer notes for 30 minutes only. Don\'t try to re-learn — only refresh.',
-        [
-          'Night before: read long answer notes for 30 minutes only',
-          'Morning of: review your timeline — key dates and events',
-          'In the exam: plan each long answer before writing (2 min outline)',
-          'Use structured paragraphs — intro, body points, conclusion',
-          'After the exam: don\'t look back, focus forward',
-        ]),
-      s('Geography',
-        'Pre-exam — 10-minute map practice. Remind yourself of the top 10 most commonly pointed features.',
-        [
-          'Night before: 10 minutes of map practice — top 10 features',
-          'Morning of: glance at your map feature master list',
-          'In the exam: attempt map questions first while memory is fresh',
-          'Use sharpened pencils for map work — neatness scores',
-          'After the exam: rest and prepare for the next subject',
-        ]),
-      s('English Language',
-        'Pre-exam — review letter and composition formats. In the exam, plan your composition before writing.',
-        [
-          'Night before: review all formats (letter, notice, composition)',
-          'Morning of: read your vocabulary list one last time',
-          'In the exam: plan composition on rough paper first',
-          'Manage time — don\'t spend too long on any one section',
-          'Proofread for grammar and spelling in the last 10 minutes',
-        ]),
-      s('English Literature',
-        'Pre-exam — read your top 5 model answers. Know your quote bank. Walk in confident.',
-        [
-          'Night before: read your top 5 model answers',
-          'Morning of: review key quotes from Merchant of Venice',
-          'In the exam: start reference-to-context with the quote and context',
-          'Write within word limits — quality over quantity',
-          'Walk in confident — you know this syllabus inside out',
-        ]),
-      s('Hindi',
-        'Pre-exam — grammar rules one final scan. In the exam, attempt Nibandh first if it\'s your strength.',
-        [
-          'Night before: scan grammar rules — Sandhi, Samas, Karak',
-          'Morning of: read through your Nibandh model structure',
-          'In the exam: attempt your strongest section first',
-          'Focus on handwriting neatness — it affects evaluation',
-          'After the exam: you\'re done — celebrate your hard work',
-        ]),
-      s('Computer Applications',
-        'Pre-exam — trace through 3 programs mentally. In the exam, write program logic on rough paper before writing the final answer.',
-        [
-          'Night before: trace through 3 important programs mentally',
-          'Morning of: review theory definitions one final time',
-          'In the exam: plan program logic on rough paper first',
-          'Write variable declarations and method signatures carefully',
-          'You\'ve been coding all year — trust your skills and finish strong',
-        ]),
+    tagline: 'Your Moment — Execution',
+    brief: 'Exams have begun. Everything you needed to learn, you\'ve learned. Show up fully for each paper, one at a time.',
+    weeks: [
+      week('night', 'Night Before Every Exam', tasks('night', [
+        ['', 'Revise formulas + key PYQs only'],
+        ['', 'Read chapter summaries — no new topics'],
+        ['', 'Prepare exam kit (pens, ID, admit card)'],
+        ['', 'Sleep by 10 PM — rest is preparation'],
+      ]), []),
+
+      week('morning', 'Morning of Every Exam', tasks('morning', [
+        ['', 'Light breakfast + hydrate'],
+        ['', 'Skim formula sheet — 10 minutes max'],
+        ['', 'Reach exam centre 30 minutes early'],
+        ['', 'No discussion with classmates before the exam'],
+      ]), []),
+
+      week('during', 'During Every Exam', tasks('during', [
+        ['', 'Read all questions first (5 min)'],
+        ['', 'Attempt known questions first'],
+        ['', 'Write structured answers — intro, body, conclusion'],
+        ['', 'Draw diagrams neatly with labels and arrows'],
+        ['', 'Double-check all calculations'],
+      ]), []),
+
+      week('after', 'After Every Exam', tasks('after', [
+        ['', 'Close the book — don\'t discuss answers'],
+        ['', 'Move focus entirely to the next subject'],
+        ['', 'Rest for 1 hour before starting next revision'],
+      ]), []),
     ],
   },
 ];
 
+// ── Utils ─────────────────────────────────────────────────────────────────────
+
 export function getCurrentMonthIndex(): number {
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const current = monthNames[new Date().getMonth()];
+  const names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const current = names[new Date().getMonth()];
   const idx = MONTHLY_MISSION.findIndex(m => m.month === current);
   return idx >= 0 ? idx : 0;
+}
+
+export function getMonthTaskCounts(monthIdx: number, checked: Record<string, boolean>) {
+  const month = MONTHLY_MISSION[monthIdx];
+  let total = 0, done = 0;
+  for (const w of month.weeks) {
+    for (const t of w.tasks) {
+      total++;
+      if (checked[`${monthIdx}:${w.id}:${t.id}`]) done++;
+    }
+    for (let i = 0; i < w.addons.length; i++) {
+      total++;
+      if (checked[`${monthIdx}:${w.id}:a${i}`]) done++;
+    }
+  }
+  return { total, done };
 }

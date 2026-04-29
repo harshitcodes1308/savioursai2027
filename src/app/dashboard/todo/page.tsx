@@ -2,452 +2,366 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useResponsive } from '@/hooks/useResponsive';
-import { MONTHLY_MISSION, getCurrentMonthIndex } from '@/data/monthly-mission';
-import type { MonthPlan, SubjectMonth } from '@/data/monthly-mission';
+import {
+  MONTHLY_MISSION,
+  getCurrentMonthIndex,
+  getMonthTaskCounts,
+  getSubjectMeta,
+} from '@/data/monthly-mission';
 
-// ── localStorage persistence ────────────────────────────────
+// ── localStorage ─────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'saviours-monthly-mission';
+const KEY = 'saviours-monthly-mission-v2';
 
-function loadChecked(): Record<string, boolean> {
+function load(): Record<string, boolean> {
   if (typeof window === 'undefined') return {};
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  } catch {
-    return {};
-  }
+  try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
+  catch { return {}; }
+}
+function save(c: Record<string, boolean>) {
+  localStorage.setItem(KEY, JSON.stringify(c));
 }
 
-function saveChecked(checked: Record<string, boolean>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(checked));
-}
-
-// ── Component ───────────────────────────────────────────────
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function MonthlyMissionPage() {
   const { isMobile } = useResponsive();
   const [activeMonth, setActiveMonth] = useState(getCurrentMonthIndex());
-  const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [hoveredSubject, setHoveredSubject] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  // Only the first week (index 0) of each month starts open; rest start collapsed
+  const [collapsedWeeks, setCollapsedWeeks] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    MONTHLY_MISSION.forEach((m, mi) => {
+      m.weeks.forEach((w, wi) => {
+        if (wi !== 0) init[`${mi}:${w.id}`] = true;
+      });
+    });
+    return init;
+  });
 
-  useEffect(() => {
-    setChecked(loadChecked());
-    setMounted(true);
-  }, []);
+  useEffect(() => { setChecked(load()); setMounted(true); }, []);
 
-  const toggleCheck = useCallback((monthIdx: number, todoId: string) => {
-    const key = `${monthIdx}:${todoId}`;
+  const toggle = useCallback((key: string) => {
     setChecked(prev => {
       const next = { ...prev, [key]: !prev[key] };
-      saveChecked(next);
+      save(next);
       return next;
     });
   }, []);
 
+  const toggleWeek = (key: string) =>
+    setCollapsedWeeks(prev => ({ ...prev, [key]: !prev[key] }));
+
   const month = MONTHLY_MISSION[activeMonth];
-
-  // Stats
-  const totalTodos = month.subjects.reduce((sum, s) => sum + s.todos.length, 0);
-  const completedTodos = month.subjects.reduce(
-    (sum, s) => sum + s.todos.filter(t => checked[`${activeMonth}:${t.id}`]).length, 0
-  );
-  const progressPercent = totalTodos > 0 ? Math.round((completedTodos / totalTodos) * 100) : 0;
-
-  function getSubjectProgress(sub: SubjectMonth): { done: number; total: number } {
-    const done = sub.todos.filter(t => checked[`${activeMonth}:${t.id}`]).length;
-    return { done, total: sub.todos.length };
-  }
-
+  const { total: mTotal, done: mDone } = mounted
+    ? getMonthTaskCounts(activeMonth, checked)
+    : { total: 1, done: 0 };
+  const mPct = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0;
   const isCurrentMonth = activeMonth === getCurrentMonthIndex();
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--bg-base)',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-base)', display: 'flex', flexDirection: 'column' }}>
+
       {/* ── Header ── */}
       <div style={{
-        padding: isMobile ? '16px' : '24px 32px',
+        padding: isMobile ? '16px' : '20px 32px',
         borderBottom: '1px solid var(--bg-border)',
         background: 'var(--bg-surface)',
         flexShrink: 0,
+        position: 'sticky', top: 0, zIndex: 20,
       }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: isMobile ? 'flex-start' : 'center',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: 12,
-          marginBottom: 16,
-        }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <div>
             <h1 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: isMobile ? 22 : 28,
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.02em',
-              margin: 0,
-              marginBottom: 4,
-            }}>
-              Monthly Mission
-            </h1>
-            <p style={{
-              fontFamily: 'var(--font-tagline)',
-              fontSize: 13,
-              fontWeight: 400,
-              fontStyle: 'italic',
+              fontFamily: 'var(--font-display)', fontSize: isMobile ? 20 : 26,
+              color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: 0, marginBottom: 2,
+            }}>Monthly Mission</h1>
+            <div style={{
+              fontFamily: 'var(--font-tagline)', fontSize: 12, fontStyle: 'italic',
               color: 'var(--text-muted)',
-              margin: 0,
-            }}>
-              12-month ICSE board prep — one month at a time.
-            </p>
+            }}>12-month ICSE board prep — one month at a time.</div>
           </div>
           <div style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 13,
-            color: 'var(--accent-gold)',
-            fontWeight: 600,
+            fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 600,
+            color: mPct === 100 ? 'var(--status-green)' : 'var(--accent-gold)',
           }}>
-            {completedTodos}/{totalTodos} tasks done
+            {mounted ? `${mDone}/${mTotal} done` : '—'}
           </div>
         </div>
 
-        {/* ── Month selector (horizontal scroll) ── */}
-        <div style={{
-          display: 'flex',
-          gap: 6,
-          overflowX: 'auto',
-          paddingBottom: 8,
-          scrollbarWidth: 'none',
-        }}>
+        {/* Month pills */}
+        <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 6, scrollbarWidth: 'none', marginBottom: 10 }}>
           {MONTHLY_MISSION.map((m, i) => {
             const isActive = i === activeMonth;
-            const isCurrent = i === getCurrentMonthIndex();
-            // Calculate progress for each month pill
-            const mTotal = m.subjects.reduce((s, sub) => s + sub.todos.length, 0);
-            const mDone = mounted ? m.subjects.reduce(
-              (s, sub) => s + sub.todos.filter(t => checked[`${i}:${t.id}`]).length, 0
-            ) : 0;
-            const mPct = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0;
-
+            const isCurr = i === getCurrentMonthIndex();
+            const { done, total } = mounted ? getMonthTaskCounts(i, checked) : { done: 0, total: 1 };
+            const done100 = total > 0 && done === total;
             return (
               <button
                 key={m.month}
-                onClick={() => { setActiveMonth(i); setExpandedSubject(null); }}
+                onClick={() => setActiveMonth(i)}
                 style={{
-                  flexShrink: 0,
-                  padding: '8px 16px',
-                  borderRadius: 100,
-                  border: isActive
-                    ? '1.5px solid var(--accent-gold)'
-                    : isCurrent
-                    ? '1.5px solid var(--accent-gold-border)'
-                    : '1.5px solid var(--bg-border)',
-                  background: isActive
-                    ? 'var(--accent-gold-glow)'
-                    : 'transparent',
-                  color: isActive
-                    ? 'var(--accent-gold)'
-                    : isCurrent
-                    ? 'var(--text-primary)'
-                    : 'var(--text-muted)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 12,
-                  fontWeight: isActive ? 700 : 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
+                  flexShrink: 0, padding: '6px 14px', borderRadius: 100,
+                  border: isActive ? '1.5px solid var(--accent-gold)' : isCurr ? '1.5px solid var(--accent-gold-border)' : '1.5px solid var(--bg-border)',
+                  background: isActive ? 'var(--accent-gold-glow)' : 'transparent',
+                  color: isActive ? 'var(--accent-gold)' : isCurr ? 'var(--text-primary)' : 'var(--text-muted)',
+                  fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: isActive ? 700 : 500,
+                  cursor: 'pointer', transition: 'all 0.15s ease',
+                  display: 'flex', alignItems: 'center', gap: 5,
                 }}
               >
                 {m.month.slice(0, 3)}
-                {mounted && mPct === 100 && (
-                  <span style={{ color: 'var(--status-green)', fontSize: 10 }}>✓</span>
-                )}
+                {mounted && done100 && <span style={{ color: 'var(--status-green)', fontSize: 9 }}>✓</span>}
               </button>
             );
           })}
         </div>
 
-        {/* ── Progress bar ── */}
-        <div style={{ marginTop: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)' }}>
-              {month.month} progress
-            </span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 700, color: 'var(--accent-gold)' }}>
-              {progressPercent}%
-            </span>
-          </div>
-          <div style={{ height: 4, background: 'var(--bg-border)', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{
-              width: `${progressPercent}%`,
-              height: '100%',
-              background: progressPercent === 100
-                ? 'var(--status-green)'
-                : 'var(--accent-gold)',
-              transition: 'width 0.6s cubic-bezier(0.16,1,0.3,1)',
-            }} />
-          </div>
+        {/* Progress bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--text-muted)' }}>{month.month} progress</span>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 700, color: mPct === 100 ? 'var(--status-green)' : 'var(--accent-gold)' }}>{mPct}%</span>
+        </div>
+        <div style={{ height: 3, background: 'var(--bg-border)', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{
+            width: `${mPct}%`, height: '100%',
+            background: mPct === 100 ? 'var(--status-green)' : 'var(--accent-gold)',
+            transition: 'width 0.5s cubic-bezier(0.16,1,0.3,1)',
+          }} />
         </div>
       </div>
 
-      {/* ── Month content ── */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: isMobile ? '16px' : '28px 32px',
-      }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          {/* Month header card */}
+      {/* ── Content ── */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px' : '24px 32px' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+
+          {/* Month hero */}
           <div style={{
             background: 'var(--bg-surface)',
             border: '1px solid var(--bg-border)',
             borderRadius: 16,
-            padding: isMobile ? '20px 16px' : '28px 24px',
+            padding: isMobile ? '18px 16px' : '24px 26px',
             marginBottom: 20,
-            animation: 'pageEnter 0.35s ease-out both',
+            position: 'relative', overflow: 'hidden',
           }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-              <span style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: isMobile ? 24 : 32,
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.02em',
-              }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, var(--accent-gold), transparent)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: isMobile ? 22 : 28, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                 {month.month}
               </span>
-              <span style={{
-                fontFamily: 'var(--font-tagline)',
-                fontSize: isMobile ? 16 : 20,
-                fontWeight: 400,
-                fontStyle: 'italic',
-                color: 'var(--accent-gold)',
-              }}>
+              <span style={{ fontFamily: 'var(--font-tagline)', fontSize: isMobile ? 14 : 17, fontStyle: 'italic', color: 'var(--accent-gold)' }}>
                 "{month.tagline}"
               </span>
               {isCurrentMonth && (
                 <span style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: 'var(--status-green)',
-                  background: 'rgba(62,207,142,0.1)',
-                  padding: '3px 8px',
-                  borderRadius: 100,
-                }}>
-                  NOW
-                </span>
+                  fontFamily: 'var(--font-body)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+                  textTransform: 'uppercase', color: 'var(--status-green)',
+                  background: 'rgba(62,207,142,0.1)', padding: '2px 8px', borderRadius: 100,
+                  border: '1px solid rgba(62,207,142,0.2)',
+                }}>NOW</span>
               )}
             </div>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 14,
-              lineHeight: 1.65,
-              color: 'var(--text-secondary)',
-              margin: 0,
-            }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>
               {month.brief}
             </p>
           </div>
 
-          {/* Subject cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {month.subjects.map((sub, subIdx) => {
-              const isExpanded = expandedSubject === sub.subject;
-              const { done, total } = getSubjectProgress(sub);
-              const subPct = total > 0 ? Math.round((done / total) * 100) : 0;
-              const isHovered = hoveredSubject === sub.subject;
-              const allDone = done === total;
+          {/* Week cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {month.weeks.map((wk) => {
+              const wkKey = `${activeMonth}:${wk.id}`;
+              const isCollapsed = collapsedWeeks[wkKey];
+
+              // Per-week counts
+              let wkTotal = wk.tasks.length + wk.addons.length;
+              let wkDone = mounted ? (
+                wk.tasks.filter(t => checked[`${activeMonth}:${wk.id}:${t.id}`]).length +
+                wk.addons.filter((_, i) => checked[`${activeMonth}:${wk.id}:a${i}`]).length
+              ) : 0;
+              const wkPct = wkTotal > 0 ? Math.round((wkDone / wkTotal) * 100) : 0;
+              const wkDone100 = wkTotal > 0 && wkDone === wkTotal;
 
               return (
-                <div
-                  key={sub.subject}
-                  style={{
-                    background: 'var(--bg-surface)',
-                    border: isExpanded
-                      ? `1.5px solid ${sub.color}50`
-                      : `1px solid ${isHovered ? 'var(--bg-border-light)' : 'var(--bg-border)'}`,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    transition: 'all 0.2s ease',
-                    animation: `slideInUp 0.4s ease-out ${subIdx * 30}ms both`,
-                  }}
-                >
-                  {/* Subject header (click to expand) */}
+                <div key={wk.id} style={{
+                  background: 'var(--bg-surface)',
+                  border: `1px solid ${wkDone100 ? 'rgba(62,207,142,0.3)' : 'var(--bg-border)'}`,
+                  borderRadius: 14,
+                  overflow: 'hidden',
+                  transition: 'border-color 0.2s ease',
+                }}>
+                  {/* Week header */}
                   <button
-                    onClick={() => setExpandedSubject(isExpanded ? null : sub.subject)}
-                    onMouseEnter={() => setHoveredSubject(sub.subject)}
-                    onMouseLeave={() => setHoveredSubject(null)}
+                    onClick={() => toggleWeek(wkKey)}
                     style={{
-                      width: '100%',
-                      padding: isMobile ? '14px 14px' : '16px 20px',
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
+                      width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: isMobile ? '13px 14px' : '15px 20px',
+                      background: 'transparent', border: 'none', cursor: 'pointer',
                       gap: 12,
-                      textAlign: 'left',
                     }}
                   >
-                    {/* Subject icon */}
-                    <div style={{
-                      width: 40, height: 40, minWidth: 40,
-                      borderRadius: 10,
-                      background: `${sub.color}15`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 18,
-                    }}>
-                      {sub.icon}
-                    </div>
-
-                    {/* Name + progress */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: allDone ? 'var(--text-muted)' : 'var(--text-primary)',
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {wkDone100 ? (
+                        <span style={{
+                          width: 22, height: 22, borderRadius: 7, background: 'rgba(62,207,142,0.15)',
+                          border: '1px solid rgba(62,207,142,0.3)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, color: 'var(--status-green)', flexShrink: 0,
+                        }}>✓</span>
+                      ) : (
+                        <span style={{
+                          width: 22, height: 22, borderRadius: 7, background: 'var(--accent-gold-glow)',
+                          border: '1px solid var(--accent-gold-border)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 9, fontWeight: 700, color: 'var(--accent-gold)',
+                          fontFamily: 'var(--font-body)', flexShrink: 0,
+                        }}>W</span>
+                      )}
+                      <span style={{
+                        fontFamily: 'var(--font-display)', fontSize: isMobile ? 14 : 15,
+                        color: wkDone100 ? 'var(--text-muted)' : 'var(--text-primary)',
                         letterSpacing: '-0.01em',
-                        textDecoration: allDone ? 'line-through' : 'none',
-                        marginBottom: 4,
-                      }}>
-                        {sub.subject}
-                      </div>
-                      {/* Mini progress bar */}
-                      <div style={{
-                        height: 3,
-                        background: 'var(--bg-border)',
-                        borderRadius: 2,
-                        overflow: 'hidden',
-                        maxWidth: 120,
-                      }}>
-                        <div style={{
-                          height: '100%',
-                          width: `${subPct}%`,
-                          background: allDone ? 'var(--status-green)' : sub.color,
-                          transition: 'width 0.4s ease',
-                        }} />
-                      </div>
+                        textDecoration: wkDone100 ? 'line-through' : 'none',
+                      }}>{wk.label}</span>
                     </div>
 
-                    {/* Count */}
-                    <span style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 12,
-                      color: allDone ? 'var(--status-green)' : 'var(--text-muted)',
-                      fontWeight: 600,
-                      flexShrink: 0,
-                    }}>
-                      {allDone ? '✓' : `${done}/${total}`}
-                    </span>
-
-                    {/* Expand arrow */}
-                    <span style={{
-                      fontSize: 10,
-                      color: 'var(--text-muted)',
-                      transform: isExpanded ? 'rotate(90deg)' : 'none',
-                      transition: 'transform 0.2s ease',
-                      flexShrink: 0,
-                    }}>
-                      ▶
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {/* Mini progress bar */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ width: 56, height: 3, background: 'var(--bg-border)', borderRadius: 2, overflow: 'hidden' }}>
+                          <div style={{
+                            width: `${wkPct}%`, height: '100%',
+                            background: wkDone100 ? 'var(--status-green)' : 'var(--accent-gold)',
+                            transition: 'width 0.4s ease',
+                          }} />
+                        </div>
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600, color: wkDone100 ? 'var(--status-green)' : 'var(--text-muted)', minWidth: 28, textAlign: 'right' }}>
+                          {mounted ? `${wkDone}/${wkTotal}` : '—'}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 9, color: 'var(--text-muted)', transform: isCollapsed ? 'none' : 'rotate(90deg)', transition: 'transform 0.2s ease' }}>▶</span>
+                    </div>
                   </button>
 
                   {/* Expanded content */}
-                  {isExpanded && (
-                    <div style={{
-                      borderTop: `1px solid ${sub.color}20`,
-                      padding: isMobile ? '14px' : '16px 20px',
-                      animation: 'fadeIn 0.25s ease-out both',
-                    }}>
-                      {/* Monthly focus */}
-                      <div style={{
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 13,
-                        lineHeight: 1.6,
-                        color: 'var(--text-secondary)',
-                        marginBottom: 16,
-                        padding: '12px 14px',
-                        background: `${sub.color}08`,
-                        borderRadius: 10,
-                        borderLeft: `3px solid ${sub.color}60`,
-                      }}>
-                        <span style={{
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 10,
-                          fontWeight: 700,
-                          letterSpacing: '0.1em',
-                          textTransform: 'uppercase',
-                          color: sub.color,
-                          display: 'block',
-                          marginBottom: 6,
-                        }}>
-                          Monthly Focus
-                        </span>
-                        {sub.focus}
-                      </div>
+                  {!isCollapsed && (
+                    <div style={{ borderTop: '1px solid var(--bg-border)' }}>
 
-                      {/* To-do items */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        {sub.todos.map(todo => {
-                          const key = `${activeMonth}:${todo.id}`;
-                          const isDone = !!checked[key];
-                          return (
-                            <label
-                              key={todo.id}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'flex-start',
-                                gap: 10,
-                                padding: '10px 12px',
-                                borderRadius: 8,
-                                cursor: 'pointer',
-                                background: isDone ? 'rgba(62,207,142,0.04)' : 'transparent',
-                                transition: 'background 0.15s ease',
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isDone}
-                                onChange={() => toggleCheck(activeMonth, todo.id)}
+                      {/* Tasks */}
+                      {wk.tasks.length > 0 && (
+                        <div style={{ padding: isMobile ? '10px 14px' : '12px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {wk.tasks.map((task) => {
+                            const taskKey = `${activeMonth}:${wk.id}:${task.id}`;
+                            const isDone = !!checked[taskKey];
+                            const meta = task.subject ? getSubjectMeta(task.subject) : null;
+
+                            return (
+                              <label
+                                key={task.id}
                                 style={{
-                                  width: 18, height: 18, minWidth: 18,
-                                  accentColor: sub.color,
-                                  cursor: 'pointer',
-                                  marginTop: 1,
+                                  display: 'flex', alignItems: 'flex-start', gap: 10,
+                                  padding: '9px 10px', borderRadius: 8, cursor: 'pointer',
+                                  background: isDone ? 'rgba(62,207,142,0.04)' : 'transparent',
+                                  transition: 'background 0.15s ease',
                                 }}
-                              />
-                              <span style={{
-                                fontFamily: 'var(--font-body)',
-                                fontSize: 13,
-                                lineHeight: 1.5,
-                                color: isDone ? 'var(--text-muted)' : 'var(--text-primary)',
-                                textDecoration: isDone ? 'line-through' : 'none',
-                                transition: 'color 0.15s ease',
-                              }}>
-                                {todo.text}
-                              </span>
-                            </label>
-                          );
-                        })}
-                      </div>
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isDone}
+                                  onChange={() => toggle(taskKey)}
+                                  style={{ width: 15, height: 15, minWidth: 15, marginTop: 2, cursor: 'pointer', accentColor: meta?.color ?? 'var(--accent-gold)' }}
+                                />
+                                {meta && (
+                                  <span style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                                    padding: '2px 8px', borderRadius: 100,
+                                    background: `${meta.color}14`,
+                                    border: `1px solid ${meta.color}28`,
+                                    fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 700,
+                                    color: isDone ? 'var(--text-muted)' : meta.color,
+                                    whiteSpace: 'nowrap', flexShrink: 0,
+                                    transition: 'color 0.15s ease',
+                                    textDecoration: isDone ? 'line-through' : 'none',
+                                  }}>
+                                    <span style={{ fontSize: 11 }}>{meta.icon}</span>
+                                    {meta.short}
+                                  </span>
+                                )}
+                                <span style={{
+                                  fontFamily: 'var(--font-body)', fontSize: isMobile ? 12 : 13,
+                                  color: isDone ? 'var(--text-muted)' : 'var(--text-primary)',
+                                  lineHeight: 1.5,
+                                  textDecoration: isDone ? 'line-through' : 'none',
+                                  transition: 'color 0.15s ease',
+                                  flex: 1,
+                                }}>
+                                  {task.task}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Addons */}
+                      {wk.addons.length > 0 && (
+                        <div style={{
+                          borderTop: '1px solid var(--bg-border)',
+                          padding: isMobile ? '10px 14px' : '10px 20px',
+                          background: 'rgba(0,212,255,0.02)',
+                        }}>
+                          <div style={{
+                            fontFamily: 'var(--font-body)', fontSize: 9, fontWeight: 700,
+                            letterSpacing: '0.16em', textTransform: 'uppercase',
+                            color: 'var(--accent-gold)', opacity: 0.8, marginBottom: 6,
+                            paddingLeft: 10,
+                          }}>
+                            Weekly Add-ons
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            {wk.addons.map((addon, i) => {
+                              const addonKey = `${activeMonth}:${wk.id}:a${i}`;
+                              const isDone = !!checked[addonKey];
+                              return (
+                                <label
+                                  key={i}
+                                  style={{
+                                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                                    padding: '7px 10px', borderRadius: 8, cursor: 'pointer',
+                                    background: isDone ? 'rgba(62,207,142,0.04)' : 'transparent',
+                                    transition: 'background 0.15s ease',
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isDone}
+                                    onChange={() => toggle(addonKey)}
+                                    style={{ width: 14, height: 14, minWidth: 14, marginTop: 2, cursor: 'pointer', accentColor: 'var(--accent-gold)' }}
+                                  />
+                                  <span style={{
+                                    fontFamily: 'var(--font-body)', fontSize: isMobile ? 11 : 12,
+                                    color: isDone ? 'var(--text-muted)' : 'var(--text-secondary)',
+                                    lineHeight: 1.5,
+                                    textDecoration: isDone ? 'line-through' : 'none',
+                                    transition: 'color 0.15s ease',
+                                  }}>
+                                    {addon}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               );
             })}
           </div>
+
+          {/* Bottom spacer */}
+          <div style={{ height: 32 }} />
         </div>
       </div>
     </div>

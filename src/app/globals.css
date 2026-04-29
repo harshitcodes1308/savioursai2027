@@ -90,7 +90,16 @@
   padding: 0;
 }
 
-html, body {
+html {
+  /* clip, not hidden — prevents horizontal overflow without making html a
+     scroll container. When both html AND body have overflow-x:hidden the
+     browser shifts the scroll root and loses the scroll position on smaller
+     viewports, causing the page to snap back to the top mid-scroll. */
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+body {
   background-color: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-body);

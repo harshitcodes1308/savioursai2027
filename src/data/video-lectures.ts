@@ -93,13 +93,16 @@ export const VIDEO_LECTURES: SubjectVideos[] = [
     },
     marathon: {
       videos: [
-        ch('Complete Maths in 4 Hours',   'https://www.youtube.com/live/m7gFcW-S8wU'),
-        ch('Complete Maths Revision',     'https://www.youtube.com/live/1wqHPdfLYxg'),
+        ch('Marathon Part 1',             'https://www.youtube.com/live/3FTQG4VX2yM'),
+        ch('Marathon Part 2',             'https://www.youtube.com/live/ISkVdWMP358'),
+        ch('Mathematics Revision',        'https://www.youtube.com/live/z2MHfUQ3Ws8'),
+        ch('Last Hour Revision',           'https://www.youtube.com/live/E_Ty6XOqdaY'),
       ],
     },
     competency: {
       videos: [
-        ch('Competency MCQs',            'https://www.youtube.com/live/SKMGg1QWqvk'),
+        ch('Competency 9 Hour',           'https://www.youtube.com/live/1laUDgRvF34'),
+        ch('ICSE Saviours Competency',    'https://www.youtube.com/live/__1gFTkqDFk'),
       ],
     },
   },
@@ -125,12 +128,15 @@ export const VIDEO_LECTURES: SubjectVideos[] = [
     },
     marathon: {
       videos: [
-        ch('Complete Physics',            'https://www.youtube.com/live/eWG-x5VDMrY'),
+        ch('Marathon Part 1',             'https://www.youtube.com/live/8JYb_Cs-Uns'),
+        ch('Marathon Part 2',             'https://www.youtube.com/live/0FkA7BvP64o'),
+        ch('Complete Physics One Shot',   'https://www.youtube.com/live/4Lg1Bd8FFjw'),
+        ch('Physics Revision',            'https://www.youtube.com/live/G9OCZXYmDew'),
       ],
     },
     competency: {
       videos: [
-        ch('Competency MCQs',            'https://www.youtube.com/live/GFXqnKGUi3c'),
+        ch('Competency',                  'https://www.youtube.com/live/Kce_ue2yxIw'),
       ],
     },
   },

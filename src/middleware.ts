@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
-import { LOCKED_ROUTES } from '@/lib/tier-config';
 import type { SessionUser } from '@/lib/auth';
 
 const protectedRoutes = ['/dashboard', '/onboarding'];
@@ -60,15 +59,11 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/onboarding', request.url));
     }
 
-    // 3. Free tier route guard — locked features redirect to dashboard
-    if (isProtectedRoute && !pathname.startsWith('/onboarding') && isAuthenticated && !isPaid) {
-        const isLocked = LOCKED_ROUTES.some(r => pathname.startsWith(r));
-        if (isLocked) {
-            const res = NextResponse.redirect(new URL('/dashboard?locked=true', request.url));
-            res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-            return res;
-        }
-    }
+    // 3. Free tier route guard — REMOVED from middleware.
+    // JWT can be stale when plan is changed directly in the DB (e.g. admin promotes
+    // a user in Neon). Locking is now handled client-side by the dashboard layout,
+    // which reads the DB-fresh profile via tRPC. This ensures direct DB plan changes
+    // take effect immediately without requiring the user to re-login.
 
     // 4. Pricing page guard
     if (pathname === '/pricing') {

@@ -54,6 +54,7 @@ function calcMMStats(checked: Record<string, boolean>) {
 
 const PLAN_LABELS: Record<string, string> = {
     FREE: "Free",
+    PRO: "Pro",
     MONTHLY: "Monthly",
     YEARLY: "Yearly",
 };
@@ -203,7 +204,14 @@ export default function DashboardPage() {
         );
     }
 
-    const planType = (profile as any)?.planType ?? "FREE";
+    const rawPlanType = (profile as any)?.planType ?? "FREE";
+    const profileIsPaid = !!(
+        (profile as any)?.isPaid ||
+        ((rawPlanType === "MONTHLY" || rawPlanType === "YEARLY") &&
+            (profile as any)?.subscriptionStatus === "ACTIVE")
+    );
+    // If isPaid is true but planType is FREE (manual DB change), show "Pro"
+    const planType = (profileIsPaid && rawPlanType === "FREE") ? "PRO" : rawPlanType;
     const paymentWarning = (profile as any)?.paymentWarning as "CANCELLED" | "EXPIRED" | null | undefined;
 
     const mmStats = calcMMStats(mmChecked);
@@ -379,7 +387,7 @@ export default function DashboardPage() {
                             }}>
                                 {PLAN_LABELS[planType] ?? "Free"}
                             </span>
-                            {planType === "FREE" && (
+                            {!profileIsPaid && (
                                 <button
                                     onClick={() => router.push("/pricing")}
                                     style={{

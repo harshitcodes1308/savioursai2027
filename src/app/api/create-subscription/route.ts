@@ -47,9 +47,12 @@ export async function POST() {
         }
 
         const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
-        if (dbUser.isPaid || dbUser.createdAt < CUTOFF_DATE) {
+        const isGrandfathered = dbUser.createdAt < CUTOFF_DATE;
+        const alreadyActive = dbUser.isPaid && dbUser.subscriptionStatus === "ACTIVE" &&
+            (dbUser.planType === "MONTHLY" || dbUser.planType === "YEARLY");
+        if (isGrandfathered || alreadyActive) {
             return NextResponse.json(
-                { error: "You already have Pro access" },
+                { error: "You already have an active plan" },
                 { status: 409 }
             );
         }

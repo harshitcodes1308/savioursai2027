@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         // Idempotency: Check if user already owns what they are trying to buy
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { isPaid: true, lnbChemistryUnlocked: true, createdAt: true },
+            select: { isPaid: true, planType: true, lnbChemistryUnlocked: true, createdAt: true },
         });
 
         if (!dbUser) {
@@ -44,8 +44,10 @@ export async function POST(req: Request) {
 
         if (purchaseType === "PRO_YEARLY") {
             const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
-            if (dbUser.isPaid || dbUser.createdAt < CUTOFF_DATE) {
-                return NextResponse.json({ error: "Already paid for Pro" }, { status: 409 });
+            const isGrandfathered = dbUser.createdAt < CUTOFF_DATE;
+            const alreadyYearly = dbUser.planType === "YEARLY" && dbUser.isPaid;
+            if (isGrandfathered || alreadyYearly) {
+                return NextResponse.json({ error: "You already have yearly access" }, { status: 409 });
             }
         } else if (purchaseType === "LNB_CHEMISTRY") {
             if (dbUser.isPaid || dbUser.lnbChemistryUnlocked) {

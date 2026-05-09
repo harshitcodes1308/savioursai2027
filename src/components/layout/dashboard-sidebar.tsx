@@ -147,7 +147,6 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [upgradeFeature, setUpgradeFeature] = useState<{ name: string; description: string } | null>(null);
 
   const initials = userName
@@ -157,6 +156,7 @@ export default function DashboardSidebar({
   const planLabel =
     planType === "MONTHLY" ? "Monthly Plan" :
     planType === "YEARLY" ? "Yearly Plan" :
+    isPaid ? "Pro Plan" :
     "Free Plan";
 
   const handleNavigation = (href: string) => {
@@ -172,7 +172,12 @@ export default function DashboardSidebar({
     router.push(href);
   };
 
-  const SidebarContent = () => (
+  // IMPORTANT: This is a JSX variable, NOT a component defined inside render.
+  // Defining it as `const SidebarContent = () => (...)` would cause React to
+  // unmount/remount the <aside> on every re-render (new component identity),
+  // which resets the nav scroll position — making it impossible to scroll
+  // down to Profile/Policies.
+  const sidebarJSX = (
     <aside style={{
       width: 240,
       height: "100vh",
@@ -184,6 +189,15 @@ export default function DashboardSidebar({
       flexDirection: "column",
       overflow: "hidden",
     }}>
+      {/* Scoped CSS for hover effects — avoids state-driven re-renders */}
+      <style>{`
+        .sb-nav-item { transition: all 0.15s ease; }
+        .sb-nav-item:hover:not(.sb-nav-active) {
+          background: rgba(255,255,255,0.03) !important;
+          color: var(--text-primary) !important;
+        }
+      `}</style>
+
       {/* Logo */}
       <div style={{
         padding: "20px 20px 16px",
@@ -299,25 +313,19 @@ export default function DashboardSidebar({
               {visibleItems.map((item) => {
                 const isActive = pathname === item.href ||
                   (item.href !== "/dashboard" && item.href.split("?")[0] !== "/dashboard" && pathname.startsWith(item.href.split("?")[0]));
-                const isHovered = hoveredItem === item.href;
                 return (
                   <button
                     key={item.href}
+                    className={`sb-nav-item${isActive ? " sb-nav-active" : ""}`}
                     onClick={() => handleNavigation(item.href)}
-                    onMouseEnter={() => setHoveredItem(item.href)}
-                    onMouseLeave={() => setHoveredItem(null)}
                     style={{
                       display: "flex", alignItems: "center", gap: 10,
                       width: "100%",
                       padding: "8px 10px",
                       marginBottom: 1,
                       borderRadius: 8,
-                      background: isActive
-                        ? "var(--accent-gold-glow)"
-                        : isHovered
-                        ? "rgba(255,255,255,0.03)"
-                        : "transparent",
-                      color: isActive ? "var(--accent-gold)" : isHovered ? "var(--text-primary)" : "var(--text-muted)",
+                      background: isActive ? "var(--accent-gold-glow)" : "transparent",
+                      color: isActive ? "var(--accent-gold)" : "var(--text-muted)",
                       border: "none",
                       borderLeft: isActive ? "2px solid var(--accent-gold)" : "2px solid transparent",
                       cursor: "pointer",
@@ -326,7 +334,6 @@ export default function DashboardSidebar({
                       fontSize: 13,
                       fontWeight: isActive ? 600 : 400,
                       letterSpacing: "-0.01em",
-                      transition: "all 0.15s ease",
                       paddingLeft: isActive ? 8 : 10,
                     }}
                   >
@@ -443,7 +450,7 @@ export default function DashboardSidebar({
           zIndex: 150,
         }}
       >
-        <SidebarContent />
+        {sidebarJSX}
       </div>
 
       {/* ── MOBILE HAMBURGER ── */}
@@ -495,7 +502,7 @@ export default function DashboardSidebar({
           transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1)",
         }}
       >
-        <SidebarContent />
+        {sidebarJSX}
       </div>
 
       {/* ── MOBILE BOTTOM TAB BAR ── */}

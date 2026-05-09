@@ -26,6 +26,7 @@ export const FREE_ROUTES = [
     "/dashboard/todo",
     "/dashboard/webinar",
     "/dashboard/video-lectures",
+    "/dashboard/study-flow",
     "/dashboard/subjects",
     "/dashboard/guess-papers",
     "/dashboard/profile",

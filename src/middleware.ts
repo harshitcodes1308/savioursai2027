@@ -89,18 +89,29 @@ export async function middleware(request: NextRequest) {
 
     // 5. Root redirect
     if (pathname === '/') {
-        const dest = isAuthenticated ? '/dashboard' : '/login';
-        const res = NextResponse.redirect(new URL(dest, request.url));
+        // If authenticated and onboarded → dashboard
+        // Otherwise → login (including un-onboarded users — don't trap them)
+        if (isAuthenticated && onboardingComplete) {
+            const res = NextResponse.redirect(new URL('/dashboard', request.url));
+            res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return res;
+        }
+        // Clear stale un-onboarded cookie so they land on a clean login page
+        const res = NextResponse.redirect(new URL('/login', request.url));
         res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        if (isAuthenticated && !onboardingComplete) {
+            res.cookies.delete('auth-token');
+        }
         return res;
     }
 
-    // 6. Auth routes → dashboard if already logged in
+    // 6. Auth routes → dashboard if already logged in (and onboarded)
     if (isAuthRoute && isAuthenticated) {
         if (!onboardingComplete) {
-            // Un-authenticated the user so they can go back to sign in / sign up
-            const res = NextResponse.next();
+            // Clear the stale cookie so they can sign in / sign up fresh
+            const res = NextResponse.redirect(new URL(pathname, request.url));
             res.cookies.delete('auth-token');
+            res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
             return res;
         }
         return NextResponse.redirect(new URL('/dashboard', request.url));

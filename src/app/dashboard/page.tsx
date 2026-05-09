@@ -171,6 +171,7 @@ export default function DashboardPage() {
     }, []);
 
     const featureCards = [
+        { flag: "studyFlow" as const, label: "Study Flow", desc: "Watch → Revise → Practice", path: "/dashboard/study-flow", icon: "▶", tagline: "Your guided learning path" },
         { flag: "aiDoubtSolver" as const, label: "AI Doubt Solver", desc: "Ask anything, get instant answers", path: "/dashboard/ai-assistant", icon: "◈", tagline: "Your 24/7 academic companion" },
         { flag: "smartPlanner" as const, label: "Smart Planner", desc: "Your day, mapped intelligently", path: "/dashboard/planner", icon: "◎", tagline: "Because time waits for no one" },
         { flag: "competencyTest" as const, label: "Competency Test", desc: "PYQ-based timed practice", path: "/dashboard/precision-practice", icon: "◉", tagline: "Practice like it's the real thing" },

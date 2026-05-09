@@ -7,6 +7,7 @@ import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
+  "/dashboard/study-flow": "studyFlow",
   "/dashboard/webinar": "webinar",
   "/dashboard/video-lectures": "videoLectures",
   "/dashboard/ai-assistant": "aiDoubtSolver",
@@ -60,6 +61,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: "◎", label: "Smart Planner",    href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission",  href: "/dashboard/todo" },
+      { icon: "▶", label: "Study Flow",       href: "/dashboard/study-flow" },
       { icon: "▷", label: "Video Lectures",   href: "/dashboard/video-lectures" },
       { icon: "◈", label: "Live Webinar",     href: "/dashboard/webinar" },
     ],
@@ -102,6 +104,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
   {
     label: "STUDY",
     items: [
+      { icon: "▶", label: "Study Flow",        href: "/dashboard/study-flow" },
       { icon: "▷", label: "Video Lectures",    href: "/dashboard/video-lectures" },
       { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
       { icon: "◎", label: "ChronoScroll",      href: "/dashboard/chronoscroll" },

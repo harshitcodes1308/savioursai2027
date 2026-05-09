@@ -1,5 +1,6 @@
 export const FEATURE_FLAGS = {
   // Currently live
+  studyFlow:       true,
   webinar:         true,
   videoLectures:   true,
   aiDoubtSolver:   true,

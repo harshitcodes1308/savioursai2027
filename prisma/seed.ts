@@ -225,6 +225,19 @@ async function main() {
     console.log("✅ Database seeded successfully!");
     console.log(`Created ${await prisma.subject.count()} subjects`);
     console.log(`Created ${await prisma.chapter.count()} chapters`);
+
+    // Creators — upsert so re-runs are safe
+    await prisma.creator.upsert({
+        where: { creatorCode: "bl2047" },
+        update: {},
+        create: { creatorName: "Beast Learners", creatorCode: "bl2047", channelId: null, discountPercentage: 30 },
+    });
+    await prisma.creator.upsert({
+        where: { creatorCode: "ck2047" },
+        update: {},
+        create: { creatorName: "Clarify Knowledge", creatorCode: "ck2047", channelId: null, discountPercentage: 20 },
+    });
+    console.log(`✅ Seeded ${await prisma.creator.count()} creators`);
 }
 
 main()

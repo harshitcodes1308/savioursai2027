@@ -9,11 +9,11 @@ datasource db {
 
 model Creator {
   id                  String   @id @default(cuid())
-  creatorName         String
-  creatorCode         String   @unique
-  channelId           String?
-  discountPercentage  Int      @default(0)
-  createdAt           DateTime @default(now())
+  creatorName         String   @map("creator_name")
+  creatorCode         String   @unique @map("creator_code")
+  channelId           String?  @map("channel_id")
+  discountPercentage  Int      @default(0) @map("discount_percentage")
+  createdAt           DateTime @default(now()) @map("created_at")
 
   @@map("creators")
 }
@@ -23,7 +23,7 @@ model User {
   email              String              @unique
   password           String?
   name               String
-  creatorCode        String?
+  creatorCode        String?  @map("creator_code")
   role               UserRole            @default(STUDENT)
   emailVerified      DateTime?
   image              String?

@@ -183,8 +183,6 @@ export default function OnboardingFlow() {
   }
 
   async function handleSaveCreator() {
-    // selectedCreatorCode === undefined means not yet chosen (block), null means "None"
-    if (selectedCreatorCode === undefined) return;
     setSavingCreator(true);
     try {
       await fetch('/api/auth/save-creator', {
@@ -771,22 +769,13 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 5 — Creator/Referral ────────────────────────────────────────────
+  // ── SCREEN 5 — Creator Code ────────────────────────────────────────────────
   if (step === 5) {
-    const NONE_OPTION = { creatorName: 'None — no one referred me', creatorCode: '__none__', discountPercentage: 0 };
-    const allOptions = [NONE_OPTION, ...creators];
-    const filtered = creatorSearch.trim()
-      ? allOptions.filter(c => c.creatorName.toLowerCase().includes(creatorSearch.toLowerCase()))
-      : allOptions;
-
-    const selectedLabel = selectedCreatorCode === null
-      ? 'None — no one referred me'
-      : selectedCreatorCode === (undefined as unknown as null)
-      ? ''
-      : creators.find(c => c.creatorCode === selectedCreatorCode)?.creatorName ?? '';
-
-    const canProceed = selectedCreatorCode !== (undefined as unknown as null);
-    const selectedCreator = selectedCreatorCode ? creators.find(c => c.creatorCode === selectedCreatorCode) : null;
+    const enteredCode = creatorSearch.trim().toLowerCase();
+    const matchedCreator = enteredCode
+      ? creators.find(c => c.creatorCode.toLowerCase() === enteredCode)
+      : null;
+    const isInvalid = enteredCode.length > 0 && !matchedCreator;
 
     return (
       <div style={{
@@ -808,158 +797,147 @@ export default function OnboardingFlow() {
         }} />
 
         <div style={{
-          position: 'relative', zIndex: 1, maxWidth: 480, width: '100%',
+          position: 'relative', zIndex: 1, maxWidth: 460, width: '100%',
           textAlign: 'center', animation: 'fadeIn 600ms ease-out both',
         }}>
+          {/* Icon */}
           <div style={{
             width: 56, height: 56, borderRadius: 16,
             background: 'rgba(0,212,255,0.1)',
             border: '1px solid rgba(0,212,255,0.2)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 20px', fontSize: 26,
-          }}>🤝</div>
+          }}>🎟️</div>
 
+          {/* Title */}
           <h1 style={{
-            fontFamily: 'var(--font-display)', fontSize: isMobile ? 26 : 36,
+            fontFamily: 'var(--font-display)', fontSize: isMobile ? 26 : 34,
             letterSpacing: '-0.02em', color: 'var(--text-primary)',
-            marginBottom: 8,
+            marginBottom: 12,
           }}>
-            Who referred you?
+            Got a creator code?
           </h1>
-          <p style={{
-            fontFamily: 'var(--font-tagline)', fontSize: 14, fontStyle: 'italic',
-            color: 'var(--text-muted)', marginBottom: 28, lineHeight: 1.5,
+
+          {/* Highlighted description */}
+          <div style={{
+            display: 'inline-block',
+            padding: '10px 18px',
+            marginBottom: 28,
+            background: 'linear-gradient(135deg, rgba(0,212,255,0.08), rgba(139,92,246,0.08))',
+            border: '1px solid rgba(0,212,255,0.2)',
+            borderRadius: 12,
           }}>
-            If a creator sent you here, they'll unlock a discount for you.
-          </p>
-
-          {/* Dropdown trigger */}
-          <div style={{ position: 'relative', marginBottom: 20, textAlign: 'left' }}>
-            <button
-              onClick={() => setCreatorDropdownOpen(v => !v)}
-              style={{
-                width: '100%', padding: '14px 18px',
-                background: 'var(--bg-surface)',
-                border: `1.5px solid ${creatorDropdownOpen ? 'var(--accent-gold-border)' : 'var(--bg-border)'}`,
-                borderRadius: 12, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                fontFamily: 'var(--font-body)', fontSize: 15,
-                color: selectedLabel ? 'var(--text-primary)' : 'var(--text-muted)',
-                transition: 'border-color 0.2s ease',
-              }}
-            >
-              <span>{selectedLabel || 'Select a creator or None'}</span>
-              <span style={{ fontSize: 10, opacity: 0.5, transform: creatorDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
-            </button>
-
-            {creatorDropdownOpen && (
-              <div style={{
-                position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
-                background: 'var(--bg-surface)',
-                border: '1.5px solid var(--accent-gold-border)',
-                borderRadius: 12, zIndex: 10,
-                overflow: 'hidden',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
-              }}>
-                <div style={{ padding: '8px 8px 4px' }}>
-                  <input
-                    autoFocus
-                    type="text"
-                    value={creatorSearch}
-                    onChange={e => setCreatorSearch(e.target.value)}
-                    placeholder="Search creator..."
-                    style={{
-                      width: '100%', padding: '8px 12px',
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--bg-border)',
-                      borderRadius: 8,
-                      fontFamily: 'var(--font-body)', fontSize: 13,
-                      color: 'var(--text-primary)', outline: 'none',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-                <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                  {filtered.map(opt => {
-                    const code = opt.creatorCode === '__none__' ? null : opt.creatorCode;
-                    const isSelected = code === selectedCreatorCode;
-                    return (
-                      <button
-                        key={opt.creatorCode}
-                        onClick={() => {
-                          setSelectedCreatorCode(code);
-                          setCreatorDropdownOpen(false);
-                          setCreatorSearch('');
-                        }}
-                        style={{
-                          width: '100%', padding: '11px 16px',
-                          background: isSelected ? 'rgba(0,212,255,0.08)' : 'transparent',
-                          border: 'none',
-                          borderLeft: isSelected ? '2px solid var(--accent-gold)' : '2px solid transparent',
-                          cursor: 'pointer', textAlign: 'left',
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          fontFamily: 'var(--font-body)', fontSize: 14,
-                          color: isSelected ? 'var(--accent-gold)' : 'var(--text-primary)',
-                        }}
-                      >
-                        <span>{opt.creatorName}</span>
-                        {opt.discountPercentage > 0 && (
-                          <span style={{
-                            fontSize: 11, fontWeight: 700,
-                            color: '#22c55e',
-                            background: 'rgba(34,197,94,0.1)',
-                            border: '1px solid rgba(34,197,94,0.2)',
-                            padding: '2px 8px', borderRadius: 100,
-                          }}>
-                            {opt.discountPercentage}% off
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                  {filtered.length === 0 && (
-                    <div style={{ padding: '16px', fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
-                      No creator found
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+            <p style={{
+              fontFamily: 'var(--font-body)', fontSize: 13,
+              color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0,
+            }}>
+              <span style={{ color: 'var(--accent-gold)', fontWeight: 700 }}>You'll get an exclusive discount</span>
+              {' '}if you have a code from the EdTech channels we've partnered with.{' '}
+              <span style={{ color: 'var(--text-muted)' }}>Leave blank if you don't have one.</span>
+            </p>
           </div>
 
-          {/* Discount preview */}
-          {selectedCreator && selectedCreator.discountPercentage > 0 && (
+          {/* Code input */}
+          <input
+            type="text"
+            value={creatorSearch}
+            onChange={e => setCreatorSearch(e.target.value.toLowerCase().replace(/\s/g, ''))}
+            placeholder="Enter creator code (e.g. bl2047)"
+            autoFocus
+            style={{
+              width: '100%',
+              padding: '16px 20px',
+              fontSize: '17px',
+              fontFamily: 'var(--font-body)',
+              background: 'var(--bg-surface)',
+              border: `1.5px solid ${
+                matchedCreator ? 'rgba(34,197,94,0.5)' :
+                isInvalid ? 'rgba(248,113,113,0.4)' :
+                'var(--bg-border)'
+              }`,
+              borderRadius: '14px',
+              color: 'var(--text-primary)',
+              textAlign: 'center',
+              outline: 'none',
+              letterSpacing: '0.06em',
+              textTransform: 'lowercase',
+              transition: 'border-color 0.2s ease',
+              boxSizing: 'border-box',
+              marginBottom: 12,
+            }}
+            onKeyDown={e => { if (e.key === 'Enter' && !isInvalid) handleSaveCreator(); }}
+          />
+
+          {/* Feedback states */}
+          {matchedCreator && (
             <div style={{
-              padding: '12px 16px', marginBottom: 20,
-              background: 'rgba(34,197,94,0.06)',
-              border: '1px solid rgba(34,197,94,0.2)',
+              padding: '12px 16px', marginBottom: 16,
+              background: 'rgba(34,197,94,0.07)',
+              border: '1px solid rgba(34,197,94,0.25)',
               borderRadius: 10,
-              fontFamily: 'var(--font-body)', fontSize: 13,
-              color: '#22c55e', textAlign: 'left',
-              display: 'flex', alignItems: 'center', gap: 8,
+              display: 'flex', alignItems: 'center', gap: 10,
             }}>
-              <span style={{ fontSize: 16 }}>🎉</span>
-              <span>You'll get <strong>{selectedCreator.discountPercentage}% off</strong> on paid plans via {selectedCreator.creatorName}!</span>
+              <span style={{ fontSize: 18, flexShrink: 0 }}>🎉</span>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 700, color: '#22c55e' }}>
+                  {matchedCreator.discountPercentage}% off unlocked!
+                </div>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                  Code valid · via {matchedCreator.creatorName}
+                </div>
+              </div>
             </div>
           )}
 
+          {isInvalid && (
+            <div style={{
+              padding: '10px 14px', marginBottom: 16,
+              background: 'rgba(248,113,113,0.07)',
+              border: '1px solid rgba(248,113,113,0.2)',
+              borderRadius: 10,
+              fontFamily: 'var(--font-body)', fontSize: 12,
+              color: '#f87171', textAlign: 'left',
+            }}>
+              Invalid code — double-check the spelling or leave it blank.
+            </div>
+          )}
+
+          {/* Primary CTA */}
           <button
-            onClick={handleSaveCreator}
-            disabled={!canProceed || savingCreator}
+            onClick={() => {
+              setSelectedCreatorCode(matchedCreator ? matchedCreator.creatorCode : null);
+              handleSaveCreator();
+            }}
+            disabled={isInvalid || savingCreator}
             className="btn-gold"
             style={{
               fontSize: 'var(--text-md)', padding: '14px 44px', width: '100%',
-              opacity: (!canProceed || savingCreator) ? 0.4 : 1,
-              cursor: (!canProceed || savingCreator) ? 'not-allowed' : 'pointer',
+              opacity: (isInvalid || savingCreator) ? 0.4 : 1,
+              cursor: (isInvalid || savingCreator) ? 'not-allowed' : 'pointer',
+              marginBottom: 12,
             }}
           >
-            {savingCreator ? 'Saving…' : 'Continue →'}
+            {savingCreator ? 'Saving…' : matchedCreator ? `Apply ${matchedCreator.discountPercentage}% Discount →` : 'Continue →'}
           </button>
 
-          {!canProceed && (
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)', marginTop: 12 }}>
-              Please select an option to continue
-            </p>
+          {/* Skip */}
+          {!matchedCreator && (
+            <button
+              onClick={() => {
+                setSelectedCreatorCode(null);
+                setCreatorSearch('');
+                handleSaveCreator();
+              }}
+              disabled={savingCreator}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontFamily: 'var(--font-body)', fontSize: 12,
+                color: 'var(--text-muted)', padding: '6px 0',
+                letterSpacing: '0.02em',
+              }}
+            >
+              Skip — I don&apos;t have a code
+            </button>
           )}
         </div>
       </div>

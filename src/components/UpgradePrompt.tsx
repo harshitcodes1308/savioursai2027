@@ -37,8 +37,14 @@ const LNB_FEATURES = [
 export function UpgradePrompt({ featureName, description, onClose, type = "PRO" }: UpgradePromptProps) {
     const router = useRouter();
     const { data: session } = trpc.auth.getSession.useQuery();
+    const { data: discount } = trpc.creator.getMyDiscount.useQuery();
     const [selectedPlan, setSelectedPlan] = useState<"MONTHLY" | "YEARLY">("YEARLY");
     const user = session?.user;
+
+    const discountPct = discount?.discountPercentage ?? 0;
+    const creatorName = discount?.creatorName ?? "";
+    const monthlyFinal = discountPct > 0 ? Math.round(199 * (1 - discountPct / 100)) : 199;
+    const yearlyFinal = discountPct > 0 ? Math.round(599 * (1 - discountPct / 100)) : 599;
 
     const handleClose = () => {
         if (onClose) onClose();
@@ -173,6 +179,9 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                 {(["MONTHLY", "YEARLY"] as const).map(plan => {
                                     const isSelected = selectedPlan === plan;
                                     const isYearly = plan === "YEARLY";
+                                    const basePrice = plan === "MONTHLY" ? 199 : 599;
+                                    const finalPrice = plan === "MONTHLY" ? monthlyFinal : yearlyFinal;
+                                    const hasDiscount = discountPct > 0;
                                     return (
                                         <button
                                             key={plan}
@@ -204,15 +213,26 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                                     Best Value
                                                 </div>
                                             )}
-                                            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: isSelected ? "var(--accent-gold)" : "var(--text-primary)", letterSpacing: "-0.02em" }}>
-                                                {plan === "MONTHLY" ? "₹199" : "₹599"}
-                                            </div>
+                                            {hasDiscount ? (
+                                                <div>
+                                                    <div style={{ fontFamily: "var(--font-display)", fontSize: 13, fontWeight: 600, color: "var(--text-muted)", textDecoration: "line-through", opacity: 0.5 }}>
+                                                        ₹{basePrice}
+                                                    </div>
+                                                    <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: "#22c55e", letterSpacing: "-0.02em" }}>
+                                                        ₹{finalPrice}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: isSelected ? "var(--accent-gold)" : "var(--text-primary)", letterSpacing: "-0.02em" }}>
+                                                    ₹{basePrice}
+                                                </div>
+                                            )}
                                             <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                                                 {plan === "MONTHLY" ? "per month" : "per year"}
                                             </div>
-                                            {isYearly && (
-                                                <div style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--accent-gold)", marginTop: 4 }}>
-                                                    Save ₹1,789
+                                            {hasDiscount && (
+                                                <div style={{ fontFamily: "var(--font-body)", fontSize: 9, color: "#22c55e", marginTop: 3, fontWeight: 700 }}>
+                                                    {discountPct}% off via {creatorName}
                                                 </div>
                                             )}
                                         </button>
@@ -237,11 +257,11 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                             </div>
 
                             <RazorpayButton
-                                amount={selectedPlan === "MONTHLY" ? 199 : 599}
+                                amount={selectedPlan === "MONTHLY" ? monthlyFinal : yearlyFinal}
                                 type={selectedPlan === "MONTHLY" ? "MONTHLY" : "PRO"}
                                 email={(user as any)?.email || ""}
                                 name={(user as any)?.name || ""}
-                                buttonText={`Get ${selectedPlan === "MONTHLY" ? "Monthly" : "Yearly"} Plan →`}
+                                buttonText={`Get ${selectedPlan === "MONTHLY" ? "Monthly" : "Yearly"} Plan — ₹${selectedPlan === "MONTHLY" ? monthlyFinal : yearlyFinal} →`}
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />
                         </>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { trpc } from '@/lib/trpc/client';
 
 // ─── WebGL Shader Background ─────────────────────────────────
 
@@ -129,6 +130,9 @@ export interface PricingCardProps {
   buttonText: string;
   buttonVariant: 'primary' | 'secondary';
   isPopular: boolean;
+  discountedPrice?: string;
+  discountPct?: number;
+  creatorName?: string;
   onClick?: () => void;
 }
 
@@ -143,9 +147,13 @@ function PricingCard({
   buttonText,
   buttonVariant,
   isPopular,
+  discountedPrice,
+  discountPct,
+  creatorName,
   onClick,
 }: PricingCardProps) {
   const [hovered, setHovered] = useState(false);
+  const hasDiscount = !!discountedPrice && !!discountPct;
 
   return (
     <div
@@ -208,29 +216,49 @@ function PricingCard({
       </div>
 
       {/* Price */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
-        <span
-          style={{
-            fontFamily: 'ScotchDisplay, serif',
-            fontSize: '20px',
-            color: 'var(--text-primary)',
-            fontWeight: 700,
-          }}
-        >
-          {priceSymbol}
-        </span>
-        <span
-          style={{
-            fontFamily: 'ScotchDisplay, serif',
-            fontSize: '52px',
-            color: 'var(--text-primary)',
-            fontWeight: 700,
-            lineHeight: 1,
-          }}
-        >
-          {price}
-        </span>
-      </div>
+      {hasDiscount ? (
+        <div style={{ marginBottom: '4px' }}>
+          {/* Creator discount badge */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '3px 10px', borderRadius: 100, marginBottom: 6,
+            background: 'rgba(34,197,94,0.08)',
+            border: '1px solid rgba(34,197,94,0.2)',
+            fontFamily: 'Helvetica Neue, sans-serif', fontSize: 11, fontWeight: 700,
+            color: '#22c55e', letterSpacing: '0.02em',
+          }}>
+            🎉 {discountPct}% off via {creatorName}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{
+              fontFamily: 'ScotchDisplay, serif', fontSize: 20,
+              color: 'var(--text-muted)', fontWeight: 700,
+              textDecoration: 'line-through', opacity: 0.5,
+            }}>
+              {priceSymbol}{price}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+              <span style={{ fontFamily: 'ScotchDisplay, serif', fontSize: 18, color: '#22c55e', fontWeight: 700 }}>{priceSymbol}</span>
+              <span style={{ fontFamily: 'ScotchDisplay, serif', fontSize: 48, color: '#22c55e', fontWeight: 700, lineHeight: 1 }}>{discountedPrice}</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
+          <span style={{
+            fontFamily: 'ScotchDisplay, serif', fontSize: '20px',
+            color: 'var(--text-primary)', fontWeight: 700,
+          }}>
+            {priceSymbol}
+          </span>
+          <span style={{
+            fontFamily: 'ScotchDisplay, serif', fontSize: '52px',
+            color: 'var(--text-primary)', fontWeight: 700, lineHeight: 1,
+          }}>
+            {price}
+          </span>
+        </div>
+      )}
 
       {/* Billing label */}
       <div
@@ -429,6 +457,13 @@ export default function AnimatedGlassyPricing({
 }: AnimatedGlassyPricingProps) {
   const [showDomin8Modal, setShowDomin8Modal] = useState(false);
   const [domin8Code, setDomin8Code] = useState('');
+  const { data: discount } = trpc.creator.getMyDiscount.useQuery();
+
+  // Compute discounted prices if creator discount exists
+  const discountPct = discount?.discountPercentage ?? 0;
+  const creatorName = discount?.creatorName ?? undefined;
+  const monthlyDiscounted = discountPct > 0 ? String(Math.round(199 * (1 - discountPct / 100))) : undefined;
+  const yearlyDiscounted = discountPct > 0 ? String(Math.round(599 * (1 - discountPct / 100))) : undefined;
   const [domin8Error, setDomin8Error] = useState('');
   const [domin8Loading, setDomin8Loading] = useState(false);
 
@@ -515,6 +550,13 @@ export default function AnimatedGlassyPricing({
             >
               <PricingCard
                 {...plan}
+                discountedPrice={
+                  plan.planName === 'Monthly' ? monthlyDiscounted :
+                  plan.planName === 'Yearly' ? yearlyDiscounted :
+                  undefined
+                }
+                discountPct={plan.planName !== 'Free' ? discountPct || undefined : undefined}
+                creatorName={creatorName}
                 onClick={() =>
                   onSelectPlan(
                     plan.planName.toUpperCase() as 'FREE' | 'MONTHLY' | 'YEARLY'

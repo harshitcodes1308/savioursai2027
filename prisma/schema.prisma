@@ -7,11 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Creator {
+  id                  String   @id @default(cuid())
+  creatorName         String
+  creatorCode         String   @unique
+  channelId           String?
+  discountPercentage  Int      @default(0)
+  createdAt           DateTime @default(now())
+
+  @@map("creators")
+}
+
 model User {
   id                 String              @id @default(cuid())
   email              String              @unique
   password           String?
   name               String
+  creatorCode        String?
   role               UserRole            @default(STUDENT)
   emailVerified      DateTime?
   image              String?

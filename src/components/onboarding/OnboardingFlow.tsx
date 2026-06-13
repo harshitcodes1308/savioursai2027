@@ -9,7 +9,7 @@ const ShuffleCards = dynamic(() => import('@/components/ui/testimonial-cards'), 
 const AnimatedGlassyPricing = dynamic(() => import('@/components/ui/animated-glassy-pricing'), { ssr: false });
 const VapourText = dynamic(() => import('@/components/ui/vapour-text-effect'), { ssr: false });
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 const VIDEO_URL = 'https://res.cloudinary.com/dv0w2nfnw/video/upload/v1774898701/videoplayback_tgdakw.mp4';
 
@@ -55,6 +55,11 @@ export default function OnboardingFlow() {
   const [phoneInput, setPhoneInput] = useState('');
   const [profileError, setProfileError] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [creatorSearch, setCreatorSearch] = useState('');
+  const [selectedCreatorCode, setSelectedCreatorCode] = useState<string | null>(undefined as unknown as null);
+  const [creators, setCreators] = useState<Array<{ creatorName: string; creatorCode: string; discountPercentage: number }>>([]);
+  const [savingCreator, setSavingCreator] = useState(false);
+  const [creatorDropdownOpen, setCreatorDropdownOpen] = useState(false);
 
   const video1Ref = useRef<HTMLVideoElement>(null);
   const video6Ref = useRef<HTMLVideoElement>(null);
@@ -116,7 +121,7 @@ export default function OnboardingFlow() {
 
   // ── Screen 6 — Loading
   useEffect(() => {
-    if (step !== 6) return;
+    if (step !== 7) return;
     const v = video6Ref.current;
     if (v) { v.playbackRate = 1.5; v.play().catch(() => {}); }
     setLoadingLine(0);
@@ -124,7 +129,7 @@ export default function OnboardingFlow() {
       setTimeout(() => setLoadingLine(i + 1), 800 * (i + 1))
     );
     // After loading, go to vapour text screen
-    timers.push(setTimeout(() => setStep(7), 3600));
+    timers.push(setTimeout(() => setStep(8), 3600));
     return () => timers.forEach(clearTimeout);
   }, [step]);
 
@@ -163,6 +168,8 @@ export default function OnboardingFlow() {
         return;
       }
       setSavingProfile(false);
+      // Fetch creators for next step while transitioning
+      fetch('/api/auth/save-creator').then(r => r.json()).then(d => setCreators(d.creators || [])).catch(() => {});
       setStep(5);
     } catch {
       setProfileError('Network error. Please try again.');
@@ -175,6 +182,21 @@ export default function OnboardingFlow() {
     window.location.href = '/dashboard';
   }
 
+  async function handleSaveCreator() {
+    // selectedCreatorCode === undefined means not yet chosen (block), null means "None"
+    if (selectedCreatorCode === undefined) return;
+    setSavingCreator(true);
+    try {
+      await fetch('/api/auth/save-creator', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creatorCode: selectedCreatorCode }),
+      });
+    } catch {}
+    setSavingCreator(false);
+    setStep(6);
+  }
+
   async function handleFreePlan() {
     setSubmitting(true);
     try {
@@ -185,7 +207,7 @@ export default function OnboardingFlow() {
       });
     } catch {}
     setSubmitting(false);
-    setStep(6);
+    setStep(7);
   }
 
   async function handlePaidPlan(planKey: 'MONTHLY' | 'YEARLY') {
@@ -209,7 +231,7 @@ export default function OnboardingFlow() {
         const { verifyPaymentAction } = await import('@/actions/verify-payment');
         const result = await verifyPaymentAction(response);
         if (result.success) {
-          setStep(6);
+          setStep(7);
         } else {
           alert('Payment verification failed: ' + result.error);
         }
@@ -294,7 +316,7 @@ export default function OnboardingFlow() {
       return;
     }
     setSubmitting(false);
-    setStep(6);
+    setStep(7);
   }
 
   function handlePlanSelect(plan: 'FREE' | 'MONTHLY' | 'YEARLY' | 'DOMIN8', domin8Code?: string) {
@@ -749,8 +771,203 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 5 — Animated Glassy Pricing (NEW) ───────────────
-  if (step === 5) return (
+  // ── SCREEN 5 — Creator/Referral ────────────────────────────────────────────
+  if (step === 5) {
+    const NONE_OPTION = { creatorName: 'None — no one referred me', creatorCode: '__none__', discountPercentage: 0 };
+    const allOptions = [NONE_OPTION, ...creators];
+    const filtered = creatorSearch.trim()
+      ? allOptions.filter(c => c.creatorName.toLowerCase().includes(creatorSearch.toLowerCase()))
+      : allOptions;
+
+    const selectedLabel = selectedCreatorCode === null
+      ? 'None — no one referred me'
+      : selectedCreatorCode === (undefined as unknown as null)
+      ? ''
+      : creators.find(c => c.creatorCode === selectedCreatorCode)?.creatorName ?? '';
+
+    const canProceed = selectedCreatorCode !== (undefined as unknown as null);
+    const selectedCreator = selectedCreatorCode ? creators.find(c => c.creatorCode === selectedCreatorCode) : null;
+
+    return (
+      <div style={{
+        position: 'fixed', inset: 0,
+        background: 'var(--bg-base)',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: isMobile ? '32px 20px' : '64px 80px',
+        zIndex: 1000, overflow: 'hidden',
+      }}>
+        <video src={VIDEO_URL} autoPlay muted playsInline loop style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          objectFit: 'cover', filter: 'grayscale(100%) brightness(0.15)', opacity: 0.25,
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(180deg, rgba(3,3,3,0.9) 0%, rgba(0,10,30,0.5) 50%, rgba(3,3,3,0.95) 100%)',
+          pointerEvents: 'none',
+        }} />
+
+        <div style={{
+          position: 'relative', zIndex: 1, maxWidth: 480, width: '100%',
+          textAlign: 'center', animation: 'fadeIn 600ms ease-out both',
+        }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: 16,
+            background: 'rgba(0,212,255,0.1)',
+            border: '1px solid rgba(0,212,255,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 20px', fontSize: 26,
+          }}>🤝</div>
+
+          <h1 style={{
+            fontFamily: 'var(--font-display)', fontSize: isMobile ? 26 : 36,
+            letterSpacing: '-0.02em', color: 'var(--text-primary)',
+            marginBottom: 8,
+          }}>
+            Who referred you?
+          </h1>
+          <p style={{
+            fontFamily: 'var(--font-tagline)', fontSize: 14, fontStyle: 'italic',
+            color: 'var(--text-muted)', marginBottom: 28, lineHeight: 1.5,
+          }}>
+            If a creator sent you here, they'll unlock a discount for you.
+          </p>
+
+          {/* Dropdown trigger */}
+          <div style={{ position: 'relative', marginBottom: 20, textAlign: 'left' }}>
+            <button
+              onClick={() => setCreatorDropdownOpen(v => !v)}
+              style={{
+                width: '100%', padding: '14px 18px',
+                background: 'var(--bg-surface)',
+                border: `1.5px solid ${creatorDropdownOpen ? 'var(--accent-gold-border)' : 'var(--bg-border)'}`,
+                borderRadius: 12, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                fontFamily: 'var(--font-body)', fontSize: 15,
+                color: selectedLabel ? 'var(--text-primary)' : 'var(--text-muted)',
+                transition: 'border-color 0.2s ease',
+              }}
+            >
+              <span>{selectedLabel || 'Select a creator or None'}</span>
+              <span style={{ fontSize: 10, opacity: 0.5, transform: creatorDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+            </button>
+
+            {creatorDropdownOpen && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
+                background: 'var(--bg-surface)',
+                border: '1.5px solid var(--accent-gold-border)',
+                borderRadius: 12, zIndex: 10,
+                overflow: 'hidden',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
+              }}>
+                <div style={{ padding: '8px 8px 4px' }}>
+                  <input
+                    autoFocus
+                    type="text"
+                    value={creatorSearch}
+                    onChange={e => setCreatorSearch(e.target.value)}
+                    placeholder="Search creator..."
+                    style={{
+                      width: '100%', padding: '8px 12px',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--bg-border)',
+                      borderRadius: 8,
+                      fontFamily: 'var(--font-body)', fontSize: 13,
+                      color: 'var(--text-primary)', outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                  {filtered.map(opt => {
+                    const code = opt.creatorCode === '__none__' ? null : opt.creatorCode;
+                    const isSelected = code === selectedCreatorCode;
+                    return (
+                      <button
+                        key={opt.creatorCode}
+                        onClick={() => {
+                          setSelectedCreatorCode(code);
+                          setCreatorDropdownOpen(false);
+                          setCreatorSearch('');
+                        }}
+                        style={{
+                          width: '100%', padding: '11px 16px',
+                          background: isSelected ? 'rgba(0,212,255,0.08)' : 'transparent',
+                          border: 'none',
+                          borderLeft: isSelected ? '2px solid var(--accent-gold)' : '2px solid transparent',
+                          cursor: 'pointer', textAlign: 'left',
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          fontFamily: 'var(--font-body)', fontSize: 14,
+                          color: isSelected ? 'var(--accent-gold)' : 'var(--text-primary)',
+                        }}
+                      >
+                        <span>{opt.creatorName}</span>
+                        {opt.discountPercentage > 0 && (
+                          <span style={{
+                            fontSize: 11, fontWeight: 700,
+                            color: '#22c55e',
+                            background: 'rgba(34,197,94,0.1)',
+                            border: '1px solid rgba(34,197,94,0.2)',
+                            padding: '2px 8px', borderRadius: 100,
+                          }}>
+                            {opt.discountPercentage}% off
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                  {filtered.length === 0 && (
+                    <div style={{ padding: '16px', fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
+                      No creator found
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Discount preview */}
+          {selectedCreator && selectedCreator.discountPercentage > 0 && (
+            <div style={{
+              padding: '12px 16px', marginBottom: 20,
+              background: 'rgba(34,197,94,0.06)',
+              border: '1px solid rgba(34,197,94,0.2)',
+              borderRadius: 10,
+              fontFamily: 'var(--font-body)', fontSize: 13,
+              color: '#22c55e', textAlign: 'left',
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+              <span style={{ fontSize: 16 }}>🎉</span>
+              <span>You'll get <strong>{selectedCreator.discountPercentage}% off</strong> on paid plans via {selectedCreator.creatorName}!</span>
+            </div>
+          )}
+
+          <button
+            onClick={handleSaveCreator}
+            disabled={!canProceed || savingCreator}
+            className="btn-gold"
+            style={{
+              fontSize: 'var(--text-md)', padding: '14px 44px', width: '100%',
+              opacity: (!canProceed || savingCreator) ? 0.4 : 1,
+              cursor: (!canProceed || savingCreator) ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {savingCreator ? 'Saving…' : 'Continue →'}
+          </button>
+
+          {!canProceed && (
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)', marginTop: 12 }}>
+              Please select an option to continue
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── SCREEN 6 — Animated Glassy Pricing ────────────────────────
+  if (step === 6) return (
     <AnimatedGlassyPricing
       isMobile={isMobile}
       onSelectPlan={handlePlanSelect}
@@ -758,8 +975,8 @@ export default function OnboardingFlow() {
     />
   );
 
-  // ── SCREEN 6 — Loading / Setup ─────────────────────────────
-  if (step === 6) return (
+  // ── SCREEN 7 — Loading / Setup ─────────────────────────────
+  if (step === 7) return (
     <div style={{
       position: 'fixed', inset: 0,
       background: '#000',
@@ -880,8 +1097,8 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 7 — Vapour Text Welcome (NEW) ───────────────────
-  if (step === 7) return (
+  // ── SCREEN 8 — Vapour Text Welcome ─────────────────────────
+  if (step === 8) return (
     <div style={{
       position: 'fixed',
       inset: 0,

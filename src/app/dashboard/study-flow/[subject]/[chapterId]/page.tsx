@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import { STUDY_FLOW_DATA, SUBJECT_META } from "@/data/studyFlowData";
 import type { SubjectKey, StudyFlowQuestion } from "@/data/studyFlowData";
+import { FEATURE_FLAGS } from "@/lib/featureFlags";
 
 const PROGRESS_KEY = "study-flow-progress";
 const STEPS = ["Watch", "Revise", "Practice"] as const;
@@ -133,6 +134,19 @@ export default function ChapterFlowPage() {
   const [allRevealed, setAllRevealed] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
 
+  // YouTube discovery state (new Watch step)
+  const [ytQuery, setYtQuery] = useState("");
+  const [ytResults, setYtResults] = useState<Array<{
+    videoId: string; title: string; channelId: string;
+    channelTitle: string; thumbnail: string;
+  }>>([]);
+  const [ytLoading, setYtLoading] = useState(false);
+  const [ytError, setYtError] = useState("");
+  const [ytCreatorChannelId, setYtCreatorChannelId] = useState<string | null>(null);
+  const [ytCreatorName, setYtCreatorName] = useState<string | null>(null);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const ytFetchedRef = useRef(false);
+
   const subject = params.subject as SubjectKey;
   const chapterId = params.chapterId as string;
 
@@ -151,6 +165,44 @@ export default function ChapterFlowPage() {
   }, [progressKey]);
 
   const videoId = useMemo(() => chapter ? extractVideoId(chapter.watch.videoUrl) : "", [chapter]);
+
+  // Auto-search YouTube when entering Watch step, if feature enabled
+  useEffect(() => {
+    if (!FEATURE_FLAGS.youtubeDiscovery || !chapter || !mounted) return;
+    if (step !== 0 || ytFetchedRef.current) return;
+    const q = `${chapter.title} Class 10 ICSE`;
+    setYtQuery(q);
+    setYtLoading(true);
+    fetch(`/api/youtube-search?q=${encodeURIComponent(q)}`)
+      .then(r => r.json())
+      .then(d => {
+        setYtResults(d.videos ?? []);
+        setYtCreatorChannelId(d.creatorChannelId ?? null);
+        setYtCreatorName(d.creatorName ?? null);
+        ytFetchedRef.current = true;
+      })
+      .catch(() => setYtError("Search failed. Try again."))
+      .finally(() => setYtLoading(false));
+  }, [chapter, mounted, step]);
+
+  async function searchYouTube(q: string) {
+    if (!q.trim()) return;
+    setYtLoading(true);
+    setYtError("");
+    setActiveVideoId(null);
+    try {
+      const res = await fetch(`/api/youtube-search?q=${encodeURIComponent(q)}`);
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error);
+      setYtResults(d.videos ?? []);
+      setYtCreatorChannelId(d.creatorChannelId ?? null);
+      setYtCreatorName(d.creatorName ?? null);
+    } catch (e: any) {
+      setYtError(e.message || "Search failed");
+    } finally {
+      setYtLoading(false);
+    }
+  }
 
   if (!mounted) return (
     <div style={{
@@ -332,7 +384,7 @@ export default function ChapterFlowPage() {
       {/* Step content */}
       <div style={{ padding: pad, maxWidth: 800, margin: "0 auto" }}>
 
-        {/* ── STEP 1: WATCH ── */}
+        {/* ── STEP 1: WATCH (YouTube Discovery) ── */}
         {step === 0 && (
           <div style={{ animation: "sfSlideUp 0.4s ease-out both" }}>
             <div style={{
@@ -343,27 +395,183 @@ export default function ChapterFlowPage() {
 
             <div style={{
               fontFamily: "var(--font-display)", fontSize: isMobile ? 20 : 26,
-              color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 20,
-            }}>{chapter.watch.title}</div>
+              color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 16,
+            }}>{chapter.title}</div>
 
-            {/* YouTube embed */}
-            <div style={{
-              position: "relative", paddingBottom: "56.25%", height: 0,
-              borderRadius: 14, overflow: "hidden",
-              border: "1.5px solid var(--bg-border)",
-              marginBottom: 24,
-            }}>
-              <iframe
-                src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
-                title={chapter.watch.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={{
-                  position: "absolute", top: 0, left: 0,
-                  width: "100%", height: "100%", border: "none",
-                }}
-              />
-            </div>
+            {FEATURE_FLAGS.youtubeDiscovery ? (
+              <>
+                {/* Active player */}
+                {activeVideoId && (
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{
+                      position: "relative", paddingBottom: "56.25%", height: 0,
+                      borderRadius: 14, overflow: "hidden",
+                      border: "1.5px solid var(--accent-gold-border)",
+                      boxShadow: "0 0 32px rgba(0,212,255,0.15)",
+                    }}>
+                      <iframe
+                        key={activeVideoId}
+                        src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1`}
+                        title="Lecture"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }}
+                      />
+                    </div>
+                    <button
+                      onClick={() => setActiveVideoId(null)}
+                      style={{
+                        fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)",
+                        background: "none", border: "none", cursor: "pointer", marginTop: 10,
+                        padding: 0, letterSpacing: "0.02em",
+                      }}
+                    >✕ Close player</button>
+                  </div>
+                )}
+
+                {/* Search bar */}
+                <div style={{
+                  display: "flex", gap: 8, marginBottom: 16,
+                }}>
+                  <input
+                    value={ytQuery}
+                    onChange={e => setYtQuery(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") searchYouTube(ytQuery); }}
+                    placeholder="Search a different angle…"
+                    style={{
+                      flex: 1, padding: "10px 14px",
+                      background: "var(--bg-surface)",
+                      border: "1.5px solid var(--bg-border)",
+                      borderRadius: 10,
+                      fontFamily: "var(--font-body)", fontSize: 13,
+                      color: "var(--text-primary)", outline: "none",
+                    }}
+                    onFocus={e => e.currentTarget.style.borderColor = "var(--accent-gold-border)"}
+                    onBlur={e => e.currentTarget.style.borderColor = "var(--bg-border)"}
+                  />
+                  <button
+                    onClick={() => searchYouTube(ytQuery)}
+                    disabled={ytLoading}
+                    style={{
+                      padding: "10px 16px",
+                      background: "var(--accent-gold-glow)",
+                      border: "1px solid var(--accent-gold-border)",
+                      borderRadius: 10, cursor: ytLoading ? "wait" : "pointer",
+                      fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600,
+                      color: "var(--accent-gold)", transition: "all 0.15s ease",
+                    }}
+                  >{ytLoading ? "…" : "Search"}</button>
+                </div>
+
+                {ytError && (
+                  <div style={{
+                    padding: "10px 14px", marginBottom: 12,
+                    background: "rgba(248,113,113,0.08)",
+                    border: "1px solid rgba(248,113,113,0.2)",
+                    borderRadius: 10, fontFamily: "var(--font-body)", fontSize: 12,
+                    color: "#f87171",
+                  }}>{ytError}</div>
+                )}
+
+                {ytLoading && ytResults.length === 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} style={{
+                        height: 72, borderRadius: 12,
+                        background: "var(--bg-surface)",
+                        border: "1px solid var(--bg-border)",
+                        animation: "sfSlideUp 0.4s ease-out both",
+                        opacity: 0.5,
+                      }} />
+                    ))}
+                  </div>
+                )}
+
+                {ytResults.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                    {/* Sort: creator-boosted first */}
+                    {[
+                      ...ytResults.filter(v => ytCreatorChannelId && v.channelId === ytCreatorChannelId),
+                      ...ytResults.filter(v => !ytCreatorChannelId || v.channelId !== ytCreatorChannelId),
+                    ].map(video => {
+                      const isBoosted = !!(ytCreatorChannelId && video.channelId === ytCreatorChannelId);
+                      const isPlaying = activeVideoId === video.videoId;
+                      return (
+                        <button
+                          key={video.videoId}
+                          onClick={() => setActiveVideoId(isPlaying ? null : video.videoId)}
+                          style={{
+                            display: "flex", gap: 12, alignItems: "center",
+                            padding: "12px 14px",
+                            background: isPlaying ? "rgba(0,212,255,0.06)" : "var(--bg-surface)",
+                            border: `1.5px solid ${isPlaying ? "var(--accent-gold-border)" : isBoosted ? "rgba(34,197,94,0.25)" : "var(--bg-border)"}`,
+                            borderRadius: 12, cursor: "pointer", textAlign: "left",
+                            transition: "all 0.15s ease", width: "100%",
+                          }}
+                        >
+                          {/* Thumbnail */}
+                          <div style={{
+                            width: isMobile ? 80 : 96, minWidth: isMobile ? 80 : 96,
+                            height: isMobile ? 50 : 58, borderRadius: 8, overflow: "hidden",
+                            background: "var(--bg-border)", flexShrink: 0, position: "relative",
+                          }}>
+                            <img src={video.thumbnail} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                            {isPlaying && (
+                              <div style={{
+                                position: "absolute", inset: 0,
+                                background: "rgba(0,212,255,0.4)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                              }}>
+                                <span style={{ fontSize: 18, color: "#fff" }}>▶</span>
+                              </div>
+                            )}
+                          </div>
+                          {/* Info */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            {isBoosted && (
+                              <div style={{
+                                fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700,
+                                color: "#22c55e", letterSpacing: "0.08em", textTransform: "uppercase",
+                                marginBottom: 4,
+                              }}>
+                                ★ Recommended by {ytCreatorName}
+                              </div>
+                            )}
+                            <div style={{
+                              fontFamily: "var(--font-body)", fontSize: isMobile ? 12 : 13,
+                              fontWeight: 500, color: isPlaying ? "var(--accent-gold)" : "var(--text-primary)",
+                              lineHeight: 1.4, marginBottom: 4,
+                              overflow: "hidden", textOverflow: "ellipsis",
+                              display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const,
+                            }}>
+                              {video.title}
+                            </div>
+                            <div style={{
+                              fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)",
+                            }}>{video.channelTitle}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Fallback: original static embed */
+              <div style={{
+                position: "relative", paddingBottom: "56.25%", height: 0,
+                borderRadius: 14, overflow: "hidden",
+                border: "1.5px solid var(--bg-border)", marginBottom: 24,
+              }}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                  title={chapter.watch.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }}
+                />
+              </div>
+            )}
 
             <button
               onClick={() => goToStep(1)}
@@ -373,6 +581,7 @@ export default function ChapterFlowPage() {
                 color: "#0A0A0F", background: "var(--accent-gold)",
                 border: "none", borderRadius: 12, cursor: "pointer",
                 letterSpacing: "0.02em", transition: "all 0.2s ease",
+                marginTop: FEATURE_FLAGS.youtubeDiscovery ? 0 : 24,
               }}
             >I&apos;ve watched this → Next: Revise</button>
           </div>

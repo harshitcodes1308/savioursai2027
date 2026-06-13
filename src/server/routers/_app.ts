@@ -10,11 +10,8 @@ import { strategyRouter } from "./strategy";
 import { focusRouter } from "./focus";
 import { precisionRouter } from "./precision";
 import { flipRouter } from "./flip";
+import { creatorRouter } from "./creator";
 
-/**
- * Main tRPC router
- * Import and merge all sub-routers here
- */
 export const appRouter = createTRPCRouter({
     auth: authRouter,
     dashboard: dashboardRouter,
@@ -27,6 +24,7 @@ export const appRouter = createTRPCRouter({
     focus: focusRouter,
     precision: precisionRouter,
     flip: flipRouter,
+    creator: creatorRouter,
 });
 
 export type AppRouter = typeof appRouter;

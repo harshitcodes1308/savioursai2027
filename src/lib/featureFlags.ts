@@ -1,15 +1,16 @@
 export const FEATURE_FLAGS = {
   // Currently live
-  studyFlow:       true,
-  webinar:         true,
-  videoLectures:   true,
-  aiDoubtSolver:   true,
-  smartPlanner:    true,
-  competencyTest:  true,
-  customiseTest:   true,
-  flipTheQuestion: true,
-  focusMode:       true,
-  todoList:        true,
+  studyFlow:         true,
+  webinar:           true,
+  videoLectures:     true,
+  aiDoubtSolver:     true,
+  smartPlanner:      true,
+  competencyTest:    true,
+  customiseTest:     true,
+  flipTheQuestion:   true,
+  focusMode:         true,
+  todoList:          true,
+  youtubeDiscovery:  true,   // YouTube-powered Watch step in study flow
 
   // Hidden — activate later by flipping to true
   numericalMastery:  true,

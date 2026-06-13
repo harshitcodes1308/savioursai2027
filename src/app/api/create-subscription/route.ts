@@ -8,11 +8,10 @@ import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
  * POST /api/create-subscription
  *
  * Creates a Razorpay Subscription for the ₹199/month Monthly plan.
- * The subscription is configured in the Razorpay dashboard
- * (RAZORPAY_MONTHLY_PLAN_ID env var) — billed for RAZORPAY_MONTHLY_TOTAL_COUNT cycles.
- *
- * Returns the subscription_id, which the frontend passes to the Razorpay
- * checkout SDK (instead of an order_id) to start the recurring flow.
+ * Creator discounts use per-creator plan IDs configured in env:
+ *   RAZORPAY_MONTHLY_PLAN_ID            — default (₹199)
+ *   RAZORPAY_MONTHLY_PLAN_ID_{CODE}     — discounted plan for creator code (uppercase)
+ *   e.g. RAZORPAY_MONTHLY_PLAN_ID_BL2047, RAZORPAY_MONTHLY_PLAN_ID_CK2047
  */
 export async function POST() {
     try {
@@ -21,16 +20,11 @@ export async function POST() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Rate limit subscription attempts per user
         const rateCheck = checkRateLimit(`subscription:${user.id}`, PAYMENT_RATE_LIMIT);
         if (!rateCheck.allowed) {
-            return NextResponse.json(
-                { error: "Too many attempts. Please try again later." },
-                { status: 429 }
-            );
+            return NextResponse.json({ error: "Too many attempts. Please try again later." }, { status: 429 });
         }
 
-        // Idempotency: don't let already-paid users buy again
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
             select: {
@@ -39,6 +33,7 @@ export async function POST() {
                 planType: true,
                 subscriptionStatus: true,
                 razorpaySubscriptionId: true,
+                creatorCode: true,
             },
         });
 
@@ -48,13 +43,12 @@ export async function POST() {
 
         const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
         const isGrandfathered = dbUser.createdAt < CUTOFF_DATE;
-        const alreadyActive = dbUser.isPaid && dbUser.subscriptionStatus === "ACTIVE" &&
+        const alreadyActive =
+            dbUser.isPaid &&
+            dbUser.subscriptionStatus === "ACTIVE" &&
             (dbUser.planType === "MONTHLY" || dbUser.planType === "YEARLY");
         if (isGrandfathered || alreadyActive) {
-            return NextResponse.json(
-                { error: "You already have an active plan" },
-                { status: 409 }
-            );
+            return NextResponse.json({ error: "You already have an active plan" }, { status: 409 });
         }
 
         if (
@@ -62,16 +56,33 @@ export async function POST() {
             (dbUser.planType === "MONTHLY" || dbUser.planType === "YEARLY") &&
             dbUser.subscriptionStatus === "ACTIVE"
         ) {
-            return NextResponse.json(
-                { error: "You already have an active subscription" },
-                { status: 409 }
-            );
+            return NextResponse.json({ error: "You already have an active subscription" }, { status: 409 });
         }
 
-        // Validate env vars
         const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
         const keySecret = process.env.RAZORPAY_KEY_SECRET;
-        const planId = process.env.RAZORPAY_MONTHLY_PLAN_ID;
+
+        // Resolve plan ID — creator-specific discounted plan if configured, else default
+        let planId = process.env.RAZORPAY_MONTHLY_PLAN_ID;
+        let discountPct = 0;
+        let creatorName: string | null = null;
+
+        if (dbUser.creatorCode) {
+            const envKey = `RAZORPAY_MONTHLY_PLAN_ID_${dbUser.creatorCode.toUpperCase().replace(/[^A-Z0-9]/g, "")}`;
+            const creatorPlanId = process.env[envKey];
+            if (creatorPlanId) {
+                planId = creatorPlanId;
+            }
+            const creator = await prisma.creator.findUnique({
+                where: { creatorCode: dbUser.creatorCode },
+                select: { discountPercentage: true, creatorName: true },
+            });
+            if (creator) {
+                discountPct = creator.discountPercentage;
+                creatorName = creator.creatorName;
+            }
+        }
+
         const totalCount = parseInt(process.env.RAZORPAY_MONTHLY_TOTAL_COUNT || "11", 10);
 
         if (!keyId || !keySecret) {
@@ -93,10 +104,15 @@ export async function POST() {
                 userId: user.id,
                 userEmail: user.email,
                 planType: "MONTHLY",
+                ...(dbUser.creatorCode ? { creatorCode: dbUser.creatorCode } : {}),
             },
         });
 
-        return NextResponse.json({ success: true, subscription });
+        return NextResponse.json({
+            success: true,
+            subscription,
+            discount: discountPct > 0 ? { percentage: discountPct, creatorName } : null,
+        });
     } catch (error: any) {
         console.error("Razorpay Subscription Error:", error?.error || error);
         return NextResponse.json(

@@ -82,22 +82,23 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // 5. Root redirect
+    // 5. Root — serve the public landing page to logged-out visitors.
+    //    Authenticated users are redirected away server-side (no flash of landing).
     if (pathname === '/') {
-        // If authenticated and onboarded → dashboard
-        // Otherwise → login (including un-onboarded users — don't trap them)
+        // Authenticated + onboarded → dashboard
         if (isAuthenticated && onboardingComplete) {
             const res = NextResponse.redirect(new URL('/dashboard', request.url));
             res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
             return res;
         }
-        // Clear stale un-onboarded cookie so they land on a clean login page
-        const res = NextResponse.redirect(new URL('/login', request.url));
-        res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        // Authenticated but onboarding incomplete → onboarding
         if (isAuthenticated && !onboardingComplete) {
-            res.cookies.delete('auth-token');
+            const res = NextResponse.redirect(new URL('/onboarding', request.url));
+            res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+            return res;
         }
-        return res;
+        // Logged-out → fall through and render the landing page at /
+        return NextResponse.next();
     }
 
     // 6. Auth routes → dashboard if already logged in (and onboarded)

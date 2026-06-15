@@ -1,22 +1,35 @@
-"use client";
+import type { Metadata } from "next";
+import LandingPage from "./LandingPage";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+export const metadata: Metadata = {
+  title: "Saviours AI — Your AI-powered academic OS for ICSE success",
+  description:
+    "Nine AI-powered tools built end to end for the ICSE Class 10 syllabus. Doubt solver, smart planner, PYQ tests, focus mode and more. Start free.",
+  openGraph: {
+    title: "Saviours AI — Your AI-powered academic OS for ICSE success",
+    description:
+      "Nine AI-powered tools built end to end for the ICSE Class 10 syllabus. Start free.",
+    url: "https://saviours.pro",
+    siteName: "Saviours AI",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Saviours AI — Your AI-powered academic OS for ICSE success",
+    description:
+      "Nine AI-powered tools built end to end for the ICSE Class 10 syllabus. Start free.",
+  },
+};
 
+/**
+ * Public landing page at `/`.
+ *
+ * The middleware redirects authenticated users away before this renders:
+ *   - onboarded   → /dashboard
+ *   - mid-onboard → /onboarding
+ * So this only ever reaches logged-out visitors. No client-side redirect,
+ * no flash of landing for returning users.
+ */
 export default function HomePage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to login page
-    router.push("/login");
-  }, [router]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary-400 to-primary-600">
-      <div className="text-center">
-        <div className="animate-pulse text-6xl mb-4">✨</div>
-        <h1 className="text-4xl font-bold text-dark">Loading...</h1>
-      </div>
-    </div>
-  );
+  return <LandingPage />;
 }

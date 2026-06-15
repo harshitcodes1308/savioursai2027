@@ -25,6 +25,7 @@ type Pixel = {
   isIdle: boolean;
   isReverse: boolean;
   isShimmer: boolean;
+  canShimmer: boolean;
   draw: () => void;
   appear: () => void;
   shimmer: () => void;
@@ -37,7 +38,8 @@ function createPixel(
   y: number,
   color: string,
   baseSpeed: number,
-  delay: number
+  delay: number,
+  canShimmer: boolean
 ): Pixel {
   const rand = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -55,6 +57,7 @@ function createPixel(
     isIdle: false,
     isReverse: false,
     isShimmer: false,
+    canShimmer,
     draw() {
       const offset = p.maxSizeInt * 0.5 - p.size * 0.5;
       ctx.fillStyle = p.color;
@@ -66,7 +69,11 @@ function createPixel(
         p.counter += p.counterStep;
         return;
       }
-      if (p.size >= p.maxSize) p.isShimmer = true;
+      // Base pixels grow then hold static; only accent pixels shimmer
+      if (p.size >= p.maxSize) {
+        if (p.canShimmer) p.isShimmer = true;
+        else { p.size = p.maxSize; p.draw(); return; }
+      }
       if (p.isShimmer) p.shimmer();
       else p.size += p.sizeStep;
       p.draw();
@@ -130,11 +137,12 @@ export default function PixelCanvas({
 
     for (let x = 0; x < w; x += gap) {
       for (let y = 0; y < h; y += gap) {
-        const color = Math.random() < accentRatio ? accentColor : baseColor;
+        const isAccent = Math.random() < accentRatio;
+        const color = isAccent ? accentColor : baseColor;
         const dx = x - w / 2;
         const dy = y - h / 2;
         const delay = reducedRef.current ? 0 : Math.sqrt(dx * dx + dy * dy) * 0.55;
-        pixels.push(createPixel(ctx, canvas, x, y, color, effectiveSpeed, delay));
+        pixels.push(createPixel(ctx, canvas, x, y, color, effectiveSpeed, delay, isAccent));
       }
     }
     pixelsRef.current = pixels;

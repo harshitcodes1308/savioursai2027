@@ -11,18 +11,26 @@ const META = [
   { label: "Tools", value: "Nine, end to end" },
 ];
 
+const SUBLINES = [
+  "Nine AI tools, built end to end",
+  "for the ICSE Class 10 syllabus.",
+  "Every great board result starts with one decision.",
+];
+
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const diamondRef = useRef<SVGSVGElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const subRef = useRef<HTMLDivElement>(null);
+  const sublineRefs = useRef<(HTMLDivElement | null)[]>([]);
   const metaRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const reduced = prefersReducedMotion();
-    const targets = [eyebrowRef.current, headlineRef.current, subRef.current, metaRef.current, ctaRef.current];
+    const sublines = sublineRefs.current.filter(Boolean) as HTMLDivElement[];
+    const targets = [eyebrowRef.current, headlineRef.current, ...sublines, metaRef.current, ctaRef.current];
 
     if (reduced) {
       targets.forEach((el) => { if (el) { el.style.opacity = "1"; el.style.transform = "none"; } });
@@ -39,11 +47,19 @@ export default function Hero() {
         gsap.to(paths, { strokeDashoffset: 0, duration: 1.3, ease: "power2.inOut", stagger: 0.18 });
       }
 
-      gsap.timeline({ delay: 0.3 })
+      gsap.timeline({ delay: 0.4 })
         .from(eyebrowRef.current, { opacity: 0, y: 14, duration: 0.6, ease: "power3.out" })
         .from(headlineRef.current, { opacity: 0, y: 40, scale: 0.96, duration: 1.1, ease: "power4.out" }, "-=0.2")
-        .from(subRef.current, { opacity: 0, y: 22, duration: 0.8, ease: "power3.out" }, "-=0.5")
-        .from(metaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.5")
+        // sub-lines reveal one by one, like harshitsingh.me
+        .from(sublines, {
+          opacity: 0,
+          y: 18,
+          filter: "blur(6px)",
+          duration: 0.7,
+          ease: "power3.out",
+          stagger: 0.22,
+        }, "-=0.35")
+        .from(metaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.2")
         .from(ctaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.5");
     }, sectionRef);
 
@@ -67,12 +83,12 @@ export default function Hero() {
         isolation: "isolate",
       }}
     >
-      {/* Pixel ripple canvas backdrop */}
+      {/* Pixel ripple canvas backdrop — grains settle into static blue */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <PixelCanvas
-          baseColor="rgba(120, 120, 145, 0.45)"
+          baseColor="rgba(30, 84, 122, 0.5)"
           accentColor="#00D4FF"
-          accentRatio={0.13}
+          accentRatio={0.22}
           gap={6}
           speed={30}
         />
@@ -100,7 +116,7 @@ export default function Hero() {
           <span className="sa-eyebrow">Saviours AI · ICSE Prep, Reimagined</span>
         </div>
 
-        {/* Glass-shimmer headline: ScotchDisplay italic + display sans */}
+        {/* Glass-shimmer headline */}
         <h1
           ref={headlineRef}
           className="sa-glass-text"
@@ -111,32 +127,47 @@ export default function Hero() {
             justifyContent: "center",
             gap: "0.18em",
             margin: "0 0 26px",
-            fontSize: "clamp(46px, 11vw, 132px)",
+            fontSize: "clamp(52px, 13vw, 156px)",
             lineHeight: 0.95,
           }}
         >
           <span style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontWeight: 500 }}>
-            Preparation,
+            Saviours
           </span>
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, letterSpacing: "-0.04em" }}>
-            Perfected.
+            AI
           </span>
         </h1>
 
-        {/* Sub line */}
+        {/* Sub lines — reveal one by one, in clean white, for impact */}
         <div
           ref={subRef}
           style={{
-            fontFamily: "var(--font-tagline)",
-            fontStyle: "italic",
-            fontSize: "clamp(17px, 2.6vw, 26px)",
-            color: "var(--text-secondary)",
-            maxWidth: 580,
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            maxWidth: 640,
             margin: "0 auto 44px",
-            lineHeight: 1.45,
           }}
         >
-          Nine AI tools, built end to end for the ICSE Class 10 syllabus. Every great board result starts with one decision.
+          {SUBLINES.map((line, i) => (
+            <div
+              key={i}
+              ref={(el) => { sublineRefs.current[i] = el; }}
+              style={{
+                fontFamily: i === SUBLINES.length - 1 ? "var(--font-tagline)" : "var(--font-body)",
+                fontStyle: i === SUBLINES.length - 1 ? "italic" : "normal",
+                fontSize: i === SUBLINES.length - 1 ? "clamp(17px, 2.6vw, 24px)" : "clamp(15px, 2.2vw, 19px)",
+                fontWeight: i === SUBLINES.length - 1 ? 400 : 300,
+                color: i === SUBLINES.length - 1 ? "var(--accent-gold)" : "#FFFFFF",
+                lineHeight: 1.5,
+                letterSpacing: i === SUBLINES.length - 1 ? "0.01em" : "0",
+                marginTop: i === SUBLINES.length - 1 ? 10 : 0,
+              }}
+            >
+              {line}
+            </div>
+          ))}
         </div>
 
         {/* Metadata row */}

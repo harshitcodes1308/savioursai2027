@@ -448,20 +448,26 @@ interface AnimatedGlassyPricingProps {
   isMobile: boolean;
   onSelectPlan: (plan: 'FREE' | 'MONTHLY' | 'YEARLY' | 'DOMIN8', domin8Code?: string) => void;
   userName?: string;
+  // Optional: pass creator discount directly (avoids DB lag in onboarding flow)
+  creatorDiscount?: { discountPercentage: number; creatorName: string } | null;
 }
 
 export default function AnimatedGlassyPricing({
   isMobile,
   onSelectPlan,
   userName,
+  creatorDiscount,
 }: AnimatedGlassyPricingProps) {
   const [showDomin8Modal, setShowDomin8Modal] = useState(false);
   const [domin8Code, setDomin8Code] = useState('');
-  const { data: discount } = trpc.creator.getMyDiscount.useQuery();
+  // Fall back to DB query if no prop passed (used on /pricing standalone page)
+  const { data: dbDiscount } = trpc.creator.getMyDiscount.useQuery(undefined, {
+    enabled: creatorDiscount === undefined,
+  });
 
-  // Compute discounted prices if creator discount exists
-  const discountPct = discount?.discountPercentage ?? 0;
-  const creatorName = discount?.creatorName ?? undefined;
+  const activeDiscount = creatorDiscount !== undefined ? creatorDiscount : dbDiscount;
+  const discountPct = activeDiscount?.discountPercentage ?? 0;
+  const creatorName = activeDiscount?.creatorName ?? undefined;
   const monthlyDiscounted = discountPct > 0 ? String(Math.round(199 * (1 - discountPct / 100))) : undefined;
   const yearlyDiscounted = discountPct > 0 ? String(Math.round(599 * (1 - discountPct / 100))) : undefined;
   const [domin8Error, setDomin8Error] = useState('');
@@ -565,52 +571,6 @@ export default function AnimatedGlassyPricing({
               />
             </div>
           ))}
-        </div>
-
-        {/* Domin8 Pro CTA */}
-        <div
-          onClick={() => { setShowDomin8Modal(true); setDomin8Code(''); setDomin8Error(''); }}
-          style={{
-            textAlign: 'center',
-            marginBottom: '20px',
-            padding: isMobile ? '16px 20px' : '18px 28px',
-            background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(139,92,246,0.06))',
-            border: '1.5px solid rgba(0,212,255,0.18)',
-            borderRadius: '14px',
-            cursor: 'pointer',
-            transition: 'all 300ms ease',
-            maxWidth: '480px',
-            margin: '0 auto 20px',
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.borderColor = 'var(--accent-gold-border)';
-            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.1), rgba(139,92,246,0.1))';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.borderColor = 'rgba(0,212,255,0.18)';
-            e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(139,92,246,0.06))';
-          }}
-        >
-          <div
-            style={{
-              fontFamily: 'ScotchDisplay, serif',
-              fontSize: isMobile ? '16px' : '18px',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              marginBottom: '4px',
-            }}
-          >
-            Student from <span style={{ color: 'var(--accent-gold)' }}>Domin8 Pro</span>?
-          </div>
-          <div
-            style={{
-              fontFamily: 'Helvetica Neue, sans-serif',
-              fontSize: isMobile ? '13px' : '14px',
-              color: 'var(--text-muted)',
-            }}
-          >
-            Tap here to activate your free access
-          </div>
         </div>
 
         {/* Footer */}

@@ -841,7 +841,7 @@ export default function OnboardingFlow() {
           <input
             type="text"
             value={creatorSearch}
-            onChange={e => setCreatorSearch(e.target.value.toLowerCase().replace(/\s/g, ''))}
+            onChange={e => setCreatorSearch(e.target.value.replace(/\s/g, ''))}
             placeholder="Enter creator code (e.g. bl2047)"
             autoFocus
             style={{
@@ -945,13 +945,23 @@ export default function OnboardingFlow() {
   }
 
   // ── SCREEN 6 — Animated Glassy Pricing ────────────────────────
-  if (step === 6) return (
-    <AnimatedGlassyPricing
-      isMobile={isMobile}
-      onSelectPlan={handlePlanSelect}
-      userName={nameInput || userName}
-    />
-  );
+  if (step === 6) {
+    // Build discount from the creator selected in step 5 (avoids DB round-trip lag)
+    const selectedCreator = selectedCreatorCode
+      ? creators.find(c => c.creatorCode.toLowerCase() === selectedCreatorCode.toLowerCase())
+      : null;
+    const creatorDiscount = selectedCreator
+      ? { discountPercentage: selectedCreator.discountPercentage, creatorName: selectedCreator.creatorName }
+      : null;
+    return (
+      <AnimatedGlassyPricing
+        isMobile={isMobile}
+        onSelectPlan={handlePlanSelect}
+        userName={nameInput || userName}
+        creatorDiscount={creatorDiscount}
+      />
+    );
+  }
 
   // ── SCREEN 7 — Loading / Setup ─────────────────────────────
   if (step === 7) return (

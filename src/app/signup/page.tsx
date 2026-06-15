@@ -65,7 +65,6 @@ export default function SignupPage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -109,10 +108,10 @@ export default function SignupPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!name || !email || !password || !phone) { setError("Please fill in all fields"); return; }
+    if (!name || !email || !password) { setError("Please fill in all fields"); return; }
     if (password !== confirmPassword) { setError("Passwords do not match"); return; }
     if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
-    signupMutation.mutate({ name, email, password, phone, role: "STUDENT" });
+    signupMutation.mutate({ name, email, password, phone: "", role: "STUDENT" });
   };
 
   const handleGoogleSignup = () => {
@@ -309,7 +308,6 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 13 }}>
             <SignupField label="Full Name" field="name" value={name} onChange={setName} placeholder="Your full name" focused={focused} setFocused={setFocused} />
             <SignupField label="Email" field="email" type="email" value={email} onChange={setEmail} placeholder="your@email.com" focused={focused} setFocused={setFocused} />
-            <SignupField label="Phone" field="phone" type="tel" value={phone} onChange={setPhone} placeholder="10-digit mobile number" focused={focused} setFocused={setFocused} />
 
             <div>
               <label style={{

@@ -201,11 +201,11 @@ export default function CustomiseTestPage() {
                             Number of Questions:
                         </label>
                         <input
-                            type="number"
-                            value={totalQuestions}
-                            onChange={(e) => setTotalQuestions(parseInt(e.target.value) || 10)}
-                            min="5"
-                            max="50"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={totalQuestions || ""}
+                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setTotalQuestions(isNaN(v) ? 0 : v); }}
                             style={{
                                 ...typography.text,
                                 width: '100%',
@@ -254,11 +254,11 @@ export default function CustomiseTestPage() {
                             Duration (minutes):
                         </label>
                         <input
-                            type="number"
-                            value={duration}
-                            onChange={(e) => setDuration(parseInt(e.target.value) || 10)}
-                            min="5"
-                            max="120"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={duration || ""}
+                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setDuration(isNaN(v) ? 0 : v); }}
                             style={{
                                 ...typography.text,
                                 width: '100%',

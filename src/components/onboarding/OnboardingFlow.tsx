@@ -842,8 +842,12 @@ export default function OnboardingFlow() {
             type="text"
             value={creatorSearch}
             onChange={e => setCreatorSearch(e.target.value.replace(/\s/g, ''))}
-            placeholder="Enter creator code (e.g. bl2047)"
+            placeholder="Enter creator code (e.g. BL2047)"
             autoFocus
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             style={{
               width: '100%',
               padding: '16px 20px',
@@ -860,7 +864,7 @@ export default function OnboardingFlow() {
               textAlign: 'center',
               outline: 'none',
               letterSpacing: '0.06em',
-              textTransform: 'lowercase',
+              textTransform: 'none',
               transition: 'border-color 0.2s ease',
               boxSizing: 'border-box',
               marginBottom: 12,

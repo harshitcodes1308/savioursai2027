@@ -17,7 +17,7 @@ const EMPTY_FORM = {
   creatorName: "",
   creatorCode: "",
   channelId: "",
-  discountPercentage: 20,
+  discountPercentage: "20",
 };
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
@@ -62,7 +62,7 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
       creatorName: c.creatorName,
       creatorCode: c.creatorCode,
       channelId: c.channelId ?? "",
-      discountPercentage: c.discountPercentage,
+      discountPercentage: String(c.discountPercentage),
     });
     setEditingId(c.id);
     setError("");
@@ -83,7 +83,8 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
     if (!name) { setError("Creator name is required."); return; }
     if (!code) { setError("Creator code is required."); return; }
     if (!/^[a-zA-Z0-9]+$/.test(code)) { setError("Creator code must be letters and numbers only (no spaces/symbols)."); return; }
-    if (form.discountPercentage < 1 || form.discountPercentage > 100) { setError("Discount must be between 1 and 100."); return; }
+    const discPct = Number(form.discountPercentage);
+    if (!form.discountPercentage || isNaN(discPct) || discPct < 1 || discPct > 100) { setError("Discount must be between 1 and 100."); return; }
 
     const token = localStorage.getItem("admin-token") ?? "";
     setSaving(true);
@@ -377,11 +378,15 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
                 <div style={{ position: "relative" }}>
                   <input
                     style={{ ...inp, paddingRight: 36 }}
-                    type="number"
-                    min={1} max={100}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="e.g. 20"
                     value={form.discountPercentage}
-                    onChange={e => setForm(f => ({ ...f, discountPercentage: Number(e.target.value) }))}
+                    onChange={e => {
+                      const v = e.target.value.replace(/[^0-9]/g, '');
+                      setForm(f => ({ ...f, discountPercentage: v }));
+                    }}
                     onFocus={e => e.currentTarget.style.borderColor = "var(--accent-gold-border)"}
                     onBlur={e => e.currentTarget.style.borderColor = "var(--bg-border)"}
                   />
@@ -391,11 +396,11 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
                   }}>%</span>
                 </div>
                 {/* Preview */}
-                {form.discountPercentage >= 1 && form.discountPercentage <= 100 && (
+                {(() => { const p = Number(form.discountPercentage); return p >= 1 && p <= 100 ? (
                   <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#22c55e", marginTop: 6 }}>
-                    Monthly: ₹199 → ₹{Math.round(199 * (1 - form.discountPercentage / 100))} &nbsp;·&nbsp; Yearly: ₹599 → ₹{Math.round(599 * (1 - form.discountPercentage / 100))}
+                    Monthly: ₹199 → ₹{Math.round(199 * (1 - p / 100))} &nbsp;·&nbsp; Yearly: ₹599 → ₹{Math.round(599 * (1 - p / 100))}
                   </div>
-                )}
+                ) : null; })()}
               </div>
 
               {/* Channel ID */}

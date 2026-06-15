@@ -324,12 +324,12 @@ export default function FocusPage() {
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '16px' }}>
                         <label style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Focus Block (minutes)</label>
-                        <input type="number" value={customFocus} onChange={(e) => setCustomFocus(parseInt(e.target.value) || 25)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--bg-border)', backgroundColor: 'var(--bg-base)', color: '#FFF', fontSize: '16px' }} />
+                        <input type="text" inputMode="numeric" pattern="[0-9]*" value={customFocus || ""} onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setCustomFocus(isNaN(v) ? 0 : v); }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--bg-border)', backgroundColor: 'var(--bg-base)', color: '#FFF', fontSize: '16px' }} />
                     </div>
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '24px' }}>
                         <label style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Break (minutes)</label>
-                        <input type="number" value={customBreak} onChange={(e) => setCustomBreak(parseInt(e.target.value) || 5)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--bg-border)', backgroundColor: 'var(--bg-base)', color: '#FFF', fontSize: '16px' }} />
+                        <input type="text" inputMode="numeric" pattern="[0-9]*" value={customBreak || ""} onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setCustomBreak(isNaN(v) ? 0 : v); }} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--bg-border)', backgroundColor: 'var(--bg-base)', color: '#FFF', fontSize: '16px' }} />
                     </div>
                     
                     <div style={{ display: 'flex', gap: '12px' }}>

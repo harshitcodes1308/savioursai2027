@@ -33,7 +33,6 @@ export async function POST() {
                 planType: true,
                 subscriptionStatus: true,
                 razorpaySubscriptionId: true,
-                creatorCode: true,
             },
         });
 
@@ -62,26 +61,8 @@ export async function POST() {
         const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
         const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-        // Resolve plan ID — creator-specific discounted plan if configured, else default
+        // Use default plan — creator discounts apply to yearly only, not monthly
         let planId = process.env.RAZORPAY_MONTHLY_PLAN_ID;
-        let discountPct = 0;
-        let creatorName: string | null = null;
-
-        if (dbUser.creatorCode) {
-            const envKey = `RAZORPAY_MONTHLY_PLAN_ID_${dbUser.creatorCode.toUpperCase().replace(/[^A-Z0-9]/g, "")}`;
-            const creatorPlanId = process.env[envKey];
-            if (creatorPlanId) {
-                planId = creatorPlanId;
-            }
-            const creator = await prisma.creator.findUnique({
-                where: { creatorCode: dbUser.creatorCode },
-                select: { discountPercentage: true, creatorName: true },
-            });
-            if (creator) {
-                discountPct = creator.discountPercentage;
-                creatorName = creator.creatorName;
-            }
-        }
 
         const totalCount = parseInt(process.env.RAZORPAY_MONTHLY_TOTAL_COUNT || "11", 10);
 
@@ -104,14 +85,12 @@ export async function POST() {
                 userId: user.id,
                 userEmail: user.email,
                 planType: "MONTHLY",
-                ...(dbUser.creatorCode ? { creatorCode: dbUser.creatorCode } : {}),
             },
         });
 
         return NextResponse.json({
             success: true,
             subscription,
-            discount: discountPct > 0 ? { percentage: discountPct, creatorName } : null,
         });
     } catch (error: any) {
         console.error("Razorpay Subscription Error:", error?.error || error);

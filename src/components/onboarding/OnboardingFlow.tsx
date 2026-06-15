@@ -182,17 +182,15 @@ export default function OnboardingFlow() {
     window.location.href = '/dashboard';
   }
 
-  async function handleSaveCreator() {
-    setSavingCreator(true);
-    try {
-      await fetch('/api/auth/save-creator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ creatorCode: selectedCreatorCode }),
-      });
-    } catch {}
-    setSavingCreator(false);
+  function handleSaveCreator(codeToSave: string | null) {
+    // Go to pricing immediately — no waiting for the API
     setStep(6);
+    // Save to DB in background
+    fetch('/api/auth/save-creator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ creatorCode: codeToSave }),
+    }).catch(() => {});
   }
 
   async function handleFreePlan() {
@@ -869,7 +867,7 @@ export default function OnboardingFlow() {
               boxSizing: 'border-box',
               marginBottom: 12,
             }}
-            onKeyDown={e => { if (e.key === 'Enter' && !isInvalid) handleSaveCreator(); }}
+            onKeyDown={e => { if (e.key === 'Enter' && !isInvalid) { const code = matchedCreator ? matchedCreator.creatorCode : null; setSelectedCreatorCode(code); handleSaveCreator(code); } }}
           />
 
           {/* Feedback states */}
@@ -909,15 +907,16 @@ export default function OnboardingFlow() {
           {/* Primary CTA */}
           <button
             onClick={() => {
-              setSelectedCreatorCode(matchedCreator ? matchedCreator.creatorCode : null);
-              handleSaveCreator();
+              const code = matchedCreator ? matchedCreator.creatorCode : null;
+              setSelectedCreatorCode(code);
+              handleSaveCreator(code);
             }}
-            disabled={isInvalid || savingCreator}
+            disabled={isInvalid}
             className="btn-gold"
             style={{
               fontSize: 'var(--text-md)', padding: '14px 44px', width: '100%',
-              opacity: (isInvalid || savingCreator) ? 0.4 : 1,
-              cursor: (isInvalid || savingCreator) ? 'not-allowed' : 'pointer',
+              opacity: isInvalid ? 0.4 : 1,
+              cursor: isInvalid ? 'not-allowed' : 'pointer',
               marginBottom: 12,
             }}
           >
@@ -930,7 +929,7 @@ export default function OnboardingFlow() {
               onClick={() => {
                 setSelectedCreatorCode(null);
                 setCreatorSearch('');
-                handleSaveCreator();
+                handleSaveCreator(null);
               }}
               disabled={savingCreator}
               style={{

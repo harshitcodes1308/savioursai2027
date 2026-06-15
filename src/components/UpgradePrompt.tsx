@@ -43,7 +43,8 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
 
     const discountPct = discount?.discountPercentage ?? 0;
     const creatorName = discount?.creatorName ?? "";
-    const monthlyFinal = discountPct > 0 ? Math.round(199 * (1 - discountPct / 100)) : 199;
+    // Discount applies to yearly only
+    const monthlyFinal = 199;
     const yearlyFinal = discountPct > 0 ? Math.round(599 * (1 - discountPct / 100)) : 599;
 
     const handleClose = () => {
@@ -181,7 +182,8 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                     const isYearly = plan === "YEARLY";
                                     const basePrice = plan === "MONTHLY" ? 199 : 599;
                                     const finalPrice = plan === "MONTHLY" ? monthlyFinal : yearlyFinal;
-                                    const hasDiscount = discountPct > 0;
+                                    // Discount only applies to yearly
+                                    const hasDiscount = discountPct > 0 && isYearly;
                                     return (
                                         <button
                                             key={plan}

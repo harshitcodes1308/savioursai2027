@@ -468,7 +468,7 @@ export default function AnimatedGlassyPricing({
   const activeDiscount = creatorDiscount !== undefined ? creatorDiscount : dbDiscount;
   const discountPct = activeDiscount?.discountPercentage ?? 0;
   const creatorName = activeDiscount?.creatorName ?? undefined;
-  const monthlyDiscounted = discountPct > 0 ? String(Math.round(199 * (1 - discountPct / 100))) : undefined;
+  // Discount applies to yearly only
   const yearlyDiscounted = discountPct > 0 ? String(Math.round(599 * (1 - discountPct / 100))) : undefined;
   const [domin8Error, setDomin8Error] = useState('');
   const [domin8Loading, setDomin8Loading] = useState(false);
@@ -557,12 +557,10 @@ export default function AnimatedGlassyPricing({
               <PricingCard
                 {...plan}
                 discountedPrice={
-                  plan.planName === 'Monthly' ? monthlyDiscounted :
-                  plan.planName === 'Yearly' ? yearlyDiscounted :
-                  undefined
+                  plan.planName === 'Yearly' ? yearlyDiscounted : undefined
                 }
-                discountPct={plan.planName !== 'Free' ? discountPct || undefined : undefined}
-                creatorName={creatorName}
+                discountPct={plan.planName === 'Yearly' ? discountPct || undefined : undefined}
+                creatorName={plan.planName === 'Yearly' ? creatorName : undefined}
                 onClick={() =>
                   onSelectPlan(
                     plan.planName.toUpperCase() as 'FREE' | 'MONTHLY' | 'YEARLY'

@@ -747,6 +747,18 @@ npx tsc --noEmit              Run TypeScript compiler check without emitting
 
 ---
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=harshitcodes1308%2Fsavioursai2027&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=harshitcodes1308/savioursai2027&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=harshitcodes1308/savioursai2027&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=harshitcodes1308/savioursai2027&type=date&legend=top-left" />
+ </picture>
+</a>
+
+---
+
 <div align="center">
 
 <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">

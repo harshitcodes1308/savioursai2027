@@ -47,6 +47,39 @@
 }
 .sa-bento:hover::after { opacity: 1; }
 
+/* ---- Glass shimmer headline (re-themed from the pixel-hero effect) ---- */
+@keyframes saShimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: 0% center; }
+}
+.sa-glass-text {
+  color: transparent;
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    rgba(245, 240, 232, 0.42) 22%,
+    rgba(0, 212, 255, 0.6) 45%,
+    var(--text-primary) 55%,
+    rgba(0, 212, 255, 0.35) 74%,
+    var(--text-primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 1px rgba(245, 240, 232, 0.12);
+  filter: drop-shadow(0 14px 32px rgba(0,0,0,0.5)) drop-shadow(0 4px 10px rgba(0,212,255,0.14));
+  animation: saShimmer 9s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sa-glass-text { animation: none; background-position: 50% center; }
+}
+
+/* ---- Pixel canvas masking ---- */
+.sa-pixel-wrap {
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, #000 35%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, #000 35%, transparent 80%);
+}
+
 /* ---- Eyebrow label (editorial small caps) ---- */
 .sa-eyebrow {
   font-family: var(--font-body);

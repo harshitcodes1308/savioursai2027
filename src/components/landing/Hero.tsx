@@ -3,9 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap, prefersReducedMotion } from "./useScrollReveal";
 import MagneticButton from "./MagneticButton";
-
-const LINE1 = ["Your", "AI", "academic"];
-const LINE2 = ["operating", "system"];
+import PixelCanvas from "./PixelCanvas";
 
 const META = [
   { label: "Built for", value: "ICSE Class X" },
@@ -16,7 +14,7 @@ const META = [
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const diamondRef = useRef<SVGSVGElement>(null);
-  const wordsRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
   const subRef = useRef<HTMLDivElement>(null);
   const metaRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -24,12 +22,10 @@ export default function Hero() {
 
   useEffect(() => {
     const reduced = prefersReducedMotion();
-    const words = wordsRef.current.filter(Boolean) as HTMLSpanElement[];
+    const targets = [eyebrowRef.current, headlineRef.current, subRef.current, metaRef.current, ctaRef.current];
 
     if (reduced) {
-      [...words, eyebrowRef.current, subRef.current, metaRef.current, ctaRef.current].forEach((el) => {
-        if (el) { el.style.opacity = "1"; el.style.transform = "none"; }
-      });
+      targets.forEach((el) => { if (el) { el.style.opacity = "1"; el.style.transform = "none"; } });
       return;
     }
 
@@ -43,16 +39,10 @@ export default function Hero() {
         gsap.to(paths, { strokeDashoffset: 0, duration: 1.3, ease: "power2.inOut", stagger: 0.18 });
       }
 
-      const tl = gsap.timeline({ delay: 0.35 });
-      tl.from(eyebrowRef.current, { opacity: 0, y: 14, duration: 0.6, ease: "power3.out" })
-        .from(words, {
-          opacity: 0,
-          y: 64,
-          duration: 0.95,
-          ease: "power4.out",
-          stagger: 0.06,
-        }, "-=0.2")
-        .from(subRef.current, { opacity: 0, y: 22, duration: 0.8, ease: "power3.out" }, "-=0.45")
+      gsap.timeline({ delay: 0.3 })
+        .from(eyebrowRef.current, { opacity: 0, y: 14, duration: 0.6, ease: "power3.out" })
+        .from(headlineRef.current, { opacity: 0, y: 40, scale: 0.96, duration: 1.1, ease: "power4.out" }, "-=0.2")
+        .from(subRef.current, { opacity: 0, y: 22, duration: 0.8, ease: "power3.out" }, "-=0.5")
         .from(metaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.5")
         .from(ctaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.5");
     }, sectionRef);
@@ -60,139 +50,112 @@ export default function Hero() {
     return () => ctx.revert();
   }, []);
 
-  const renderWord = (word: string, key: number, accent = false) => (
-    <span
-      key={key}
-      ref={(el) => { wordsRef.current[key] = el; }}
-      style={{
-        display: "inline-block",
-        marginRight: "0.22em",
-        color: accent ? "var(--accent-gold)" : "var(--text-primary)",
-      }}
-    >
-      {word}
-    </span>
-  );
-
   return (
     <section
       ref={sectionRef}
       id="top"
       style={{
         position: "relative",
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
         justifyContent: "center",
-        padding: "120px 24px 80px",
-        maxWidth: 1200,
-        margin: "0 auto",
-        width: "100%",
-        boxSizing: "border-box",
+        textAlign: "center",
+        padding: "120px 24px 72px",
+        overflow: "hidden",
+        isolation: "isolate",
       }}
     >
-      {/* Eyebrow row */}
-      <div
-        ref={eyebrowRef}
-        style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 34 }}
-      >
-        <svg
-          ref={diamondRef}
-          width="30"
-          height="30"
-          viewBox="0 0 48 48"
-          fill="none"
-          aria-hidden="true"
+      {/* Pixel ripple canvas backdrop */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <PixelCanvas
+          baseColor="rgba(120, 120, 145, 0.45)"
+          accentColor="#00D4FF"
+          accentRatio={0.13}
+          gap={6}
+          speed={30}
+        />
+        {/* radial fade into the page background */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(circle at center, transparent 0%, var(--bg-base) 78%)",
+            opacity: 0.85,
+          }}
+        />
+      </div>
+
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1000, width: "100%" }}>
+        {/* Eyebrow */}
+        <div
+          ref={eyebrowRef}
+          style={{ display: "inline-flex", alignItems: "center", gap: 14, marginBottom: 32 }}
         >
-          <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="2" />
-          <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1.5" opacity="0.6" />
-        </svg>
-        <span className="sa-eyebrow">Saviours AI · ICSE Prep, Reimagined</span>
-      </div>
+          <svg ref={diamondRef} width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="2" />
+            <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1.5" opacity="0.6" />
+          </svg>
+          <span className="sa-eyebrow">Saviours AI · ICSE Prep, Reimagined</span>
+        </div>
 
-      {/* Headline — big, left-aligned, editorial */}
-      <h1
-        style={{
-          fontFamily: "var(--font-display)",
-          fontSize: "clamp(44px, 9vw, 116px)",
-          lineHeight: 0.98,
-          letterSpacing: "-0.04em",
-          fontWeight: 700,
-          margin: "0 0 28px",
-          maxWidth: 1000,
-        }}
-      >
-        <span style={{ display: "block" }}>
-          {LINE1.map((w, i) => renderWord(w, i, w === "AI"))}
-        </span>
-        <span style={{ display: "block" }}>
-          {LINE2.map((w, i) => renderWord(w, i + LINE1.length, w === "system"))}
-          <span
-            ref={(el) => { wordsRef.current[LINE1.length + LINE2.length] = el; }}
-            style={{ display: "inline-block", color: "var(--accent-gold)" }}
-          >
-            .
+        {/* Glass-shimmer headline: ScotchDisplay italic + display sans */}
+        <h1
+          ref={headlineRef}
+          className="sa-glass-text"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.18em",
+            margin: "0 0 26px",
+            fontSize: "clamp(46px, 11vw, 132px)",
+            lineHeight: 0.95,
+          }}
+        >
+          <span style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontWeight: 500 }}>
+            Preparation,
           </span>
-        </span>
-      </h1>
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, letterSpacing: "-0.04em" }}>
+            Perfected.
+          </span>
+        </h1>
 
-      {/* Sub line — ScotchDisplay italic, the emotional line */}
-      <div
-        ref={subRef}
-        style={{
-          fontFamily: "var(--font-tagline)",
-          fontStyle: "italic",
-          fontSize: "clamp(18px, 2.6vw, 28px)",
-          color: "var(--text-secondary)",
-          maxWidth: 560,
-          lineHeight: 1.4,
-          marginBottom: 48,
-        }}
-      >
-        Every great board result starts with one decision.
-      </div>
+        {/* Sub line */}
+        <div
+          ref={subRef}
+          style={{
+            fontFamily: "var(--font-tagline)",
+            fontStyle: "italic",
+            fontSize: "clamp(17px, 2.6vw, 26px)",
+            color: "var(--text-secondary)",
+            maxWidth: 580,
+            margin: "0 auto 44px",
+            lineHeight: 1.45,
+          }}
+        >
+          Nine AI tools, built end to end for the ICSE Class 10 syllabus. Every great board result starts with one decision.
+        </div>
 
-      {/* Bottom row: metadata grid (left) + CTAs (right) */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "space-between",
-          gap: 32,
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Metadata, label/value pairs — the editorial signature */}
+        {/* Metadata row */}
         <div
           ref={metaRef}
           style={{
             display: "flex",
             gap: "clamp(24px, 5vw, 56px)",
+            justifyContent: "center",
             flexWrap: "wrap",
+            marginBottom: 40,
           }}
         >
           {META.map((m) => (
-            <div key={m.label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: 11,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "var(--text-muted)",
-                }}
-              >
+            <div key={m.label} style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--text-muted)" }}>
                 {m.label}
               </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: 16,
-                  color: "var(--text-primary)",
-                  fontWeight: 500,
-                  letterSpacing: "-0.01em",
-                }}
-              >
+              <span style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--text-primary)", fontWeight: 500, letterSpacing: "-0.01em" }}>
                 {m.value}
               </span>
             </div>
@@ -200,17 +163,11 @@ export default function Hero() {
         </div>
 
         {/* CTAs */}
-        <div ref={ctaRef} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <div ref={ctaRef} style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <MagneticButton
             href="/signup"
             className="btn-gold"
-            style={{
-              fontSize: 15,
-              padding: "15px 30px",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-            }}
+            style={{ fontSize: 15, padding: "15px 32px", textDecoration: "none", display: "inline-flex", alignItems: "center" }}
             ariaLabel="Start free"
           >
             Start Free →
@@ -218,13 +175,7 @@ export default function Hero() {
           <MagneticButton
             href="#features"
             className="btn-ghost"
-            style={{
-              fontSize: 15,
-              padding: "15px 26px",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-            }}
+            style={{ fontSize: 15, padding: "15px 26px", textDecoration: "none", display: "inline-flex", alignItems: "center" }}
             strength={0.2}
             ariaLabel="See features"
           >
@@ -232,6 +183,21 @@ export default function Hero() {
           </MagneticButton>
         </div>
       </div>
+
+      {/* scroll hint */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 28,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1,
+          width: 1,
+          height: 34,
+          background: "linear-gradient(to bottom, transparent, var(--accent-gold))",
+          animation: "float 2s ease-in-out infinite",
+        }}
+      />
     </section>
   );
 }

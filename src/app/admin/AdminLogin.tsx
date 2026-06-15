@@ -23,6 +23,9 @@ export default function AdminLogin() {
       });
       const data = await res.json();
       if (data.success) {
+        // Also store token in localStorage so API calls can read it
+        // regardless of cookie Path scope
+        if (data.token) localStorage.setItem("admin-token", data.token);
         router.refresh();
       } else {
         setError(data.error || "Login failed");

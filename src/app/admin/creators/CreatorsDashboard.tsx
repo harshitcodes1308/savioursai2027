@@ -79,17 +79,18 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
   async function handleSave() {
     setError("");
     const name = form.creatorName.trim();
-    const code = form.creatorCode.trim().toLowerCase();
+    const code = form.creatorCode.trim();
     if (!name) { setError("Creator name is required."); return; }
     if (!code) { setError("Creator code is required."); return; }
-    if (!/^[a-z0-9]+$/.test(code)) { setError("Creator code must be lowercase letters and numbers only (no spaces/symbols)."); return; }
+    if (!/^[a-zA-Z0-9]+$/.test(code)) { setError("Creator code must be letters and numbers only (no spaces/symbols)."); return; }
     if (form.discountPercentage < 1 || form.discountPercentage > 100) { setError("Discount must be between 1 and 100."); return; }
 
+    const token = localStorage.getItem("admin-token") ?? "";
     setSaving(true);
     try {
       const res = await fetch("/api/admin/creators", {
         method: editingId ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({
           id: editingId,
           creatorName: name,
@@ -113,10 +114,11 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
   async function handleDelete(id: string, name: string) {
     if (!confirm(`Delete creator "${name}"? This won't affect users who already used their code.`)) return;
     setDeleting(id);
+    const token = localStorage.getItem("admin-token") ?? "";
     try {
       const res = await fetch("/api/admin/creators", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ id }),
       });
       const data = await res.json();
@@ -359,7 +361,7 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
                   style={{ ...inp, letterSpacing: "0.08em" }}
                   placeholder="e.g. bl2047"
                   value={form.creatorCode}
-                  onChange={e => setForm(f => ({ ...f, creatorCode: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, "") }))}
+                  onChange={e => setForm(f => ({ ...f, creatorCode: e.target.value.replace(/[^a-zA-Z0-9]/g, "") }))}
                   disabled={!!editingId}
                   onFocus={e => e.currentTarget.style.borderColor = "var(--accent-gold-border)"}
                   onBlur={e => e.currentTarget.style.borderColor = "var(--bg-border)"}

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   const maxAge = 60 * 60 * 24 * 7; // 7 days
   const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
 
-  const res = NextResponse.json({ success: true });
+  const res = NextResponse.json({ success: true, token });
   res.headers.append(
     "Set-Cookie",
     `admin-token=${token}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`

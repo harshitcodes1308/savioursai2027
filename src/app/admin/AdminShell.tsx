@@ -27,11 +27,10 @@ export default function AdminShell({ children, adminEmail }: { children: React.R
   }, []);
 
   const handleLogout = () => {
-    // Clear cookie at both path scopes (handles old Path=/admin and new Path=/)
     document.cookie = "admin-token=; Path=/; Max-Age=0; SameSite=Lax";
     document.cookie = "admin-token=; Path=/admin; Max-Age=0; SameSite=Lax";
     localStorage.removeItem("admin-token");
-    router.refresh();
+    window.location.href = "/admin";
   };
 
   const SidebarContent = () => (

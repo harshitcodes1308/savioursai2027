@@ -27,7 +27,7 @@ export default function AdminShell({ children, adminEmail }: { children: React.R
   }, []);
 
   const handleLogout = () => {
-    document.cookie = "admin-token=; Path=/admin; Max-Age=0";
+    document.cookie = "admin-token=; Path=/; Max-Age=0";
     router.refresh();
   };
 

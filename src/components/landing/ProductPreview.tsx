@@ -73,22 +73,24 @@ export default function ProductPreview() {
   );
 
   return (
-    <section ref={sectionRef} style={{ padding: "clamp(60px, 10vw, 120px) 24px", position: "relative", perspective: 1400 }}>
+    <section ref={sectionRef} style={{ padding: "clamp(60px, 10vw, 120px) 24px", position: "relative", zIndex: 1, perspective: 1400 }}>
       <div style={{ maxWidth: 1080, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <div style={{ marginBottom: 48, maxWidth: 720 }}>
+          <div className="sa-eyebrow" style={{ marginBottom: 20 }}>The product</div>
           <h2
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(28px, 5vw, 50px)",
-              letterSpacing: "-0.03em",
+              fontSize: "clamp(32px, 6vw, 64px)",
+              letterSpacing: "-0.035em",
               color: "var(--text-primary)",
-              margin: "0 0 12px",
+              margin: "0 0 14px",
+              lineHeight: 1.02,
               fontWeight: 700,
             }}
           >
             See it <span style={{ color: "var(--accent-gold)" }}>in action.</span>
           </h2>
-          <p style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontSize: "clamp(14px, 2vw, 18px)", color: "var(--text-muted)", margin: 0 }}>
+          <p style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontSize: "clamp(16px, 2.4vw, 21px)", color: "var(--text-muted)", margin: 0 }}>
             This is the real dashboard. No mockups, no &quot;coming soon.&quot;
           </p>
         </div>

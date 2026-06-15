@@ -55,36 +55,57 @@ export default function TractionStats() {
       });
     }, sectionRef);
 
-    return () => ctx.revert();
+    // Bento border glow follows cursor
+    const root = sectionRef.current;
+    let onMove: ((e: MouseEvent) => void) | null = null;
+    if (root && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      onMove = (e: MouseEvent) => {
+        const card = (e.target as HTMLElement).closest<HTMLElement>(".sa-bento");
+        if (!card || !root.contains(card)) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        card.style.setProperty("--my", `${e.clientY - r.top}px`);
+      };
+      root.addEventListener("mousemove", onMove);
+    }
+
+    return () => {
+      ctx.revert();
+      if (root && onMove) root.removeEventListener("mousemove", onMove);
+    };
   }, []);
 
   return (
     <section
       ref={sectionRef}
-      style={{ position: "relative", padding: "clamp(80px, 12vw, 140px) 24px", overflow: "hidden" }}
+      style={{ position: "relative", zIndex: 1, padding: "clamp(80px, 12vw, 140px) 24px" }}
     >
-      <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 1 }}>
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ marginBottom: 56, maxWidth: 720 }}>
+          <div className="sa-eyebrow" style={{ marginBottom: 20 }}>The proof</div>
           <h2
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(30px, 5.5vw, 56px)",
-              letterSpacing: "-0.03em",
+              fontSize: "clamp(32px, 6vw, 64px)",
+              letterSpacing: "-0.035em",
               color: "var(--text-primary)",
               margin: "0 0 14px",
+              lineHeight: 1.02,
               fontWeight: 700,
             }}
           >
-            Real traction. <span style={{ color: "var(--accent-gold)" }}>Zero paid ads.</span>
+            Real traction.
+            <br />
+            <span style={{ color: "var(--accent-gold)" }}>Zero paid ads.</span>
           </h2>
           <p
             style={{
               fontFamily: "var(--font-tagline)",
               fontStyle: "italic",
-              fontSize: "clamp(15px, 2.2vw, 20px)",
+              fontSize: "clamp(16px, 2.4vw, 21px)",
               color: "var(--text-muted)",
               maxWidth: 620,
-              margin: "0 auto",
+              margin: 0,
               lineHeight: 1.5,
             }}
           >
@@ -97,26 +118,26 @@ export default function TractionStats() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: 18,
-            marginBottom: 40,
+            gap: 16,
+            marginBottom: 36,
           }}
         >
           {STATS.map((s, i) => (
             <div
               key={i}
-              className="sa-card sa-stat-card"
-              style={{ padding: "32px 26px", textAlign: "center" }}
+              className="sa-bento sa-stat-card"
+              style={{ padding: "34px 28px" }}
             >
               <div
                 ref={(el) => { numRefs.current[i] = el; }}
                 style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: "clamp(34px, 5vw, 52px)",
+                  fontSize: "clamp(38px, 5vw, 56px)",
                   color: "var(--accent-gold)",
                   fontWeight: 700,
-                  letterSpacing: "-0.02em",
+                  letterSpacing: "-0.03em",
                   lineHeight: 1,
-                  marginBottom: 12,
+                  marginBottom: 14,
                 }}
               >
                 0
@@ -137,20 +158,18 @@ export default function TractionStats() {
 
         {/* Comparison strip */}
         <div
-          className="sa-card"
+          className="sa-bento"
           style={{
-            padding: "20px 28px",
+            padding: "22px 30px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 14,
             flexWrap: "wrap",
             textAlign: "center",
-            background: "var(--bg-base)",
-            border: "1px solid var(--bg-border)",
           }}
         >
-          <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-secondary)" }}>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6 }}>
             Industry average free-to-paid sits at{" "}
             <span style={{ color: "var(--text-muted)", textDecoration: "line-through", opacity: 0.7 }}>
               2–5%

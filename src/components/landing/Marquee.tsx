@@ -38,9 +38,9 @@ export default function Marquee({ items, reverse = false }: MarqueeProps) {
       style={{
         position: "relative",
         overflow: "hidden",
-        borderTop: "1px solid var(--accent-gold-border)",
-        borderBottom: "1px solid var(--accent-gold-border)",
-        padding: "20px 0",
+        borderTop: "1px solid var(--bg-border)",
+        borderBottom: "1px solid var(--bg-border)",
+        padding: "26px 0",
         background: "var(--bg-base)",
       }}
     >

@@ -4,6 +4,69 @@
    Reuses design tokens from globals.css. No parallel system.
    ============================================================ */
 
+/* ---- Static grid backdrop (subtle, fixed, replaces the grain) ---- */
+.sa-grid-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 90%);
+}
+
+/* ---- Bento card ---- */
+.sa-bento {
+  position: relative;
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1), background 0.35s ease;
+}
+.sa-bento:hover {
+  border-color: var(--bg-border-light);
+  transform: translateY(-3px);
+}
+.sa-bento::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 0%), rgba(0,212,255,0.35), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.sa-bento:hover::after { opacity: 1; }
+
+/* ---- Eyebrow label (editorial small caps) ---- */
+.sa-eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.sa-eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 1px;
+  background: var(--accent-gold);
+  opacity: 0.6;
+}
+
 /* ---- Marquee infinite scroll ---- */
 @keyframes saMarquee {
   from { transform: translateX(0); }
@@ -13,51 +76,10 @@
   display: inline-flex;
   white-space: nowrap;
   will-change: transform;
-  animation: saMarquee 32s linear infinite;
+  animation: saMarquee 36s linear infinite;
 }
 .sa-marquee-track.reverse { animation-direction: reverse; }
 .sa-marquee-wrap:hover .sa-marquee-track { animation-play-state: paused; }
-
-/* ---- Film grain overlay ---- */
-@keyframes saGrainShift {
-  0%   { transform: translate(0, 0); }
-  10%  { transform: translate(-5%, -5%); }
-  20%  { transform: translate(-10%, 5%); }
-  30%  { transform: translate(5%, -10%); }
-  40%  { transform: translate(-5%, 12%); }
-  50%  { transform: translate(-10%, 5%); }
-  60%  { transform: translate(12%, 0); }
-  70%  { transform: translate(0, 8%); }
-  80%  { transform: translate(-12%, 0); }
-  90%  { transform: translate(8%, 5%); }
-  100% { transform: translate(0, 0); }
-}
-.sa-grain {
-  position: fixed;
-  inset: -150%;
-  width: 400%;
-  height: 400%;
-  pointer-events: none;
-  z-index: 9998;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: saGrainShift 8s steps(10) infinite;
-}
-
-/* ---- Ambient glow orbs ---- */
-@keyframes saOrbDrift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(6%, -4%) scale(1.08); }
-  66%      { transform: translate(-5%, 5%) scale(0.95); }
-}
-.sa-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-  will-change: transform;
-}
 
 /* ---- Custom cursor ---- */
 .sa-cursor-dot,
@@ -106,8 +128,6 @@
 @media (prefers-reduced-motion: reduce) {
   .sa-reveal { opacity: 1 !important; transform: none !important; }
   .sa-marquee-track { animation: none !important; }
-  .sa-grain { animation: none !important; }
-  .sa-orb { animation: none !important; }
   .sa-cursor-dot, .sa-cursor-ring { display: none !important; }
 }
 

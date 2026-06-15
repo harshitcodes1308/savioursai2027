@@ -10,17 +10,15 @@ export default function FinalCTA() {
     <section
       ref={ref}
       style={{
-        padding: "clamp(100px, 16vw, 180px) 24px",
+        padding: "clamp(110px, 18vw, 200px) 24px",
         background: "var(--bg-surface)",
         borderTop: "1px solid var(--bg-border)",
         textAlign: "center",
         position: "relative",
-        overflow: "hidden",
+        zIndex: 1,
       }}
     >
-      <div className="sa-orb" style={{ width: 560, height: 560, background: "var(--accent-gold-glow)", top: "50%", left: "50%", marginLeft: -280, marginTop: -280, animation: "saOrbDrift 18s ease-in-out infinite" }} />
-
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 760, margin: "0 auto" }}>
         <p
           className="sa-reveal"
           style={{

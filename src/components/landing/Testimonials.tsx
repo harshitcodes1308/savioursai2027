@@ -18,17 +18,19 @@ export default function Testimonials() {
 
   return (
     <section ref={ref} style={{ padding: "clamp(80px, 12vw, 130px) 24px", position: "relative" }}>
-      <div style={{ maxWidth: 1140, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         {/* Part A — text */}
-        <div style={{ marginBottom: 48, textAlign: "center" }}>
+        <div style={{ marginBottom: 48, maxWidth: 720 }}>
+          <div className="sa-eyebrow sa-reveal" style={{ marginBottom: 20 }}>The receipts</div>
           <h2
             className="sa-reveal"
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(30px, 5.5vw, 56px)",
-              letterSpacing: "-0.03em",
+              fontSize: "clamp(32px, 6vw, 64px)",
+              letterSpacing: "-0.035em",
               color: "var(--text-primary)",
-              margin: "0 0 12px",
+              margin: 0,
+              lineHeight: 1.02,
               fontWeight: 700,
             }}
           >
@@ -48,7 +50,7 @@ export default function Testimonials() {
           {QUOTES.map((q, i) => (
             <div
               key={i}
-              className="sa-card sa-reveal"
+              className="sa-bento sa-reveal"
               style={{
                 breakInside: "avoid",
                 marginBottom: 18,

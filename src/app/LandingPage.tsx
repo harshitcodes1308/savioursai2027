@@ -2,7 +2,6 @@
 
 import "./landing.css";
 import SmoothScrollProvider from "@/components/landing/SmoothScrollProvider";
-import GrainOverlay from "@/components/landing/GrainOverlay";
 import CustomCursor from "@/components/landing/CustomCursor";
 import Nav from "@/components/landing/Nav";
 import Hero from "@/components/landing/Hero";
@@ -15,15 +14,6 @@ import Pricing from "@/components/landing/Pricing";
 import FinalCTA from "@/components/landing/FinalCTA";
 import Footer from "@/components/landing/Footer";
 
-const MARQUEE_TOP = [
-  { label: "ICSE" },
-  { label: "Class 10" },
-  { label: "9 Subjects" },
-  { label: "AI-Powered" },
-  { label: "2027 Boards" },
-];
-
-// Easter egg: subjects in their real subject colours
 const MARQUEE_SUBJECTS = [
   { label: "Mathematics", color: "#3B82F6" },
   { label: "Physics", color: "#F59E0B" },
@@ -39,11 +29,10 @@ export default function LandingPage() {
   return (
     <SmoothScrollProvider>
       <CustomCursor />
-      <GrainOverlay />
+      <div className="sa-grid-bg" aria-hidden="true" />
       <main style={{ background: "var(--bg-base)", position: "relative", overflowX: "hidden" }}>
         <Nav />
         <Hero />
-        <Marquee items={MARQUEE_TOP} />
         <TractionStats />
         <FeaturesGrid />
         <Marquee items={MARQUEE_SUBJECTS} reverse />

@@ -1,87 +1,78 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, prefersReducedMotion } from "./useScrollReveal";
+import { gsap, prefersReducedMotion } from "./useScrollReveal";
 import MagneticButton from "./MagneticButton";
 
-const VIDEO_URL = "https://res.cloudinary.com/dv0w2nfnw/video/upload/v1774898701/videoplayback_tgdakw.mp4";
+const LINE1 = ["Your", "AI", "academic"];
+const LINE2 = ["operating", "system"];
 
-const HEADLINE_WORDS = ["Your", "AI-powered", "academic", "OS", "for", "ICSE", "success."];
+const META = [
+  { label: "Built for", value: "ICSE Class X" },
+  { label: "Target", value: "2027 Boards" },
+  { label: "Tools", value: "Nine, end to end" },
+];
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const diamondRef = useRef<SVGSVGElement>(null);
   const wordsRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const taglineRef = useRef<HTMLDivElement>(null);
+  const subRef = useRef<HTMLDivElement>(null);
+  const metaRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
-  const chipRef = useRef<HTMLDivElement>(null);
+  const eyebrowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (v) { v.playbackRate = 1.4; v.play().catch(() => {}); }
-
     const reduced = prefersReducedMotion();
     const words = wordsRef.current.filter(Boolean) as HTMLSpanElement[];
 
     if (reduced) {
-      // Show everything immediately
-      words.forEach((w) => { w.style.opacity = "1"; w.style.transform = "none"; });
-      [chipRef, taglineRef, ctaRef].forEach((r) => {
-        if (r.current) { r.current.style.opacity = "1"; r.current.style.transform = "none"; }
+      [...words, eyebrowRef.current, subRef.current, metaRef.current, ctaRef.current].forEach((el) => {
+        if (el) { el.style.opacity = "1"; el.style.transform = "none"; }
       });
       return;
     }
 
     const ctx = gsap.context(() => {
-      // Diamond stroke trace
       const paths = diamondRef.current?.querySelectorAll("path");
       if (paths) {
         paths.forEach((p) => {
           const len = (p as SVGPathElement).getTotalLength?.() ?? 200;
           gsap.set(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 1 });
         });
-        gsap.to(paths, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut", stagger: 0.15 });
+        gsap.to(paths, { strokeDashoffset: 0, duration: 1.3, ease: "power2.inOut", stagger: 0.18 });
       }
 
-      const tl = gsap.timeline({ delay: 0.5 });
-      tl.from(chipRef.current, { opacity: 0, y: 16, duration: 0.6, ease: "power3.out" })
+      const tl = gsap.timeline({ delay: 0.35 });
+      tl.from(eyebrowRef.current, { opacity: 0, y: 14, duration: 0.6, ease: "power3.out" })
         .from(words, {
           opacity: 0,
-          y: 48,
-          rotateX: -40,
-          duration: 0.85,
+          y: 64,
+          duration: 0.95,
           ease: "power4.out",
-          stagger: 0.07,
+          stagger: 0.06,
         }, "-=0.2")
-        .from(taglineRef.current, { opacity: 0, y: 20, duration: 0.8, ease: "power3.out" }, "-=0.4")
-        .from(ctaRef.current, { opacity: 0, y: 20, duration: 0.7, ease: "power3.out" }, "-=0.4");
-
-      // Scroll parallax: video zooms + fades, content drifts up
-      gsap.to(videoRef.current, {
-        scale: 1.18,
-        opacity: 0.15,
-        ease: "none",
-        scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: true },
-      });
-      gsap.to(".sa-hero-content", {
-        y: -80,
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: true },
-      });
+        .from(subRef.current, { opacity: 0, y: 22, duration: 0.8, ease: "power3.out" }, "-=0.45")
+        .from(metaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.5")
+        .from(ctaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.5");
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  const scrollToFeatures = () => {
-    const el = document.getElementById("features");
-    if (!el) return;
-    const lenis = (window as unknown as { __lenis?: { scrollTo: (t: HTMLElement, o?: object) => void } }).__lenis;
-    if (lenis) lenis.scrollTo(el, { offset: -40 });
-    else el.scrollIntoView({ behavior: "smooth" });
-  };
+  const renderWord = (word: string, key: number, accent = false) => (
+    <span
+      key={key}
+      ref={(el) => { wordsRef.current[key] = el; }}
+      style={{
+        display: "inline-block",
+        marginRight: "0.22em",
+        color: accent ? "var(--accent-gold)" : "var(--text-primary)",
+      }}
+    >
+      {word}
+    </span>
+  );
 
   return (
     <section
@@ -91,152 +82,131 @@ export default function Hero() {
         position: "relative",
         minHeight: "100vh",
         display: "flex",
-        alignItems: "center",
+        flexDirection: "column",
         justifyContent: "center",
-        overflow: "hidden",
-        padding: "0 24px",
+        padding: "120px 24px 80px",
+        maxWidth: 1200,
+        margin: "0 auto",
+        width: "100%",
+        boxSizing: "border-box",
       }}
     >
-      {/* Ambient video backdrop */}
-      <video
-        ref={videoRef}
-        src={VIDEO_URL}
-        autoPlay
-        muted
-        loop
-        playsInline
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          filter: "grayscale(100%) brightness(0.32)",
-          opacity: 0.4,
-          zIndex: 0,
-        }}
-      />
-      {/* Darkening + vignette */}
+      {/* Eyebrow row */}
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse at 50% 40%, rgba(13,13,26,0.55) 0%, rgba(13,13,26,0.9) 100%)",
-          zIndex: 1,
-        }}
-      />
-      {/* Glow orb */}
-      <div
-        className="sa-orb"
-        style={{
-          width: 620,
-          height: 620,
-          background: "var(--accent-gold-glow)",
-          top: "12%",
-          left: "50%",
-          marginLeft: -310,
-          animation: "saOrbDrift 16s ease-in-out infinite",
-        }}
-      />
-
-      <div
-        className="sa-hero-content"
-        style={{
-          position: "relative",
-          zIndex: 2,
-          textAlign: "center",
-          maxWidth: 980,
-          width: "100%",
-        }}
+        ref={eyebrowRef}
+        style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 34 }}
       >
-        {/* Diamond */}
         <svg
           ref={diamondRef}
-          width="56"
-          height="56"
+          width="30"
+          height="30"
           viewBox="0 0 48 48"
           fill="none"
-          style={{ margin: "0 auto 28px", display: "block" }}
           aria-hidden="true"
         >
-          <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5" />
-          <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1" opacity="0.6" />
+          <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="2" />
+          <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1.5" opacity="0.6" />
         </svg>
+        <span className="sa-eyebrow">Saviours AI · ICSE Prep, Reimagined</span>
+      </div>
 
-        {/* Chip */}
-        <div ref={chipRef} style={{ marginBottom: 26 }}>
+      {/* Headline — big, left-aligned, editorial */}
+      <h1
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(44px, 9vw, 116px)",
+          lineHeight: 0.98,
+          letterSpacing: "-0.04em",
+          fontWeight: 700,
+          margin: "0 0 28px",
+          maxWidth: 1000,
+        }}
+      >
+        <span style={{ display: "block" }}>
+          {LINE1.map((w, i) => renderWord(w, i, w === "AI"))}
+        </span>
+        <span style={{ display: "block" }}>
+          {LINE2.map((w, i) => renderWord(w, i + LINE1.length, w === "system"))}
           <span
-            className="chip-gold"
-            style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase" }}
+            ref={(el) => { wordsRef.current[LINE1.length + LINE2.length] = el; }}
+            style={{ display: "inline-block", color: "var(--accent-gold)" }}
           >
-            Class X · ICSE · 2027 Boards
+            .
           </span>
-        </div>
+        </span>
+      </h1>
 
-        {/* Headline with per-word reveal */}
-        <h1
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(38px, 8vw, 80px)",
-            lineHeight: 1.04,
-            letterSpacing: "-0.03em",
-            color: "var(--text-primary)",
-            margin: "0 0 22px",
-            fontWeight: 700,
-            perspective: 800,
-          }}
-        >
-          {HEADLINE_WORDS.map((word, i) => {
-            const accent = word === "ICSE" || word === "success.";
-            return (
-              <span
-                key={i}
-                ref={(el) => { wordsRef.current[i] = el; }}
-                style={{
-                  display: "inline-block",
-                  marginRight: "0.28em",
-                  color: accent ? "var(--accent-gold)" : "var(--text-primary)",
-                  transformStyle: "preserve-3d",
-                }}
-              >
-                {word}
-              </span>
-            );
-          })}
-        </h1>
+      {/* Sub line — ScotchDisplay italic, the emotional line */}
+      <div
+        ref={subRef}
+        style={{
+          fontFamily: "var(--font-tagline)",
+          fontStyle: "italic",
+          fontSize: "clamp(18px, 2.6vw, 28px)",
+          color: "var(--text-secondary)",
+          maxWidth: 560,
+          lineHeight: 1.4,
+          marginBottom: 48,
+        }}
+      >
+        Every great board result starts with one decision.
+      </div>
 
-        {/* Tagline */}
+      {/* Bottom row: metadata grid (left) + CTAs (right) */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 32,
+          flexWrap: "wrap",
+        }}
+      >
+        {/* Metadata, label/value pairs — the editorial signature */}
         <div
-          ref={taglineRef}
-          style={{
-            fontFamily: "var(--font-tagline)",
-            fontStyle: "italic",
-            fontSize: "clamp(17px, 2.6vw, 26px)",
-            color: "var(--text-secondary)",
-            marginBottom: 40,
-            letterSpacing: "0.01em",
-          }}
-        >
-          Every great board result starts with one decision.
-        </div>
-
-        {/* CTAs */}
-        <div
-          ref={ctaRef}
+          ref={metaRef}
           style={{
             display: "flex",
-            gap: 14,
-            justifyContent: "center",
+            gap: "clamp(24px, 5vw, 56px)",
             flexWrap: "wrap",
           }}
         >
+          {META.map((m) => (
+            <div key={m.label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: 11,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--text-muted)",
+                }}
+              >
+                {m.label}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 16,
+                  color: "var(--text-primary)",
+                  fontWeight: 500,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {m.value}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* CTAs */}
+        <div ref={ctaRef} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <MagneticButton
             href="/signup"
             className="btn-gold"
             style={{
               fontSize: 15,
-              padding: "15px 32px",
+              padding: "15px 30px",
               textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
@@ -245,39 +215,22 @@ export default function Hero() {
           >
             Start Free →
           </MagneticButton>
-          <button
-            onClick={scrollToFeatures}
+          <MagneticButton
+            href="#features"
             className="btn-ghost"
-            style={{ fontSize: 15, padding: "15px 28px", cursor: "pointer" }}
-            data-cursor="hover"
+            style={{
+              fontSize: 15,
+              padding: "15px 26px",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+            }}
+            strength={0.2}
+            ariaLabel="See features"
           >
             See what&apos;s inside ↓
-          </button>
+          </MagneticButton>
         </div>
-      </div>
-
-      {/* Scroll hint */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 32,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 2,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        <div
-          style={{
-            width: 1,
-            height: 36,
-            background: "linear-gradient(to bottom, transparent, var(--accent-gold))",
-            animation: "float 2s ease-in-out infinite",
-          }}
-        />
       </div>
     </section>
   );

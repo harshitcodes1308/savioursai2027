@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { icon: "👥", label: "Users", href: "/admin/users" },
   { icon: "💰", label: "Revenue", href: "/admin/revenue" },
   { icon: "⚡", label: "Features", href: "/admin/features" },
+  { icon: "🤝", label: "Creators", href: "/admin/creators" },
 ];
 
 export default function AdminShell({ children, adminEmail }: { children: React.ReactNode; adminEmail: string }) {

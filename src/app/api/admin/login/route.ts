@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { SignJWT } from "jose";
 
 const ADMIN_ACCOUNTS: Record<string, string> = {
-  "me.harshit1308@gmail.com": "admin123",
-  "tripathiayush912@gmail.com": "admin123",
+  "me.harshit1308@gmail.com": "admin@123",
+  "tripathiayush912@gmail.com": "admin@123",
 };
 
 export async function POST(req: NextRequest) {

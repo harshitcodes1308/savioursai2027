@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { gsap, prefersReducedMotion } from "./useScrollReveal";
+import ShaderAnimation from "./ShaderAnimation";
+import GooeyText from "./GooeyText";
 
 interface Tool {
   glyph: string;
@@ -148,26 +150,73 @@ export default function FeaturesGrid() {
   return (
     <section ref={sectionRef} id="features" style={{ position: "relative", zIndex: 1, padding: "clamp(80px, 12vw, 140px) 24px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ marginBottom: 56, maxWidth: 720 }}>
-          <div className="sa-eyebrow" style={{ marginBottom: 20 }}>The toolkit</div>
-          <h2
+        {/* Shader-backed header banner with gooey morphing title */}
+        <div
+          style={{
+            position: "relative",
+            borderRadius: 24,
+            overflow: "hidden",
+            border: "1px solid var(--bg-border)",
+            background: "var(--bg-base)",
+            padding: "clamp(48px, 8vw, 88px) 24px",
+            marginBottom: 56,
+            minHeight: 320,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
+          {/* Three.js cyan shader */}
+          <ShaderAnimation opacity={0.5} />
+          {/* radial fade so the shader sits behind the text cleanly */}
+          <div
             style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(32px, 6vw, 64px)",
-              letterSpacing: "-0.035em",
-              color: "var(--text-primary)",
-              margin: "0 0 14px",
-              lineHeight: 1.02,
-              fontWeight: 700,
+              position: "absolute",
+              inset: 0,
+              background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 0%, rgba(13,13,26,0.6) 60%, var(--bg-base) 100%)",
+              pointerEvents: "none",
             }}
-          >
-            Every tool a student needs.
-            <br />
-            <span style={{ color: "var(--accent-gold)" }}>Nothing extra.</span>
-          </h2>
-          <p style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontSize: "clamp(16px, 2.4vw, 21px)", color: "var(--text-muted)", margin: 0 }}>
-            One platform, built end to end for the ICSE Class 10 syllabus.
-          </p>
+          />
+
+          <div style={{ position: "relative", zIndex: 1, width: "100%" }}>
+            <div className="sa-eyebrow" style={{ marginBottom: 26, justifyContent: "center", display: "inline-flex" }}>
+              The toolkit
+            </div>
+
+            {/* Gooey morphing headline */}
+            <GooeyText
+              texts={["Nine Tools", "One Platform", "Zero Fluff", "Built to Win"]}
+              morphTime={1}
+              cooldownTime={1.6}
+              style={{ height: "clamp(56px, 11vw, 110px)", marginBottom: 22, width: "100%" }}
+              textStyle={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 800,
+                fontSize: "clamp(40px, 8vw, 92px)",
+                letterSpacing: "-0.04em",
+                color: "var(--text-primary)",
+                lineHeight: 1,
+              }}
+            />
+
+            <p
+              style={{
+                fontFamily: "var(--font-tagline)",
+                fontStyle: "italic",
+                fontSize: "clamp(16px, 2.6vw, 24px)",
+                color: "var(--text-secondary)",
+                margin: 0,
+                maxWidth: 600,
+                marginLeft: "auto",
+                marginRight: "auto",
+                lineHeight: 1.45,
+              }}
+            >
+              Every great board result starts with one decision.
+            </p>
+          </div>
         </div>
 
         <div

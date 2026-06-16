@@ -12,8 +12,6 @@ const META = [
 ];
 
 const SUBLINES = [
-  "Nine AI tools, built end to end",
-  "for the ICSE Class 10 syllabus.",
   "Every great board result starts with one decision.",
 ];
 
@@ -139,54 +137,80 @@ export default function Hero() {
           </span>
         </h1>
 
-        {/* Sub lines — reveal one by one, in clean white, for impact */}
+        {/* Sub line — the single emotional brand line */}
         <div
           ref={subRef}
           style={{
             display: "flex",
-            flexDirection: "column",
-            gap: 4,
-            maxWidth: 640,
+            justifyContent: "center",
+            maxWidth: 660,
             margin: "0 auto 44px",
           }}
         >
-          {SUBLINES.map((line, i) => (
-            <div
-              key={i}
-              ref={(el) => { sublineRefs.current[i] = el; }}
-              style={{
-                fontFamily: i === SUBLINES.length - 1 ? "var(--font-tagline)" : "var(--font-body)",
-                fontStyle: i === SUBLINES.length - 1 ? "italic" : "normal",
-                fontSize: i === SUBLINES.length - 1 ? "clamp(17px, 2.6vw, 24px)" : "clamp(15px, 2.2vw, 19px)",
-                fontWeight: i === SUBLINES.length - 1 ? 400 : 300,
-                color: i === SUBLINES.length - 1 ? "var(--accent-gold)" : "#FFFFFF",
-                lineHeight: 1.5,
-                letterSpacing: i === SUBLINES.length - 1 ? "0.01em" : "0",
-                marginTop: i === SUBLINES.length - 1 ? 10 : 0,
-              }}
-            >
-              {line}
-            </div>
-          ))}
+          <div
+            ref={(el) => { sublineRefs.current[0] = el; }}
+            style={{
+              fontFamily: "var(--font-tagline)",
+              fontStyle: "italic",
+              fontSize: "clamp(18px, 2.8vw, 27px)",
+              fontWeight: 400,
+              color: "var(--accent-gold)",
+              lineHeight: 1.45,
+              letterSpacing: "0.01em",
+              textAlign: "center",
+            }}
+          >
+            Every great board result starts with one decision.
+          </div>
         </div>
 
-        {/* Metadata row */}
+        {/* Metadata row — bold, eye-catching pills */}
         <div
           ref={metaRef}
           style={{
             display: "flex",
-            gap: "clamp(24px, 5vw, 56px)",
+            gap: "clamp(12px, 2vw, 18px)",
             justifyContent: "center",
             flexWrap: "wrap",
             marginBottom: 40,
           }}
         >
           {META.map((m) => (
-            <div key={m.label} style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--text-muted)" }}>
+            <div
+              key={m.label}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 7,
+                alignItems: "center",
+                padding: "14px 22px",
+                borderRadius: 14,
+                background: "rgba(0,212,255,0.04)",
+                border: "1px solid var(--accent-gold-border)",
+                boxShadow: "0 0 24px rgba(0,212,255,0.06)",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "var(--accent-gold)",
+                }}
+              >
                 {m.label}
               </span>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--text-primary)", fontWeight: 500, letterSpacing: "-0.01em" }}>
+              <span
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(17px, 2.4vw, 22px)",
+                  color: "var(--text-primary)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                }}
+              >
                 {m.value}
               </span>
             </div>

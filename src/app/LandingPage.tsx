@@ -33,8 +33,8 @@ export default function LandingPage() {
       <main style={{ background: "var(--bg-base)", position: "relative", overflowX: "hidden" }}>
         <Nav />
         <Hero />
-        <TractionStats />
         <FeaturesGrid />
+        <TractionStats />
         <Marquee items={MARQUEE_SUBJECTS} reverse />
         <ProductPreview />
         <Testimonials />

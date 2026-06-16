@@ -46,18 +46,17 @@ export default function Pricing() {
         <div style={{ marginBottom: 56, maxWidth: 720 }}>
           <div className="sa-eyebrow sa-reveal" style={{ marginBottom: 20 }}>The plans</div>
           <h2
-            className="sa-reveal"
+            className="sa-grad-text sa-reveal"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "clamp(32px, 6vw, 64px)",
               letterSpacing: "-0.035em",
-              color: "var(--text-primary)",
               margin: "0 0 14px",
               lineHeight: 1.02,
-              fontWeight: 700,
+              fontWeight: 800,
             }}
           >
-            Proven. <span style={{ color: "var(--accent-gold)" }}>Affordable.</span>
+            Proven. Affordable.
           </h2>
           <p className="sa-reveal" style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontSize: "clamp(16px, 2.4vw, 21px)", color: "var(--text-muted)", margin: 0 }}>
             Start free. Upgrade when you&apos;re ready to go all in.

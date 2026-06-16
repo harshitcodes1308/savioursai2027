@@ -251,3 +251,31 @@
 }
 .sa-vrail::-webkit-scrollbar { display: none; }
 .sa-vrail > * { scroll-snap-align: center; flex: 0 0 auto; }
+
+/* ---- 3D vertical testimonial marquee ---- */
+@keyframes saMarqueeV {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - var(--sa-vgap, 16px))); }
+}
+.sa-vmarquee {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: var(--sa-vgap, 16px);
+  min-width: 0;
+  height: 100%;
+}
+.sa-vmarquee-track {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--sa-vgap, 16px);
+  animation: saMarqueeV var(--sa-vdur, 40s) linear infinite;
+  will-change: transform;
+}
+.sa-vmarquee-track.reverse { animation-direction: reverse; }
+.sa-vmarquee-wrap:hover .sa-vmarquee-track { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sa-vmarquee-track { animation: none !important; }
+}

@@ -9,8 +9,10 @@ import * as THREE from "three";
  * container. Pauses under prefers-reduced-motion (renders a single frame).
  * -------------------------------------------------------------------------- */
 
-export default function ShaderAnimation({ opacity = 0.55 }: { opacity?: number }) {
+export default function ShaderAnimation({ opacity = 0.55, speed = 0.04 }: { opacity?: number; speed?: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
   const ref = useRef<{
     renderer: THREE.WebGLRenderer;
     uniforms: { time: { value: number }; resolution: { value: THREE.Vector2 } };
@@ -43,18 +45,18 @@ export default function ShaderAnimation({ opacity = 0.55 }: { opacity?: number }
 
       void main(void) {
         vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-        float t = time * 0.05;
-        float lineWidth = 0.002;
+        float t = time * 0.18;
+        float lineWidth = 0.0028;
 
         vec3 color = vec3(0.0);
         for(int j = 0; j < 3; j++){
-          for(int i = 0; i < 5; i++){
-            color[j] += lineWidth * float(i*i) / abs(fract(t - 0.01*float(j) + float(i)*0.01)*5.0 - length(uv) + mod(uv.x + uv.y, 0.2));
+          for(int i = 0; i < 7; i++){
+            color[j] += lineWidth * float(i*i) / abs(fract(t - 0.012*float(j) + float(i)*0.012)*6.0 - length(uv) + mod(uv.x + uv.y, 0.25));
           }
         }
 
         // Remap to cyan: kill most red, keep green mid, blue full
-        vec3 tint = vec3(0.06, 0.78, 1.0);
+        vec3 tint = vec3(0.08, 0.8, 1.0);
         vec3 finalColor = color * tint;
 
         gl_FragColor = vec4(finalColor, 1.0);
@@ -94,7 +96,7 @@ export default function ShaderAnimation({ opacity = 0.55 }: { opacity?: number }
 
     const animate = () => {
       const id = requestAnimationFrame(animate);
-      uniforms.time.value += 0.05;
+      uniforms.time.value += speedRef.current;
       renderer.render(scene, camera);
       if (ref.current) ref.current.animationId = id;
     };

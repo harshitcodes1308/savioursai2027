@@ -78,17 +78,17 @@ export default function ProductPreview() {
         <div style={{ marginBottom: 48, maxWidth: 720 }}>
           <div className="sa-eyebrow" style={{ marginBottom: 20 }}>The product</div>
           <h2
+            className="sa-grad-text"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "clamp(32px, 6vw, 64px)",
               letterSpacing: "-0.035em",
-              color: "var(--text-primary)",
               margin: "0 0 14px",
               lineHeight: 1.02,
-              fontWeight: 700,
+              fontWeight: 800,
             }}
           >
-            See it <span style={{ color: "var(--accent-gold)" }}>in action.</span>
+            See it in action.
           </h2>
           <p style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontSize: "clamp(16px, 2.4vw, 21px)", color: "var(--text-muted)", margin: 0 }}>
             This is the real dashboard. No mockups, no &quot;coming soon.&quot;

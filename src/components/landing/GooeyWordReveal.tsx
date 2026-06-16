@@ -4,9 +4,10 @@ import { useEffect, useRef, type CSSProperties } from "react";
 import { gsap, prefersReducedMotion } from "./useScrollReveal";
 
 /* -----------------------------------------------------------------------------
- * Gooey word reveal — words blur/morph in one by one (gooey threshold filter),
- * assemble into a full line, hold for `holdSeconds`, then the cycle repeats.
- * Re-themed from the 21st.dev gooey-text effect; our fonts/colours via props.
+ * Gooey word reveal — words morph in one by one through a blur-threshold filter
+ * (the 21st.dev gooey-text look), assemble into the full line, hold for
+ * `holdSeconds`, then blur back out and the cycle loops forever.
+ * Re-themed: our fonts/colours via props.
  * -------------------------------------------------------------------------- */
 
 interface GooeyWordRevealProps {
@@ -33,31 +34,37 @@ export default function GooeyWordReveal({
     if (!els.length) return;
 
     if (prefersReducedMotion()) {
-      els.forEach((e) => { e.style.opacity = "1"; e.style.filter = "none"; });
+      els.forEach((e) => { e.style.opacity = "1"; e.style.filter = "blur(0px)"; });
       return;
     }
 
     const ctx = gsap.context(() => {
-      gsap.set(els, { opacity: 0, filter: "blur(14px)" });
+      gsap.set(els, { opacity: 0, filter: "blur(18px)", scale: 0.92 });
+
       const tl = gsap.timeline({ repeat: -1, delay: startDelay });
-      // reveal word by word
+
+      // Words morph in one by one — high blur start gives the gooey-merge look
       tl.to(els, {
         opacity: 1,
         filter: "blur(0px)",
-        duration: 0.55,
+        scale: 1,
+        duration: 0.62,
         ease: "power2.out",
-        stagger: 0.26,
+        stagger: 0.24,
       });
-      // hold the full line, then blur it all back out
+
+      // Hold the complete sentence, then dissolve it all back into the goo
       tl.to(els, {
         opacity: 0,
-        filter: "blur(14px)",
-        duration: 0.7,
+        filter: "blur(18px)",
+        scale: 0.96,
+        duration: 0.8,
         ease: "power2.in",
-        stagger: 0.05,
+        stagger: 0.04,
       }, `+=${holdSeconds}`);
-      // brief beat before the cycle repeats
-      tl.to({}, { duration: 0.45 });
+
+      // brief beat before the loop restarts
+      tl.to({}, { duration: 0.5 });
     }, containerRef);
 
     return () => ctx.revert();
@@ -86,7 +93,7 @@ export default function GooeyWordReveal({
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "center",
-          gap: "0.32em",
+          gap: "0.3em",
           filter: "url(#sa-gooey-hero)",
         }}
       >

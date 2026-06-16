@@ -71,18 +71,26 @@ export default function Hero() {
       {/* Pixel ripple canvas backdrop — grains settle into static blue */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <PixelCanvas
-          baseColor="rgba(30, 84, 122, 0.5)"
+          baseColor="rgba(30, 84, 122, 0.42)"
           accentColor="#00D4FF"
-          accentRatio={0.22}
-          gap={6}
+          accentRatio={0.1}
+          gap={7}
           speed={30}
         />
-        {/* radial fade into the page background */}
+        {/* radial fade into the page background — denser darkening behind the
+            title so the pixels never camouflage the wordmark */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(circle at center, transparent 0%, var(--bg-base) 78%)",
+            background: "radial-gradient(ellipse 52% 46% at 50% 42%, var(--bg-base) 0%, rgba(13,13,26,0.78) 38%, transparent 70%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(circle at center, transparent 0%, var(--bg-base) 80%)",
             opacity: 0.85,
           }}
         />
@@ -130,9 +138,9 @@ export default function Hero() {
           style={{
             display: "flex",
             justifyContent: "center",
-            maxWidth: 760,
+            maxWidth: 820,
             margin: "0 auto 44px",
-            minHeight: "1.5em",
+            minHeight: "2.4em",
           }}
         >
           <GooeyWordReveal
@@ -142,10 +150,10 @@ export default function Hero() {
             style={{ width: "100%" }}
             wordStyle={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(17px, 2.6vw, 26px)",
-              fontWeight: 500,
+              fontSize: "clamp(19px, 3vw, 30px)",
+              fontWeight: 600,
               color: "#FFFFFF",
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.015em",
             }}
           />
         </div>
@@ -169,11 +177,16 @@ export default function Hero() {
                 flexDirection: "column",
                 gap: 7,
                 alignItems: "center",
-                padding: "14px 22px",
-                borderRadius: 14,
-                background: "rgba(0,212,255,0.04)",
-                border: "1px solid var(--accent-gold-border)",
-                boxShadow: "0 0 24px rgba(0,212,255,0.06)",
+                padding: "14px 24px",
+                borderRadius: "var(--radius-md)",
+                // matches the Start Free (.btn-gold) treatment — solid cyan glass
+                background:
+                  "linear-gradient(135deg, rgba(0,212,255,0.18) 0%, rgba(0,180,220,0.12) 50%, rgba(0,212,255,0.20) 100%)",
+                border: "1px solid rgba(0,212,255,0.28)",
+                backdropFilter: "blur(16px) saturate(1.4)",
+                WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+                boxShadow:
+                  "0 0 12px rgba(0,212,255,0.15), inset 0 1px 1px rgba(255,255,255,0.12), inset 0 -1px 1px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.2)",
               }}
             >
               <span
@@ -183,7 +196,8 @@ export default function Hero() {
                   fontWeight: 700,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
-                  color: "var(--accent-gold)",
+                  color: "#9DE8FF",
+                  textShadow: "0 1px 2px rgba(0,0,0,0.3)",
                 }}
               >
                 {m.label}
@@ -192,9 +206,10 @@ export default function Hero() {
                 style={{
                   fontFamily: "var(--font-display)",
                   fontSize: "clamp(17px, 2.4vw, 22px)",
-                  color: "var(--text-primary)",
+                  color: "#FFFFFF",
                   fontWeight: 700,
                   letterSpacing: "-0.02em",
+                  textShadow: "0 1px 2px rgba(0,0,0,0.3)",
                 }}
               >
                 {m.value}

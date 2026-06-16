@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger, prefersReducedMotion } from "./useScrollReveal";
+import ElegantShapes from "./ElegantShapes";
 
 interface Stat {
   value: number;
@@ -78,25 +79,37 @@ export default function TractionStats() {
   return (
     <section
       ref={sectionRef}
-      style={{ position: "relative", zIndex: 1, padding: "clamp(80px, 12vw, 140px) 24px" }}
+      style={{ position: "relative", zIndex: 1, padding: "clamp(80px, 12vw, 140px) 24px", overflow: "hidden" }}
     >
+      {/* Ambient floating shapes backdrop */}
+      <ElegantShapes />
+      {/* soft fade so the shapes never compete with the stat cards */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          background: "linear-gradient(to bottom, var(--bg-base) 0%, transparent 18%, transparent 82%, var(--bg-base) 100%)",
+        }}
+      />
       <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
         <div style={{ marginBottom: 56, maxWidth: 720 }}>
           <div className="sa-eyebrow" style={{ marginBottom: 20 }}>The proof</div>
           <h2
+            className="sa-grad-text"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "clamp(32px, 6vw, 64px)",
               letterSpacing: "-0.035em",
-              color: "var(--text-primary)",
               margin: "0 0 14px",
               lineHeight: 1.02,
-              fontWeight: 700,
+              fontWeight: 800,
             }}
           >
             Real traction.
             <br />
-            <span style={{ color: "var(--accent-gold)" }}>Zero paid ads.</span>
+            Zero paid ads.
           </h2>
           <p
             style={{

@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap, prefersReducedMotion } from "./useScrollReveal";
 import MagneticButton from "./MagneticButton";
 import PixelCanvas from "./PixelCanvas";
+import GooeyWordReveal from "./GooeyWordReveal";
 
 const META = [
   { label: "Built for", value: "ICSE Class X" },
@@ -11,24 +12,18 @@ const META = [
   { label: "Tools", value: "Nine, end to end" },
 ];
 
-const SUBLINES = [
-  "Every great board result starts with one decision.",
-];
-
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const diamondRef = useRef<SVGSVGElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const subRef = useRef<HTMLDivElement>(null);
-  const sublineRefs = useRef<(HTMLDivElement | null)[]>([]);
   const metaRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const reduced = prefersReducedMotion();
-    const sublines = sublineRefs.current.filter(Boolean) as HTMLDivElement[];
-    const targets = [eyebrowRef.current, headlineRef.current, ...sublines, metaRef.current, ctaRef.current];
+    const targets = [eyebrowRef.current, headlineRef.current, subRef.current, metaRef.current, ctaRef.current];
 
     if (reduced) {
       targets.forEach((el) => { if (el) { el.style.opacity = "1"; el.style.transform = "none"; } });
@@ -48,16 +43,8 @@ export default function Hero() {
       gsap.timeline({ delay: 0.4 })
         .from(eyebrowRef.current, { opacity: 0, y: 14, duration: 0.6, ease: "power3.out" })
         .from(headlineRef.current, { opacity: 0, y: 40, scale: 0.96, duration: 1.1, ease: "power4.out" }, "-=0.2")
-        // sub-lines reveal one by one, like harshitsingh.me
-        .from(sublines, {
-          opacity: 0,
-          y: 18,
-          filter: "blur(6px)",
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.22,
-        }, "-=0.35")
-        .from(metaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.2")
+        .from(subRef.current, { opacity: 0, y: 18, duration: 0.7, ease: "power3.out" }, "-=0.3")
+        .from(metaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.3")
         .from(ctaRef.current, { opacity: 0, y: 22, duration: 0.7, ease: "power3.out" }, "-=0.5");
     }, sectionRef);
 
@@ -137,31 +124,30 @@ export default function Hero() {
           </span>
         </h1>
 
-        {/* Sub line — the single emotional brand line */}
+        {/* Sub line — words gooey-reveal one by one, assemble, hold, repeat */}
         <div
           ref={subRef}
           style={{
             display: "flex",
             justifyContent: "center",
-            maxWidth: 660,
+            maxWidth: 760,
             margin: "0 auto 44px",
+            minHeight: "1.5em",
           }}
         >
-          <div
-            ref={(el) => { sublineRefs.current[0] = el; }}
-            style={{
-              fontFamily: "var(--font-tagline)",
-              fontStyle: "italic",
-              fontSize: "clamp(18px, 2.8vw, 27px)",
-              fontWeight: 400,
-              color: "var(--accent-gold)",
-              lineHeight: 1.45,
-              letterSpacing: "0.01em",
-              textAlign: "center",
+          <GooeyWordReveal
+            text="Every great board result starts with one decision."
+            holdSeconds={4}
+            startDelay={1.4}
+            style={{ width: "100%" }}
+            wordStyle={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(17px, 2.6vw, 26px)",
+              fontWeight: 500,
+              color: "#FFFFFF",
+              letterSpacing: "-0.01em",
             }}
-          >
-            Every great board result starts with one decision.
-          </div>
+          />
         </div>
 
         {/* Metadata row — bold, eye-catching pills */}

@@ -138,9 +138,15 @@ function BentoCard({ tool, index }: { tool: Tool; index: number }) {
               </span>
             ))}
           </div>
-          <span className="sa-bento-cta" style={{ fontFamily: "var(--font-body)", fontSize: 11, color: tool.color, whiteSpace: "nowrap" }}>
+          <a
+            href="/login"
+            className="sa-bento-cta"
+            data-cursor="hover"
+            aria-label={`Explore ${tool.name}`}
+            style={{ fontFamily: "var(--font-body)", fontSize: 11, color: tool.color, whiteSpace: "nowrap", textDecoration: "none" }}
+          >
             Explore →
-          </span>
+          </a>
         </div>
       </div>
 

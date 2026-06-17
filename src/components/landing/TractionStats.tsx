@@ -45,15 +45,19 @@ export default function TractionStats() {
           onUpdate: () => { el.textContent = s.display(counter.v); },
         });
       });
-      // Cards rise in
-      gsap.from(".sa-stat-card", {
-        opacity: 0,
-        y: 40,
-        duration: 0.9,
-        ease: "power3.out",
-        stagger: 0.1,
-        scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
-      });
+      // Whole card row fades in as one unit — no per-card stagger/opacity that
+      // could leave a card pale or misaligned mid-scroll.
+      gsap.fromTo(
+        ".sa-stat-grid",
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          scrollTrigger: { trigger: sectionRef.current, start: "top 82%", once: true },
+        }
+      );
     }, sectionRef);
 
     // Bento border glow follows cursor
@@ -122,51 +126,58 @@ export default function TractionStats() {
               lineHeight: 1.5,
             }}
           >
-            We launched with one YouTube audience. This is what two months of organic growth looked like.
+            We launched with one YouTube audience. Here&apos;s what organic growth looked like in{" "}
+            <span style={{ color: "var(--accent-gold)", fontStyle: "normal", fontWeight: 600 }}>under 2 months</span>.
           </p>
         </div>
 
         {/* Stat cards */}
         <div
+          className="sa-stat-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gridTemplateColumns: "repeat(4, 1fr)",
             gap: 16,
             marginBottom: 36,
+            alignItems: "stretch",
           }}
         >
-          {STATS.map((s, i) => (
-            <div
-              key={i}
-              className="sa-bento sa-stat-card"
-              style={{ padding: "34px 28px" }}
-            >
+          {STATS.map((s, i) => {
+            const featured = i === 2; // Revenue, under 2 months — the headline metric
+            return (
               <div
-                ref={(el) => { numRefs.current[i] = el; }}
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "clamp(38px, 5vw, 56px)",
-                  color: "var(--accent-gold)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.03em",
-                  lineHeight: 1,
-                  marginBottom: 14,
-                }}
+                key={i}
+                className={`sa-bento sa-stat-card${featured ? " sa-stat-featured" : ""}`}
+                style={{ padding: "34px 28px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}
               >
-                0
+                <div
+                  ref={(el) => { numRefs.current[i] = el; }}
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "clamp(38px, 5vw, 56px)",
+                    color: "var(--accent-gold)",
+                    fontWeight: 700,
+                    letterSpacing: "-0.03em",
+                    lineHeight: 1,
+                    marginBottom: 14,
+                  }}
+                >
+                  0
+                </div>
+                <div
+                  className="sa-stat-label"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: 13,
+                    color: "var(--text-muted)",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {s.label}
+                </div>
               </div>
-              <div
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: 13,
-                  color: "var(--text-muted)",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                {s.label}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Comparison strip */}
@@ -193,6 +204,15 @@ export default function TractionStats() {
           </span>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 860px) {
+          .sa-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 440px) {
+          .sa-stat-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   );
 }

@@ -181,9 +181,23 @@ export default function PixelCanvas({
     init();
     const ro = new ResizeObserver(() => { init(); });
     if (wrapRef.current) ro.observe(wrapRef.current);
+
+    // Pause the per-pixel loop when the hero scrolls out of view — keeps the
+    // rest of the page smooth instead of redrawing thousands of pixels off-screen.
+    let visible = true;
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting && !visible) { visible = true; animate(); }
+        else if (!e.isIntersecting && visible) { visible = false; cancelAnimationFrame(animationRef.current); }
+      }),
+      { rootMargin: "100px" }
+    );
+    if (wrapRef.current) io.observe(wrapRef.current);
+
     animate();
     return () => {
       ro.disconnect();
+      io.disconnect();
       cancelAnimationFrame(animationRef.current);
     };
   }, [init, animate]);

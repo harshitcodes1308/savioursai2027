@@ -38,6 +38,7 @@ export default function LandingPage() {
         <Marquee items={MARQUEE_SUBJECTS} reverse />
         <ProductPreview />
         <Testimonials />
+        <Marquee items={MARQUEE_SUBJECTS} />
         <Pricing />
         <FinalCTA />
         <Footer />

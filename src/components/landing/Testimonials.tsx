@@ -1,8 +1,6 @@
 "use client";
 
 import { useScrollReveal } from "./useScrollReveal";
-import { VIDEO_TESTIMONIALS } from "@/data/video-testimonials";
-import VideoTestimonialCard from "./VideoTestimonialCard";
 import VerticalMarquee from "./VerticalMarquee";
 
 interface Review {
@@ -95,7 +93,7 @@ export default function Testimonials() {
   const cards = REVIEWS.map((r) => <ReviewCard key={r.handle} r={r} />);
 
   return (
-    <section ref={ref} style={{ padding: "clamp(80px, 12vw, 130px) 0", position: "relative", overflow: "hidden" }}>
+    <section ref={ref} style={{ padding: "clamp(80px, 12vw, 130px) 0 clamp(32px, 5vw, 56px)", position: "relative", overflow: "hidden" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
         {/* Header — gradient glass text matching the toolkit section */}
         <div style={{ marginBottom: 48, maxWidth: 720 }}>
@@ -123,7 +121,7 @@ export default function Testimonials() {
           position: "relative",
           width: "100%",
           height: "clamp(440px, 60vh, 600px)",
-          marginBottom: 80,
+          marginBottom: 0,
           overflow: "hidden",
           perspective: "1400px",
         }}
@@ -152,29 +150,6 @@ export default function Testimonials() {
         {/* edge fades into the page background */}
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(to bottom, var(--bg-base), transparent 16%, transparent 84%, var(--bg-base))" }} />
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(to right, var(--bg-base), transparent 10%, transparent 90%, var(--bg-base))" }} />
-      </div>
-
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <p
-            className="sa-reveal"
-            style={{
-              fontFamily: "var(--font-tagline)",
-              fontStyle: "italic",
-              fontSize: "clamp(18px, 3vw, 28px)",
-              color: "var(--text-secondary)",
-              margin: 0,
-            }}
-          >
-            Hear it from them.
-          </p>
-        </div>
-
-        <div className="sa-vrail sa-reveal" style={{ paddingLeft: 4, paddingRight: 4 }}>
-          {VIDEO_TESTIMONIALS.map((vt) => (
-            <VideoTestimonialCard key={vt.id} data={vt} />
-          ))}
-        </div>
       </div>
 
       <style>{`

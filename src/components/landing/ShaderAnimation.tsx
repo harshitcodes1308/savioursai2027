@@ -94,24 +94,41 @@ export default function ShaderAnimation({ opacity = 0.55, speed = 0.04 }: { opac
 
     ref.current = { renderer, uniforms, animationId: 0, geometry, material };
 
+    let running = false;
     const animate = () => {
-      const id = requestAnimationFrame(animate);
+      if (!running) return;
+      ref.current!.animationId = requestAnimationFrame(animate);
       uniforms.time.value += speedRef.current;
       renderer.render(scene, camera);
-      if (ref.current) ref.current.animationId = id;
+    };
+    const start = () => {
+      if (running) return;
+      running = true;
+      ref.current!.animationId = requestAnimationFrame(animate);
+    };
+    const stop = () => {
+      running = false;
+      if (ref.current) cancelAnimationFrame(ref.current.animationId);
     };
 
+    // Only render while the section is on (or near) screen — saves the GPU
+    // from running the shader off-screen, which keeps scrolling smooth.
+    let io: IntersectionObserver | null = null;
     if (reduced) {
-      // single static frame
       renderer.render(scene, camera);
     } else {
-      animate();
+      io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => (e.isIntersecting ? start() : stop())),
+        { rootMargin: "200px" }
+      );
+      io.observe(container);
     }
 
     return () => {
       window.removeEventListener("resize", onResize);
+      io?.disconnect();
+      stop();
       if (ref.current) {
-        cancelAnimationFrame(ref.current.animationId);
         if (container && ref.current.renderer.domElement.parentNode === container) {
           container.removeChild(ref.current.renderer.domElement);
         }

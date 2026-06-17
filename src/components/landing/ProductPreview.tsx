@@ -132,6 +132,7 @@ export default function ProductPreview() {
           <div style={{ display: "flex", minHeight: 360, background: "var(--bg-base)" }}>
             {/* sidebar */}
             <div
+              className="sa-pp-sidebar"
               style={{
                 width: 168,
                 borderRight: "1px solid var(--bg-border)",
@@ -187,7 +188,7 @@ export default function ProductPreview() {
               </div>
 
               {/* tool cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              <div className="sa-pp-tools" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
                 {card("AI Doubt Solver", "◆", "#00D4FF")}
                 {card("Smart Planner", "◎", "#00D4FF")}
                 {card("Competency Test", "▣", "#00D4FF")}
@@ -196,6 +197,13 @@ export default function ProductPreview() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 600px) {
+          .sa-pp-sidebar { display: none !important; }
+          .sa-pp-tools { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   );
 }

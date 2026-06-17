@@ -279,3 +279,32 @@
 @media (prefers-reduced-motion: reduce) {
   .sa-vmarquee-track { animation: none !important; }
 }
+
+/* ---- Traction stat cards: hover-focus (pop one, blur the rest) ---- */
+.sa-stat-card {
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), filter 0.4s ease,
+              opacity 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+/* The featured (revenue) card — highlighted by default */
+.sa-stat-featured {
+  border-color: var(--accent-gold-border);
+  box-shadow: 0 0 34px rgba(0,212,255,0.14);
+  background: rgba(0,212,255,0.04);
+}
+.sa-stat-featured .sa-stat-label { color: var(--accent-gold); font-weight: 600; }
+
+@media (hover: hover) and (pointer: fine) {
+  .sa-stat-grid:hover .sa-stat-card {
+    filter: blur(3px) saturate(0.85);
+    opacity: 0.4;
+    transform: scale(0.97);
+  }
+  .sa-stat-grid .sa-stat-card:hover {
+    filter: none;
+    opacity: 1;
+    transform: translateY(-10px) scale(1.05);
+    border-color: var(--accent-gold-border);
+    box-shadow: 0 22px 56px rgba(0,0,0,0.5), 0 0 44px rgba(0,212,255,0.22);
+    z-index: 3;
+  }
+}

@@ -7,13 +7,16 @@ export async function GET(req: NextRequest) {
   try {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET + "-creator-panel");
     let token = req.headers.get("Authorization")?.replace("Bearer ", "");
+    if (token === "undefined" || token === "null") {
+      token = undefined;
+    }
 
     if (!token) {
       const cookieStore = await cookies();
       token = cookieStore.get("creator-token")?.value;
     }
 
-    if (!token) {
+    if (!token || token === "undefined" || token === "null") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -131,6 +134,9 @@ export async function GET(req: NextRequest) {
       students: filteredUsers,
     });
   } catch (e: any) {
+    if (e.code === "ERR_JWT_EXPIRED" || e.code === "ERR_JWS_INVALID" || e.code === "ERR_JWS_SIGNATURE_VERIFICATION_FAILED") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("Error fetching creator students:", e);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

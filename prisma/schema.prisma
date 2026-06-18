@@ -13,6 +13,7 @@ model Creator {
   creatorCode         String   @unique @map("creator_code")
   channelId           String?  @map("channel_id")
   discountPercentage  Int      @default(0) @map("discount_percentage")
+  revenueSharePercentage Int     @default(20) @map("revenue_share_percentage")
   createdAt           DateTime @default(now()) @map("created_at")
 
   @@map("creators")

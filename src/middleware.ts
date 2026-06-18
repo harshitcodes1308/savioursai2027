@@ -11,6 +11,41 @@ const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
+
+    // ── Creator Portal Protection ──
+    if (pathname.startsWith('/creator/dashboard')) {
+        const creatorToken = request.cookies.get('creator-token')?.value;
+        if (!creatorToken) {
+            return NextResponse.redirect(new URL('/creator/login', request.url));
+        }
+        try {
+            const secret = new TextEncoder().encode(process.env.JWT_SECRET + "-creator-panel");
+            const { payload } = await jwtVerify(creatorToken, secret);
+            if (!payload || payload.role !== 'creator') {
+                throw new Error("Invalid payload");
+            }
+        } catch {
+            const res = NextResponse.redirect(new URL('/creator/login', request.url));
+            res.cookies.delete('creator-token');
+            return res;
+        }
+    }
+
+    if (pathname === '/creator/login') {
+        const creatorToken = request.cookies.get('creator-token')?.value;
+        if (creatorToken) {
+            try {
+                const secret = new TextEncoder().encode(process.env.JWT_SECRET + "-creator-panel");
+                const { payload } = await jwtVerify(creatorToken, secret);
+                if (payload && payload.role === 'creator') {
+                    return NextResponse.redirect(new URL('/creator/dashboard', request.url));
+                }
+            } catch {
+                // Ignore, let them log in
+            }
+        }
+    }
+
     const token = request.cookies.get('auth-token')?.value;
 
     let isAuthenticated = false;

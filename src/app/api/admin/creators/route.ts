@@ -37,12 +37,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     if (!(await verifyAdmin(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { creatorName, creatorCode, channelId, discountPercentage } = await req.json();
+    const { creatorName, creatorCode, channelId, discountPercentage, revenueSharePercentage } = await req.json();
 
     if (!creatorName?.trim()) return NextResponse.json({ error: "Creator name is required" }, { status: 400 });
     if (!creatorCode?.trim()) return NextResponse.json({ error: "Creator code is required" }, { status: 400 });
     if (!/^[a-zA-Z0-9]+$/.test(creatorCode)) return NextResponse.json({ error: "Creator code must be alphanumeric only (no spaces/symbols)" }, { status: 400 });
     if (!discountPercentage || discountPercentage < 1 || discountPercentage > 100) return NextResponse.json({ error: "Discount must be 1–100" }, { status: 400 });
+    
+    const revShare = revenueSharePercentage !== undefined ? Number(revenueSharePercentage) : 20;
+    if (isNaN(revShare) || revShare < 0 || revShare > 100) {
+        return NextResponse.json({ error: "Revenue share must be between 0 and 100" }, { status: 400 });
+    }
 
     try {
         const creator = await prisma.creator.create({
@@ -51,6 +56,7 @@ export async function POST(req: NextRequest) {
                 creatorCode: creatorCode.trim(),
                 channelId: channelId?.trim() || null,
                 discountPercentage: Number(discountPercentage),
+                revenueSharePercentage: revShare,
             },
         });
         return NextResponse.json({ creator });
@@ -64,11 +70,16 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
     if (!(await verifyAdmin(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { id, creatorName, channelId, discountPercentage } = await req.json();
+    const { id, creatorName, channelId, discountPercentage, revenueSharePercentage } = await req.json();
 
     if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
     if (!creatorName?.trim()) return NextResponse.json({ error: "Creator name is required" }, { status: 400 });
     if (!discountPercentage || discountPercentage < 1 || discountPercentage > 100) return NextResponse.json({ error: "Discount must be 1–100" }, { status: 400 });
+
+    const revShare = revenueSharePercentage !== undefined ? Number(revenueSharePercentage) : 20;
+    if (isNaN(revShare) || revShare < 0 || revShare > 100) {
+        return NextResponse.json({ error: "Revenue share must be between 0 and 100" }, { status: 400 });
+    }
 
     const creator = await prisma.creator.update({
         where: { id },
@@ -76,6 +87,7 @@ export async function PUT(req: NextRequest) {
             creatorName: creatorName.trim(),
             channelId: channelId?.trim() || null,
             discountPercentage: Number(discountPercentage),
+            revenueSharePercentage: revShare,
         },
     });
     return NextResponse.json({ creator });

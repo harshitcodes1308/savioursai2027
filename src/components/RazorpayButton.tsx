@@ -70,7 +70,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
             const prefill = { name, email };
 
             if (type === "MONTHLY") {
-                // ── Recurring subscription flow (₹199/month) ──
+                // ── Recurring subscription flow (₹149/month) ──
                 const subRes = await fetch("/api/create-subscription", { method: "POST" });
                 const subData = await subRes.json();
 
@@ -83,7 +83,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
                 const subOptions = {
                     key,
                     name: "Saviours AI",
-                    description: "Monthly Plan — ₹199/month",
+                    description: "Monthly Plan — ₹149/month",
                     subscription_id: subData.subscription.id,
                     handler: async (response: any) => {
                         setLoading(true);

@@ -57,9 +57,9 @@ export async function GET(request: NextRequest) {
             publishedAt: item.snippet.publishedAt,
         }));
 
-        // Fetch creator's channel ID for boosting
+        // Default creator branding to Clarify Knowledge
         let creatorChannelId: string | null = null;
-        let creatorName: string | null = null;
+        let creatorName: string | null = "Clarify Knowledge";
         const dbUser = await prisma.user.findUnique({
             where: { id: session.user.id },
             select: { creatorCode: true },
@@ -69,8 +69,8 @@ export async function GET(request: NextRequest) {
                 where: { creatorCode: dbUser.creatorCode },
                 select: { channelId: true, creatorName: true },
             });
-            creatorChannelId = creator?.channelId ?? null;
-            creatorName = creator?.creatorName ?? null;
+            if (creator?.channelId) creatorChannelId = creator.channelId;
+            if (creator?.creatorName) creatorName = creator.creatorName;
         }
 
         return NextResponse.json({

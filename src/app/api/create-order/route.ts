@@ -51,22 +51,7 @@ export async function POST(req: Request) {
             }
         }
 
-        // Creator discount — only applies to PRO_YEARLY (not LNB add-on)
         let amountPaise: number = BASE_PRICING[purchaseType];
-        let discountPct = 0;
-        let creatorName: string | null = null;
-
-        if (purchaseType === "PRO_YEARLY" && dbUser.creatorCode) {
-            const creator = await prisma.creator.findUnique({
-                where: { creatorCode: dbUser.creatorCode },
-                select: { discountPercentage: true, creatorName: true },
-            });
-            if (creator && creator.discountPercentage > 0) {
-                discountPct = creator.discountPercentage;
-                creatorName = creator.creatorName;
-                amountPaise = Math.round(amountPaise * (1 - discountPct / 100));
-            }
-        }
 
         const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
         const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -88,14 +73,13 @@ export async function POST(req: Request) {
                 userEmail: user.email,
                 expectedAmount: amountPaise.toString(),
                 purchaseType,
-                ...(discountPct > 0 ? { discountPct: discountPct.toString(), creatorCode: dbUser.creatorCode! } : {}),
             },
         });
 
         return NextResponse.json({
             success: true,
             order,
-            discount: discountPct > 0 ? { percentage: discountPct, creatorName, finalAmountPaise: amountPaise } : null,
+            discount: null,
         });
     } catch (error) {
         console.error("Razorpay Order Error:", error);

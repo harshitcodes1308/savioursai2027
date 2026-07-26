@@ -24,7 +24,7 @@ const PLANS: Plan[] = [
   },
   {
     name: "Monthly",
-    price: "₹199",
+    price: "₹149",
     period: "/month",
     href: "/signup",
     features: ["Everything in Free", "AI Doubt Solver", "Competency Test", "Customise Test", "Flip the Question", "Focus Mode", "Numerical Mastery", "ChronoScroll", "Date Battle Arena"],

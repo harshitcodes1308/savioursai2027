@@ -9,7 +9,7 @@ const ShuffleCards = dynamic(() => import('@/components/ui/testimonial-cards'), 
 const AnimatedGlassyPricing = dynamic(() => import('@/components/ui/animated-glassy-pricing'), { ssr: false });
 const VapourText = dynamic(() => import('@/components/ui/vapour-text-effect'), { ssr: false });
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 const VIDEO_URL = 'https://res.cloudinary.com/dv0w2nfnw/video/upload/v1774898701/videoplayback_tgdakw.mp4';
 
@@ -55,11 +55,6 @@ export default function OnboardingFlow() {
   const [phoneInput, setPhoneInput] = useState('');
   const [profileError, setProfileError] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
-  const [creatorSearch, setCreatorSearch] = useState('');
-  const [selectedCreatorCode, setSelectedCreatorCode] = useState<string | null>(undefined as unknown as null);
-  const [creators, setCreators] = useState<Array<{ creatorName: string; creatorCode: string; discountPercentage: number }>>([]);
-  const [savingCreator, setSavingCreator] = useState(false);
-  const [creatorDropdownOpen, setCreatorDropdownOpen] = useState(false);
 
   const video1Ref = useRef<HTMLVideoElement>(null);
   const video6Ref = useRef<HTMLVideoElement>(null);
@@ -98,54 +93,64 @@ export default function OnboardingFlow() {
     setActiveGreeting(-1);
     setVisibleMessages(0);
     setShowCta(false);
+    let cancelled = false;
 
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    async function runGreetingsSequence() {
+      for (let i = 0; i < GREETINGS.length; i++) {
+        if (cancelled) return;
+        await new Promise(r => setTimeout(r, GREETINGS[i].delay));
+        if (cancelled) return;
+        setActiveGreeting(i);
+      }
+      if (cancelled) return;
+      await new Promise(r => setTimeout(r, 1200));
+      if (cancelled) return;
 
-    GREETINGS.forEach((g, i) => {
-      timers.push(setTimeout(() => setActiveGreeting(i), g.delay));
-    });
+      setGreetingPhase('messages');
+      for (let i = 0; i < MESSAGES.length; i++) {
+        if (cancelled) return;
+        await new Promise(r => setTimeout(r, MESSAGES[i].delay));
+        if (cancelled) return;
+        setVisibleMessages(i + 1);
+      }
+      if (cancelled) return;
+      await new Promise(r => setTimeout(r, 800));
+      if (!cancelled) setShowCta(true);
+    }
 
-    const messagesStart = 3400;
-    timers.push(setTimeout(() => setGreetingPhase('messages'), messagesStart));
-
-    MESSAGES.forEach((m, i) => {
-      timers.push(
-        setTimeout(() => setVisibleMessages(v => Math.max(v, i + 1)), messagesStart + 400 + m.delay)
-      );
-    });
-
-    timers.push(setTimeout(() => setShowCta(true), messagesStart + 400 + 3200));
-
-    return () => timers.forEach(clearTimeout);
+    runGreetingsSequence();
+    return () => { cancelled = true; };
   }, [step]);
 
-  // ── Screen 6 — Loading
+  // ── Screen 6 — Setup loading animation
   useEffect(() => {
-    if (step !== 7) return;
+    if (step !== 6) return;
     const v = video6Ref.current;
     if (v) { v.playbackRate = 1.5; v.play().catch(() => {}); }
-    setLoadingLine(0);
-    const timers = LOADING_LINES.map((_, i) =>
-      setTimeout(() => setLoadingLine(i + 1), 800 * (i + 1))
-    );
-    // After loading, go to vapour text screen
-    timers.push(setTimeout(() => setStep(8), 3600));
-    return () => timers.forEach(clearTimeout);
-  }, [step]);
 
-  // Screen 7 navigation is driven by VapourText onComplete callback
+    const interval = setInterval(() => {
+      setLoadingLine(prev => {
+        if (prev < LOADING_LINES.length - 1) return prev + 1;
+        clearInterval(interval);
+        setTimeout(() => setStep(7), 800);
+        return prev;
+      });
+    }, 1200);
+
+    return () => clearInterval(interval);
+  }, [step]);
 
   function advanceFromS1() {
     setFadeOut(true);
-    setTimeout(() => { setFadeOut(false); setStep(2); }, 600);
+    setTimeout(() => { setFadeOut(false); setStep(2); }, 500);
   }
 
   async function handleSaveProfile() {
     setProfileError('');
-    const finalName = (nameInput || userName.split(' ')[0]).trim();
+    const finalName = nameInput.trim() || userName;
     const cleanedPhone = phoneInput.replace(/\D/g, '');
 
-    if (!finalName || finalName.length < 2) {
+    if (!finalName) {
       setProfileError('Please enter your name.');
       return;
     }
@@ -168,8 +173,6 @@ export default function OnboardingFlow() {
         return;
       }
       setSavingProfile(false);
-      // Fetch creators for next step while transitioning
-      fetch('/api/auth/save-creator').then(r => r.json()).then(d => setCreators(d.creators || [])).catch(() => {});
       setStep(5);
     } catch {
       setProfileError('Network error. Please try again.');
@@ -242,7 +245,7 @@ export default function OnboardingFlow() {
 
     try {
       if (planKey === 'MONTHLY') {
-        // ── Recurring subscription flow (₹199/month) ──
+        // ── Recurring subscription flow (₹149/month) ──
         const subRes = await fetch('/api/create-subscription', { method: 'POST' });
         const subData = await subRes.json();
 
@@ -254,7 +257,7 @@ export default function OnboardingFlow() {
         const options = {
           key,
           name: 'Saviours AI',
-          description: 'Monthly Access — ₹199/month',
+          description: 'Monthly Access — ₹149/month',
           subscription_id: subData.subscription.id,
           handler: commonHandler,
           prefill,
@@ -767,207 +770,19 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 5 — Creator Code ────────────────────────────────────────────────
+  // ── SCREEN 5 — Animated Glassy Pricing ────────────────────────
   if (step === 5) {
-    const enteredCode = creatorSearch.trim().toLowerCase();
-    const matchedCreator = enteredCode
-      ? creators.find(c => c.creatorCode.toLowerCase() === enteredCode)
-      : null;
-    const isInvalid = enteredCode.length > 0 && !matchedCreator;
-
-    return (
-      <div style={{
-        position: 'fixed', inset: 0,
-        background: 'var(--bg-base)',
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: isMobile ? '32px 20px' : '64px 80px',
-        zIndex: 1000, overflow: 'hidden',
-      }}>
-        <video src={VIDEO_URL} autoPlay muted playsInline loop style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', filter: 'grayscale(100%) brightness(0.15)', opacity: 0.25,
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(3,3,3,0.9) 0%, rgba(0,10,30,0.5) 50%, rgba(3,3,3,0.95) 100%)',
-          pointerEvents: 'none',
-        }} />
-
-        <div style={{
-          position: 'relative', zIndex: 1, maxWidth: 460, width: '100%',
-          textAlign: 'center', animation: 'fadeIn 600ms ease-out both',
-        }}>
-          {/* Icon */}
-          <div style={{
-            width: 56, height: 56, borderRadius: 16,
-            background: 'rgba(0,212,255,0.1)',
-            border: '1px solid rgba(0,212,255,0.2)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 20px', fontSize: 26,
-          }}>🎟️</div>
-
-          {/* Title */}
-          <h1 style={{
-            fontFamily: 'var(--font-display)', fontSize: isMobile ? 26 : 34,
-            letterSpacing: '-0.02em', color: 'var(--text-primary)',
-            marginBottom: 12,
-          }}>
-            Got a creator code?
-          </h1>
-
-          {/* Highlighted description */}
-          <div style={{
-            display: 'inline-block',
-            padding: '10px 18px',
-            marginBottom: 28,
-            background: 'linear-gradient(135deg, rgba(0,212,255,0.08), rgba(139,92,246,0.08))',
-            border: '1px solid rgba(0,212,255,0.2)',
-            borderRadius: 12,
-          }}>
-            <p style={{
-              fontFamily: 'var(--font-body)', fontSize: 13,
-              color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0,
-            }}>
-              <span style={{ color: 'var(--accent-gold)', fontWeight: 700 }}>You'll get an exclusive discount</span>
-              {' '}if you have a code from the EdTech channels we've partnered with.{' '}
-              <span style={{ color: 'var(--text-muted)' }}>Leave blank if you don't have one.</span>
-            </p>
-          </div>
-
-          {/* Code input */}
-          <input
-            type="text"
-            value={creatorSearch}
-            onChange={e => setCreatorSearch(e.target.value.replace(/\s/g, ''))}
-            placeholder="Enter creator code (e.g. BL2047)"
-            autoFocus
-            autoComplete="off"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            style={{
-              width: '100%',
-              padding: '16px 20px',
-              fontSize: '17px',
-              fontFamily: 'var(--font-body)',
-              background: 'var(--bg-surface)',
-              border: `1.5px solid ${
-                matchedCreator ? 'rgba(34,197,94,0.5)' :
-                isInvalid ? 'rgba(248,113,113,0.4)' :
-                'var(--bg-border)'
-              }`,
-              borderRadius: '14px',
-              color: 'var(--text-primary)',
-              textAlign: 'center',
-              outline: 'none',
-              letterSpacing: '0.06em',
-              textTransform: 'none',
-              transition: 'border-color 0.2s ease',
-              boxSizing: 'border-box',
-              marginBottom: 12,
-            }}
-            onKeyDown={e => { if (e.key === 'Enter' && !isInvalid) { const code = matchedCreator ? matchedCreator.creatorCode : null; setSelectedCreatorCode(code); handleSaveCreator(code); } }}
-          />
-
-          {/* Feedback states */}
-          {matchedCreator && (
-            <div style={{
-              padding: '12px 16px', marginBottom: 16,
-              background: 'rgba(34,197,94,0.07)',
-              border: '1px solid rgba(34,197,94,0.25)',
-              borderRadius: 10,
-              display: 'flex', alignItems: 'center', gap: 10,
-            }}>
-              <span style={{ fontSize: 18, flexShrink: 0 }}>🎉</span>
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 700, color: '#22c55e' }}>
-                  {matchedCreator.discountPercentage}% off unlocked!
-                </div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                  Code valid · via {matchedCreator.creatorName}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isInvalid && (
-            <div style={{
-              padding: '10px 14px', marginBottom: 16,
-              background: 'rgba(248,113,113,0.07)',
-              border: '1px solid rgba(248,113,113,0.2)',
-              borderRadius: 10,
-              fontFamily: 'var(--font-body)', fontSize: 12,
-              color: '#f87171', textAlign: 'left',
-            }}>
-              Invalid code — double-check the spelling or leave it blank.
-            </div>
-          )}
-
-          {/* Primary CTA */}
-          <button
-            onClick={() => {
-              const code = matchedCreator ? matchedCreator.creatorCode : null;
-              setSelectedCreatorCode(code);
-              handleSaveCreator(code);
-            }}
-            disabled={isInvalid}
-            className="btn-gold"
-            style={{
-              fontSize: 'var(--text-md)', padding: '14px 44px', width: '100%',
-              opacity: isInvalid ? 0.4 : 1,
-              cursor: isInvalid ? 'not-allowed' : 'pointer',
-              marginBottom: 12,
-            }}
-          >
-            {savingCreator ? 'Saving…' : matchedCreator ? `Apply ${matchedCreator.discountPercentage}% Discount →` : 'Continue →'}
-          </button>
-
-          {/* Skip */}
-          {!matchedCreator && (
-            <button
-              onClick={() => {
-                setSelectedCreatorCode(null);
-                setCreatorSearch('');
-                handleSaveCreator(null);
-              }}
-              disabled={savingCreator}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontFamily: 'var(--font-body)', fontSize: 12,
-                color: 'var(--text-muted)', padding: '6px 0',
-                letterSpacing: '0.02em',
-              }}
-            >
-              Skip — I don&apos;t have a code
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // ── SCREEN 6 — Animated Glassy Pricing ────────────────────────
-  if (step === 6) {
-    // Build discount from the creator selected in step 5 (avoids DB round-trip lag)
-    const selectedCreator = selectedCreatorCode
-      ? creators.find(c => c.creatorCode.toLowerCase() === selectedCreatorCode.toLowerCase())
-      : null;
-    const creatorDiscount = selectedCreator
-      ? { discountPercentage: selectedCreator.discountPercentage, creatorName: selectedCreator.creatorName }
-      : null;
     return (
       <AnimatedGlassyPricing
         isMobile={isMobile}
         onSelectPlan={handlePlanSelect}
         userName={nameInput || userName}
-        creatorDiscount={creatorDiscount}
       />
     );
   }
 
-  // ── SCREEN 7 — Loading / Setup ─────────────────────────────
-  if (step === 7) return (
+  // ── SCREEN 6 — Loading / Setup ─────────────────────────────
+  if (step === 6) return (
     <div style={{
       position: 'fixed', inset: 0,
       background: '#000',
@@ -1088,8 +903,8 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 8 — Vapour Text Welcome ─────────────────────────
-  if (step === 8) return (
+  // ── SCREEN 7 — Vapour Text Welcome ─────────────────────────
+  if (step === 7) return (
     <div style={{
       position: 'fixed',
       inset: 0,

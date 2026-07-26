@@ -409,7 +409,7 @@ const savioursPlans: PricingCardProps[] = [
   {
     planName: 'Monthly',
     description: 'Full access, one month at a time.',
-    price: '199',
+    price: '149',
     priceSymbol: '₹',
     billingLabel: '/month',
     features: [

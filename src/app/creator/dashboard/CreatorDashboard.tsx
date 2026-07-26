@@ -288,7 +288,7 @@ export default function CreatorDashboard() {
             </div>
             <div style={{ fontSize: 32, fontWeight: 700, color: "#D4AF37" }}>{stats.monthlyCount}</div>
             <div style={{ fontSize: 11, color: "var(--text-muted, #9CA3AF)", marginTop: 4 }}>
-              ₹199 plan subscribers
+              ₹149 plan subscribers
             </div>
           </div>
 

@@ -45,14 +45,14 @@ export async function POST() {
         const alreadyActive =
             dbUser.isPaid &&
             dbUser.subscriptionStatus === "ACTIVE" &&
-            (dbUser.planType === "MONTHLY" || dbUser.planType === "YEARLY");
+            (dbUser.planType === "PRO" || dbUser.planType === "BUNDLE");
         if (isGrandfathered || alreadyActive) {
             return NextResponse.json({ error: "You already have an active plan" }, { status: 409 });
         }
 
         if (
             dbUser.razorpaySubscriptionId &&
-            (dbUser.planType === "MONTHLY" || dbUser.planType === "YEARLY") &&
+            (dbUser.planType === "PRO" || dbUser.planType === "BUNDLE") &&
             dbUser.subscriptionStatus === "ACTIVE"
         ) {
             return NextResponse.json({ error: "You already have an active subscription" }, { status: 409 });
@@ -84,7 +84,7 @@ export async function POST() {
             notes: {
                 userId: user.id,
                 userEmail: user.email,
-                planType: "MONTHLY",
+                planType: "PRO",
             },
         });
 

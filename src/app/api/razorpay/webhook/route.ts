@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
                     where: { id: user.id },
                     data: {
                         isPaid: true,
-                        planType: "MONTHLY",
+                        planType: "PRO",
                         subscriptionStatus: "ACTIVE",
                         subscriptionExpiry: expiryDate,
                         razorpaySubscriptionId: subscriptionId,

@@ -173,8 +173,9 @@ export default function DashboardSidebar({
     if (!isPaid && isLockedRoute(href)) {
       const info = getFeatureInfo(href);
       if (info) {
-        // Free students can choose Pro or Ultimate Bundle.
-        setUpgradeFeature({ ...info, type: "CHOICE" });
+        // Bundle-only features cannot be unlocked by Pro, so do not offer the
+        // ₹199 plan from their upgrade prompt.
+        setUpgradeFeature({ ...info, type: isBundleLockedRoute(href) ? "BUNDLE" : "CHOICE" });
         setIsOpen(false);
         return;
       }

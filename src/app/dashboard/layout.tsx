@@ -35,8 +35,9 @@ export default function DashboardLayout({
 
     if (!isPaid && isLockedRoute(pathname)) {
         showUpgrade = true;
-        // Free students can choose either the ₹199 Pro or ₹699 Ultimate Bundle.
-        upgradeType = "CHOICE";
+        // Features excluded from Pro must take Free students straight to the
+        // Ultimate Bundle offer; all other paid features retain both choices.
+        upgradeType = isBundleLockedRoute(pathname) ? "BUNDLE" : "CHOICE";
     } else if (isPaid && isProUser && isBundleLockedRoute(pathname)) {
         showUpgrade = true;
         upgradeType = "BUNDLE";

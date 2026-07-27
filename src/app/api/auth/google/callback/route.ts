@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
             name: user.name,
             role: user.role,
             isPaid,
-            planType: isLegacyUser && user.planType === "FREE" ? "YEARLY" : user.planType,
+            planType: isLegacyUser && user.planType === "FREE" ? "BUNDLE" : user.planType,
             subscriptionStatus: user.subscriptionStatus,
             subscriptionExpiry: user.subscriptionExpiry?.toISOString() ?? null,
             onboardingComplete: user.onboardingComplete,

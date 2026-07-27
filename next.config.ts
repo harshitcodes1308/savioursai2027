@@ -31,6 +31,11 @@ const nextConfig: any = {
     eslint: {
         ignoreDuringBuilds: true,
     },
+    turbopack: {
+        resolveAlias: {
+            canvas: { browser: "" },
+        },
+    },
     async headers() {
         return [
             {

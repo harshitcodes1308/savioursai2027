@@ -16,19 +16,19 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Invalid code' }, { status: 400 });
         }
 
-        // Activate as Yearly plan (full access, no payment needed)
+        // Activate as Bundle plan (full access, no payment needed)
         await prisma.user.update({
             where: { id: session.user.id },
             data: {
-                planType: 'YEARLY',
+                planType: 'BUNDLE',
                 isPaid: true,
                 subscriptionStatus: 'ACTIVE',
-                subscriptionExpiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+                subscriptionExpiry: new Date("2027-03-31T23:59:59+05:30"),
             },
         });
 
         // Refresh session token
-        const updatedUser = { ...session.user, planType: 'YEARLY' as PlanType };
+        const updatedUser = { ...session.user, planType: 'BUNDLE' as PlanType };
         const newToken = await createToken(updatedUser);
 
         const response = NextResponse.json({ success: true });

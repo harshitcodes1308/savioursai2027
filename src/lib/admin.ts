@@ -75,8 +75,8 @@ export async function getUsersList(search?: string, filter?: string) {
   if (filter === "paid") where.isPaid = true;
   else if (filter === "free") where.isPaid = false;
   else if (filter === "phone") where.phone = { not: null };
-  else if (filter === "monthly") where.planType = "MONTHLY";
-  else if (filter === "yearly") where.planType = "YEARLY";
+  else if (filter === "monthly") where.planType = "PRO";
+  else if (filter === "yearly") where.planType = "BUNDLE";
 
   const users = await prisma.user.findMany({
     where,

@@ -138,7 +138,7 @@ export async function clearSessionCookie(resHeaders?: Headers) {
 export function hasActivePlan(user: SessionUser): boolean {
     const isGrandfathered = user.isPaid;
     const hasActiveSub =
-        (user.planType === "MONTHLY" || user.planType === "YEARLY") &&
+        (user.planType === "PRO" || user.planType === "BUNDLE") &&
         user.subscriptionStatus === "ACTIVE";
     return isGrandfathered || hasActiveSub;
 }
@@ -163,7 +163,7 @@ export async function authenticate(
     // GRANDFATHERING LOGIC — users before cutoff date treated as paid
     const isLegacyUser = user.createdAt < CUTOFF_DATE;
     const effectivePlanType: PlanType = (isLegacyUser && user.planType === "FREE")
-        ? "YEARLY"
+        ? "BUNDLE"
         : user.planType;
 
     return {

@@ -4,9 +4,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
 
-// HARDCODED: Server-side base pricing — NEVER trust frontend amount
 const BASE_PRICING = {
-    PRO_YEARLY: 59900,    // ₹599 in paise
+    PRO: 19900,           // ₹199 in paise
+    BUNDLE: 69900,        // ₹699 in paise
     LNB_CHEMISTRY: 1900,  // ₹19 in paise
 } as const;
 
@@ -15,9 +15,10 @@ type PurchaseType = keyof typeof BASE_PRICING;
 export async function POST(req: Request) {
     try {
         const body = await req.json().catch(() => ({}));
-        const requested = String(body.type || "PRO_YEARLY");
+        const requested = String(body.type || "PRO");
         const purchaseType: PurchaseType =
-            requested === "LNB_CHEMISTRY" ? "LNB_CHEMISTRY" : "PRO_YEARLY";
+            requested === "LNB_CHEMISTRY" ? "LNB_CHEMISTRY" :
+            requested === "BUNDLE" ? "BUNDLE" : "PRO";
 
         const user = await getCurrentUser();
         if (!user) {
@@ -38,12 +39,19 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        if (purchaseType === "PRO_YEARLY") {
+        if (purchaseType === "PRO") {
             const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
             const isGrandfathered = dbUser.createdAt < CUTOFF_DATE;
-            const alreadyYearly = dbUser.planType === "YEARLY" && dbUser.isPaid;
-            if (isGrandfathered || alreadyYearly) {
-                return NextResponse.json({ error: "You already have yearly access" }, { status: 409 });
+            const alreadyPaid = (dbUser.planType === "PRO" || dbUser.planType === "BUNDLE") && dbUser.isPaid;
+            if (isGrandfathered || alreadyPaid) {
+                return NextResponse.json({ error: "You already have access" }, { status: 409 });
+            }
+        } else if (purchaseType === "BUNDLE") {
+            const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
+            const isGrandfathered = dbUser.createdAt < CUTOFF_DATE;
+            const alreadyBundle = dbUser.planType === "BUNDLE" && dbUser.isPaid;
+            if (isGrandfathered || alreadyBundle) {
+                return NextResponse.json({ error: "You already have Ultimate Bundle access" }, { status: 409 });
             }
         } else if (purchaseType === "LNB_CHEMISTRY") {
             if (dbUser.isPaid || dbUser.lnbChemistryUnlocked) {

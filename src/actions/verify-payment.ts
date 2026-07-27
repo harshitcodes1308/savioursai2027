@@ -7,11 +7,8 @@ import { revalidatePath } from "next/cache";
 import Razorpay from "razorpay";
 
 interface RazorpayResponse {
-    // For one-time orders
     razorpay_order_id?: string;
-    // For subscriptions
     razorpay_subscription_id?: string;
-    // Always present
     razorpay_payment_id: string;
     razorpay_signature: string;
 }
@@ -44,9 +41,8 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
 
         const razorpay = new Razorpay({ key_id, key_secret });
 
-        // ── Branch 1: Subscription (₹199 monthly recurring) ──
+        // Legacy: subscription verification for existing monthly subscribers
         if (razorpay_subscription_id) {
-            // Subscription signature: payment_id|subscription_id
             const expected = crypto
                 .createHmac("sha256", key_secret)
                 .update(razorpay_payment_id + "|" + razorpay_subscription_id)
@@ -56,16 +52,12 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
                 return { success: false, error: "Subscription verification failed" };
             }
 
-            // Fetch from Razorpay to confirm and read trusted notes
             const subscription = await razorpay.subscriptions.fetch(razorpay_subscription_id);
-
-            // Verify it belongs to this user
             const notesUserId = (subscription.notes as any)?.userId;
             if (notesUserId && notesUserId !== user.id) {
                 return { success: false, error: "Subscription does not belong to you" };
             }
 
-            // Bill cycle: ~30 days from now
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 30);
 
@@ -73,7 +65,7 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
                 where: { id: user.id },
                 data: {
                     isPaid: true,
-                    planType: "MONTHLY",
+                    planType: "PRO",
                     subscriptionStatus: "ACTIVE",
                     subscriptionExpiry: expiryDate,
                     razorpaySubscriptionId: razorpay_subscription_id,
@@ -98,12 +90,11 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
             return { success: true };
         }
 
-        // ── Branch 2: One-time order (₹499 yearly or LNB chemistry) ──
+        // One-time order: PRO (₹199), BUNDLE (₹699), or LNB_CHEMISTRY (₹19)
         if (!razorpay_order_id) {
             return { success: false, error: "Missing order or subscription id" };
         }
 
-        // Order signature: order_id|payment_id
         const expected = crypto
             .createHmac("sha256", key_secret)
             .update(razorpay_order_id + "|" + razorpay_payment_id)
@@ -113,9 +104,8 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
             return { success: false, error: "Payment verification failed" };
         }
 
-        // Fetch trusted order details
         const order = await razorpay.orders.fetch(razorpay_order_id);
-        const purchaseType = (order.notes?.purchaseType as string) || "PRO_YEARLY";
+        const purchaseType = (order.notes?.purchaseType as string) || "PRO";
 
         let updatedUser;
         if (purchaseType === "LNB_CHEMISTRY") {
@@ -124,15 +114,16 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
                 data: { lnbChemistryUnlocked: true },
             });
         } else {
-            // PRO_YEARLY (or legacy PRO) → ₹499 one-time, 365 days
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + 365);
+            // PRO or BUNDLE — valid till March 2027 (boards end)
+            const expiryDate = new Date("2027-03-31T23:59:59+05:30");
+
+            const planType = purchaseType === "BUNDLE" ? "BUNDLE" as const : "PRO" as const;
 
             updatedUser = await prisma.user.update({
                 where: { id: user.id },
                 data: {
                     isPaid: true,
-                    planType: "YEARLY",
+                    planType,
                     subscriptionStatus: "ACTIVE",
                     subscriptionExpiry: expiryDate,
                 },

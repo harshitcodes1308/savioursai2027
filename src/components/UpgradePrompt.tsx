@@ -9,22 +9,31 @@ interface UpgradePromptProps {
     featureName: string;
     description: string;
     onClose?: () => void;
-    type?: "PRO" | "LNB_CHEMISTRY";
+    type?: "PRO" | "BUNDLE" | "LNB_CHEMISTRY";
 }
 
-const MONTHLY_FEATURES = [
+const PRO_FEATURES = [
     "Unlimited AI Doubt Solver",
     "Smart Study Planner",
-    "Competency Test (PYQ-based)",
     "Customise Test builder",
     "Flip the Question",
     "Focus Mode with Pomodoro",
+    "ChronoScroll — History Timeline",
+    "Numerical Mastery",
+    "Date Battle Arena",
+    "Exam Strategy Builder",
 ];
 
-const YEARLY_FEATURES = [
-    ...MONTHLY_FEATURES,
-    "Priority support",
-    "Early access to new features",
+const BUNDLE_HIGHLIGHTS = [
+    "E-Books Library — All 10 Subjects",
+    "Question Banks for Every Subject",
+    "Competency Test (PYQ-based)",
+    "Guess Papers — AI-predicted",
+];
+
+const BUNDLE_AI_FEATURES = [
+    "All Pro AI features included",
+    "Priority access to new features",
 ];
 
 const LNB_FEATURES = [
@@ -37,11 +46,7 @@ const LNB_FEATURES = [
 export function UpgradePrompt({ featureName, description, onClose, type = "PRO" }: UpgradePromptProps) {
     const router = useRouter();
     const { data: session } = trpc.auth.getSession.useQuery();
-    const [selectedPlan, setSelectedPlan] = useState<"MONTHLY" | "YEARLY">("YEARLY");
     const user = session?.user;
-
-    const monthlyFinal = 149;
-    const yearlyFinal = 599;
 
     const handleClose = () => {
         if (onClose) onClose();
@@ -70,7 +75,6 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                 overflow: "hidden",
                 position: "relative",
             }}>
-                {/* Close button */}
                 <button
                     onClick={handleClose}
                     style={{
@@ -92,27 +96,27 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                     ✕
                 </button>
 
-                {/* Gold top accent line */}
                 <div style={{
                     height: 2,
-                    background: "linear-gradient(90deg, transparent, var(--accent-gold), transparent)",
+                    background: type === "BUNDLE"
+                        ? "linear-gradient(90deg, transparent, #F59E0B, #EF4444, transparent)"
+                        : "linear-gradient(90deg, transparent, var(--accent-gold), transparent)",
                 }} />
 
                 <div style={{ padding: "32px 32px 28px" }}>
-                    {/* Header */}
                     <div style={{ marginBottom: 24, paddingRight: 32 }}>
                         <div style={{
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 8,
                             padding: "5px 12px",
-                            background: "rgba(0,212,255,0.1)",
-                            border: "1px solid rgba(0,212,255,0.2)",
+                            background: type === "BUNDLE" ? "rgba(245,158,11,0.1)" : "rgba(0,212,255,0.1)",
+                            border: `1px solid ${type === "BUNDLE" ? "rgba(245,158,11,0.2)" : "rgba(0,212,255,0.2)"}`,
                             borderRadius: 100,
                             marginBottom: 14,
                         }}>
-                            <span style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, color: "var(--accent-gold)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                                {type === "LNB_CHEMISTRY" ? "Chemistry Unlock" : "Upgrade Required"}
+                            <span style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, color: type === "BUNDLE" ? "#F59E0B" : "var(--accent-gold)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                                {type === "LNB_CHEMISTRY" ? "Chemistry Unlock" : type === "BUNDLE" ? "Ultimate Bundle Required" : "Upgrade Required"}
                             </span>
                         </div>
                         <h2 style={{
@@ -137,7 +141,6 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                     </div>
 
                     {type === "LNB_CHEMISTRY" ? (
-                        /* ── LNB Chemistry one-time ── */
                         <>
                             <div style={{
                                 background: "var(--bg-base)",
@@ -168,79 +171,72 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />
                         </>
-                    ) : (
-                        /* ── Subscription plans ── */
+                    ) : type === "BUNDLE" ? (
                         <>
-                            {/* Plan toggle */}
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-                                {(["MONTHLY", "YEARLY"] as const).map(plan => {
-                                    const isSelected = selectedPlan === plan;
-                                    const isYearly = plan === "YEARLY";
-                                    const basePrice = plan === "MONTHLY" ? 149 : 599;
-                                    return (
-                                        <button
-                                            key={plan}
-                                            onClick={() => setSelectedPlan(plan)}
-                                            style={{
-                                                padding: "14px 16px",
-                                                borderRadius: 12,
-                                                background: isSelected ? "rgba(0,212,255,0.08)" : "var(--bg-base)",
-                                                border: `1px solid ${isSelected ? "var(--accent-gold-border)" : "var(--bg-border)"}`,
-                                                cursor: "pointer",
-                                                textAlign: "left",
-                                                transition: "all 0.15s ease",
-                                                position: "relative",
-                                            }}
-                                        >
-                                            {isYearly && (
-                                                <div style={{
-                                                    position: "absolute",
-                                                    top: -8, right: 8,
-                                                    background: "var(--accent-gold)",
-                                                    color: "var(--bg-base)",
-                                                    fontFamily: "var(--font-body)",
-                                                    fontSize: 8, fontWeight: 700,
-                                                    letterSpacing: "0.06em",
-                                                    textTransform: "uppercase",
-                                                    padding: "2px 8px",
-                                                    borderRadius: 100,
-                                                }}>
-                                                    Best Value
-                                                </div>
-                                            )}
-                                            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, color: isSelected ? "var(--accent-gold)" : "var(--text-primary)", letterSpacing: "-0.02em" }}>
-                                                ₹{basePrice}
-                                            </div>
-                                            <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
-                                                {plan === "MONTHLY" ? "per month" : "per year"}
-                                            </div>
-                                        </button>
-                                    );
-                                })}
+                            <div style={{
+                                background: "var(--bg-base)",
+                                border: "1px solid rgba(245,158,11,0.2)",
+                                borderRadius: 14,
+                                padding: "20px",
+                                marginBottom: 20,
+                            }}>
+                                <div style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#F59E0B", marginBottom: 12 }}>
+                                    EXCLUSIVE TO BUNDLE
+                                </div>
+                                {BUNDLE_HIGHLIGHTS.map((f, i) => (
+                                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0" }}>
+                                        <span style={{ width: 16, height: 16, borderRadius: 4, background: "rgba(245,158,11,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "#F59E0B", flexShrink: 0 }}>✓</span>
+                                        <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-primary)", fontWeight: 600 }}>{f}</span>
+                                    </div>
+                                ))}
+                                <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--bg-border)" }}>
+                                    {BUNDLE_AI_FEATURES.map((f, i) => (
+                                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 0" }}>
+                                            <span style={{ width: 16, height: 16, borderRadius: 4, background: "rgba(0,212,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "var(--accent-gold)", flexShrink: 0 }}>✓</span>
+                                            <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>{f}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div style={{ paddingTop: 14, borderTop: "1px solid var(--bg-border)", marginTop: 12 }}>
+                                    <span style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--text-primary)" }}>₹699</span>
+                                    <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginLeft: 6 }}>one-time</span>
+                                </div>
                             </div>
-
-                            {/* Feature list */}
+                            <RazorpayButton
+                                amount={699}
+                                type="BUNDLE"
+                                email={(user as any)?.email || ""}
+                                name={(user as any)?.name || ""}
+                                buttonText="Get Ultimate Bundle — ₹699 →"
+                                onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
+                            />
+                        </>
+                    ) : (
+                        <>
                             <div style={{
                                 background: "var(--bg-base)",
                                 border: "1px solid var(--bg-border)",
-                                borderRadius: 12,
-                                padding: "16px",
+                                borderRadius: 14,
+                                padding: "20px",
                                 marginBottom: 20,
                             }}>
-                                {(selectedPlan === "YEARLY" ? YEARLY_FEATURES : MONTHLY_FEATURES).map((f, i) => (
+                                {PRO_FEATURES.map((f, i) => (
                                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "5px 0" }}>
                                         <span style={{ width: 14, height: 14, borderRadius: 3, background: "rgba(0,212,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, color: "var(--accent-gold)", flexShrink: 0 }}>✓</span>
                                         <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-secondary)" }}>{f}</span>
                                     </div>
                                 ))}
+                                <div style={{ paddingTop: 14, borderTop: "1px solid var(--bg-border)", marginTop: 8 }}>
+                                    <span style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--text-primary)" }}>₹199</span>
+                                    <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginLeft: 6 }}>one-time</span>
+                                </div>
                             </div>
-
                             <RazorpayButton
-                                amount={selectedPlan === "MONTHLY" ? monthlyFinal : yearlyFinal}
-                                type={selectedPlan === "MONTHLY" ? "MONTHLY" : "PRO"}
+                                amount={199}
+                                type="PRO"
                                 email={(user as any)?.email || ""}
                                 name={(user as any)?.name || ""}
-                                buttonText={`Get ${selectedPlan === "MONTHLY" ? "Monthly" : "Yearly"} Plan — ₹${selectedPlan === "MONTHLY" ? monthlyFinal : yearlyFinal} →`}
+                                buttonText="Get Pro — ₹199 →"
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />
                         </>

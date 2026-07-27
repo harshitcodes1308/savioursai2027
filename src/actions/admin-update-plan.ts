@@ -4,15 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-type PlanAction = "FREE" | "MONTHLY" | "YEARLY";
+type PlanAction = "FREE" | "PRO" | "BUNDLE";
 
 /**
  * Admin-only action: Update a user's subscription plan.
- * Sets all relevant fields (isPaid, planType, subscriptionStatus, subscriptionExpiry)
- * in a single atomic operation.
  */
 export async function adminUpdateUserPlan(userId: string, plan: PlanAction) {
-    // Auth: Only admins can do this
     const admin = await getCurrentUser();
     if (!admin || admin.role !== "ADMIN") {
         return { success: false, error: "Unauthorized" };
@@ -29,28 +26,26 @@ export async function adminUpdateUserPlan(userId: string, plan: PlanAction) {
                     subscriptionExpiry: null,
                 },
             });
-        } else if (plan === "MONTHLY") {
-            const expiry = new Date();
-            expiry.setDate(expiry.getDate() + 30);
+        } else if (plan === "PRO") {
+            const expiry = new Date("2027-03-31T23:59:59+05:30");
 
             await prisma.user.update({
                 where: { id: userId },
                 data: {
                     isPaid: true,
-                    planType: "MONTHLY",
+                    planType: "PRO",
                     subscriptionStatus: "ACTIVE",
                     subscriptionExpiry: expiry,
                 },
             });
-        } else if (plan === "YEARLY") {
-            const expiry = new Date();
-            expiry.setDate(expiry.getDate() + 365);
+        } else if (plan === "BUNDLE") {
+            const expiry = new Date("2027-03-31T23:59:59+05:30");
 
             await prisma.user.update({
                 where: { id: userId },
                 data: {
                     isPaid: true,
-                    planType: "YEARLY",
+                    planType: "BUNDLE",
                     subscriptionStatus: "ACTIVE",
                     subscriptionExpiry: expiry,
                 },

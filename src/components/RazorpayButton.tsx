@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Define strict types for Razorpay
 interface RazorpayOptions {
     key: string;
     amount: number;
     currency: string;
     name: string;
     description: string;
-    order_id: string; // Order ID created on backend
+    order_id: string;
     handler: (response: any) => void;
     prefill: {
         name?: string;
@@ -33,15 +32,15 @@ declare global {
 }
 
 interface RazorpayButtonProps {
-    amount?: number; // legacy prop
-    type?: "PRO" | "MONTHLY" | "LNB_CHEMISTRY";
+    amount?: number;
+    type?: "PRO" | "BUNDLE" | "LNB_CHEMISTRY";
     email: string;
     name: string;
     onSuccess?: () => void;
     buttonText?: string;
 }
 
-export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
+export function RazorpayButton({ amount = 199, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -67,51 +66,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
 
         try {
             const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "";
-            const prefill = { name, email };
 
-            if (type === "MONTHLY") {
-                // ── Recurring subscription flow (₹149/month) ──
-                const subRes = await fetch("/api/create-subscription", { method: "POST" });
-                const subData = await subRes.json();
-
-                if (!subData.success) {
-                    alert(`Subscription Error: ${subData.error || "Failed to create subscription"}`);
-                    setLoading(false);
-                    return;
-                }
-
-                const subOptions = {
-                    key,
-                    name: "Saviours AI",
-                    description: "Monthly Plan — ₹149/month",
-                    subscription_id: subData.subscription.id,
-                    handler: async (response: any) => {
-                        setLoading(true);
-                        try {
-                            const { verifyPaymentAction } = await import("@/actions/verify-payment");
-                            const result = await verifyPaymentAction(response);
-                            if (result.success) {
-                                if (onSuccess) onSuccess();
-                            } else {
-                                alert("Payment verification failed: " + result.error);
-                            }
-                        } catch {
-                            alert("Verification failed. Please contact support if money was deducted.");
-                        } finally {
-                            setLoading(false);
-                        }
-                    },
-                    prefill,
-                    theme: { color: "#00D4FF" },
-                };
-
-                const paymentObject = new (window as any).Razorpay(subOptions);
-                paymentObject.open();
-                setLoading(false);
-                return;
-            }
-
-            // ── One-time order flow (PRO_YEARLY or LNB_CHEMISTRY) ──
             const orderRes = await fetch("/api/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -126,24 +81,29 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
                 return;
             }
 
+            const descriptions: Record<string, string> = {
+                PRO: "Pro Access — ₹199",
+                BUNDLE: "Ultimate Bundle — ₹699",
+                LNB_CHEMISTRY: "Unlock Chemistry Sets",
+            };
+
             const options: RazorpayOptions = {
                 key,
                 amount: orderData.order.amount,
                 currency: orderData.order.currency,
                 name: "ICSE Saviours",
-                description: type === "LNB_CHEMISTRY" ? "Unlock Chemistry Sets" : "Yearly Access",
+                description: descriptions[type] || "Saviours AI",
                 order_id: orderData.order.id,
                 handler: async function (response: any) {
-                    setLoading(true); // Keep loading state
-                    
+                    setLoading(true);
+
                     try {
-                        // Call Server Action to Verify + Refresh Session
                         const { verifyPaymentAction } = await import("@/actions/verify-payment");
                         const result = await verifyPaymentAction(response);
 
                         if (result.success) {
                             if(onSuccess) onSuccess();
-                            router.push("/dashboard"); 
+                            router.push("/dashboard");
                             router.refresh();
                         } else {
                             alert("Payment Verified Failed: " + result.error);
@@ -160,7 +120,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
                     email,
                 },
                 theme: {
-                    color: "#00D4FF", // Violet
+                    color: "#00D4FF",
                 },
             };
 
@@ -181,7 +141,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
             style={{
                 width: "100%",
                 padding: "16px",
-                backgroundColor: "#FFF", // White button for high contrast on dark glassmorphism
+                backgroundColor: "#FFF",
                 color: "#000",
                 fontSize: "16px",
                 fontWeight: 700,
@@ -194,7 +154,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
             onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
             onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
         >
-            {loading ? "Processing..." : buttonText || "Get Lifetime Access"}
+            {loading ? "Processing..." : buttonText || "Get Access"}
         </button>
     );
 }

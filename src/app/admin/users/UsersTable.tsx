@@ -8,15 +8,15 @@ const FILTERS = [
   { key: "", label: "All" },
   { key: "paid", label: "Paid" },
   { key: "free", label: "Free" },
-  { key: "monthly", label: "Monthly" },
-  { key: "yearly", label: "Yearly" },
+  { key: "monthly", label: "Pro" },
+  { key: "yearly", label: "Bundle" },
   { key: "phone", label: "Phone" },
 ];
 
 const PLAN_OPTIONS = [
   { key: "FREE", label: "Free", color: "#6B6B80" },
-  { key: "MONTHLY", label: "Monthly", color: "#00D4FF" },
-  { key: "YEARLY", label: "Yearly", color: "#3ECF8E" },
+  { key: "PRO", label: "Pro", color: "#00D4FF" },
+  { key: "BUNDLE", label: "Bundle", color: "#3ECF8E" },
 ] as const;
 
 interface UserRow {
@@ -33,7 +33,7 @@ function PlanSwitcher({ user, onUpdated }: { user: UserRow; onUpdated: () => voi
   const [feedback, setFeedback] = useState<string | null>(null);
   const currentPlan = user.planType;
 
-  const handleChange = async (plan: "FREE" | "MONTHLY" | "YEARLY") => {
+  const handleChange = async (plan: "FREE" | "PRO" | "BUNDLE") => {
     if (plan === currentPlan) { setIsOpen(false); return; }
     setLoading(true);
     setFeedback(null);
@@ -120,8 +120,8 @@ function PlanSwitcher({ user, onUpdated }: { user: UserRow; onUpdated: () => voi
 function planColor(plan: string) {
   const map: Record<string, { bg: string; fg: string }> = {
     FREE: { bg: "rgba(107,107,128,0.12)", fg: "#6B6B80" },
-    MONTHLY: { bg: "rgba(0,212,255,0.10)", fg: "#00D4FF" },
-    YEARLY: { bg: "rgba(62,207,142,0.10)", fg: "#3ECF8E" },
+    PRO: { bg: "rgba(0,212,255,0.10)", fg: "#00D4FF" },
+    BUNDLE: { bg: "rgba(62,207,142,0.10)", fg: "#3ECF8E" },
   };
   return map[plan] ?? map.FREE;
 }

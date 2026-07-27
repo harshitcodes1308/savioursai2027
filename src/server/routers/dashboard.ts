@@ -19,13 +19,13 @@ export const dashboardRouter = createTRPCRouter({
         }
 
         // ── Lazy demotion: if subscription expired, drop them to FREE ──
-        // Yearly plans are one-time so we let them through; monthly plans
-        // (or any plan with an explicit expiry that has passed) get demoted.
+        // PRO and BUNDLE are one-time payments with a fixed expiry date.
+        // Legacy monthly subscribers who haven't been migrated are also handled.
         const now = new Date();
         const expired =
-            user.planType === "MONTHLY" &&
             user.subscriptionExpiry !== null &&
-            user.subscriptionExpiry < now;
+            user.subscriptionExpiry < now &&
+            user.isPaid;
 
         let paymentWarning: "CANCELLED" | "EXPIRED" | null = null;
 
@@ -44,11 +44,9 @@ export const dashboardRouter = createTRPCRouter({
             });
             paymentWarning = "EXPIRED";
         } else if (
-            user.planType === "MONTHLY" &&
-            (user.subscriptionStatus === "CANCELLED" || user.subscriptionStatus === "EXPIRED")
+            user.subscriptionStatus === "CANCELLED" &&
+            user.isPaid
         ) {
-            // Still in grace period — autopay was halted/cancelled but
-            // the current cycle hasn't ended yet
             paymentWarning = "CANCELLED";
         }
 

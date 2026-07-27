@@ -23,19 +23,19 @@ const PLANS: Plan[] = [
     features: ["Dashboard", "Smart Planner", "Monthly Mission", "Video Lectures", "Study Flow", "Subjects", "Webinar"],
   },
   {
-    name: "Monthly",
-    price: "₹149",
-    period: "/month",
-    href: "/signup",
-    features: ["Everything in Free", "AI Doubt Solver", "Competency Test", "Customise Test", "Flip the Question", "Focus Mode", "Numerical Mastery", "ChronoScroll", "Date Battle Arena"],
-  },
-  {
-    name: "Yearly",
-    price: "₹599",
-    period: "/year",
+    name: "Ultimate Bundle",
+    price: "₹699",
+    period: "one-time",
     popular: true,
     href: "/signup",
-    features: ["Everything in Monthly", "Priority support", "Best value for boards"],
+    features: ["Everything in Pro", "E-Books — All Subjects", "Competency Test (PYQ)", "Guess Papers", "Question Banks", "Priority future features"],
+  },
+  {
+    name: "Pro",
+    price: "₹199",
+    period: "one-time",
+    href: "/signup",
+    features: ["Everything in Free", "AI Doubt Solver", "Customise Test", "Flip the Question", "Focus Mode", "Numerical Mastery", "ChronoScroll", "Date Battle Arena", "Exam Strategy Builder", "Smart Notes"],
   },
 ];
 
@@ -202,7 +202,7 @@ export default function Pricing() {
         </div>
 
         <p style={{ textAlign: "center", marginTop: 40, fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", opacity: 0.6 }}>
-          Secure payment via Razorpay. Cancel anytime.
+          Secure payment via Razorpay. One-time payment, no subscriptions.
         </p>
       </div>
     </section>

@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         name: DEMO_NAME,
         phone: DEMO_PHONE,
         role: "STUDENT",
-        planType: "YEARLY",
+        planType: "BUNDLE",
         subscriptionStatus: "ACTIVE",
         isPaid: true,
         onboardingComplete: mode === "signin",

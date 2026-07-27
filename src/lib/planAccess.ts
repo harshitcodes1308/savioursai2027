@@ -1,16 +1,18 @@
-export type Plan = 'free' | 'monthly' | 'yearly';
+export type Plan = 'free' | 'pro' | 'bundle';
 
 export const PLAN_FEATURES: Record<string, Plan[]> = {
-  aiDoubtSolver:   ['monthly', 'yearly'],
-  smartPlanner:    ['free', 'monthly', 'yearly'],
-  competencyTest:  ['monthly', 'yearly'],
-  customiseTest:   ['monthly', 'yearly'],
-  flipTheQuestion: ['monthly', 'yearly'],
-  focusMode:       ['monthly', 'yearly'],
-  todoList:        ['free', 'monthly', 'yearly'],
-  chronoScroll:    ['monthly', 'yearly'],
-  numericalMastery:['monthly', 'yearly'],
-  dateBattleArena: ['monthly', 'yearly'],
+  aiDoubtSolver:   ['pro', 'bundle'],
+  smartPlanner:    ['free', 'pro', 'bundle'],
+  competencyTest:  ['bundle'],
+  customiseTest:   ['pro', 'bundle'],
+  flipTheQuestion: ['pro', 'bundle'],
+  focusMode:       ['pro', 'bundle'],
+  todoList:        ['free', 'pro', 'bundle'],
+  chronoScroll:    ['pro', 'bundle'],
+  numericalMastery:['pro', 'bundle'],
+  dateBattleArena: ['pro', 'bundle'],
+  ebooks:          ['bundle'],
+  guessPapers:     ['bundle'],
 };
 
 export const AI_DOUBT_FREE_LIMIT = 3; // queries per day for free users
@@ -22,9 +24,8 @@ export function canAccess(feature: string, plan: Plan): boolean {
 }
 
 export function getUserPlan(isPaid: boolean, planType?: string): Plan {
-  if (!isPaid && planType !== 'MONTHLY' && planType !== 'YEARLY') return 'free';
-  if (planType === 'MONTHLY') return 'monthly';
-  if (planType === 'YEARLY') return 'yearly';
-  if (isPaid) return 'yearly'; // grandfathered
+  if (planType === 'PRO') return 'pro';
+  if (planType === 'BUNDLE') return 'bundle';
+  if (isPaid) return 'bundle'; // grandfathered users get full access
   return 'free';
 }

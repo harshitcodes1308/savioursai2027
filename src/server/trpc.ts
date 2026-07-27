@@ -118,7 +118,7 @@ export const paidProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 
     // Active subscription check
     const hasActiveSub =
-        (freshUser.planType === "MONTHLY" || freshUser.planType === "YEARLY") &&
+        (freshUser.planType === "PRO" || freshUser.planType === "BUNDLE") &&
         freshUser.subscriptionStatus === "ACTIVE";
 
     // Check if subscription has expired

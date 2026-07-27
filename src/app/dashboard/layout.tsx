@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemedDashboardContent } from "@/components/providers/themed-dashboard";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
-import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
+import { isLockedRoute, isBundleLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import type { SessionUser } from "@/lib/auth";
 
 export default function DashboardLayout({
@@ -19,17 +19,28 @@ export default function DashboardLayout({
 
     const user = session?.user as SessionUser | undefined;
 
-    // Paid if legacy isPaid flag OR active subscription
-    // Use profile (DB-fresh) for paid check, fall back to JWT session
     const paidSource = profile ?? user;
+    const planType = (paidSource?.planType as string) ?? "FREE";
     const isPaid = !!(
         paidSource?.isPaid ||
-        ((paidSource?.planType === "MONTHLY" || paidSource?.planType === "YEARLY") &&
+        ((planType === "PRO" || planType === "BUNDLE") &&
             paidSource?.subscriptionStatus === "ACTIVE")
     );
 
-    // Client-side locked route gating (replaces old middleware redirect)
-    const showUpgrade = !isPaid && isLockedRoute(pathname);
+    const isBundleUser = planType === "BUNDLE";
+    const isProUser = planType === "PRO";
+
+    let showUpgrade = false;
+    let upgradeType: "PRO" | "BUNDLE" = "PRO";
+
+    if (!isPaid && isLockedRoute(pathname)) {
+        showUpgrade = true;
+        upgradeType = "PRO";
+    } else if (isPaid && isProUser && isBundleLockedRoute(pathname)) {
+        showUpgrade = true;
+        upgradeType = "BUNDLE";
+    }
+
     const featureInfo = showUpgrade ? getFeatureInfo(pathname) : null;
 
     return (
@@ -38,12 +49,13 @@ export default function DashboardLayout({
                 userName={profile?.name}
                 userEmail={profile?.email}
                 isPaid={isPaid}
-                planType={(paidSource?.planType as string) ?? "FREE"}
+                planType={planType}
             >
                 {showUpgrade ? (
                     <UpgradePrompt
-                        featureName={featureInfo?.name ?? "Pro Feature"}
-                        description={featureInfo?.description ?? "This feature requires an active subscription."}
+                        featureName={featureInfo?.name ?? "Premium Feature"}
+                        description={featureInfo?.description ?? "This feature requires an upgrade."}
+                        type={upgradeType}
                     />
                 ) : children}
             </ThemedDashboardContent>

@@ -190,7 +190,7 @@ export default function OverviewDashboard({ data }: Props) {
         }}>Plan Distribution</div>
         <div style={{ display: "flex", gap: mob ? 8 : 12, flexWrap: "wrap" }}>
           {data.planTypeBreakdown.map((p) => {
-            const colors: Record<string, string> = { FREE: "#6B6B80", MONTHLY: "#00D4FF", YEARLY: "#3ECF8E" };
+            const colors: Record<string, string> = { FREE: "#6B6B80", PRO: "#00D4FF", BUNDLE: "#3ECF8E" };
             const c = colors[p.plan] ?? "#60A5FA";
             return (
               <div key={p.plan} style={{

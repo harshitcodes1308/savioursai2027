@@ -692,8 +692,8 @@ enum Sprint15Status {
 
 enum PlanType {
   FREE
-  MONTHLY
-  YEARLY
+  PRO
+  BUNDLE
 }
 
 enum SubscriptionStatus {

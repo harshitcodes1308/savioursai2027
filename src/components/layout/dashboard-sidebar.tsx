@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
-import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
+import { isLockedRoute, isBundleLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
@@ -20,6 +20,7 @@ const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
   "/dashboard/guess-papers": "guessPapers",
   "/dashboard/strategy": "strategyAI",
   "/dashboard/last-night-before": "lastNightBefore",
+  "/dashboard/ebooks": "ebooks",
   "/dashboard/chronoscroll": "chronoScroll",
   "/dashboard/date-battle": "dateBattleArena",
   "/dashboard/notes": "notesFlashcards",
@@ -70,6 +71,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
     label: "STUDY",
     items: [
       { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
+      { icon: "◈", label: "E-Books",           href: "/dashboard/ebooks" },
       { icon: "◎", label: "ChronoScroll",      href: "/dashboard/chronoscroll" },
       { icon: "◈", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
       { icon: "◉", label: "Focus Mode",        href: "/dashboard/focus" },
@@ -107,6 +109,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
       { icon: "▶", label: "Study Flow",        href: "/dashboard/study-flow" },
       { icon: "▷", label: "Video Lectures",    href: "/dashboard/video-lectures" },
       { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
+      { icon: "◈", label: "E-Books",           href: "/dashboard/ebooks" },
       { icon: "◎", label: "ChronoScroll",      href: "/dashboard/chronoscroll" },
       { icon: "◈", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
       { icon: "◉", label: "Focus Mode",        href: "/dashboard/focus" },
@@ -154,13 +157,21 @@ export default function DashboardSidebar({
     : "U";
 
   const planLabel =
-    planType === "MONTHLY" ? "Monthly Plan" :
-    planType === "YEARLY" ? "Yearly Plan" :
+    planType === "PRO" ? "Pro Plan" :
+    planType === "BUNDLE" ? "Ultimate Bundle" :
     isPaid ? "Pro Plan" :
     "Free Plan";
 
   const handleNavigation = (href: string) => {
     if (!isPaid && isLockedRoute(href)) {
+      const info = getFeatureInfo(href);
+      if (info) {
+        setUpgradeFeature(info);
+        setIsOpen(false);
+        return;
+      }
+    }
+    if (isPaid && planType === "PRO" && isBundleLockedRoute(href)) {
       const info = getFeatureInfo(href);
       if (info) {
         setUpgradeFeature(info);
@@ -350,7 +361,7 @@ export default function DashboardSidebar({
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {item.label}
                     </span>
-                    {!isPaid && isLockedRoute(item.href) && (
+                    {((!isPaid && isLockedRoute(item.href)) || (isPaid && planType === "PRO" && isBundleLockedRoute(item.href))) && (
                       <span style={{ fontSize: 10, opacity: 0.35, flexShrink: 0 }}>⌁</span>
                     )}
                   </button>

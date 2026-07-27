@@ -55,8 +55,7 @@ function calcMMStats(checked: Record<string, boolean>) {
 const PLAN_LABELS: Record<string, string> = {
     FREE: "Free",
     PRO: "Pro",
-    MONTHLY: "Monthly",
-    YEARLY: "Yearly",
+    BUNDLE: "Ultimate Bundle",
 };
 
 function getGreeting(): string {
@@ -184,6 +183,7 @@ export default function DashboardPage() {
         { flag: "chronoScroll" as const, label: "ChronoScroll", desc: "Scroll through history, snap dates", path: "/dashboard/chronoscroll", icon: "◎", tagline: "Scroll. Snap. Remember." },
         { flag: "numericalMastery" as const, label: "Numerical Mastery", desc: "Physics formulas, solved examples & PYQs", path: "/dashboard/numerical-mastery", icon: "◈", tagline: "Every formula, every numerical, mastered." },
         { flag: "dateBattleArena" as const, label: "Date Battle Arena", desc: "Gamified history dates, 60-second battles", path: "/dashboard/date-battle", icon: "◉", tagline: "Speed meets memory in the arena." },
+        { flag: "ebooks" as const, label: "E-Books", desc: "Premium ICSE textbooks by Clarify Knowledge", path: "/dashboard/ebooks", icon: "◈", tagline: "10 subjects. One library. Zero excuses." },
     ].filter(card => FEATURE_FLAGS[card.flag]);
 
     if (profileLoading || !stats) {
@@ -207,7 +207,7 @@ export default function DashboardPage() {
     const rawPlanType = (profile as any)?.planType ?? "FREE";
     const profileIsPaid = !!(
         (profile as any)?.isPaid ||
-        ((rawPlanType === "MONTHLY" || rawPlanType === "YEARLY") &&
+        ((rawPlanType === "PRO" || rawPlanType === "BUNDLE") &&
             (profile as any)?.subscriptionStatus === "ACTIVE")
     );
     // If isPaid is true but planType is FREE (manual DB change), show "Pro"

@@ -1,15 +1,14 @@
 /**
- * Free Tier Configuration
- * 
- * Defines which dashboard routes are locked (Pro only) vs free.
- * Used by middleware for route guarding and sidebar for lock icons.
+ * Tier Configuration
+ *
+ * PRO_LOCKED: unlocked by Pro (₹199) or Bundle (₹699)
+ * BUNDLE_LOCKED: unlocked by Bundle (₹699) only
  */
 
-/** Routes that require Pro (isPaid = true) */
-export const LOCKED_ROUTES = [
+/** Routes that require at least Pro plan */
+export const PRO_LOCKED_ROUTES = [
     "/dashboard/ai-assistant",
     "/dashboard/tests",
-    "/dashboard/precision-practice",
     "/dashboard/strategy",
     "/dashboard/notes",
     "/dashboard/chronoscroll",
@@ -17,6 +16,19 @@ export const LOCKED_ROUTES = [
     "/dashboard/numerical-mastery",
     "/dashboard/flip-the-question",
     "/dashboard/focus",
+] as const;
+
+/** Routes that require the Ultimate Bundle plan */
+export const BUNDLE_LOCKED_ROUTES = [
+    "/dashboard/ebooks",
+    "/dashboard/precision-practice",
+    "/dashboard/guess-papers",
+] as const;
+
+/** All locked routes (union of both tiers) */
+export const LOCKED_ROUTES = [
+    ...PRO_LOCKED_ROUTES,
+    ...BUNDLE_LOCKED_ROUTES,
 ] as const;
 
 /** Routes accessible to free users */
@@ -28,7 +40,6 @@ export const FREE_ROUTES = [
     "/dashboard/video-lectures",
     "/dashboard/study-flow",
     "/dashboard/subjects",
-    "/dashboard/guess-papers",
     "/dashboard/profile",
     "/dashboard/policies",
     "/dashboard/activity",
@@ -51,7 +62,7 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     },
     "/dashboard/precision-practice": {
         name: "Competency Test",
-        description: "Timed PYQ-based competency testing with detailed accuracy, time-efficiency, and performance analytics for every chapter.",
+        description: "Timed PYQ-based competency testing with detailed accuracy, time-efficiency, and performance analytics for every chapter. Requires the Ultimate Bundle.",
     },
     "/dashboard/strategy": {
         name: "Exam Strategy Builder",
@@ -73,15 +84,33 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
         name: "Numerical Mastery",
         description: "Master Physics numericals with step-by-step formulas, solved examples, and 50+ Previous Year Questions from 2007–2025.",
     },
+    "/dashboard/ebooks": {
+        name: "E-Books Library",
+        description: "Access premium ICSE Class 10 e-books from Clarify Knowledge — all subjects with textbooks and question banks. Requires the Ultimate Bundle.",
+    },
+    "/dashboard/guess-papers": {
+        name: "Guess Papers",
+        description: "AI-predicted guess papers for all subjects based on PYQ analysis and chapter weightage. Requires the Ultimate Bundle.",
+    },
     "/dashboard/last-night-before": {
         name: "Last Night Before",
         description: "Panic-mode revision: 30 numericals, 20 formulas, 10 definitions — randomly assigned for focused last-minute cramming.",
     },
 };
 
-/** Check if a pathname is a locked route (for free users) */
+/** Check if a pathname is locked for free users (any paid plan unlocks) */
 export function isLockedRoute(pathname: string): boolean {
     return LOCKED_ROUTES.some(route => pathname.startsWith(route));
+}
+
+/** Check if a pathname requires at least the Pro plan */
+export function isProLockedRoute(pathname: string): boolean {
+    return PRO_LOCKED_ROUTES.some(route => pathname.startsWith(route));
+}
+
+/** Check if a pathname requires the Bundle plan specifically */
+export function isBundleLockedRoute(pathname: string): boolean {
+    return BUNDLE_LOCKED_ROUTES.some(route => pathname.startsWith(route));
 }
 
 /** Get feature info for a locked route */

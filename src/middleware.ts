@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
             const planType = user?.planType ?? 'FREE';
             const subscriptionStatus = user?.subscriptionStatus ?? 'ACTIVE';
             const hasActiveSub =
-                (planType === 'MONTHLY' || planType === 'YEARLY') &&
+                (planType === 'PRO' || planType === 'BUNDLE') &&
                 subscriptionStatus === 'ACTIVE';
 
             isPaid = user?.isPaid || hasActiveSub;

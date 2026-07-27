@@ -138,6 +138,12 @@ export async function middleware(request: NextRequest) {
 
     // 6. Auth routes → dashboard if already logged in (and onboarded)
     if (isAuthRoute && isAuthenticated) {
+        // Demo sessions are deliberately allowed onto sign-up. A visitor must
+        // be able to replace the shared product-tour session with their own
+        // account instead of being bounced straight back to the dashboard.
+        if (user?.isDemo) {
+            return NextResponse.next();
+        }
         if (!onboardingComplete) {
             // Clear the stale cookie so they can sign in / sign up fresh
             const res = NextResponse.redirect(new URL(pathname, request.url));

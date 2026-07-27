@@ -284,11 +284,11 @@ export default function CreatorDashboard() {
             }}
           >
             <div style={{ fontSize: 11, color: "var(--text-muted, #9CA3AF)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
-              Monthly Subscribers
+              Pro Subscribers
             </div>
             <div style={{ fontSize: 32, fontWeight: 700, color: "#D4AF37" }}>{stats.monthlyCount}</div>
             <div style={{ fontSize: 11, color: "var(--text-muted, #9CA3AF)", marginTop: 4 }}>
-              ₹149 plan subscribers
+              ₹199 plan subscribers
             </div>
           </div>
 
@@ -301,11 +301,11 @@ export default function CreatorDashboard() {
             }}
           >
             <div style={{ fontSize: 11, color: "var(--text-muted, #9CA3AF)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
-              Yearly Subscribers
+              Bundle Subscribers
             </div>
             <div style={{ fontSize: 32, fontWeight: 700, color: "#D4AF37" }}>{stats.yearlyCount}</div>
             <div style={{ fontSize: 11, color: "var(--text-muted, #9CA3AF)", marginTop: 4 }}>
-              ₹599 plan subscribers
+              ₹699 plan subscribers
             </div>
           </div>
 

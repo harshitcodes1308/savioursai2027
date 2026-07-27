@@ -66,17 +66,17 @@ export async function GET(req: NextRequest) {
 
       const isPaidUser =
         user.isPaid ||
-        ((user.planType === "MONTHLY" || user.planType === "YEARLY") &&
+        ((user.planType === "PRO" || user.planType === "BUNDLE") &&
           user.subscriptionStatus === "ACTIVE");
 
       if (isPaidUser && user.subscriptionExpiry) {
         const expiry = new Date(user.subscriptionExpiry);
-        if (user.planType === "MONTHLY") {
+        if (user.planType === "PRO") {
           purchaseDate = new Date(expiry.getTime() - 30 * 24 * 60 * 60 * 1000);
-          saleAmount = 149;
-        } else if (user.planType === "YEARLY") {
+          saleAmount = 199;
+        } else if (user.planType === "BUNDLE") {
           purchaseDate = new Date(expiry.getTime() - 365 * 24 * 60 * 60 * 1000);
-          saleAmount = 599;
+          saleAmount = 699;
         }
 
         // Cap to creation date if calculated date is before creation
@@ -121,16 +121,16 @@ export async function GET(req: NextRequest) {
     // Calculate aggregated stats
     const totalSignups = filteredUsers.length;
     const paidUsers = filteredUsers.filter((u) => u.isPaid);
-    const monthlyCount = paidUsers.filter((u) => u.planType === "MONTHLY").length;
-    const yearlyCount = paidUsers.filter((u) => u.planType === "YEARLY").length;
+    const proCount = paidUsers.filter((u) => u.planType === "PRO").length;
+    const bundleCount = paidUsers.filter((u) => u.planType === "BUNDLE").length;
     const totalRevenueShare = filteredUsers.reduce((sum, u) => sum + u.revenueShare, 0);
 
     return NextResponse.json({
       creator,
       stats: {
         totalSignups,
-        monthlyCount,
-        yearlyCount,
+        proCount,
+        bundleCount,
         totalRevenueShare,
       },
       students: filteredUsers,

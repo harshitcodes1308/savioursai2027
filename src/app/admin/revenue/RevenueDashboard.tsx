@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
-const PLAN_COLORS: Record<string, string> = { FREE: "#6B6B80", MONTHLY: "#00D4FF", YEARLY: "#3ECF8E" };
+const PLAN_COLORS: Record<string, string> = { FREE: "#6B6B80", PRO: "#00D4FF", BUNDLE: "#3ECF8E" };
 const TOOLTIP_STYLE = {
   background: "var(--bg-surface)", border: "1px solid var(--bg-border)",
   borderRadius: 10, color: "var(--text-primary)", fontSize: 12, fontFamily: "var(--font-body)",

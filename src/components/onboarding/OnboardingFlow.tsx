@@ -209,7 +209,7 @@ export default function OnboardingFlow() {
     setStep(7);
   }
 
-  async function handlePaidPlan(planKey: 'MONTHLY' | 'YEARLY') {
+  async function handlePaidPlan(planKey: 'PRO' | 'BUNDLE') {
     // Load Razorpay SDK
     const loaded = await new Promise((resolve) => {
       if (window.Razorpay) { resolve(true); return; }
@@ -244,57 +244,36 @@ export default function OnboardingFlow() {
     const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '';
 
     try {
-      if (planKey === 'MONTHLY') {
-        // ── Recurring subscription flow (₹149/month) ──
-        const subRes = await fetch('/api/create-subscription', { method: 'POST' });
-        const subData = await subRes.json();
+      const orderRes = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: planKey }),
+      });
+      const orderData = await orderRes.json();
 
-        if (!subData.success) {
-          alert(`Subscription Error: ${subData.error || 'Failed to create subscription'}`);
-          return;
-        }
-
-        const options = {
-          key,
-          name: 'Saviours AI',
-          description: 'Monthly Access — ₹149/month',
-          subscription_id: subData.subscription.id,
-          handler: commonHandler,
-          prefill,
-          theme: { color: themeColor },
-        };
-
-        const paymentObject = new (window as any).Razorpay(options);
-        paymentObject.open();
-      } else {
-        // ── One-time order flow (₹599 yearly) ──
-        const orderRes = await fetch('/api/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'PRO_YEARLY' }),
-        });
-        const orderData = await orderRes.json();
-
-        if (!orderData.success) {
-          alert(`Payment Error: ${orderData.error}`);
-          return;
-        }
-
-        const options = {
-          key,
-          amount: orderData.order.amount,
-          currency: orderData.order.currency,
-          name: 'Saviours AI',
-          description: 'Yearly Access — ₹599 one-time',
-          order_id: orderData.order.id,
-          handler: commonHandler,
-          prefill,
-          theme: { color: themeColor },
-        };
-
-        const paymentObject = new (window as any).Razorpay(options);
-        paymentObject.open();
+      if (!orderData.success) {
+        alert(`Payment Error: ${orderData.error}`);
+        return;
       }
+
+      const description = planKey === 'BUNDLE'
+        ? 'Ultimate Bundle — ₹699 one-time'
+        : 'Pro Access — ₹199 one-time';
+
+      const options = {
+        key,
+        amount: orderData.order.amount,
+        currency: orderData.order.currency,
+        name: 'Saviours AI',
+        description,
+        order_id: orderData.order.id,
+        handler: commonHandler,
+        prefill,
+        theme: { color: themeColor },
+      };
+
+      const paymentObject = new (window as any).Razorpay(options);
+      paymentObject.open();
     } catch {
       alert('Payment failed. Please try again.');
     }
@@ -318,7 +297,7 @@ export default function OnboardingFlow() {
     setStep(7);
   }
 
-  function handlePlanSelect(plan: 'FREE' | 'MONTHLY' | 'YEARLY' | 'DOMIN8', domin8Code?: string) {
+  function handlePlanSelect(plan: 'FREE' | 'PRO' | 'BUNDLE' | 'DOMIN8', domin8Code?: string) {
     if (plan === 'FREE') {
       handleFreePlan();
     } else if (plan === 'DOMIN8') {

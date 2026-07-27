@@ -13,6 +13,7 @@ export const PLAN_FEATURES: Record<string, Plan[]> = {
   dateBattleArena: ['pro', 'bundle'],
   ebooks:          ['bundle'],
   guessPapers:     ['bundle'],
+  halfYearlySimulator: ['bundle'],
 };
 
 export const AI_DOUBT_FREE_LIMIT = 3; // queries per day for free users

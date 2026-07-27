@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useDemoMode } from "@/hooks/useDemoMode";
 import { physicsQuestions } from "@/data/precision-physics";
 import { mathsQuestions } from "@/data/precision-maths";
 import { chemistryQuestions } from "@/data/precision-chemistry";
@@ -167,6 +168,7 @@ type Phase = "subject" | "chapter" | "countdown" | "test" | "analytics";
 
 export default function CompetencyTestPage() {
   const { isMobile } = useResponsive();
+  const { isDemo } = useDemoMode();
   const [phase, setPhase] = useState<Phase>("subject");
   const [selectedSubject, setSelectedSubject] = useState<PrecisionSubject | null>(null);
   const [selectedChapter, setSelectedChapter] = useState("");
@@ -509,31 +511,35 @@ export default function CompetencyTestPage() {
           {selectedSubject.chapters.map((ch) => {
             const stats = getChapterStats(selectedSubject.id, ch.id);
             const hasQ = stats.count > 0;
+            const demoLocked = isDemo && ch.id !== selectedSubject.chapters[0]?.id;
             const isHovered = hoveredChapter === ch.id;
             return (
               <button
                 key={ch.id}
-                onClick={() => hasQ && startTest(selectedSubject, ch.id)}
+                onClick={() => {
+                  if (demoLocked) { window.location.href = "/signup?from=demo"; return; }
+                  if (hasQ) startTest(selectedSubject, ch.id);
+                }}
                 onMouseEnter={() => setHoveredChapter(ch.id)}
                 onMouseLeave={() => setHoveredChapter(null)}
                 disabled={!hasQ}
                 style={{
-                  background: isHovered && hasQ
+                  background: isHovered && hasQ && !demoLocked
                     ? `linear-gradient(135deg, ${selectedSubject.color}08, ${selectedSubject.color}04)`
                     : "rgba(255,255,255,0.03)",
-                  border: `1px solid ${isHovered && hasQ ? selectedSubject.color + "30" : "rgba(255,255,255,0.06)"}`,
+                  border: `1px solid ${isHovered && hasQ && !demoLocked ? selectedSubject.color + "30" : "rgba(255,255,255,0.06)"}`,
                   borderRadius: 16, padding: "22px 24px",
                   cursor: hasQ ? "pointer" : "not-allowed",
                   textAlign: "left", transition: "all 0.3s ease",
                   display: "flex", justifyContent: "space-between", alignItems: "center",
-                  opacity: hasQ ? 1 : 0.35,
-                  transform: isHovered && hasQ ? "translateX(4px)" : "none",
+                  opacity: hasQ ? demoLocked ? 0.55 : 1 : 0.35,
+                  transform: isHovered && hasQ && !demoLocked ? "translateX(4px)" : "none",
                 }}
               >
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: "#FFF", marginBottom: 8 }}>{ch.name}</div>
                   <div style={{ display: "flex", gap: 20, fontSize: 13 }}>
-                    <span style={{ color: selectedSubject.color, fontWeight: 600 }}>📝 {stats.count} Qs</span>
+                    <span style={{ color: selectedSubject.color, fontWeight: 600 }}>{demoLocked ? "🔒 Demo locked" : `📝 ${stats.count} Qs`}</span>
                     <span style={{ color: "#9CA3AF" }}>⭐ {stats.totalMarks} Marks</span>
                     <span style={{ color: "#9CA3AF" }}>⏱ {formatSec(stats.totalTime)}</span>
                   </div>
@@ -545,7 +551,7 @@ export default function CompetencyTestPage() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 18, color: selectedSubject.color, fontWeight: 700,
                     border: `1px solid ${selectedSubject.color}20`,
-                  }}>→</div>
+                  }}>{demoLocked ? "🔒" : "→"}</div>
                 )}
               </button>
             );

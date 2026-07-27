@@ -6,6 +6,7 @@ import { typography } from '@/lib/typography';
 import { ICSE_SUBJECTS, ICSE_CHAPTERS } from '@/lib/icse-data';
 import type { MCQ } from '@/lib/test-generator';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useDemoLimit } from '@/hooks/useDemoMode';
 
 type Step =
     | 'subject'
@@ -20,6 +21,7 @@ type Step =
 
 export default function CustomiseTestPage() {
     const { isMobile } = useResponsive();
+    const demoLimit = useDemoLimit('custom-tests', 1);
     const [step, setStep] = useState<Step>('subject');
 
     // Config states
@@ -60,6 +62,7 @@ export default function CustomiseTestPage() {
     }, [step, timeRemaining]);
 
     const handleCreateTest = async () => {
+        if (!demoLimit.consume()) { window.location.href = '/signup?from=demo'; return; }
         const result = await createMutation.mutateAsync({
             subject,
             chapters: selectedChapters,

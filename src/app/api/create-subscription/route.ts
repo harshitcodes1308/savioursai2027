@@ -5,13 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
 
 /**
- * POST /api/create-subscription
- *
- * Creates a Razorpay Subscription for the ₹199/month Monthly plan.
- * Creator discounts use per-creator plan IDs configured in env:
- *   RAZORPAY_MONTHLY_PLAN_ID            — default (₹199)
- *   RAZORPAY_MONTHLY_PLAN_ID_{CODE}     — discounted plan for creator code (uppercase)
- *   e.g. RAZORPAY_MONTHLY_PLAN_ID_BL2047, RAZORPAY_MONTHLY_PLAN_ID_CK2047
+ * POST /api/create-subscription (LEGACY — no longer used, kept for existing subscribers)
  */
 export async function POST() {
     try {

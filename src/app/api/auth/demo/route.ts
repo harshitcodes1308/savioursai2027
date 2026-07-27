@@ -10,20 +10,15 @@ const DEMO_PHONE = "9999900000";
 
 /**
  * POST /api/auth/demo
- * body: { mode: "signup" | "signin" }
+ * body: { plan?: "PRO" | "BUNDLE", mode?: "signup" | "signin" }
  *
- * "signup" → resets onboardingComplete to false → redirects to /onboarding
- * "signin" → sets onboardingComplete to true  → redirects to /dashboard
+ * This intentionally uses one shared database record. The requested demo plan
+ * lives only in the signed cookie, so trying the product never creates a user.
  */
 export async function POST(req: NextRequest) {
-  // Only allow demo in development (localhost)
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  const { mode = "signin", plan = "BUNDLE" } = await req.json();
 
-  const { mode } = await req.json();
-
-  if (mode !== "signup" && mode !== "signin") {
+  if ((mode !== "signup" && mode !== "signin") || (plan !== "PRO" && plan !== "BUNDLE")) {
     return NextResponse.json({ error: "Invalid mode" }, { status: 400 });
   }
 
@@ -32,20 +27,27 @@ export async function POST(req: NextRequest) {
 
   if (!user) {
     const hashed = await hashPassword(DEMO_PASSWORD);
-    user = await prisma.user.create({
-      data: {
-        email: DEMO_EMAIL,
-        password: hashed,
-        name: DEMO_NAME,
-        phone: DEMO_PHONE,
-        role: "STUDENT",
-        planType: "BUNDLE",
-        subscriptionStatus: "ACTIVE",
-        isPaid: true,
-        onboardingComplete: mode === "signin",
-        authProvider: "credentials",
-      },
-    });
+    try {
+      user = await prisma.user.create({
+        data: {
+          email: DEMO_EMAIL,
+          password: hashed,
+          name: DEMO_NAME,
+          phone: DEMO_PHONE,
+          role: "STUDENT",
+          planType: "BUNDLE",
+          subscriptionStatus: "ACTIVE",
+          isPaid: true,
+          onboardingComplete: true,
+          authProvider: "credentials",
+        },
+      });
+    } catch {
+      // Concurrent first-time demo visitors race for one email; reuse the
+      // winner instead of creating a second record or failing the tour.
+      user = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
+      if (!user) return NextResponse.json({ error: "Could not start demo" }, { status: 503 });
+    }
 
     // Create student profile if it doesn't exist
     const existingProfile = await prisma.studentProfile.findUnique({
@@ -56,14 +58,6 @@ export async function POST(req: NextRequest) {
         data: { userId: user.id, grade: 10 },
       });
     }
-  } else {
-    // Update onboarding status based on mode
-    user = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        onboardingComplete: mode === "signin",
-      },
-    });
   }
 
   const sessionUser: SessionUser = {
@@ -72,11 +66,13 @@ export async function POST(req: NextRequest) {
     name: user.name,
     role: user.role,
     isPaid: user.isPaid,
-    planType: user.planType,
+    // Do not update the shared account's plan. The plan is isolated per demo JWT.
+    planType: plan,
     subscriptionStatus: user.subscriptionStatus,
     subscriptionExpiry: user.subscriptionExpiry?.toISOString() ?? null,
-    onboardingComplete: mode === "signin",
+    onboardingComplete: true,
     lnbChemistryUnlocked: user.lnbChemistryUnlocked,
+    isDemo: true,
   };
 
   const token = await createToken(sessionUser);

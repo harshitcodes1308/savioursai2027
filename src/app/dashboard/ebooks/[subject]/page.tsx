@@ -6,6 +6,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useDemoMode } from "@/hooks/useDemoMode";
 import { getEbookBySlug } from "@/data/ebooks-config";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -22,6 +23,7 @@ export default function EbookViewerPage() {
   const { isMobile } = useResponsive();
   const subjectId = params.subject as string;
   const ebook = getEbookBySlug(subjectId);
+  const { isDemo } = useDemoMode();
 
   const [activeTab, setActiveTab] = useState(0);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -470,6 +472,7 @@ export default function EbookViewerPage() {
             ? "radial-gradient(ellipse at center, rgba(0,212,255,0.03) 0%, transparent 70%)"
             : "none",
           marginTop: isFullscreen && toolbarVisible ? 56 : 0,
+          position: "relative",
         }}
       >
         {pdfError ? (
@@ -587,6 +590,16 @@ export default function EbookViewerPage() {
               }
             />
           </Document>
+        )}
+        {isDemo && (
+          <div style={{ position: "absolute", inset: 0, zIndex: 5, display: "grid", placeItems: "center", padding: 20, background: "rgba(9,9,14,.28)", backdropFilter: "blur(9px)" }}>
+            <div style={{ maxWidth: 340, textAlign: "center", padding: 22, borderRadius: 14, background: "rgba(14,14,24,.88)", border: "1px solid rgba(245,158,11,.35)", boxShadow: "0 12px 36px rgba(0,0,0,.35)" }}>
+              <div style={{ fontSize: 27 }}>🔒</div>
+              <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 18, marginTop: 8 }}>Preview protected</div>
+              <p style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, lineHeight: 1.55 }}>Try zoom, tabs and page navigation in this tour. Create a real account to read every page.</p>
+              <button onClick={() => router.push("/signup?from=demo")} style={{ cursor: "pointer", border: "1px solid var(--accent-gold-border)", borderRadius: 8, padding: "9px 13px", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700 }}>Upgrade to a real account →</button>
+            </div>
+          </div>
         )}
       </div>
 

@@ -1,218 +1,57 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, prefersReducedMotion } from "./useScrollReveal";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import ElegantShapes from "./ElegantShapes";
 
-interface Stat {
-  value: number;
-  display: (n: number) => string;
-  label: string;
-  suffix?: string;
-}
+type DemoPlan = "PRO" | "BUNDLE";
 
-const STATS: Stat[] = [
-  { value: 3064, display: (n) => Math.round(n).toLocaleString("en-IN"), label: "Total signups" },
-  { value: 572, display: (n) => Math.round(n).toLocaleString("en-IN"), label: "Paid users" },
-  { value: 56628, display: (n) => "₹" + Math.round(n).toLocaleString("en-IN"), label: "Revenue, under 2 months" },
-  { value: 18.7, display: (n) => n.toFixed(1) + "%", label: "Free-to-paid conversion" },
+const plans: Array<{ plan: DemoPlan; eyebrow: string; title: string; price: string; details: string[]; color: string }> = [
+  { plan: "PRO", eyebrow: "AI Pro tour", title: "Try the AI Pro plan", price: "₹199 plan", color: "var(--accent-gold)", details: ["One guided subject and chapter", "AI tools, focus and test builder", "No card or sign-up required"] },
+  { plan: "BUNDLE", eyebrow: "Ultimate tour", title: "Explore the Ultimate Bundle", price: "₹699 plan", color: "#F59E0B", details: ["E-books, tests and Half Yearly Simulator", "Interactive previews with protected content", "No card or sign-up required"] },
 ];
 
 export default function TractionStats() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const numRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const router = useRouter();
+  const [loading, setLoading] = useState<DemoPlan | null>(null);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const reduced = prefersReducedMotion();
-    if (reduced) {
-      STATS.forEach((s, i) => {
-        const el = numRefs.current[i];
-        if (el) el.textContent = s.display(s.value);
-      });
-      return;
+  const startDemo = async (plan: DemoPlan) => {
+    setLoading(plan); setError("");
+    try {
+      const response = await fetch("/api/auth/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "signin", plan }) });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || "Could not start the live demo.");
+      router.push(data.redirectTo || "/dashboard");
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not start the live demo.");
+      setLoading(null);
     }
+  };
 
-    const ctx = gsap.context(() => {
-      STATS.forEach((s, i) => {
-        const el = numRefs.current[i];
-        if (!el) return;
-        const counter = { v: 0 };
-        gsap.to(counter, {
-          v: s.value,
-          duration: 1.8,
-          ease: "power2.out",
-          scrollTrigger: { trigger: el, start: "top 88%" },
-          onUpdate: () => { el.textContent = s.display(counter.v); },
-        });
-      });
-      // Whole card row fades in as one unit — no per-card stagger/opacity that
-      // could leave a card pale or misaligned mid-scroll.
-      gsap.fromTo(
-        ".sa-stat-grid",
-        { opacity: 0, y: 24 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: "power3.out",
-          scrollTrigger: { trigger: sectionRef.current, start: "top 82%", once: true },
-        }
-      );
-    }, sectionRef);
-
-    // Bento border glow follows cursor
-    const root = sectionRef.current;
-    let onMove: ((e: MouseEvent) => void) | null = null;
-    if (root && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-      onMove = (e: MouseEvent) => {
-        const card = (e.target as HTMLElement).closest<HTMLElement>(".sa-bento");
-        if (!card || !root.contains(card)) return;
-        const r = card.getBoundingClientRect();
-        card.style.setProperty("--mx", `${e.clientX - r.left}px`);
-        card.style.setProperty("--my", `${e.clientY - r.top}px`);
-      };
-      root.addEventListener("mousemove", onMove);
-    }
-
-    return () => {
-      ctx.revert();
-      if (root && onMove) root.removeEventListener("mousemove", onMove);
-    };
-  }, []);
-
-  return (
-    <section
-      ref={sectionRef}
-      style={{ position: "relative", zIndex: 1, padding: "clamp(80px, 12vw, 140px) 24px", overflow: "hidden" }}
-    >
-      {/* Ambient floating shapes backdrop */}
-      <ElegantShapes />
-      {/* soft fade so the shapes never compete with the stat cards */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-          background: "linear-gradient(to bottom, var(--bg-base) 0%, transparent 18%, transparent 82%, var(--bg-base) 100%)",
-        }}
-      />
-      <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
-        <div style={{ marginBottom: 56, maxWidth: 720 }}>
-          <div className="sa-eyebrow" style={{ marginBottom: 20 }}>The proof</div>
-          <h2
-            className="sa-grad-text"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(32px, 6vw, 64px)",
-              letterSpacing: "-0.035em",
-              margin: "0 0 14px",
-              lineHeight: 1.02,
-              fontWeight: 800,
-            }}
-          >
-            Real traction.
-            <br />
-            Zero paid ads.
-          </h2>
-          <p
-            style={{
-              fontFamily: "var(--font-tagline)",
-              fontStyle: "italic",
-              fontSize: "clamp(16px, 2.4vw, 21px)",
-              color: "var(--text-muted)",
-              maxWidth: 620,
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
-            We launched with one YouTube audience. Here&apos;s what organic growth looked like in{" "}
-            <span style={{ color: "var(--accent-gold)", fontStyle: "normal", fontWeight: 600 }}>under 2 months</span>.
-          </p>
-        </div>
-
-        {/* Stat cards */}
-        <div
-          className="sa-stat-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 16,
-            marginBottom: 36,
-            alignItems: "stretch",
-          }}
-        >
-          {STATS.map((s, i) => {
-            const featured = i === 2; // Revenue, under 2 months — the headline metric
-            return (
-              <div
-                key={i}
-                className={`sa-bento sa-stat-card${featured ? " sa-stat-featured" : ""}`}
-                style={{ padding: "34px 28px", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}
-              >
-                <div
-                  ref={(el) => { numRefs.current[i] = el; }}
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "clamp(38px, 5vw, 56px)",
-                    color: "var(--accent-gold)",
-                    fontWeight: 700,
-                    letterSpacing: "-0.03em",
-                    lineHeight: 1,
-                    marginBottom: 14,
-                  }}
-                >
-                  0
-                </div>
-                <div
-                  className="sa-stat-label"
-                  style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: 13,
-                    color: "var(--text-muted)",
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  {s.label}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Comparison strip */}
-        <div
-          className="sa-bento"
-          style={{
-            padding: "22px 30px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 14,
-            flexWrap: "wrap",
-            textAlign: "center",
-          }}
-        >
-          <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-            Industry average free-to-paid sits at{" "}
-            <span style={{ color: "var(--text-muted)", textDecoration: "line-through", opacity: 0.7 }}>
-              2–5%
-            </span>
-            . We converted at{" "}
-            <span className="chip-green" style={{ fontSize: 13, fontWeight: 700 }}>18.7%</span>
-            {" "}— with <span style={{ color: "var(--accent-gold)", fontWeight: 600 }}>₹0</span> on ads.
-          </span>
-        </div>
+  return <section style={{ position: "relative", zIndex: 1, padding: "clamp(80px, 12vw, 140px) 24px", overflow: "hidden" }}>
+    <ElegantShapes />
+    <div style={{ maxWidth: 1080, margin: "0 auto", position: "relative", zIndex: 1 }}>
+      <div style={{ marginBottom: 44, maxWidth: 720 }}>
+        <div className="sa-eyebrow" style={{ marginBottom: 20 }}>Try it live now</div>
+        <h2 className="sa-grad-text" style={{ fontFamily: "var(--font-display)", fontSize: "clamp(32px, 6vw, 64px)", letterSpacing: "-.035em", margin: "0 0 14px", lineHeight: 1.02, fontWeight: 800 }}>Don&apos;t just read about it.<br />Use it.</h2>
+        <p style={{ fontFamily: "var(--font-tagline)", fontStyle: "italic", fontSize: "clamp(16px, 2.4vw, 21px)", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>Enter a guided product tour in seconds. No account, payment, or setup needed.</p>
       </div>
-
-      <style>{`
-        @media (max-width: 860px) {
-          .sa-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 440px) {
-          .sa-stat-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
-    </section>
-  );
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 310px), 1fr))", gap: 18 }}>
+        {plans.map(item => <article key={item.plan} className="sa-bento" style={{ padding: "30px", display: "flex", flexDirection: "column", borderColor: item.plan === "BUNDLE" ? "rgba(245,158,11,.3)" : undefined }}>
+          <div style={{ color: item.color, fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 10, letterSpacing: ".12em", textTransform: "uppercase" }}>{item.eyebrow}</div>
+          <h3 style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 27, letterSpacing: "-.025em", margin: "14px 0 8px" }}>{item.title}</h3>
+          <div style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, marginBottom: 22 }}>{item.price}</div>
+          <ul style={{ listStyle: "none", padding: 0, margin: "0 0 26px", display: "grid", gap: 10, flex: 1 }}>{item.details.map(detail => <li key={detail} style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontSize: 13, display: "flex", gap: 9 }}><span style={{ color: item.color }}>✦</span>{detail}</li>)}</ul>
+          <button onClick={() => void startDemo(item.plan)} disabled={loading !== null} style={{ cursor: loading ? "wait" : "pointer", border: `1px solid ${item.plan === "BUNDLE" ? "rgba(245,158,11,.45)" : "var(--accent-gold-border)"}`, borderRadius: 10, padding: "13px 16px", background: item.plan === "BUNDLE" ? "rgba(245,158,11,.12)" : "var(--accent-gold-glow)", color: item.color, fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700 }}>{loading === item.plan ? "Taking you to the craziest ICSE tool…" : item.title + " →"}</button>
+        </article>)}
+      </div>
+      {error && <p role="alert" style={{ color: "#FB7185", fontFamily: "var(--font-body)", fontSize: 13, marginTop: 16 }}>{error}</p>}
+    </div>
+    {loading && <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", padding: 24, background: "rgba(7,7,13,.96)", backdropFilter: "blur(18px)" }}>
+      <div style={{ textAlign: "center" }}><div style={{ fontSize: 48, animation: "try-live-pulse 1s ease-in-out infinite" }}>◈</div><div style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)", fontSize: "clamp(26px,5vw,42px)", marginTop: 18 }}>Taking you to the craziest ICSE tool…</div><p style={{ color: "var(--text-muted)", fontFamily: "var(--font-tagline)", fontStyle: "italic" }}>{loading === "PRO" ? "Loading your AI Pro tour" : "Unlocking your Ultimate Bundle tour"}</p></div>
+    </div>}
+    <style>{`@keyframes try-live-pulse { 50% { transform: scale(1.22); color: #F59E0B; } }`}</style>
+  </section>;
 }

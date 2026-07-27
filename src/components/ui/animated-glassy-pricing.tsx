@@ -407,46 +407,48 @@ const savioursPlans: PricingCardProps[] = [
     isPopular: false,
   },
   {
-    planName: 'Monthly',
-    description: 'Full access, one month at a time.',
-    price: '149',
+    planName: 'Ultimate Bundle',
+    description: 'Everything — AI + E-Books + Guess Papers.',
+    price: '699',
     priceSymbol: '₹',
-    billingLabel: '/month',
+    billingLabel: 'one-time',
+    features: [
+      'Everything in Pro',
+      'E-Books — All Subjects',
+      'Competency Test (PYQ)',
+      'Guess Papers',
+      'Question Banks',
+      'Priority future features',
+    ],
+    buttonText: 'Get Ultimate Bundle',
+    buttonVariant: 'primary',
+    isPopular: true,
+  },
+  {
+    planName: 'Pro',
+    description: 'All AI-powered features till boards.',
+    price: '199',
+    priceSymbol: '₹',
+    billingLabel: 'one-time',
     features: [
       'Everything in Free',
       'AI Doubt Solver (unlimited)',
-      'Smart Planner',
-      'Competency Test',
       'Customise Test',
       'Flip the Question',
       'Focus Mode',
+      'ChronoScroll',
+      'Numerical Mastery',
+      'Date Battle Arena',
     ],
-    buttonText: 'Choose Monthly',
+    buttonText: 'Choose Pro',
     buttonVariant: 'primary',
     isPopular: false,
-  },
-  {
-    planName: 'Yearly',
-    description: 'Commit to your boards. Best value.',
-    price: '599',
-    priceSymbol: '₹',
-    billingLabel: '/year',
-    savingsLabel: 'Save ₹1,789 vs monthly',
-    features: [
-      'Everything in Monthly',
-      'Priority AI responses',
-      'Early access to new features',
-      'Yearly progress report',
-    ],
-    buttonText: 'Get Yearly Access',
-    buttonVariant: 'primary',
-    isPopular: true,
   },
 ];
 
 interface AnimatedGlassyPricingProps {
   isMobile: boolean;
-  onSelectPlan: (plan: 'FREE' | 'MONTHLY' | 'YEARLY' | 'DOMIN8', domin8Code?: string) => void;
+  onSelectPlan: (plan: 'FREE' | 'PRO' | 'BUNDLE' | 'DOMIN8', domin8Code?: string) => void;
   userName?: string;
   // Optional: pass creator discount directly (avoids DB lag in onboarding flow)
   creatorDiscount?: { discountPercentage: number; creatorName: string } | null;
@@ -469,7 +471,7 @@ export default function AnimatedGlassyPricing({
   const discountPct = activeDiscount?.discountPercentage ?? 0;
   const creatorName = activeDiscount?.creatorName ?? undefined;
   // Discount applies to yearly only
-  const yearlyDiscounted = discountPct > 0 ? String(Math.round(599 * (1 - discountPct / 100))) : undefined;
+  const bundleDiscounted = discountPct > 0 ? String(Math.round(699 * (1 - discountPct / 100))) : undefined;
   const [domin8Error, setDomin8Error] = useState('');
   const [domin8Loading, setDomin8Loading] = useState(false);
 
@@ -557,15 +559,14 @@ export default function AnimatedGlassyPricing({
               <PricingCard
                 {...plan}
                 discountedPrice={
-                  plan.planName === 'Yearly' ? yearlyDiscounted : undefined
+                  plan.planName === 'Ultimate Bundle' ? bundleDiscounted : undefined
                 }
-                discountPct={plan.planName === 'Yearly' ? discountPct || undefined : undefined}
-                creatorName={plan.planName === 'Yearly' ? creatorName : undefined}
-                onClick={() =>
-                  onSelectPlan(
-                    plan.planName.toUpperCase() as 'FREE' | 'MONTHLY' | 'YEARLY'
-                  )
-                }
+                discountPct={plan.planName === 'Ultimate Bundle' ? discountPct || undefined : undefined}
+                creatorName={plan.planName === 'Ultimate Bundle' ? creatorName : undefined}
+                onClick={() => {
+                  const key = plan.planName === 'Ultimate Bundle' ? 'BUNDLE' : plan.planName === 'Pro' ? 'PRO' : 'FREE';
+                  onSelectPlan(key as 'FREE' | 'PRO' | 'BUNDLE');
+                }}
               />
             </div>
           ))}
@@ -581,7 +582,7 @@ export default function AnimatedGlassyPricing({
             opacity: 0.5,
           }}
         >
-          Secure payment via Razorpay. Cancel anytime.
+          Secure payment via Razorpay. One-time payment, no subscriptions.
         </p>
       </div>
 

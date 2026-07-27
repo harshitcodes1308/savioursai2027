@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useDemoMode } from "@/hooks/useDemoMode";
 import { STUDY_FLOW_DATA, SUBJECT_META } from "@/data/studyFlowData";
 import type { SubjectKey } from "@/data/studyFlowData";
 
@@ -17,6 +18,7 @@ export default function StudyFlowChaptersPage() {
   const router = useRouter();
   const params = useParams();
   const { isMobile, isTablet } = useResponsive();
+  const { isDemo } = useDemoMode();
   const [mounted, setMounted] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
 
@@ -118,15 +120,16 @@ export default function StudyFlowChaptersPage() {
             const isCompleted = p?.completed;
             const isInProgress = p && !p.completed;
             const isHovered = hovered === ch.id;
+            const demoLocked = isDemo && i > 0;
 
             const statusColor = isCompleted ? "var(--accent-gold)" : isInProgress ? meta.color : "var(--text-disabled)";
-            const statusLabel = isCompleted ? "Completed" : isInProgress ? `Step ${p.step} of 3` : "Not started";
+            const statusLabel = demoLocked ? "🔒 Demo limit · create an account" : isCompleted ? "Completed" : isInProgress ? `Step ${p.step} of 3` : "Not started";
             const statusIcon = isCompleted ? "✓" : isInProgress ? "◐" : "○";
 
             return (
               <div
                 key={ch.id}
-                onClick={() => router.push(`/dashboard/study-flow/${subject}/${ch.id}`)}
+                onClick={() => demoLocked ? router.push("/signup?from=demo") : router.push(`/dashboard/study-flow/${subject}/${ch.id}`)}
                 onMouseEnter={() => setHovered(ch.id)}
                 onMouseLeave={() => setHovered(null)}
                 style={{

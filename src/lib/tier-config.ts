@@ -23,6 +23,7 @@ export const BUNDLE_LOCKED_ROUTES = [
     "/dashboard/ebooks",
     "/dashboard/precision-practice",
     "/dashboard/guess-papers",
+    "/dashboard/half-yearly",
 ] as const;
 
 /** All locked routes (union of both tiers) */
@@ -91,6 +92,10 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     "/dashboard/guess-papers": {
         name: "Guess Papers",
         description: "AI-predicted guess papers for all subjects based on PYQ analysis and chapter weightage. Requires the Ultimate Bundle.",
+    },
+    "/dashboard/half-yearly": {
+        name: "Half Yearly Simulator",
+        description: "A guided half-syllabus programme with video lessons, e-books and chapter-wise competency tests. Requires the Ultimate Bundle.",
     },
     "/dashboard/last-night-before": {
         name: "Last Night Before",

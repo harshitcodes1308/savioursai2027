@@ -24,6 +24,7 @@ const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
   "/dashboard/chronoscroll": "chronoScroll",
   "/dashboard/date-battle": "dateBattleArena",
   "/dashboard/notes": "notesFlashcards",
+  "/dashboard/half-yearly": "halfYearlySimulator",
 };
 
 function isVisible(href: string): boolean {
@@ -81,6 +82,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
     label: "PRACTICE",
     items: [
       { icon: "◉", label: "Competency Test",   href: "/dashboard/precision-practice" },
+      { icon: "◈", label: "Half Yearly Sim",   href: "/dashboard/half-yearly" },
       { icon: "◈", label: "Customise Test",    href: "/dashboard/tests" },
       { icon: "⇌", label: "Flip the Question", href: "/dashboard/flip-the-question" },
       { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
@@ -119,6 +121,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
     label: "PRACTICE",
     items: [
       { icon: "◉", label: "Competency Test",   href: "/dashboard/precision-practice" },
+      { icon: "◈", label: "Half Yearly Sim",   href: "/dashboard/half-yearly" },
       { icon: "◈", label: "Customise Test",    href: "/dashboard/tests" },
       { icon: "⇌", label: "Flip the Question", href: "/dashboard/flip-the-question" },
       { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
@@ -150,7 +153,11 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [upgradeFeature, setUpgradeFeature] = useState<{ name: string; description: string } | null>(null);
+  const [upgradeFeature, setUpgradeFeature] = useState<{
+    name: string;
+    description: string;
+    type: "CHOICE" | "BUNDLE";
+  } | null>(null);
 
   const initials = userName
     ? userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -166,7 +173,8 @@ export default function DashboardSidebar({
     if (!isPaid && isLockedRoute(href)) {
       const info = getFeatureInfo(href);
       if (info) {
-        setUpgradeFeature(info);
+        // Free students can choose Pro or Ultimate Bundle.
+        setUpgradeFeature({ ...info, type: "CHOICE" });
         setIsOpen(false);
         return;
       }
@@ -174,7 +182,8 @@ export default function DashboardSidebar({
     if (isPaid && planType === "PRO" && isBundleLockedRoute(href)) {
       const info = getFeatureInfo(href);
       if (info) {
-        setUpgradeFeature(info);
+        // A Pro student sees only the ₹699 Bundle offer for Bundle features.
+        setUpgradeFeature({ ...info, type: "BUNDLE" });
         setIsOpen(false);
         return;
       }
@@ -585,6 +594,7 @@ export default function DashboardSidebar({
         <UpgradePrompt
           featureName={upgradeFeature.name}
           description={upgradeFeature.description}
+          type={upgradeFeature.type}
           onClose={() => setUpgradeFeature(null)}
         />
       )}

@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc/client";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useDemoLimit } from "@/hooks/useDemoMode";
 
 // Dynamically import CodeMirror (client-only, no SSR)
 const CodeMirrorEditor = dynamic(
@@ -425,6 +426,7 @@ function FlipMarkdown({ children }: { children: string }) {
 // MAIN PAGE
 // =============================================
 export default function FlipTheQuestionPage() {
+  const demoLimit = useDemoLimit("flip-challenges", 1);
   const [phase, setPhase] = useState<Phase>("idle");
   const [challengeText, setChallengeText] = useState("");
   const [code, setCode] = useState(STARTER_CODE);
@@ -460,6 +462,7 @@ export default function FlipTheQuestionPage() {
   // HANDLERS
   // =============================================
   const handleNewChallenge = useCallback(async () => {
+    if (!demoLimit.consume()) { window.location.href = "/signup?from=demo"; return; }
     setPhase("challenge");
     setChallengeText("");
     setCode(STARTER_CODE);
@@ -477,7 +480,7 @@ export default function FlipTheQuestionPage() {
     } catch {
       setChallengeText("Failed to generate challenge. Please try again.");
     }
-  }, [generateMutation, lastTopic]);
+  }, [demoLimit, generateMutation, lastTopic]);
 
   const handleSubmit = useCallback(async () => {
     if (!code.trim() || code.trim() === STARTER_CODE.trim()) return;

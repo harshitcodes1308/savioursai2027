@@ -20,6 +20,8 @@ export interface SessionUser {
     subscriptionExpiry?: string | null;
     onboardingComplete: boolean;
     lnbChemistryUnlocked?: boolean;
+    /** A shared, non-persistent product-tour session. Never represents a real customer. */
+    isDemo?: boolean;
 }
 
 export interface Session {

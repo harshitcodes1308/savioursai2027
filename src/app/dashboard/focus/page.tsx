@@ -6,6 +6,7 @@ import { typography } from '@/lib/typography';
 import { FocusTaskType, FocusModeType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useDemoMode } from '@/hooks/useDemoMode';
 
 // --- Types ---
 type FocusState = 'SETUP_CONTEXT' | 'SETUP_TIME' | 'SETUP_STYLE' | 'SETUP_CUSTOM' | 'PREVIEW_PLAN' | 'ACTIVE' | 'REFLECTION' | 'SUMMARY';
@@ -41,6 +42,7 @@ const TASK_TYPES: { id: FocusTaskType; label: string }[] = [
 export default function FocusPage() {
     const router = useRouter();
     const { isMobile } = useResponsive();
+    const { isDemo } = useDemoMode();
     
     const [state, setState] = useState<FocusState>('SETUP_CONTEXT');
     const [subject, setSubject] = useState('');
@@ -292,8 +294,9 @@ export default function FocusPage() {
                         {Object.values(STYLES).map(style => (
                             <button
                                 key={style.id}
-                                onClick={() => {
-                                    setSelectedStyle(style);
+                                    onClick={() => {
+                                        if (isDemo && style.id !== 'POMODORO') { window.location.href = '/signup?from=demo'; return; }
+                                        setSelectedStyle(style);
                                     if (style.id === 'CUSTOM') setState('SETUP_CUSTOM');
                                     else setState('PREVIEW_PLAN');
                                 }}

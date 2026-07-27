@@ -237,6 +237,10 @@ export const authRouter = createTRPCRouter({
     getSession: publicProcedure.query(async ({ ctx }) => {
         if (!ctx.session?.user) return ctx.session;
 
+        // Product tours use one shared DB record with entitlement carried in the
+        // signed session. Never overwrite that scoped entitlement from the DB.
+        if (ctx.session.user.isDemo) return ctx.session;
+
         // Re-read the user's current plan data from the database
         const freshUser = await ctx.prisma.user.findUnique({
             where: { id: ctx.session.user.id },

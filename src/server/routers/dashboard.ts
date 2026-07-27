@@ -61,11 +61,14 @@ export const dashboardRouter = createTRPCRouter({
             teacherProfile: user.teacherProfile,
             lnbChemistryUnlocked: user.lnbChemistryUnlocked,
             // Plan state
-            isPaid: user.isPaid,
-            planType: user.planType,
+            // A demo's tier is stored in its signed session, rather than on the
+            // shared demo database record.
+            isPaid: ctx.user.isDemo ? true : user.isPaid,
+            planType: ctx.user.isDemo ? ctx.user.planType : user.planType,
             subscriptionStatus: user.subscriptionStatus,
             subscriptionExpiry: user.subscriptionExpiry,
             paymentWarning,
+            isDemo: ctx.user.isDemo === true,
         };
     }),
 

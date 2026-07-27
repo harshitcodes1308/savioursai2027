@@ -7,6 +7,7 @@ import "../markdown-styles.css";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
 import { canAccess, getUserPlan, AI_DOUBT_FREE_LIMIT } from "@/lib/planAccess";
+import { useDemoLimit } from "@/hooks/useDemoMode";
 
 interface Message {
     role: "user" | "assistant";
@@ -27,6 +28,7 @@ export default function AIAssistantPage() {
     const user = session?.user as any;
     const userPlan = getUserPlan(!!user?.isPaid, user?.planType);
     const canUseAI = canAccess("aiDoubtSolver", userPlan);
+    const demoLimit = useDemoLimit("ai-prompts", 3);
 
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -122,6 +124,7 @@ export default function AIAssistantPage() {
 
     const handleSend = () => {
         if (!input.trim() || hitFreeLimit) return;
+        if (!demoLimit.consume()) { window.location.href = "/signup?from=demo"; return; }
         setMessages(prev => [...prev, { role: "user", content: input }]);
         askMutation.mutate({ question: input, subject: subject || undefined, conversation: messages });
         setInput("");

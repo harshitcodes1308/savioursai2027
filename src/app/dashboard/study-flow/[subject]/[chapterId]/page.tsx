@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useDemoMode } from "@/hooks/useDemoMode";
 import { STUDY_FLOW_DATA, SUBJECT_META } from "@/data/studyFlowData";
 import type { SubjectKey, StudyFlowQuestion } from "@/data/studyFlowData";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
@@ -129,6 +130,7 @@ export default function ChapterFlowPage() {
   const router = useRouter();
   const params = useParams();
   const { isMobile, isTablet } = useResponsive();
+  const { isDemo } = useDemoMode();
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(0);
   const [allRevealed, setAllRevealed] = useState(false);
@@ -155,6 +157,7 @@ export default function ChapterFlowPage() {
   const chapter = subjectData?.chapters.find(c => c.id === chapterId);
   const chapterIdx = subjectData?.chapters.findIndex(c => c.id === chapterId) ?? -1;
   const nextChapter = subjectData?.chapters[chapterIdx + 1];
+  const demoLocked = isDemo && chapterIdx > 0;
   const progressKey = `${subject}:${chapterId}`;
 
   useEffect(() => {
@@ -238,6 +241,8 @@ export default function ChapterFlowPage() {
       </div>
     );
   }
+
+  if (demoLocked) return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "var(--bg-base)", padding: 20 }}><div style={{ maxWidth: 420, textAlign: "center", background: "var(--bg-surface)", border: "1px solid var(--accent-gold-border)", borderRadius: 16, padding: 28 }}><div style={{ fontSize: 34 }}>🔒</div><h1 style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24 }}>One chapter per subject in the demo</h1><p style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 13, lineHeight: 1.6 }}>Create your own account to continue the complete Study Flow.</p><button onClick={() => router.push("/signup?from=demo")} style={{ padding: "10px 16px", cursor: "pointer", borderRadius: 9, border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontWeight: 700 }}>Create account →</button></div></div>;
 
   const goToStep = (s: number) => {
     setStep(s);

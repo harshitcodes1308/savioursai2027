@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { RazorpayButton } from "@/components/RazorpayButton";
@@ -9,7 +8,7 @@ interface UpgradePromptProps {
     featureName: string;
     description: string;
     onClose?: () => void;
-    type?: "PRO" | "BUNDLE" | "LNB_CHEMISTRY";
+    type?: "PRO" | "BUNDLE" | "LNB_CHEMISTRY" | "CHOICE";
 }
 
 const PRO_FEATURES = [
@@ -47,6 +46,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
     const router = useRouter();
     const { data: session } = trpc.auth.getSession.useQuery();
     const user = session?.user;
+    const isDemo = user?.isDemo === true;
 
     const handleClose = () => {
         if (onClose) onClose();
@@ -68,7 +68,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
         }}>
             <div style={{
                 width: "100%",
-                maxWidth: type === "LNB_CHEMISTRY" ? 440 : 560,
+                maxWidth: type === "LNB_CHEMISTRY" ? 440 : type === "CHOICE" ? 720 : 560,
                 background: "var(--bg-surface)",
                 border: "1px solid var(--bg-border)",
                 borderRadius: 24,
@@ -98,7 +98,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
 
                 <div style={{
                     height: 2,
-                    background: type === "BUNDLE"
+                    background: type === "BUNDLE" || type === "CHOICE"
                         ? "linear-gradient(90deg, transparent, #F59E0B, #EF4444, transparent)"
                         : "linear-gradient(90deg, transparent, var(--accent-gold), transparent)",
                 }} />
@@ -110,13 +110,13 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                             alignItems: "center",
                             gap: 8,
                             padding: "5px 12px",
-                            background: type === "BUNDLE" ? "rgba(245,158,11,0.1)" : "rgba(0,212,255,0.1)",
-                            border: `1px solid ${type === "BUNDLE" ? "rgba(245,158,11,0.2)" : "rgba(0,212,255,0.2)"}`,
+                            background: type === "BUNDLE" || type === "CHOICE" ? "rgba(245,158,11,0.1)" : "rgba(0,212,255,0.1)",
+                            border: `1px solid ${type === "BUNDLE" || type === "CHOICE" ? "rgba(245,158,11,0.2)" : "rgba(0,212,255,0.2)"}`,
                             borderRadius: 100,
                             marginBottom: 14,
                         }}>
-                            <span style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, color: type === "BUNDLE" ? "#F59E0B" : "var(--accent-gold)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                                {type === "LNB_CHEMISTRY" ? "Chemistry Unlock" : type === "BUNDLE" ? "Ultimate Bundle Required" : "Upgrade Required"}
+                            <span style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, color: type === "BUNDLE" || type === "CHOICE" ? "#F59E0B" : "var(--accent-gold)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                                {type === "LNB_CHEMISTRY" ? "Chemistry Unlock" : type === "CHOICE" ? "Choose your plan" : type === "BUNDLE" ? "Ultimate Bundle Required" : "Upgrade Required"}
                             </span>
                         </div>
                         <h2 style={{
@@ -140,7 +140,14 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                         </p>
                     </div>
 
-                    {type === "LNB_CHEMISTRY" ? (
+                    {isDemo ? (
+                        <div style={{ textAlign: "center", padding: "12px 4px 4px" }}>
+                            <div style={{ fontSize: 38, marginBottom: 12 }}>🚀</div>
+                            <h3 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)", fontSize: 22, margin: "0 0 9px" }}>Ready to make this yours?</h3>
+                            <p style={{ fontFamily: "var(--font-body)", color: "var(--text-muted)", fontSize: 13, lineHeight: 1.6, margin: "0 0 22px" }}>This is a shared product tour. Create your own account to save work and unlock the real experience.</p>
+                            <button onClick={() => router.push("/signup?from=demo")} style={{ width: "100%", padding: 15, cursor: "pointer", border: "1px solid var(--accent-gold-border)", borderRadius: 12, background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontWeight: 700 }}>Create a real account →</button>
+                        </div>
+                    ) : type === "LNB_CHEMISTRY" ? (
                         <>
                             <div style={{
                                 background: "var(--bg-base)",
@@ -165,12 +172,29 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                             <RazorpayButton
                                 amount={19}
                                 type="LNB_CHEMISTRY"
-                                email={(user as any)?.email || ""}
-                                name={(user as any)?.name || ""}
+                                email={user?.email || ""}
+                                name={user?.name || ""}
                                 buttonText="Pay ₹19 & Unlock →"
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />
                         </>
+                    ) : type === "CHOICE" ? (
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 14 }}>
+                            <div style={{ background: "var(--bg-base)", border: "1px solid var(--bg-border)", borderRadius: 14, padding: "20px" }}>
+                                <div style={{ color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" }}>PRO</div>
+                                <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>₹199</div>
+                                <div style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, margin: "3px 0 16px" }}>one-time · AI study tools</div>
+                                <div style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontSize: 12, lineHeight: 1.7, minHeight: 84 }}>AI Doubt Solver, custom tests, Smart Planner, Focus Mode, ChronoScroll, and more.</div>
+                                <RazorpayButton amount={199} type="PRO" email={user?.email || ""} name={user?.name || ""} buttonText="Get Pro — ₹199 →" onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
+                            </div>
+                            <div style={{ background: "var(--bg-base)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 14, padding: "20px", boxShadow: "0 0 24px rgba(245,158,11,0.07)" }}>
+                                <div style={{ color: "#F59E0B", fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" }}>ULTIMATE BUNDLE</div>
+                                <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>₹699</div>
+                                <div style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, margin: "3px 0 16px" }}>one-time · everything included</div>
+                                <div style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontSize: 12, lineHeight: 1.7, minHeight: 84 }}>Everything in Pro, plus Half Yearly Simulator, e-books, question banks, competency tests, and Guess Papers.</div>
+                                <RazorpayButton amount={699} type="BUNDLE" email={user?.email || ""} name={user?.name || ""} buttonText="Get Bundle — ₹699 →" onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
+                            </div>
+                        </div>
                     ) : type === "BUNDLE" ? (
                         <>
                             <div style={{
@@ -205,8 +229,8 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                             <RazorpayButton
                                 amount={699}
                                 type="BUNDLE"
-                                email={(user as any)?.email || ""}
-                                name={(user as any)?.name || ""}
+                                email={user?.email || ""}
+                                name={user?.name || ""}
                                 buttonText="Get Ultimate Bundle — ₹699 →"
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />
@@ -234,8 +258,8 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                             <RazorpayButton
                                 amount={199}
                                 type="PRO"
-                                email={(user as any)?.email || ""}
-                                name={(user as any)?.name || ""}
+                                email={user?.email || ""}
+                                name={user?.name || ""}
                                 buttonText="Get Pro — ₹199 →"
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />

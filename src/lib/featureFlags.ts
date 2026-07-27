@@ -11,6 +11,7 @@ export const FEATURE_FLAGS = {
   focusMode:         true,
   todoList:          true,
   youtubeDiscovery:  true,   // YouTube-powered Watch step in study flow
+  halfYearlySimulator: true,
 
   ebooks:            true,
 

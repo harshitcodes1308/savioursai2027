@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
 import { CHRONO_DATA } from "@/data/chrono-config";
 import { BATTLE_CONFIG, PERFECT_SCORE, calculateScore, getRankObj } from "@/data/battle-config";
+import { useDemoLimit } from "@/hooks/useDemoMode";
 
 type GameState = "idle" | "countdown" | "playing" | "ended";
 
@@ -65,6 +66,7 @@ function getLeaderboardWithPlayer(playerScore: number) {
 
 export default function DateBattleArenaPage() {
     const { isMobile } = useResponsive();
+    const demoLimit = useDemoLimit("date-battle-rounds", 1);
 
     const [gameState, setGameState] = useState<GameState>("idle");
     const [timeLeft, setTimeLeft] = useState(BATTLE_CONFIG.GAME_DURATION_SEC);
@@ -109,6 +111,7 @@ export default function DateBattleArenaPage() {
     }, [gameState, timeLeft, startGameLoop]);
 
     const startCountdown = () => {
+        if (!demoLimit.consume()) { window.location.href = "/signup?from=demo"; return; }
         setGameState("countdown");
         setCountdown(3);
         setScore(0);

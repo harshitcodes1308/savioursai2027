@@ -16,8 +16,15 @@ type ScholarshipQuestion = {
 };
 type Result = { score: number; marksScored: number; totalMarks: number; discountPercentage: number; expiresAt: string };
 type Phase = "intro" | "loading" | "countdown" | "test" | "submitting" | "result";
+type ApiResponse = { error?: string; [key: string]: unknown };
 
 const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.max(0, seconds % 60)).padStart(2, "0")}`;
+async function responseData(response: Response): Promise<ApiResponse> {
+  const body = await response.text();
+  if (!body) return {};
+  try { return JSON.parse(body) as ApiResponse; }
+  catch { return { error: `The server returned an invalid response (HTTP ${response.status}).` }; }
+}
 
 export default function ScholarshipPage() {
   const router = useRouter();
@@ -39,10 +46,10 @@ export default function ScholarshipPage() {
     setPhase("loading"); setError("");
     try {
       const response = await fetch("/api/scholarship/start", { method: "POST" });
-      const data = await response.json();
+      const data = await responseData(response);
       if (!response.ok) throw new Error(data.error || "Unable to start the scholarship test.");
-      setAttemptId(data.attemptId);
-      setQuestions(data.questions);
+      setAttemptId(String(data.attemptId || ""));
+      setQuestions((data.questions as ScholarshipQuestion[]) || []);
       setCurrent(0); setAnswers({}); setCountdown(3); setPhase("countdown");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Unable to start the scholarship test.");
@@ -66,9 +73,9 @@ export default function ScholarshipPage() {
           })),
         }),
       });
-      const data = await response.json();
+      const data = await responseData(response);
       if (!response.ok) throw new Error(data.error || "Unable to calculate your scholarship.");
-      setResult(data); setPhase("result"); void refetch();
+      setResult(data as Result); setPhase("result"); void refetch();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Unable to calculate your scholarship.");
       setPhase("test");

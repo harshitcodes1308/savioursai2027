@@ -86,7 +86,7 @@ export default function OnboardingFlow() {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [step]);
 
-  // ── Screen 2 — Apple-style two-phase reveal
+  // Screen 2: Apple-style two-phase reveal
   useEffect(() => {
     if (step !== 2) return;
     setGreetingPhase('greetings');
@@ -122,7 +122,7 @@ export default function OnboardingFlow() {
     return () => { cancelled = true; };
   }, [step]);
 
-  // ── Screen 6 — Setup loading animation
+  // Screen 6: Setup loading animation
   useEffect(() => {
     if (step !== 6) return;
     const v = video6Ref.current;
@@ -186,7 +186,7 @@ export default function OnboardingFlow() {
   }
 
   function handleSaveCreator(codeToSave: string | null) {
-    // Go to pricing immediately — no waiting for the API
+    // Go to pricing immediately: no waiting for the API
     setStep(6);
     // Save to DB in background
     fetch('/api/auth/save-creator', {
@@ -257,8 +257,8 @@ export default function OnboardingFlow() {
       }
 
       const description = planKey === 'BUNDLE'
-        ? 'Ultimate Bundle — ₹699 one-time'
-        : 'Pro Access — ₹199 one-time';
+        ? 'Ultimate Bundle: ₹699 one-time'
+        : 'Pro Access: ₹199 one-time';
 
       const options = {
         key,
@@ -279,35 +279,15 @@ export default function OnboardingFlow() {
     }
   }
 
-  async function handleDomin8Activate(code: string) {
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/auth/activate-domin8', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      });
-      if (!res.ok) throw new Error('Activation failed');
-    } catch {
-      alert('Activation failed. Please try again.');
-      setSubmitting(false);
-      return;
-    }
-    setSubmitting(false);
-    setStep(7);
-  }
-
-  function handlePlanSelect(plan: 'FREE' | 'PRO' | 'BUNDLE' | 'DOMIN8', domin8Code?: string) {
+  function handlePlanSelect(plan: 'FREE' | 'PRO' | 'BUNDLE') {
     if (plan === 'FREE') {
       handleFreePlan();
-    } else if (plan === 'DOMIN8') {
-      handleDomin8Activate(domin8Code || '');
     } else {
       handlePaidPlan(plan);
     }
   }
 
-  // ── SCREEN 1 — Cinematic Splash ─────────────────────────────
+  // Screen 1: Cinematic splash
   if (step === 1) return (
     <div
       onClick={advanceFromS1}
@@ -420,7 +400,7 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 2 — Apple-style Greeting + Message Reveal ────────
+  // Screen 2: Apple-style greeting and message reveal
   if (step === 2) return (
     <div
       onMouseMove={handleMouseMove}
@@ -577,7 +557,7 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 3 — Testimonial Cards (NEW) ─────────────────────
+  // Screen 3: Testimonial cards
   if (step === 3) return (
     <div
       style={{
@@ -604,7 +584,7 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 4 — Name Input ──────────────────────────────────
+  // Screen 4: Name input
   if (step === 4) return (
     <div
       style={{
@@ -749,7 +729,7 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 5 — Animated Glassy Pricing ────────────────────────
+  // Screen 5: Animated glassy pricing
   if (step === 5) {
     return (
       <AnimatedGlassyPricing
@@ -760,7 +740,7 @@ export default function OnboardingFlow() {
     );
   }
 
-  // ── SCREEN 6 — Loading / Setup ─────────────────────────────
+  // Screen 6: Loading and setup
   if (step === 6) return (
     <div style={{
       position: 'fixed', inset: 0,
@@ -882,7 +862,7 @@ export default function OnboardingFlow() {
     </div>
   );
 
-  // ── SCREEN 7 — Vapour Text Welcome ─────────────────────────
+  // Screen 7: Vapour text welcome
   if (step === 7) return (
     <div style={{
       position: 'fixed',

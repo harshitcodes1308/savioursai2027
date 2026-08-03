@@ -539,12 +539,6 @@ The Razorpay webhook at `/api/razorpay/webhook` handles the full subscription li
 | `subscription.halted` | Set `subscriptionStatus = EXPIRED` |
 | `subscription.completed` | Run lazy demotion to FREE after final cycle |
 
-### Domin8 Pro Bundle
-
-A secret activation code system starting with the letter `W`. Students with a Domin8 Pro bundle code activate via `/api/auth/activate-domin8`, which grants Yearly-tier access permanently.
-
----
-
 ## API Surface
 
 ### tRPC Routers
@@ -574,7 +568,6 @@ A secret activation code system starting with the letter `W`. Students with a Do
 | `/api/auth/save-creator` | POST/GET | Saves creator code, lists all creators |
 | `/api/auth/complete-onboarding` | POST | Marks `onboardingComplete = true` |
 | `/api/auth/set-plan` | POST | Sets plan type (used for free plan selection) |
-| `/api/auth/activate-domin8` | POST | Activates Domin8 Pro bundle code |
 | `/api/auth/demo` | POST | Creates/logs in demo session |
 | `/api/create-order` | POST | Creates Razorpay order with server-side discount calculation |
 | `/api/create-subscription` | POST | Creates Razorpay subscription for monthly plan |

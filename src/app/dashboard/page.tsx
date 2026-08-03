@@ -345,7 +345,7 @@ export default function DashboardPage() {
                             <span style={{ fontSize: 28 }}>{scholarshipOffer?.active ? "🏆" : "🎓"}</span>
                             <span>
                                 <span style={{ display: "block", color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 17 }}>
-                                    {scholarshipOffer?.active ? `Your ${scholarshipOffer.discountPercentage}% scholarship is live` : "Scholarship Test — earn up to 50% off"}
+                                    {scholarshipOffer?.active ? `Your ${scholarshipOffer.discountPercentage}% scholarship is live` : "Scholarship Test: earn up to 50% off"}
                                 </span>
                                 <span style={{ display: "block", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, marginTop: 4 }}>
                                     {scholarshipOffer?.active ? "Your discounted Pro and Ultimate Bundle prices are ready." : scholarshipOffer?.completedAt ? "Your scholarship attempt has already been used." : "10 timed ICSE competency questions. One attempt. A personal paid-plan discount."}
@@ -649,7 +649,7 @@ export default function DashboardPage() {
                         color: "rgba(180, 175, 200, 0.45)",
                         textShadow: "0 0 16px rgba(0, 212, 255, 0.08)",
                     }}>
-                        Saviours AI — Where preparation meets precision.
+                        Saviours AI: Where preparation meets precision.
                     </div>
                 </div>
             </div>

@@ -30,7 +30,6 @@ ICSE Class 10 board exam preparation platform with AI-powered study tools.
 - Razorpay webhook handler for subscription lifecycle (charged, cancelled, halted, completed)
 - Lazy demotion: monthly users auto-demoted to FREE when subscription expires
 - Payment warning banner on dashboard (amber for cancelled autopay, red for expired)
-- Domin8 Pro bundle activation (code entry, codes start with capital W — secret)
 - Google OAuth + credentials auth with mandatory phone collection
 - Onboarding flow (6-step cinematic sequence with pricing selection)
 - Feature flags system (src/lib/featureFlags.ts + src/config/feature-flags.ts)
@@ -40,7 +39,6 @@ ICSE Class 10 board exam preparation platform with AI-powered study tools.
 ## Tier structure
 - **Free**: Dashboard, Smart Planner, Monthly Mission only
 - **Monthly/Yearly**: All features (AI Doubt Solver, Competency Test, Customise Test, Flip the Question, Focus Mode, ChronoScroll)
-- **Domin8 Pro**: Activated via secret code (starts with W), grants Yearly access
 
 ## Current state / what's in progress
 - Payments working in production with live Razorpay keys

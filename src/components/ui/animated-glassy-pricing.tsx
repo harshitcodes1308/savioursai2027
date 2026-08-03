@@ -132,7 +132,7 @@ export interface PricingCardProps {
   isPopular: boolean;
   discountedPrice?: string;
   discountPct?: number;
-  creatorName?: string;
+  discountLabel?: string;
   onClick?: () => void;
 }
 
@@ -149,7 +149,7 @@ function PricingCard({
   isPopular,
   discountedPrice,
   discountPct,
-  creatorName,
+  discountLabel,
   onClick,
 }: PricingCardProps) {
   const [hovered, setHovered] = useState(false);
@@ -218,16 +218,15 @@ function PricingCard({
       {/* Price */}
       {hasDiscount ? (
         <div style={{ marginBottom: '4px' }}>
-          {/* Creator discount badge */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 5,
             padding: '3px 10px', borderRadius: 100, marginBottom: 6,
-            background: 'rgba(34,197,94,0.08)',
-            border: '1px solid rgba(34,197,94,0.2)',
+            background: 'var(--accent-gold-glow)',
+            border: '1px solid var(--accent-gold-border)',
             fontFamily: 'Helvetica Neue, sans-serif', fontSize: 11, fontWeight: 700,
-            color: '#22c55e', letterSpacing: '0.02em',
+            color: 'var(--accent-gold)', letterSpacing: '0.02em',
           }}>
-            🎉 {discountPct}% off via {creatorName}
+            ✦ {discountLabel || `${discountPct}% off`}
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
             <span style={{
@@ -238,8 +237,8 @@ function PricingCard({
               {priceSymbol}{price}
             </span>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
-              <span style={{ fontFamily: 'ScotchDisplay, serif', fontSize: 18, color: '#22c55e', fontWeight: 700 }}>{priceSymbol}</span>
-              <span style={{ fontFamily: 'ScotchDisplay, serif', fontSize: 48, color: '#22c55e', fontWeight: 700, lineHeight: 1 }}>{discountedPrice}</span>
+              <span style={{ fontFamily: 'ScotchDisplay, serif', fontSize: 18, color: 'var(--accent-gold)', fontWeight: 700 }}>{priceSymbol}</span>
+              <span style={{ fontFamily: 'ScotchDisplay, serif', fontSize: 48, color: 'var(--accent-gold)', fontWeight: 700, lineHeight: 1 }}>{discountedPrice}</span>
             </div>
           </div>
         </div>
@@ -408,13 +407,13 @@ const savioursPlans: PricingCardProps[] = [
   },
   {
     planName: 'Ultimate Bundle',
-    description: 'Everything — AI + E-Books + Guess Papers.',
+    description: 'Everything in one focused ICSE workspace.',
     price: '699',
     priceSymbol: '₹',
     billingLabel: 'one-time',
     features: [
       'Everything in Pro',
-      'E-Books — All Subjects',
+      'E-Books for all subjects',
       'Competency Test (PYQ)',
       'Guess Papers',
       'Question Banks',
@@ -448,9 +447,10 @@ const savioursPlans: PricingCardProps[] = [
 
 interface AnimatedGlassyPricingProps {
   isMobile: boolean;
-  onSelectPlan: (plan: 'FREE' | 'PRO' | 'BUNDLE' | 'DOMIN8', domin8Code?: string) => void;
+  onSelectPlan: (plan: 'FREE' | 'PRO' | 'BUNDLE') => void;
   userName?: string;
-  // Optional: pass creator discount directly (avoids DB lag in onboarding flow)
+  scholarshipDiscount?: { discountPercentage: number; expiresAt?: string | Date | null } | null;
+  // Optional: pass creator discount directly to avoid a database round trip in onboarding.
   creatorDiscount?: { discountPercentage: number; creatorName: string } | null;
 }
 
@@ -458,33 +458,31 @@ export default function AnimatedGlassyPricing({
   isMobile,
   onSelectPlan,
   userName,
+  scholarshipDiscount,
   creatorDiscount,
 }: AnimatedGlassyPricingProps) {
-  const [showDomin8Modal, setShowDomin8Modal] = useState(false);
-  const [domin8Code, setDomin8Code] = useState('');
-  // Fall back to DB query if no prop passed (used on /pricing standalone page)
+  const { data: profile } = trpc.dashboard.getProfile.useQuery();
   const { data: dbDiscount } = trpc.creator.getMyDiscount.useQuery(undefined, {
     enabled: creatorDiscount === undefined,
   });
 
-  const activeDiscount = creatorDiscount !== undefined ? creatorDiscount : dbDiscount;
-  const discountPct = activeDiscount?.discountPercentage ?? 0;
-  const creatorName = activeDiscount?.creatorName ?? undefined;
-  // Discount applies to yearly only
-  const bundleDiscounted = discountPct > 0 ? String(Math.round(699 * (1 - discountPct / 100))) : undefined;
-  const [domin8Error, setDomin8Error] = useState('');
-  const [domin8Loading, setDomin8Loading] = useState(false);
-
-  const handleDomin8Submit = () => {
-    const code = domin8Code.trim();
-    if (!code || !code.startsWith('W')) {
-      setDomin8Error('Invalid code. Please try again.');
-      return;
-    }
-    setDomin8Error('');
-    setDomin8Loading(true);
-    onSelectPlan('DOMIN8', code);
-  };
+  const activeScholarship = scholarshipDiscount === undefined
+    ? (profile?.scholarshipOffer?.active ? profile.scholarshipOffer : null)
+    : scholarshipDiscount;
+  const scholarshipPct = activeScholarship?.discountPercentage ?? 0;
+  const activeCreatorDiscount = creatorDiscount !== undefined ? creatorDiscount : dbDiscount;
+  const creatorPct = activeCreatorDiscount?.discountPercentage ?? 0;
+  const proDiscountPct = scholarshipPct;
+  const bundleDiscountPct = Math.max(scholarshipPct, creatorPct);
+  const proDiscounted = proDiscountPct > 0 ? String(Math.round(199 * (1 - proDiscountPct / 100))) : undefined;
+  const bundleDiscounted = bundleDiscountPct > 0 ? String(Math.round(699 * (1 - bundleDiscountPct / 100))) : undefined;
+  const scholarshipLabel = scholarshipPct > 0 ? `Scholarship award: ${scholarshipPct}% off` : undefined;
+  const bundleDiscountLabel = scholarshipPct > 0
+    ? scholarshipLabel
+    : creatorPct > 0 ? `Creator reward: ${creatorPct}% off` : undefined;
+  const scholarshipExpiry = activeScholarship?.expiresAt
+    ? new Date(activeScholarship.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    : null;
 
   return (
     <div
@@ -523,7 +521,7 @@ export default function AnimatedGlassyPricing({
             lineHeight: 1.1,
           }}
         >
-          Choose your <span style={{ color: 'var(--accent-gold)' }}>plan</span>
+          {scholarshipPct > 0 ? <>Your <span style={{ color: 'var(--accent-gold)' }}>scholarship</span> is ready</> : <>Choose your <span style={{ color: 'var(--accent-gold)' }}>plan</span></>}
           {userName ? `, ${userName.split(' ')[0]}` : ''}
         </h1>
 
@@ -534,11 +532,24 @@ export default function AnimatedGlassyPricing({
             fontSize: isMobile ? '14px' : '16px',
             color: 'var(--text-muted)',
             textAlign: 'center',
-            marginBottom: isMobile ? '32px' : '48px',
+            marginBottom: scholarshipExpiry ? '8px' : isMobile ? '32px' : '48px',
           }}
         >
-          Your boards are in 10 months. Every day counts.
+          {scholarshipPct > 0 ? `Your ${scholarshipPct}% scholarship is applied to every paid plan.` : 'Your boards are in 10 months. Every day counts.'}
         </p>
+        {scholarshipExpiry && (
+          <p
+            style={{
+              fontFamily: 'Helvetica Neue, sans-serif',
+              fontSize: '12px',
+              color: 'var(--accent-gold)',
+              textAlign: 'center',
+              marginBottom: isMobile ? '32px' : '48px',
+            }}
+          >
+            Offer valid until {scholarshipExpiry}
+          </p>
+        )}
 
         {/* Cards grid */}
         <div
@@ -559,10 +570,10 @@ export default function AnimatedGlassyPricing({
               <PricingCard
                 {...plan}
                 discountedPrice={
-                  plan.planName === 'Ultimate Bundle' ? bundleDiscounted : undefined
+                  plan.planName === 'Ultimate Bundle' ? bundleDiscounted : plan.planName === 'Pro' ? proDiscounted : undefined
                 }
-                discountPct={plan.planName === 'Ultimate Bundle' ? discountPct || undefined : undefined}
-                creatorName={plan.planName === 'Ultimate Bundle' ? creatorName : undefined}
+                discountPct={plan.planName === 'Ultimate Bundle' ? bundleDiscountPct || undefined : plan.planName === 'Pro' ? proDiscountPct || undefined : undefined}
+                discountLabel={plan.planName === 'Ultimate Bundle' ? bundleDiscountLabel : plan.planName === 'Pro' ? scholarshipLabel : undefined}
                 onClick={() => {
                   const key = plan.planName === 'Ultimate Bundle' ? 'BUNDLE' : plan.planName === 'Pro' ? 'PRO' : 'FREE';
                   onSelectPlan(key as 'FREE' | 'PRO' | 'BUNDLE');
@@ -586,175 +597,6 @@ export default function AnimatedGlassyPricing({
         </p>
       </div>
 
-      {/* ── Domin8 Pro Code Modal ── */}
-      {showDomin8Modal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 2000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            animation: 'fadeIn 200ms ease-out both',
-          }}
-          onClick={(e) => { if (e.target === e.currentTarget && !domin8Loading) setShowDomin8Modal(false); }}
-        >
-          <div
-            style={{
-              background: 'linear-gradient(135deg, rgba(26,26,36,0.95), rgba(17,17,24,0.9))',
-              border: '1.5px solid var(--accent-gold-border)',
-              borderRadius: '20px',
-              backdropFilter: 'blur(14px)',
-              padding: isMobile ? '28px 22px' : '36px 32px',
-              maxWidth: '420px',
-              width: isMobile ? 'calc(100% - 32px)' : '100%',
-              boxShadow: '0 0 40px rgba(0,212,255,0.12)',
-              animation: 'slideInUp 0.4s ease-out both',
-            }}
-          >
-            {/* Header */}
-            <div
-              style={{
-                fontFamily: 'ScotchDisplay, serif',
-                fontSize: '24px',
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                textAlign: 'center',
-                marginBottom: '6px',
-              }}
-            >
-              Domin8 <span style={{ color: 'var(--accent-gold)' }}>Pro</span>
-            </div>
-            <p
-              style={{
-                fontFamily: 'Helvetica Neue, sans-serif',
-                fontSize: '13px',
-                color: 'var(--text-muted)',
-                textAlign: 'center',
-                marginBottom: '24px',
-                lineHeight: 1.5,
-              }}
-            >
-              Enter the special code provided to you
-            </p>
-
-            {domin8Loading ? (
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                gap: '16px', padding: '20px 0',
-              }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  border: '3px solid rgba(255,255,255,0.08)',
-                  borderTopColor: 'var(--accent-gold)',
-                  animation: 'spin360 0.7s linear infinite',
-                }} />
-                <div style={{
-                  fontFamily: 'Helvetica Neue, sans-serif',
-                  fontSize: '14px', color: 'var(--text-muted)',
-                }}>
-                  Activating your access...
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Code Input */}
-                <input
-                  type="text"
-                  value={domin8Code}
-                  onChange={(e) => { setDomin8Code(e.target.value); setDomin8Error(''); }}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleDomin8Submit(); }}
-                  placeholder="Enter your code"
-                  autoFocus
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    borderRadius: '12px',
-                    border: domin8Error
-                      ? '1.5px solid rgba(239,68,68,0.5)'
-                      : '1.5px solid var(--bg-border)',
-                    background: 'rgba(255,255,255,0.04)',
-                    color: 'var(--text-primary)',
-                    fontFamily: 'Coolvetica, sans-serif',
-                    fontSize: '16px',
-                    letterSpacing: '0.08em',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 200ms ease',
-                    textAlign: 'center',
-                  }}
-                  onFocus={(e) => {
-                    if (!domin8Error) e.currentTarget.style.borderColor = 'var(--accent-gold-border)';
-                  }}
-                  onBlur={(e) => {
-                    if (!domin8Error) e.currentTarget.style.borderColor = 'var(--bg-border)';
-                  }}
-                />
-
-                {/* Error */}
-                {domin8Error && (
-                  <div
-                    style={{
-                      fontFamily: 'Helvetica Neue, sans-serif',
-                      fontSize: '12px',
-                      color: '#ef4444',
-                      textAlign: 'center',
-                      marginTop: '10px',
-                    }}
-                  >
-                    {domin8Error}
-                  </div>
-                )}
-
-                {/* Submit Button */}
-                <button
-                  onClick={handleDomin8Submit}
-                  style={{
-                    width: '100%',
-                    padding: '13px 24px',
-                    borderRadius: '100px',
-                    fontFamily: 'Coolvetica, sans-serif',
-                    fontSize: '15px',
-                    letterSpacing: '0.03em',
-                    cursor: 'pointer',
-                    background: 'var(--accent-gold)',
-                    color: '#0A0A0F',
-                    border: 'none',
-                    fontWeight: 600,
-                    marginTop: '18px',
-                    transition: 'all 200ms ease',
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.filter = 'brightness(1.1)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.filter = 'none'; }}
-                >
-                  Activate Access
-                </button>
-
-                {/* Cancel */}
-                <button
-                  onClick={() => setShowDomin8Modal(false)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    background: 'transparent',
-                    border: 'none',
-                    fontFamily: 'Helvetica Neue, sans-serif',
-                    fontSize: '12px',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    marginTop: '10px',
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

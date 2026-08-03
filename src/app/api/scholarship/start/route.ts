@@ -4,6 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { findScholarshipQuestion, pickScholarshipQuestions, publicScholarshipQuestion, questionRefsFor, type ScholarshipQuestionRef } from "@/lib/scholarship";
 import type { PrecisionQuestion } from "@/data/precision-config";
 
+function diagnosticCode(error: unknown) {
+  const details = error instanceof Error ? error.message : String(error);
+  const prismaCode = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+  if (prismaCode === "P2021" || prismaCode === "P2022") return "DATABASE_SCHEMA_OUTDATED";
+  if (/Unknown (field|argument)|scholarshipAttempt/i.test(details)) return "PRISMA_CLIENT_STALE";
+  if (/Can't reach database|P1001/i.test(details)) return "DATABASE_UNREACHABLE";
+  return "SCHOLARSHIP_START_FAILED";
+}
+
 export async function POST() {
   try {
     const user = await getCurrentUser();
@@ -46,7 +55,8 @@ export async function POST() {
       questions: questions.map(publicScholarshipQuestion),
     });
   } catch (error) {
-    console.error("[scholarship-start]", error);
-    return NextResponse.json({ error: "Unable to prepare your scholarship test. Please try again." }, { status: 500 });
+    const code = diagnosticCode(error);
+    console.error(`[scholarship-start:${code}]`, error);
+    return NextResponse.json({ error: `Unable to prepare your scholarship test (${code}).`, code }, { status: 500 });
   }
 }

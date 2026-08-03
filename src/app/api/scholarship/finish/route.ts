@@ -6,6 +6,15 @@ import type { PrecisionQuestion } from "@/data/precision-config";
 
 type SubmittedAnswer = { id: string; subject: string; selectedAnswer: number | null };
 
+function diagnosticCode(error: unknown) {
+  const details = error instanceof Error ? error.message : String(error);
+  const prismaCode = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+  if (prismaCode === "P2021" || prismaCode === "P2022") return "DATABASE_SCHEMA_OUTDATED";
+  if (/Unknown (field|argument)|scholarshipAttempt/i.test(details)) return "PRISMA_CLIENT_STALE";
+  if (/Can't reach database|P1001/i.test(details)) return "DATABASE_UNREACHABLE";
+  return "SCHOLARSHIP_FINISH_FAILED";
+}
+
 export async function POST(req: Request) {
   try {
     const user = await getCurrentUser();
@@ -49,7 +58,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ score, marksScored, totalMarks, discountPercentage, expiresAt: expiresAt.toISOString() });
   } catch (error) {
-    console.error("[scholarship-finish]", error);
-    return NextResponse.json({ error: "Unable to calculate your scholarship. Please try again." }, { status: 500 });
+    const code = diagnosticCode(error);
+    console.error(`[scholarship-finish:${code}]`, error);
+    return NextResponse.json({ error: `Unable to calculate your scholarship (${code}).`, code }, { status: 500 });
   }
 }

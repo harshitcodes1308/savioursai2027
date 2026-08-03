@@ -51,7 +51,7 @@ export function RazorpayButton({ amount = 199, type = "PRO", email, name, onSucc
         ? Math.round(amount * (1 - scholarshipDiscount / 100))
         : amount;
     const effectiveButtonText = scholarshipDiscount && type !== "LNB_CHEMISTRY"
-        ? `${type === "BUNDLE" ? "Get Ultimate Bundle" : "Get Pro"} — ₹${discountedAmount} (${scholarshipDiscount}% off) →`
+        ? `${type === "BUNDLE" ? "Get Ultimate Bundle" : "Get Pro"}: ₹${discountedAmount} (${scholarshipDiscount}% off) →`
         : buttonText || "Get Access";
 
     const loadRazorpay = () => {
@@ -92,8 +92,8 @@ export function RazorpayButton({ amount = 199, type = "PRO", email, name, onSucc
             }
 
             const descriptions: Record<string, string> = {
-                PRO: "Pro Access — ₹199",
-                BUNDLE: "Ultimate Bundle — ₹699",
+                PRO: "Pro Access: ₹199",
+                BUNDLE: "Ultimate Bundle: ₹699",
                 LNB_CHEMISTRY: "Unlock Chemistry Sets",
             };
 

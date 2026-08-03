@@ -17,17 +17,17 @@ const PRO_FEATURES = [
     "Customise Test builder",
     "Flip the Question",
     "Focus Mode with Pomodoro",
-    "ChronoScroll — History Timeline",
+    "ChronoScroll: History Timeline",
     "Numerical Mastery",
     "Date Battle Arena",
     "Exam Strategy Builder",
 ];
 
 const BUNDLE_HIGHLIGHTS = [
-    "E-Books Library — All 10 Subjects",
+    "E-Books Library: All 10 Subjects",
     "Question Banks for Every Subject",
     "Competency Test (PYQ-based)",
-    "Guess Papers — AI-predicted",
+    "Guess Papers: AI-predicted",
 ];
 
 const BUNDLE_AI_FEATURES = [
@@ -189,14 +189,14 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                 <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>{scholarshipDiscount > 0 && <span style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 6 }}>₹199</span>}₹{proPrice}</div>
                                 <div style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, margin: "3px 0 16px" }}>one-time · AI study tools</div>
                                 <div style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontSize: 12, lineHeight: 1.7, minHeight: 84 }}>AI Doubt Solver, custom tests, Smart Planner, Focus Mode, ChronoScroll, and more.</div>
-                                <RazorpayButton amount={199} type="PRO" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Pro — ₹${proPrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
+                                <RazorpayButton amount={199} type="PRO" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Pro: ₹${proPrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
                             </div>
                             <div style={{ background: "var(--bg-base)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 14, padding: "20px", boxShadow: "0 0 24px rgba(245,158,11,0.07)" }}>
                                 <div style={{ color: "#F59E0B", fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" }}>ULTIMATE BUNDLE</div>
                                 <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>{scholarshipDiscount > 0 && <span style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 6 }}>₹699</span>}₹{bundlePrice}</div>
                                 <div style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, margin: "3px 0 16px" }}>one-time · everything included</div>
                                 <div style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontSize: 12, lineHeight: 1.7, minHeight: 84 }}>Everything in Pro, plus Half Yearly Simulator, e-books, question banks, competency tests, and Guess Papers.</div>
-                                <RazorpayButton amount={699} type="BUNDLE" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Bundle — ₹${bundlePrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
+                                <RazorpayButton amount={699} type="BUNDLE" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Bundle: ₹${bundlePrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
                             </div>
                         </div>
                     ) : type === "BUNDLE" ? (
@@ -235,7 +235,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                 type="BUNDLE"
                                 email={user?.email || ""}
                                 name={user?.name || ""}
-                                buttonText={`Get Ultimate Bundle — ₹${bundlePrice} →`}
+                                buttonText={`Get Ultimate Bundle: ₹${bundlePrice} →`}
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />
                         </>
@@ -264,7 +264,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                 type="PRO"
                                 email={user?.email || ""}
                                 name={user?.name || ""}
-                                buttonText={`Get Pro — ₹${proPrice} →`}
+                                buttonText={`Get Pro: ₹${proPrice} →`}
                                 onSuccess={() => { if (onClose) onClose(); router.refresh(); }}
                             />
                         </>

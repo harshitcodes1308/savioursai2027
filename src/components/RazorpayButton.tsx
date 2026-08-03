@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { trpc } from "@/lib/trpc/client";
 
 interface RazorpayOptions {
     key: string;
@@ -43,6 +44,15 @@ interface RazorpayButtonProps {
 export function RazorpayButton({ amount = 199, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { data: profile } = trpc.dashboard.getProfile.useQuery();
+    const scholarshipOffer = profile?.scholarshipOffer;
+    const scholarshipDiscount = scholarshipOffer?.active ? scholarshipOffer.discountPercentage : 0;
+    const discountedAmount = scholarshipDiscount && type !== "LNB_CHEMISTRY"
+        ? Math.round(amount * (1 - scholarshipDiscount / 100))
+        : amount;
+    const effectiveButtonText = scholarshipDiscount && type !== "LNB_CHEMISTRY"
+        ? `${type === "BUNDLE" ? "Get Ultimate Bundle" : "Get Pro"} — ₹${discountedAmount} (${scholarshipDiscount}% off) →`
+        : buttonText || "Get Access";
 
     const loadRazorpay = () => {
         return new Promise((resolve) => {
@@ -154,7 +164,7 @@ export function RazorpayButton({ amount = 199, type = "PRO", email, name, onSucc
             onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
             onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
         >
-            {loading ? "Processing..." : buttonText || "Get Access"}
+            {loading ? "Processing..." : effectiveButtonText}
         </button>
     );
 }

@@ -214,6 +214,7 @@ export default function DashboardPage() {
     // If isPaid is true but planType is FREE (manual DB change), show "Pro"
     const planType = (profileIsPaid && rawPlanType === "FREE") ? "PRO" : rawPlanType;
     const paymentWarning = (profile as any)?.paymentWarning as "CANCELLED" | "EXPIRED" | null | undefined;
+    const scholarshipOffer = profile?.scholarshipOffer;
 
     const mmStats = calcMMStats(mmChecked);
 
@@ -326,6 +327,33 @@ export default function DashboardPage() {
                             Re-enroll Now
                         </button>
                     </div>
+                )}
+
+                {!profileIsPaid && (
+                    <button
+                        onClick={() => router.push("/dashboard/scholarship")}
+                        style={{
+                            width: "100%", border: "1px solid rgba(245,158,11,.32)", borderRadius: 16,
+                            padding: isMobile ? "16px" : "18px 22px", marginBottom: 22, cursor: "pointer", textAlign: "left",
+                            background: scholarshipOffer?.active
+                                ? "linear-gradient(135deg, rgba(62,207,142,.14), rgba(0,212,255,.06))"
+                                : "linear-gradient(135deg, rgba(245,158,11,.14), rgba(239,68,68,.06))",
+                            color: "inherit", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16,
+                        }}
+                    >
+                        <span style={{ display: "flex", alignItems: "center", gap: 13 }}>
+                            <span style={{ fontSize: 28 }}>{scholarshipOffer?.active ? "🏆" : "🎓"}</span>
+                            <span>
+                                <span style={{ display: "block", color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 17 }}>
+                                    {scholarshipOffer?.active ? `Your ${scholarshipOffer.discountPercentage}% scholarship is live` : "Scholarship Test — earn up to 50% off"}
+                                </span>
+                                <span style={{ display: "block", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, marginTop: 4 }}>
+                                    {scholarshipOffer?.active ? "Your discounted Pro and Ultimate Bundle prices are ready." : scholarshipOffer?.completedAt ? "Your scholarship attempt has already been used." : "10 timed ICSE competency questions. One attempt. A personal paid-plan discount."}
+                                </span>
+                            </span>
+                        </span>
+                        <span style={{ color: scholarshipOffer?.active ? "#3ECF8E" : "#F59E0B", fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 800, whiteSpace: "nowrap" }}>{scholarshipOffer?.active ? "View offer →" : "Take test →"}</span>
+                    </button>
                 )}
 
                 {/* ── Hero Section ── */}

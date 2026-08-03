@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import { isScholarshipOfferActive } from "@/lib/scholarship";
 
 export const dashboardRouter = createTRPCRouter({
     /**
@@ -67,6 +68,13 @@ export const dashboardRouter = createTRPCRouter({
             planType: ctx.user.isDemo ? ctx.user.planType : user.planType,
             subscriptionStatus: user.subscriptionStatus,
             subscriptionExpiry: user.subscriptionExpiry,
+            scholarshipOffer: {
+                score: user.scholarshipScore,
+                discountPercentage: user.scholarshipDiscountPercentage,
+                expiresAt: user.scholarshipDiscountExpiresAt,
+                completedAt: user.scholarshipTestCompletedAt,
+                active: isScholarshipOfferActive(user.scholarshipDiscountPercentage, user.scholarshipDiscountExpiresAt),
+            },
             paymentWarning,
             isDemo: ctx.user.isDemo === true,
         };

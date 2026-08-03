@@ -8,6 +8,7 @@ import { RazorpayButton } from "@/components/RazorpayButton";
 export default function PricingPage() {
     const router = useRouter();
     const { data: session } = trpc.auth.getSession.useQuery();
+    const { data: profile } = trpc.dashboard.getProfile.useQuery();
     const [mounted, setMounted] = useState(false);
     const [showDomin8Modal, setShowDomin8Modal] = useState(false);
     const [domin8Code, setDomin8Code] = useState('');
@@ -40,6 +41,11 @@ export default function PricingPage() {
     }
 
     if (!mounted) return null;
+
+    const scholarshipDiscount = profile?.scholarshipOffer?.active ? profile.scholarshipOffer.discountPercentage : 0;
+    const proPrice = Math.round(199 * (1 - scholarshipDiscount / 100));
+    const bundlePrice = Math.round(699 * (1 - scholarshipDiscount / 100));
+    const scholarshipExpiry = profile?.scholarshipOffer?.expiresAt;
 
     const freeFeatures = [
         "Dashboard & Study Stats",
@@ -108,6 +114,11 @@ export default function PricingPage() {
                 <p style={{ fontSize: 16, color: "#9CA3AF", margin: 0, lineHeight: 1.6 }}>
                     One payment. Full access till your boards. No subscriptions, no hidden fees.
                 </p>
+                {scholarshipDiscount > 0 && (
+                    <div style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 100, padding: "8px 14px", background: "rgba(62,207,142,.12)", border: "1px solid rgba(62,207,142,.3)", color: "#62e7a8", fontSize: 12, fontWeight: 800 }}>
+                        🏆 {scholarshipDiscount}% Scholarship applied to both plans{scholarshipExpiry ? ` · ends ${new Date(scholarshipExpiry).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}` : ""}
+                    </div>
+                )}
             </div>
 
             {/* 3-Card Grid: Free — Ultimate Bundle (hero) — Pro */}
@@ -189,7 +200,8 @@ export default function PricingPage() {
                         textTransform: "uppercase", letterSpacing: 1, marginBottom: 10,
                     }}>Ultimate Bundle</div>
                     <div style={{ marginBottom: 6 }}>
-                        <span style={{ fontSize: 44, fontWeight: 800, color: "#FFF" }}>₹699</span>
+                        {scholarshipDiscount > 0 && <span style={{ fontSize: 16, color: "#6B7280", textDecoration: "line-through", marginRight: 8 }}>₹699</span>}
+                        <span style={{ fontSize: 44, fontWeight: 800, color: "#FFF" }}>₹{bundlePrice}</span>
                         <span style={{ fontSize: 14, color: "#6B7280", marginLeft: 6 }}>one-time</span>
                     </div>
                     <p style={{ fontSize: 13, color: "#9CA3AF", margin: "0 0 24px" }}>
@@ -230,7 +242,7 @@ export default function PricingPage() {
                         type="BUNDLE"
                         email={session?.user?.email || ""}
                         name={session?.user?.name || ""}
-                        buttonText="Get Ultimate Bundle — ₹699 →"
+                        buttonText={`Get Ultimate Bundle — ₹${bundlePrice} →`}
                     />
                 </div>
 
@@ -256,7 +268,8 @@ export default function PricingPage() {
                         textTransform: "uppercase", letterSpacing: 1, marginBottom: 10,
                     }}>Pro</div>
                     <div style={{ marginBottom: 6 }}>
-                        <span style={{ fontSize: 40, fontWeight: 800, color: "#FFF" }}>₹199</span>
+                        {scholarshipDiscount > 0 && <span style={{ fontSize: 16, color: "#6B7280", textDecoration: "line-through", marginRight: 8 }}>₹199</span>}
+                        <span style={{ fontSize: 40, fontWeight: 800, color: "#FFF" }}>₹{proPrice}</span>
                         <span style={{ fontSize: 14, color: "#6B7280", marginLeft: 6 }}>one-time</span>
                     </div>
                     <p style={{ fontSize: 13, color: "#9CA3AF", margin: "0 0 24px" }}>
@@ -277,7 +290,7 @@ export default function PricingPage() {
                         type="PRO"
                         email={session?.user?.email || ""}
                         name={session?.user?.name || ""}
-                        buttonText="Get Pro — ₹199 →"
+                        buttonText={`Get Pro — ₹${proPrice} →`}
                     />
                 </div>
             </div>

@@ -40,6 +40,10 @@ model User {
   subscriptionExpiry     DateTime?
   razorpaySubscriptionId String?             @unique
   onboardingComplete     Boolean             @default(false)
+  scholarshipDiscountPercentage Int          @default(0)
+  scholarshipDiscountExpiresAt   DateTime?
+  scholarshipTestCompletedAt     DateTime?
+  scholarshipScore               Int?
   aiUsageLogs        AiUsageLog[]
   auditLogs          AuditLog[]
   dailyPlans         DailyPlan[]
@@ -54,8 +58,24 @@ model User {
   studyPlans         StudyPlan[]
   teacherProfile     TeacherProfile?
   testAttempts       TestAttempt[]
+  scholarshipAttempts ScholarshipAttempt[]
 
   @@map("users")
+}
+
+model ScholarshipAttempt {
+  id                 String    @id @default(cuid())
+  userId             String
+  questionRefs       Json
+  startedAt          DateTime  @default(now())
+  completedAt        DateTime?
+  marksScored        Int?
+  totalMarks         Int?
+  discountPercentage Int?
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("scholarship_attempts")
 }
 
 model Session {

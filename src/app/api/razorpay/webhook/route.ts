@@ -55,10 +55,12 @@ export async function POST(req: NextRequest) {
             const paymentAmount = payment?.amount || 0;
             const purchaseType = notes?.purchaseType || "PRO";
 
-            // Validate minimum amount
-            const expectedMinAmount = purchaseType === "LNB_CHEMISTRY" ? 1900 : 9900;
-            if (paymentAmount < expectedMinAmount) {
-                console.error(`[razorpay-webhook] Suspicious payment: amount ${paymentAmount} below minimum ${expectedMinAmount} for ${userEmail}`);
+            // The order is created only on our server, so its signed Razorpay
+            // notes are the source of truth. This supports scholarship prices
+            // without allowing the client to choose a cheaper amount.
+            const expectedAmount = Number(notes?.expectedAmount);
+            if (!Number.isFinite(expectedAmount) || expectedAmount <= 0 || paymentAmount !== expectedAmount) {
+                console.error(`[razorpay-webhook] Payment amount does not match the server order for ${userEmail}`);
                 return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
             }
 
@@ -75,12 +77,18 @@ export async function POST(req: NextRequest) {
                             data: { lnbChemistryUnlocked: true },
                         });
                         console.log("[razorpay-webhook] LNB Chemistry unlocked:", userEmail);
-                    } else if (!user.isPaid) {
+                    } else {
+                        const expiryDate = new Date("2027-03-31T23:59:59+05:30");
                         await prisma.user.update({
                             where: { id: user.id },
-                            data: { isPaid: true },
+                            data: {
+                                isPaid: true,
+                                planType: purchaseType === "BUNDLE" ? "BUNDLE" : "PRO",
+                                subscriptionStatus: "ACTIVE",
+                                subscriptionExpiry: expiryDate,
+                            },
                         });
-                        console.log("[razorpay-webhook] User upgraded to PAID:", userEmail);
+                        console.log("[razorpay-webhook] User upgraded:", userEmail);
                     }
                 }
             }

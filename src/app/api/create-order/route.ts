@@ -3,6 +3,7 @@ import Razorpay from "razorpay";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
+import { discountedPrice, isScholarshipOfferActive } from "@/lib/scholarship";
 
 const BASE_PRICING = {
     PRO: 19900,           // ₹199 in paise
@@ -32,7 +33,10 @@ export async function POST(req: Request) {
 
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { isPaid: true, planType: true, lnbChemistryUnlocked: true, createdAt: true, creatorCode: true },
+            select: {
+                isPaid: true, planType: true, lnbChemistryUnlocked: true, createdAt: true, creatorCode: true,
+                scholarshipDiscountPercentage: true, scholarshipDiscountExpiresAt: true,
+            },
         });
 
         if (!dbUser) {
@@ -59,7 +63,13 @@ export async function POST(req: Request) {
             }
         }
 
-        let amountPaise: number = BASE_PRICING[purchaseType];
+        const scholarshipDiscount = purchaseType === "LNB_CHEMISTRY" || !isScholarshipOfferActive(
+            dbUser.scholarshipDiscountPercentage,
+            dbUser.scholarshipDiscountExpiresAt,
+        ) ? 0 : dbUser.scholarshipDiscountPercentage;
+        const amountPaise = scholarshipDiscount
+            ? discountedPrice(BASE_PRICING[purchaseType], scholarshipDiscount)
+            : BASE_PRICING[purchaseType];
 
         const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
         const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -81,13 +91,14 @@ export async function POST(req: Request) {
                 userEmail: user.email,
                 expectedAmount: amountPaise.toString(),
                 purchaseType,
+                scholarshipDiscount: scholarshipDiscount.toString(),
             },
         });
 
         return NextResponse.json({
             success: true,
             order,
-            discount: null,
+            discount: scholarshipDiscount || null,
         });
     } catch (error) {
         console.error("Razorpay Order Error:", error);

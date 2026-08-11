@@ -32,11 +32,11 @@ export function findScholarshipQuestion({ subject, id }: ScholarshipQuestionRef)
 }
 
 export function getScholarshipDiscount(score: number) {
-  if (score >= 90) return 50;
-  if (score >= 75) return 40;
-  if (score >= 60) return 30;
-  if (score >= 40) return 20;
-  return 10;
+  if (score >= 90) return 25;
+  if (score >= 75) return 20;
+  if (score >= 60) return 15;
+  if (score >= 40) return 10;
+  return 5;
 }
 
 export function getQuestionTimeLimit(question: PrecisionQuestion) {

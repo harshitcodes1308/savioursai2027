@@ -163,10 +163,10 @@ export default function ScholarshipPage() {
   return <main style={shell}><section style={{ ...card, maxWidth: 720 }}>
     <div style={symbol}>◈</div>
     <div style={eyebrow}>FREE-PLAN EXCLUSIVE</div>
-    <h1 style={title}>Earn up to 50% off your plan</h1>
+    <h1 style={title}>Earn up to 25% off your plan</h1>
     <p style={copy}>Take one 10-question ICSE Scholarship Test built from our competency question bank. Your score unlocks a personal discount on both paid plans.</p>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 9, margin: "26px 0", textAlign: "left" }}>
-      {["90%+ score · 50% off", "75%+ score · 40% off", "60%+ score · 30% off", "40%+ score · 20% off", "Below 40% · 10% off"].map(rule => <div key={rule} style={{ padding: "10px 12px", border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", borderRadius: 10, color: "var(--text-secondary)", fontSize: 12 }}>{rule}</div>)}
+      {["90%+ score · 25% off", "75%+ score · 20% off", "60%+ score · 15% off", "40%+ score · 10% off", "Below 40% · 5% off"].map(rule => <div key={rule} style={{ padding: "10px 12px", border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", borderRadius: 10, color: "var(--text-secondary)", fontSize: 12 }}>{rule}</div>)}
     </div>
     <div style={{ color: "#a8a8b8", fontSize: 12, lineHeight: 1.7, marginBottom: 25 }}>Timed by difficulty: 1 mark = 60s, 2 marks = 2m 30s, 3 marks = 4m, 4 marks = 5m 30s. The scholarship offer lasts 72 hours and can be taken once per account.</div>
     {error && <p style={{ color: "#fb7185", fontSize: 13 }}>{error}</p>}

@@ -25,6 +25,7 @@ const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
   "/dashboard/date-battle": "dateBattleArena",
   "/dashboard/notes": "notesFlashcards",
   "/dashboard/half-yearly": "halfYearlySimulator",
+  "/dashboard/tracker": "tracker",
 };
 
 function isVisible(href: string): boolean {
@@ -63,6 +64,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: "◎", label: "Smart Planner",    href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission",  href: "/dashboard/todo" },
+      { icon: "◈", label: "Tracker",          href: "/dashboard/tracker" },
       { icon: "▶", label: "Study Flow",       href: "/dashboard/study-flow" },
       { icon: "▷", label: "Video Lectures",   href: "/dashboard/video-lectures" },
       { icon: "◈", label: "Live Webinar",     href: "/dashboard/webinar" },
@@ -102,6 +104,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: "◎", label: "Smart Planner",   href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission", href: "/dashboard/todo" },
+      { icon: "◈", label: "Tracker",         href: "/dashboard/tracker" },
       { icon: "◈", label: "Live Webinar",    href: "/dashboard/webinar" },
     ],
   },

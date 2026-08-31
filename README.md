@@ -31,7 +31,7 @@
 
 Saviours AI is a full-stack education platform built specifically for students preparing for the ICSE Class 10 board exams. It covers nine subjects with a mix of AI-powered tools, structured study plans, gamified learning, and a full video lecture library. Everything runs under a single authentication layer with a tiered access model: free users get planning and community resources, paid users unlock the AI and practice engine.
 
-The platform serves students, but it is also designed to be operated by the team behind it, through a custom admin panel that handles creators, user management, revenue tracking, and feature flags without touching the database directly.
+The platform serves students, but it is also designed to be operated by the team behind it, through a custom admin panel that handles user management, revenue tracking, partner channels, and feature flags without touching the database directly.
 
 ---
 
@@ -111,7 +111,7 @@ The library covers 9 subjects with dedicated content for Mathematics, Physics, C
 
 A structured chapter walkthrough with three steps per chapter: Watch, Revise, and Practice.
 
-The Watch step uses the YouTube Data API to search for relevant videos for the chapter (query: `{chapter name} Class 10 ICSE`). Results appear as clickable thumbnail cards. The search query is editable so students can refine it. When a student's creator has a configured YouTube channel ID, that creator's videos are pinned to the top of results with a "Recommended by {creator}" badge.
+The Watch step uses the YouTube Data API to search for relevant videos for the chapter (query: `{chapter name} Class 10 ICSE`). Results appear as clickable thumbnail cards. The search query is editable so students can refine it. Videos recommended by Clarify Knowledge appear with a "Recommended by Clarify Knowledge" badge.
 
 The Revise step shows a chapter summary and key concepts. The Practice step presents 5 to 10 questions with a reveal-answer interaction. Progress is saved to localStorage per chapter and subject.
 
@@ -228,15 +228,13 @@ graph TD
 graph LR
     subgraph "Auth Flow"
         Signup["Signup (email or Google)"]
-        Onboard["8-Step Onboarding"]
-        CreatorCode["Creator Code (optional)"]
+        Onboard["7-Step Onboarding"]
         Pricing["Plan Selection"]
         Dashboard["Dashboard"]
     end
 
     Signup --> Onboard
-    Onboard --> CreatorCode
-    CreatorCode --> Pricing
+    Onboard --> Pricing
     Pricing --> Dashboard
 ```
 
@@ -244,8 +242,8 @@ graph LR
 graph TD
     subgraph "Plan Tiers"
         Free["FREE\nDashboard, Planner\nMonthly Mission\nVideo Lectures\nStudy Flow\nWebinar"]
-        Monthly["MONTHLY (199/month)\nAll Free features\nAI Doubt Solver\nCompetency Test\nCustomise Test\nFlip the Question\nFocus Mode\nChronoScroll\nNumerical Mastery\nDate Battle Arena"]
-        Yearly["YEARLY (599/year)\nAll Monthly features\nCreator discount applied\nPriority support"]
+        Monthly["MONTHLY (149/month)\nAll Free features\nAI Doubt Solver\nCompetency Test\nCustomise Test\nFlip the Question\nFocus Mode\nChronoScroll\nNumerical Mastery\nDate Battle Arena"]
+        Yearly["YEARLY (599/year)\nAll Monthly features\nPriority support"]
     end
 
     Free -->|"Upgrade"| Monthly
@@ -454,17 +452,16 @@ Sprint15Status:        DIAGNOSTIC_PENDING | ACTIVE | COMPLETED | ABANDONED
 
 ### Onboarding Flow
 
-New users go through an 8-step cinematic onboarding sequence before reaching the dashboard:
+New users go through a 7-step cinematic onboarding sequence before reaching the dashboard:
 
 ```
 Step 1  Cinematic splash screen (video background, tap to continue)
 Step 2  Apple-style greeting sequence with contextual messages
 Step 3  Social proof cards (testimonials)
 Step 4  Name and phone number collection
-Step 5  Creator code entry (optional, unlocks yearly discount)
-Step 6  Plan selection (Free / Monthly / Yearly)
-Step 7  Loading screen with setup progress indicators
-Step 8  Vapour text welcome animation, then redirect to dashboard
+Step 5  Plan selection (Free / Monthly / Yearly)
+Step 6  Loading screen with setup progress indicators
+Step 7  Vapour text welcome animation, then redirect to dashboard
 ```
 
 ### Route Guards
@@ -493,40 +490,19 @@ Paid:    Everything above, plus:
 
 ---
 
-## Payments and Creator Affiliate System
+## Payments and Partner Integration
 
 ### Plan Pricing
 
 | Plan | Price | Type | Razorpay Flow |
 |------|-------|------|---------------|
 | Free | No charge | | |
-| Monthly | 199/month | Recurring subscription | `subscription_id` via `/api/create-subscription` |
+| Monthly | 149/month | Recurring subscription | `subscription_id` via `/api/create-subscription` |
 | Yearly | 599/year | One-time order | `order_id` via `/api/create-order` |
 
-### Creator Affiliate System
+### Clarify Knowledge Integration
 
-Creators (YouTubers, EdTech channels) receive a unique alphanumeric code. Students enter this code during onboarding step 5. The code is stored permanently on the user record. When the student reaches the pricing screen, the yearly plan shows the discounted price with a strikethrough of the original.
-
-Creator discounts apply **to yearly plans only**. Monthly pricing stays fixed.
-
-The discount is calculated and applied entirely server-side in `create-order`:
-
-```
-discounted_amount = base_price * (1 - discount_percentage / 100)
-```
-
-The Razorpay order is created with this amount, so the checkout window shows the correct final price.
-
-**Creator model fields:**
-
-| Field | Type | Purpose |
-|-------|------|---------|
-| `creatorCode` | String, unique | The code students enter |
-| `creatorName` | String | Display name shown to students |
-| `discountPercentage` | Int (1-100) | Applied to yearly plan at checkout |
-| `channelId` | String, nullable | YouTube channel ID for study flow video boosting |
-
-When a creator has a configured `channelId`, their videos appear pinned at the top of YouTube search results in the Study Flow Watch step.
+Saviours AI is launched in partnership with **Clarify Knowledge**. Video recommendations in the Study Flow Watch step default to Clarify Knowledge channel resources, ensuring students receive top-tier, aligned ICSE Class 10 video content.
 
 ### Subscription Lifecycle (Webhook)
 
@@ -686,13 +662,9 @@ YOUTUBE_API_KEY                 YouTube Data API v3 key (server-side only)
 # Payments
 NEXT_PUBLIC_RAZORPAY_KEY_ID     Razorpay publishable key (frontend)
 RAZORPAY_KEY_SECRET             Razorpay secret key (server-side only)
-RAZORPAY_MONTHLY_PLAN_ID        Razorpay plan ID for monthly subscription (199/month)
+RAZORPAY_MONTHLY_PLAN_ID        Razorpay plan ID for monthly subscription (149/month)
 RAZORPAY_MONTHLY_TOTAL_COUNT    Number of billing cycles (default: 11)
 RAZORPAY_WEBHOOK_SECRET         Webhook signature verification secret
-
-# Creator discounts (optional, for discounted monthly plans)
-RAZORPAY_MONTHLY_PLAN_ID_BL2047    Discounted plan for Beast Learners
-RAZORPAY_MONTHLY_PLAN_ID_CK2047    Discounted plan for Clarify Knowledge
 ```
 
 ---

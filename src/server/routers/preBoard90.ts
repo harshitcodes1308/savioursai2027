@@ -245,6 +245,58 @@ Return only valid JSON, no markdown.`,
     }
 }
 
+let tablesReady = false;
+
+async function ensurePreBoard90Tables(prisma: any) {
+    if (tablesReady) return;
+    try {
+        const statements = [
+            `DO $$ BEGIN CREATE TYPE "PreBoard90Status" AS ENUM ('ACTIVE', 'COMPLETED', 'ABANDONED'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
+            `DO $$ BEGIN CREATE TYPE "PreBoard90TaskType" AS ENUM ('STUDY', 'PRACTICE', 'TEST'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
+            `DO $$ BEGIN CREATE TYPE "PreBoard90TaskStatus" AS ENUM ('LOCKED', 'ACTIVE', 'DONE', 'MISSED'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
+            `CREATE TABLE IF NOT EXISTS "preboard90_plans" (
+                "id" TEXT NOT NULL,
+                "studentId" TEXT NOT NULL,
+                "board" TEXT NOT NULL DEFAULT 'ICSE',
+                "grade" INTEGER NOT NULL DEFAULT 10,
+                "subjects" TEXT[],
+                "startDate" DATE NOT NULL,
+                "phase1End" DATE NOT NULL,
+                "phase2End" DATE NOT NULL,
+                "phase3End" DATE NOT NULL,
+                "status" "PreBoard90Status" NOT NULL DEFAULT 'ACTIVE',
+                "weakTopics" JSONB NOT NULL DEFAULT '{}',
+                "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT "preboard90_plans_pkey" PRIMARY KEY ("id")
+            );`,
+            `CREATE TABLE IF NOT EXISTS "preboard90_tasks" (
+                "id" TEXT NOT NULL,
+                "planId" TEXT NOT NULL,
+                "day" INTEGER NOT NULL,
+                "phase" INTEGER NOT NULL,
+                "taskType" "PreBoard90TaskType" NOT NULL,
+                "subject" TEXT NOT NULL,
+                "topicRef" TEXT NOT NULL,
+                "contentJson" JSONB,
+                "status" "PreBoard90TaskStatus" NOT NULL DEFAULT 'LOCKED',
+                "completedAt" TIMESTAMP(3),
+                "testResultId" TEXT,
+                CONSTRAINT "preboard90_tasks_pkey" PRIMARY KEY ("id")
+            );`,
+            `CREATE INDEX IF NOT EXISTS "preboard90_plans_studentId_status_idx" ON "preboard90_plans"("studentId", "status");`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS "preboard90_tasks_planId_day_key" ON "preboard90_tasks"("planId", "day");`,
+            `CREATE INDEX IF NOT EXISTS "preboard90_tasks_planId_status_idx" ON "preboard90_tasks"("planId", "status");`
+        ];
+        for (const sql of statements) {
+            await prisma.$executeRawUnsafe(sql);
+        }
+        tablesReady = true;
+    } catch (e) {
+        console.warn("PreBoard90 table auto-ensure:", e);
+    }
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 
 export const preBoard90Router = createTRPCRouter({
@@ -260,10 +312,24 @@ export const preBoard90Router = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            await ensurePreBoard90Tables(ctx.prisma);
+
             // Check for existing active plan
-            const existing = await ctx.prisma.preBoard90Plan.findFirst({
-                where: { studentId: ctx.user.id, status: "ACTIVE" },
-            });
+            let existing = null;
+            try {
+                existing = await ctx.prisma.preBoard90Plan.findFirst({
+                    where: { studentId: ctx.user.id, status: "ACTIVE" },
+                });
+            } catch (e: any) {
+                if (e?.message?.includes("does not exist") || e?.code === "P2021") {
+                    tablesReady = false;
+                    await ensurePreBoard90Tables(ctx.prisma);
+                    existing = null;
+                } else {
+                    throw e;
+                }
+            }
+
             if (existing) {
                 throw new TRPCError({
                     code: "CONFLICT",
@@ -341,10 +407,21 @@ export const preBoard90Router = createTRPCRouter({
      * Missed days roll forward — oldest unresolved task ≤ today is served.
      */
     getTodayTask: protectedProcedure.query(async ({ ctx }) => {
-        const plan = await ctx.prisma.preBoard90Plan.findFirst({
-            where: { studentId: ctx.user.id, status: "ACTIVE" },
-            orderBy: { createdAt: "desc" },
-        });
+        await ensurePreBoard90Tables(ctx.prisma);
+        let plan = null;
+        try {
+            plan = await ctx.prisma.preBoard90Plan.findFirst({
+                where: { studentId: ctx.user.id, status: "ACTIVE" },
+                orderBy: { createdAt: "desc" },
+            });
+        } catch (e: any) {
+            if (e?.message?.includes("does not exist") || e?.code === "P2021") {
+                tablesReady = false;
+                await ensurePreBoard90Tables(ctx.prisma);
+                return null;
+            }
+            throw e;
+        }
         if (!plan) return null;
 
         const today = new Date();
@@ -526,11 +603,22 @@ export const preBoard90Router = createTRPCRouter({
      * Get 90-day tracker data for the progress widget.
      */
     getPhaseProgress: protectedProcedure.query(async ({ ctx }) => {
-        const plan = await ctx.prisma.preBoard90Plan.findFirst({
-            where: { studentId: ctx.user.id, status: { in: ["ACTIVE", "COMPLETED"] } },
-            orderBy: { createdAt: "desc" },
-            include: { tasks: { select: { day: true, phase: true, status: true, taskType: true, subject: true, topicRef: true } } },
-        });
+        await ensurePreBoard90Tables(ctx.prisma);
+        let plan = null;
+        try {
+            plan = await ctx.prisma.preBoard90Plan.findFirst({
+                where: { studentId: ctx.user.id, status: { in: ["ACTIVE", "COMPLETED"] } },
+                orderBy: { createdAt: "desc" },
+                include: { tasks: { select: { day: true, phase: true, status: true, taskType: true, subject: true, topicRef: true } } },
+            });
+        } catch (e: any) {
+            if (e?.message?.includes("does not exist") || e?.code === "P2021") {
+                tablesReady = false;
+                await ensurePreBoard90Tables(ctx.prisma);
+                return null;
+            }
+            throw e;
+        }
 
         if (!plan) return null;
 
@@ -645,6 +733,7 @@ export const preBoard90Router = createTRPCRouter({
      * Abandon the current active plan (soft delete — sets status to ABANDONED).
      */
     abandonPlan: protectedProcedure.mutation(async ({ ctx }) => {
+        await ensurePreBoard90Tables(ctx.prisma);
         const plan = await ctx.prisma.preBoard90Plan.findFirst({
             where: { studentId: ctx.user.id, status: "ACTIVE" },
         });
@@ -662,19 +751,30 @@ export const preBoard90Router = createTRPCRouter({
      * Return all 90 tasks for the active plan — used by the "View Full Plan" page.
      */
     getPlanSchedule: protectedProcedure.query(async ({ ctx }) => {
-        const plan = await ctx.prisma.preBoard90Plan.findFirst({
-            where: { studentId: ctx.user.id, status: { in: ["ACTIVE", "COMPLETED"] } },
-            orderBy: { createdAt: "desc" },
-            include: {
-                tasks: {
-                    select: {
-                        id: true, day: true, phase: true, taskType: true,
-                        subject: true, topicRef: true, status: true, completedAt: true,
+        await ensurePreBoard90Tables(ctx.prisma);
+        let plan = null;
+        try {
+            plan = await ctx.prisma.preBoard90Plan.findFirst({
+                where: { studentId: ctx.user.id, status: { in: ["ACTIVE", "COMPLETED"] } },
+                orderBy: { createdAt: "desc" },
+                include: {
+                    tasks: {
+                        select: {
+                            id: true, day: true, phase: true, taskType: true,
+                            subject: true, topicRef: true, status: true, completedAt: true,
+                        },
+                        orderBy: { day: "asc" },
                     },
-                    orderBy: { day: "asc" },
                 },
-            },
-        });
+            });
+        } catch (e: any) {
+            if (e?.message?.includes("does not exist") || e?.code === "P2021") {
+                tablesReady = false;
+                await ensurePreBoard90Tables(ctx.prisma);
+                return null;
+            }
+            throw e;
+        }
         if (!plan) return null;
         return {
             planId: plan.id,

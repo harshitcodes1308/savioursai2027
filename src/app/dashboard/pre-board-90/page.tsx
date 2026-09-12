@@ -78,7 +78,13 @@ export default function PreBoard90Page() {
 
     const enrollMutation = trpc.preBoard90.enrollPlan.useMutation({
         onSuccess: () => { refetchPb90(); refetchTask(); setEnrollError(null); },
-        onError: (e) => setEnrollError(e.message),
+        onError: (e) => {
+            if (e.message.includes("does not exist") || e.message.includes("invocation")) {
+                setEnrollError("Setting up your study plan database... Please tap Start Pre-Board 90 again.");
+            } else {
+                setEnrollError(e.message);
+            }
+        },
     });
     const abandonMutation = trpc.preBoard90.abandonPlan.useMutation({
         onSuccess: () => { refetchPb90(); refetchTask(); },

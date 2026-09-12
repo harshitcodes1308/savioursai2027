@@ -7,6 +7,7 @@ import { isLockedRoute, isBundleLockedRoute, getFeatureInfo } from "@/lib/tier-c
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
+  "/dashboard/pre-board-90": "preBoard90",
   "/dashboard/study-flow": "studyFlow",
   "/dashboard/webinar": "webinar",
   "/dashboard/video-lectures": "videoLectures",
@@ -62,6 +63,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
   {
     label: "FREE",
     items: [
+      { icon: "◈", label: "Pre-Board 90",     href: "/dashboard/pre-board-90" },
       { icon: "◎", label: "Smart Planner",    href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission",  href: "/dashboard/todo" },
       { icon: "◈", label: "Tracker",          href: "/dashboard/tracker" },
@@ -102,6 +104,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
   {
     label: "PLAN",
     items: [
+      { icon: "◈", label: "Pre-Board 90",    href: "/dashboard/pre-board-90" },
       { icon: "◎", label: "Smart Planner",   href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission", href: "/dashboard/todo" },
       { icon: "◈", label: "Tracker",         href: "/dashboard/tracker" },
@@ -177,7 +180,7 @@ export default function DashboardSidebar({
       const info = getFeatureInfo(href);
       if (info) {
         // Bundle-only features cannot be unlocked by Pro, so do not offer the
-        // ₹199 plan from their upgrade prompt.
+        // ₹169 plan from their upgrade prompt.
         setUpgradeFeature({ ...info, type: isBundleLockedRoute(href) ? "BUNDLE" : "CHOICE" });
         setIsOpen(false);
         return;
@@ -186,7 +189,7 @@ export default function DashboardSidebar({
     if (isPaid && planType === "PRO" && isBundleLockedRoute(href)) {
       const info = getFeatureInfo(href);
       if (info) {
-        // A Pro student sees only the ₹699 Bundle offer for Bundle features.
+        // A Pro student sees only the ₹599 Bundle offer for Bundle features.
         setUpgradeFeature({ ...info, type: "BUNDLE" });
         setIsOpen(false);
         return;

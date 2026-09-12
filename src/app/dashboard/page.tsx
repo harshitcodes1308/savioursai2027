@@ -148,6 +148,9 @@ export default function DashboardPage() {
     const { data: stats } = trpc.dashboard.getStudyStats.useQuery(undefined, {
         refetchInterval: 30000, refetchOnWindowFocus: true, refetchOnMount: true,
     });
+    const { data: pb90Progress } = trpc.preBoard90.getPhaseProgress.useQuery(undefined, {
+        refetchOnWindowFocus: true,
+    });
     const logoutMutation = trpc.auth.logout.useMutation({
         onSuccess: () => router.push("/login"),
     });
@@ -186,6 +189,7 @@ export default function DashboardPage() {
         { flag: "numericalMastery" as const, label: "Numerical Mastery", desc: "Physics formulas, solved examples & PYQs", path: "/dashboard/numerical-mastery", icon: "◈", tagline: "Every formula, every numerical, mastered." },
         { flag: "dateBattleArena" as const, label: "Date Battle Arena", desc: "Gamified history dates, 60-second battles", path: "/dashboard/date-battle", icon: "◉", tagline: "Speed meets memory in the arena." },
         { flag: "ebooks" as const, label: "E-Books", desc: "Premium ICSE textbooks by Clarify Knowledge", path: "/dashboard/ebooks", icon: "◈", tagline: "10 subjects. One library. Zero excuses." },
+        { flag: "preBoard90" as const, label: "Pre-Board 90", desc: "90-day countdown to December pre-boards", path: "/dashboard/pre-board-90", icon: "◈", tagline: "Study. Practice. Test. December ready." },
     ].filter(card => FEATURE_FLAGS[card.flag]);
 
     if (profileLoading || !stats) {
@@ -509,6 +513,88 @@ export default function DashboardPage() {
                         <RingStatCard key={s.label} {...s} />
                     ))}
                 </div>
+                {/* ── Pre-Board 90 Mini-Widget ── */}
+                {pb90Progress && pb90Progress.status === "ACTIVE" && (
+                    <div
+                        onClick={() => router.push("/dashboard/pre-board-90")}
+                        style={{
+                            background: "var(--bg-surface)",
+                            border: "1px solid var(--accent-gold-border)",
+                            borderRadius: 18,
+                            padding: isMobile ? "18px 16px" : "22px 28px",
+                            marginBottom: isMobile ? 24 : 32,
+                            cursor: "pointer",
+                            animation: "slideInUp 0.5s ease-out 120ms both",
+                            transition: "all 0.3s ease",
+                            position: "relative",
+                            overflow: "hidden",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 0 32px var(--accent-gold-glow)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; }}
+                    >
+                        {/* Ambient glow */}
+                        <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, var(--accent-gold-glow) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+                        {/* Header row */}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--accent-gold)", opacity: 0.85 }}>Pre-Board 90</div>
+                                <div style={{
+                                    fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700,
+                                    letterSpacing: "0.1em", textTransform: "uppercase",
+                                    color: pb90Progress.currentDay <= 30 ? "#5B8AF5" : pb90Progress.currentDay <= 60 ? "#F5A623" : "#E5534B",
+                                    background: pb90Progress.currentDay <= 30 ? "rgba(91,138,245,0.12)" : pb90Progress.currentDay <= 60 ? "rgba(245,166,35,0.12)" : "rgba(229,83,75,0.12)",
+                                    border: `1px solid ${pb90Progress.currentDay <= 30 ? "rgba(91,138,245,0.3)" : pb90Progress.currentDay <= 60 ? "rgba(245,166,35,0.3)" : "rgba(229,83,75,0.3)"}`,
+                                    borderRadius: 100, padding: "3px 9px",
+                                }}>Phase {pb90Progress.currentDay <= 30 ? "1 · Study" : pb90Progress.currentDay <= 60 ? "2 · Practice" : "3 · Test"}</div>
+                            </div>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--accent-gold)", fontWeight: 600 }}>Day {pb90Progress.currentDay} / 90 →</div>
+                        </div>
+
+                        {/* 90-day tracker bar */}
+                        <div style={{ display: "flex", gap: 2, marginBottom: 10, overflowX: "auto", paddingBottom: 2 }}>
+                            {pb90Progress.days.map((d) => {
+                                const isDone = d.status === "DONE";
+                                const isMissed = d.status === "MISSED";
+                                const isActive = d.status === "ACTIVE";
+                                const phaseColor = d.phase === 1 ? "#5B8AF5" : d.phase === 2 ? "#F5A623" : "#E5534B";
+                                return (
+                                    <div
+                                        key={d.day}
+                                        title={`Day ${d.day} · Phase ${d.phase} · ${d.status}`}
+                                        style={{
+                                            flex: "0 0 auto",
+                                            width: isMobile ? 5 : 7,
+                                            height: isMobile ? 22 : 28,
+                                            borderRadius: 3,
+                                            background: isDone ? "var(--accent-gold)" : isMissed ? "rgba(229,83,75,0.45)" : isActive ? phaseColor : "rgba(255,255,255,0.06)",
+                                            border: isActive ? `1px solid ${phaseColor}` : "1px solid transparent",
+                                            transition: "background 0.2s",
+                                            boxShadow: isActive ? `0 0 6px ${phaseColor}60` : "none",
+                                        }}
+                                    />
+                                );
+                            })}
+                        </div>
+
+                        {/* Stats row */}
+                        <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexWrap: "wrap" }}>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>
+                                <span style={{ color: "var(--accent-gold)", fontWeight: 700 }}>{pb90Progress.doneDays}</span> completed
+                            </div>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>
+                                <span style={{ color: "#E5534B", fontWeight: 700 }}>{pb90Progress.missedDays}</span> missed
+                            </div>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>
+                                <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{90 - pb90Progress.doneDays - pb90Progress.missedDays}</span> remaining
+                            </div>
+                            <div style={{ marginLeft: "auto", fontFamily: "var(--font-tagline)", fontSize: 11, fontStyle: "italic", color: "var(--accent-gold)", opacity: 0.55 }}>
+                                {90 - pb90Progress.currentDay} days to pre-boards
+                            </div>
+                        </div>
+                    </div>
+                )}
+
 
                 {/* ── Feature Cards ── */}
                 <div>

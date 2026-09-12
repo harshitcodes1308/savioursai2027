@@ -90,7 +90,7 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
             return { success: true };
         }
 
-        // One-time order: PRO (₹199), BUNDLE (₹699), or LNB_CHEMISTRY (₹19)
+        // One-time order: PRO (₹169), BUNDLE (₹599), or LNB_CHEMISTRY (₹19)
         if (!razorpay_order_id) {
             return { success: false, error: "Missing order or subscription id" };
         }

@@ -1,19 +1,21 @@
 export type Plan = 'free' | 'pro' | 'bundle';
 
 export const PLAN_FEATURES: Record<string, Plan[]> = {
-  aiDoubtSolver:   ['pro', 'bundle'],
-  smartPlanner:    ['free', 'pro', 'bundle'],
-  competencyTest:  ['bundle'],
-  customiseTest:   ['pro', 'bundle'],
-  flipTheQuestion: ['pro', 'bundle'],
-  focusMode:       ['pro', 'bundle'],
-  todoList:        ['free', 'pro', 'bundle'],
-  chronoScroll:    ['pro', 'bundle'],
-  numericalMastery:['pro', 'bundle'],
-  dateBattleArena: ['pro', 'bundle'],
-  ebooks:          ['bundle'],
-  guessPapers:     ['bundle'],
+  aiDoubtSolver:       ['pro', 'bundle'],
+  smartPlanner:        ['free', 'pro', 'bundle'],
+  competencyTest:      ['bundle'],
+  customiseTest:       ['pro', 'bundle'],
+  flipTheQuestion:     ['pro', 'bundle'],
+  focusMode:           ['pro', 'bundle'],
+  todoList:            ['free', 'pro', 'bundle'],
+  chronoScroll:        ['pro', 'bundle'],
+  numericalMastery:    ['pro', 'bundle'],
+  dateBattleArena:     ['pro', 'bundle'],
+  ebooks:              ['bundle'],
+  guessPapers:         ['bundle'],
   halfYearlySimulator: ['bundle'],
+  preBoard90Phase1:    ['free', 'pro', 'bundle'], // Phase 1 preview for all
+  preBoard90Full:      ['pro', 'bundle'],          // Phases 2+3 require PRO
 };
 
 export const AI_DOUBT_FREE_LIMIT = 3; // queries per day for free users

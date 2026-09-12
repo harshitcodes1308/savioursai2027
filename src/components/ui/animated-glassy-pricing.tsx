@@ -408,7 +408,7 @@ const savioursPlans: PricingCardProps[] = [
   {
     planName: 'Ultimate Bundle',
     description: 'Everything in one focused ICSE workspace.',
-    price: '699',
+    price: '599',
     priceSymbol: '₹',
     billingLabel: 'one-time',
     features: [
@@ -426,7 +426,7 @@ const savioursPlans: PricingCardProps[] = [
   {
     planName: 'Pro',
     description: 'All AI-powered features till boards.',
-    price: '199',
+    price: '169',
     priceSymbol: '₹',
     billingLabel: 'one-time',
     features: [
@@ -474,8 +474,8 @@ export default function AnimatedGlassyPricing({
   const creatorPct = activeCreatorDiscount?.discountPercentage ?? 0;
   const proDiscountPct = scholarshipPct;
   const bundleDiscountPct = Math.max(scholarshipPct, creatorPct);
-  const proDiscounted = proDiscountPct > 0 ? String(Math.round(199 * (1 - proDiscountPct / 100))) : undefined;
-  const bundleDiscounted = bundleDiscountPct > 0 ? String(Math.round(699 * (1 - bundleDiscountPct / 100))) : undefined;
+  const proDiscounted = proDiscountPct > 0 ? String(Math.round(169 * (1 - proDiscountPct / 100))) : undefined;
+  const bundleDiscounted = bundleDiscountPct > 0 ? String(Math.round(599 * (1 - bundleDiscountPct / 100))) : undefined;
   const scholarshipLabel = scholarshipPct > 0 ? `Scholarship award: ${scholarshipPct}% off` : undefined;
   const bundleDiscountLabel = scholarshipPct > 0
     ? scholarshipLabel

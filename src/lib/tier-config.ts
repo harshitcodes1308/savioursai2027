@@ -1,8 +1,8 @@
 /**
  * Tier Configuration
  *
- * PRO_LOCKED: unlocked by Pro (₹199) or Bundle (₹699)
- * BUNDLE_LOCKED: unlocked by Bundle (₹699) only
+ * PRO_LOCKED: unlocked by Pro (₹169) or Bundle (₹599)
+ * BUNDLE_LOCKED: unlocked by Bundle (₹599) only
  */
 
 /** Routes that require at least Pro plan */
@@ -45,6 +45,7 @@ export const FREE_ROUTES = [
     "/dashboard/policies",
     "/dashboard/activity",
     "/dashboard/last-night-before",
+    "/dashboard/pre-board-90",
 ] as const;
 
 /** Feature info for UpgradePrompt — maps route to display name + description */
@@ -100,6 +101,10 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     "/dashboard/last-night-before": {
         name: "Last Night Before",
         description: "Panic-mode revision: 30 numericals, 20 formulas, 10 definitions — randomly assigned for focused last-minute cramming.",
+    },
+    "/dashboard/pre-board-90": {
+        name: "Pre-Board 90",
+        description: "Your 90-day structured countdown to December pre-boards — 30 days Study, 30 days Practice, 30 days full Mock Papers with GPT-4o-mini evaluation. Phase 1 is free. Phases 2 and 3 require Pro.",
     },
 };
 

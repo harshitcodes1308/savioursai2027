@@ -59,6 +59,7 @@ model User {
   teacherProfile     TeacherProfile?
   testAttempts       TestAttempt[]
   scholarshipAttempts ScholarshipAttempt[]
+  preBoard90Plans    PreBoard90Plan[]
 
   @@map("users")
 }
@@ -720,4 +721,66 @@ enum SubscriptionStatus {
   ACTIVE
   EXPIRED
   CANCELLED
+}
+
+// ── Pre-Board 90 ──────────────────────────────────────────────────────────────
+
+model PreBoard90Plan {
+  id           String           @id @default(cuid())
+  studentId    String
+  board        String           // "ICSE" | "CBSE"
+  grade        Int
+  subjects     String[]
+  startDate    DateTime         @db.Date
+  phase1End    DateTime         @db.Date // Day 30
+  phase2End    DateTime         @db.Date // Day 60
+  phase3End    DateTime         @db.Date // Day 90
+  status       PB90Status       @default(ACTIVE)
+  weakTopics   Json             @default("{}")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  tasks        PreBoard90Task[]
+  student      User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@map("preboard90_plans")
+}
+
+model PreBoard90Task {
+  id           String          @id @default(cuid())
+  planId       String
+  day          Int             // 1-90
+  phase        Int             // 1, 2, or 3
+  taskType     PB90TaskType
+  subject      String
+  topicRef     String          // chapter / topic name
+  contentJson  Json?           // AI-generated task payload
+  status       PB90TaskStatus  @default(LOCKED)
+  completedAt  DateTime?
+  testResultId String?         // links to TestResult.id for Phase 3 mocks
+  plan         PreBoard90Plan  @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId, day])
+  @@index([planId, status])
+  @@map("preboard90_tasks")
+}
+
+enum PB90Status {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+
+enum PB90TaskType {
+  STUDY
+  PRACTICE
+  TEST
+}
+
+enum PB90TaskStatus {
+  LOCKED
+  ACTIVE
+  DONE
+  MISSED
 }

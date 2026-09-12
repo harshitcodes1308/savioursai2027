@@ -24,7 +24,7 @@ const PLANS: Plan[] = [
   },
   {
     name: "Ultimate Bundle",
-    price: "₹699",
+    price: "₹599",
     period: "one-time",
     popular: true,
     href: "/signup",
@@ -32,7 +32,7 @@ const PLANS: Plan[] = [
   },
   {
     name: "Pro",
-    price: "₹199",
+    price: "₹169",
     period: "one-time",
     href: "/signup",
     features: ["Everything in Free", "AI Doubt Solver", "Customise Test", "Flip the Question", "Focus Mode", "Numerical Mastery", "ChronoScroll", "Date Battle Arena", "Exam Strategy Builder", "Smart Notes"],

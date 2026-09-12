@@ -41,7 +41,7 @@ interface RazorpayButtonProps {
     buttonText?: string;
 }
 
-export function RazorpayButton({ amount = 199, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
+export function RazorpayButton({ amount = 169, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const { data: profile } = trpc.dashboard.getProfile.useQuery();
@@ -92,8 +92,8 @@ export function RazorpayButton({ amount = 199, type = "PRO", email, name, onSucc
             }
 
             const descriptions: Record<string, string> = {
-                PRO: "Pro Access: ₹199",
-                BUNDLE: "Ultimate Bundle: ₹699",
+                PRO: "Pro Access: ₹169",
+                BUNDLE: "Ultimate Bundle: ₹599",
                 LNB_CHEMISTRY: "Unlock Chemistry Sets",
             };
 

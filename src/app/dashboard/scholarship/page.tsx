@@ -130,7 +130,7 @@ export default function ScholarshipPage() {
         <h1 style={title}>You earned {active.discountPercentage}% off</h1>
         <p style={copy}>Your weighted scholarship score is <strong style={{ color: "var(--text-primary)" }}>{active.score}%</strong>. This discount applies to both Pro and Ultimate Bundle.</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, margin: "28px 0" }}>
-          <Metric label="Score" value={`${active.score}%`} /><Metric label="Pro" value={`₹${Math.round(199 * (1 - active.discountPercentage / 100))}`} /><Metric label="Bundle" value={`₹${Math.round(699 * (1 - active.discountPercentage / 100))}`} />
+          <Metric label="Score" value={`${active.score}%`} /><Metric label="Pro" value={`₹${Math.round(169 * (1 - active.discountPercentage / 100))}`} /><Metric label="Bundle" value={`₹${Math.round(599 * (1 - active.discountPercentage / 100))}`} />
         </div>
         <p style={{ ...copy, fontSize: 12 }}>Use it before {new Date(active.expiresAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}. Your discounted price is now shown wherever you upgrade.</p>
         <button onClick={() => router.push("/pricing")} style={primaryButton}>View my scholarship prices →</button>

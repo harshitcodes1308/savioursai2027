@@ -11,6 +11,7 @@ import { focusRouter } from "./focus";
 import { precisionRouter } from "./precision";
 import { flipRouter } from "./flip";
 import { creatorRouter } from "./creator";
+import { preBoard90Router } from "./preBoard90";
 
 export const appRouter = createTRPCRouter({
     auth: authRouter,
@@ -25,6 +26,7 @@ export const appRouter = createTRPCRouter({
     precision: precisionRouter,
     flip: flipRouter,
     creator: creatorRouter,
+    preBoard90: preBoard90Router,
 });
 
 export type AppRouter = typeof appRouter;

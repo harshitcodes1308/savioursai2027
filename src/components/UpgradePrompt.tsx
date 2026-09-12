@@ -49,8 +49,8 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
     const user = session?.user;
     const isDemo = user?.isDemo === true;
     const scholarshipDiscount = profile?.scholarshipOffer?.active ? profile.scholarshipOffer.discountPercentage : 0;
-    const proPrice = Math.round(199 * (1 - scholarshipDiscount / 100));
-    const bundlePrice = Math.round(699 * (1 - scholarshipDiscount / 100));
+    const proPrice = Math.round(169 * (1 - scholarshipDiscount / 100));
+    const bundlePrice = Math.round(599 * (1 - scholarshipDiscount / 100));
 
     const handleClose = () => {
         if (onClose) onClose();
@@ -186,17 +186,17 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 14 }}>
                             <div style={{ background: "var(--bg-base)", border: "1px solid var(--bg-border)", borderRadius: 14, padding: "20px" }}>
                                 <div style={{ color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" }}>PRO</div>
-                                <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>{scholarshipDiscount > 0 && <span style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 6 }}>₹199</span>}₹{proPrice}</div>
+                                <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>{scholarshipDiscount > 0 && <span style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 6 }}>₹169</span>}₹{proPrice}</div>
                                 <div style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, margin: "3px 0 16px" }}>one-time · AI study tools</div>
                                 <div style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontSize: 12, lineHeight: 1.7, minHeight: 84 }}>AI Doubt Solver, custom tests, Smart Planner, Focus Mode, ChronoScroll, and more.</div>
-                                <RazorpayButton amount={199} type="PRO" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Pro: ₹${proPrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
+                                <RazorpayButton amount={169} type="PRO" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Pro: ₹${proPrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
                             </div>
                             <div style={{ background: "var(--bg-base)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 14, padding: "20px", boxShadow: "0 0 24px rgba(245,158,11,0.07)" }}>
                                 <div style={{ color: "#F59E0B", fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" }}>ULTIMATE BUNDLE</div>
-                                <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>{scholarshipDiscount > 0 && <span style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 6 }}>₹699</span>}₹{bundlePrice}</div>
+                                <div style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24, marginTop: 8 }}>{scholarshipDiscount > 0 && <span style={{ fontSize: 13, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 6 }}>₹599</span>}₹{bundlePrice}</div>
                                 <div style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, margin: "3px 0 16px" }}>one-time · everything included</div>
                                 <div style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)", fontSize: 12, lineHeight: 1.7, minHeight: 84 }}>Everything in Pro, plus Half Yearly Simulator, e-books, question banks, competency tests, and Guess Papers.</div>
-                                <RazorpayButton amount={699} type="BUNDLE" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Bundle: ₹${bundlePrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
+                                <RazorpayButton amount={599} type="BUNDLE" email={user?.email || ""} name={user?.name || ""} buttonText={`Get Bundle: ₹${bundlePrice} →`} onSuccess={() => { if (onClose) onClose(); router.refresh(); }} />
                             </div>
                         </div>
                     ) : type === "BUNDLE" ? (
@@ -226,12 +226,12 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                     ))}
                                 </div>
                                 <div style={{ paddingTop: 14, borderTop: "1px solid var(--bg-border)", marginTop: 12 }}>
-                                    {scholarshipDiscount > 0 && <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 7 }}>₹699</span>}<span style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--text-primary)" }}>₹{bundlePrice}</span>
+                                    {scholarshipDiscount > 0 && <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 7 }}>₹599</span>}<span style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--text-primary)" }}>₹{bundlePrice}</span>
                                     <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginLeft: 6 }}>one-time</span>
                                 </div>
                             </div>
                             <RazorpayButton
-                                amount={699}
+                                amount={599}
                                 type="BUNDLE"
                                 email={user?.email || ""}
                                 name={user?.name || ""}
@@ -255,12 +255,12 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
                                     </div>
                                 ))}
                                 <div style={{ paddingTop: 14, borderTop: "1px solid var(--bg-border)", marginTop: 8 }}>
-                                    {scholarshipDiscount > 0 && <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 7 }}>₹199</span>}<span style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--text-primary)" }}>₹{proPrice}</span>
+                                    {scholarshipDiscount > 0 && <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", textDecoration: "line-through", marginRight: 7 }}>₹169</span>}<span style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, color: "var(--text-primary)" }}>₹{proPrice}</span>
                                     <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginLeft: 6 }}>one-time</span>
                                 </div>
                             </div>
                             <RazorpayButton
-                                amount={199}
+                                amount={169}
                                 type="PRO"
                                 email={user?.email || ""}
                                 name={user?.name || ""}

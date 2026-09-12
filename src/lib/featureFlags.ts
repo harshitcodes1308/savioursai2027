@@ -24,6 +24,7 @@ export const FEATURE_FLAGS = {
   strategyAI:        false,
   lastNightBefore:   false,
   notesFlashcards:   false,
+  preBoard90:        true,
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;

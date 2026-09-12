@@ -7,8 +7,8 @@ import ElegantShapes from "./ElegantShapes";
 type DemoPlan = "PRO" | "BUNDLE";
 
 const plans: Array<{ plan: DemoPlan; eyebrow: string; title: string; price: string; details: string[]; color: string }> = [
-  { plan: "PRO", eyebrow: "AI Pro tour", title: "Try the AI Pro plan", price: "₹199 plan", color: "var(--accent-gold)", details: ["One guided subject and chapter", "AI tools, focus and test builder", "No card or sign-up required"] },
-  { plan: "BUNDLE", eyebrow: "Ultimate tour", title: "Explore the Ultimate Bundle", price: "₹699 plan", color: "#F59E0B", details: ["E-books, tests and Half Yearly Simulator", "Interactive previews with protected content", "No card or sign-up required"] },
+  { plan: "PRO", eyebrow: "AI Pro tour", title: "Try the AI Pro plan", price: "₹169 plan", color: "var(--accent-gold)", details: ["One guided subject and chapter", "AI tools, focus and test builder", "No card or sign-up required"] },
+  { plan: "BUNDLE", eyebrow: "Ultimate tour", title: "Explore the Ultimate Bundle", price: "₹599 plan", color: "#F59E0B", details: ["E-books, tests and Half Yearly Simulator", "Interactive previews with protected content", "No card or sign-up required"] },
 ];
 
 export default function TractionStats() {

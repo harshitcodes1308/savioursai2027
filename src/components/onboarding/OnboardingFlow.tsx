@@ -257,8 +257,8 @@ export default function OnboardingFlow() {
       }
 
       const description = planKey === 'BUNDLE'
-        ? 'Ultimate Bundle: ₹699 one-time'
-        : 'Pro Access: ₹199 one-time';
+        ? 'Ultimate Bundle: ₹599 one-time'
+        : 'Pro Access: ₹169 one-time';
 
       const options = {
         key,

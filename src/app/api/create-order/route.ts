@@ -6,8 +6,8 @@ import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
 import { discountedPrice, isScholarshipOfferActive } from "@/lib/scholarship";
 
 const BASE_PRICING = {
-    PRO: 19900,           // ₹199 in paise
-    BUNDLE: 69900,        // ₹699 in paise
+    PRO: 16900,           // ₹169 in paise
+    BUNDLE: 59900,        // ₹599 in paise
     LNB_CHEMISTRY: 1900,  // ₹19 in paise
 } as const;
 

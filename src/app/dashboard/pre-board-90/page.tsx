@@ -26,14 +26,10 @@ const SUBJECTS = [
 
 function suggestStartDate(): string {
     const now = new Date();
-    const target = new Date(`${now.getFullYear()}-12-01T00:00:00Z`);
-    const start = new Date(target);
-    start.setUTCDate(start.getUTCDate() - 89);
-    if (start < now) {
-        target.setFullYear(now.getFullYear() + 1);
-        start.setFullYear(now.getFullYear() + 1);
-    }
-    return start.toISOString().slice(0, 10);
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
 }
 
 function PhaseCard({ phase, active, locked }: { phase: number; active?: boolean; locked?: boolean }) {
@@ -366,12 +362,16 @@ export default function PreBoard90Page() {
                 <div style={{ marginBottom: 26 }}>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>
                         Start Date
-                        <span style={{ opacity: 0.5, marginLeft: 8, fontSize: 11 }}>Auto-set so Day 90 ends right before December pre-boards</span>
+                        <span style={{ opacity: 0.5, marginLeft: 8, fontSize: 11 }}>Defaults to today — your 90-day countdown begins immediately</span>
                     </div>
                     <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={{ background: "var(--bg-elevated)", border: "1px solid var(--bg-border)", borderRadius: 8, padding: "10px 14px", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-primary)", outline: "none", colorScheme: "dark" }} />
                     {startDate && (
                         <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", marginTop: 6, opacity: 0.7 }}>
-                            Pre-boards end: {new Date(new Date(startDate).getTime() + 89 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                            Day 90 completion: {(() => {
+                                const d = new Date(startDate + "T00:00:00");
+                                d.setDate(d.getDate() + 89);
+                                return d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+                            })()}
                         </div>
                     )}
                 </div>

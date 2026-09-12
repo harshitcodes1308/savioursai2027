@@ -730,19 +730,33 @@ export const preBoard90Router = createTRPCRouter({
         }),
 
     /**
-     * Abandon the current active plan (soft delete — sets status to ABANDONED).
+     * Abandon the current active or completed plan (soft delete — sets status to ABANDONED).
      */
     abandonPlan: protectedProcedure.mutation(async ({ ctx }) => {
         await ensurePreBoard90Tables(ctx.prisma);
-        const plan = await ctx.prisma.preBoard90Plan.findFirst({
-            where: { studentId: ctx.user.id, status: "ACTIVE" },
-        });
-        if (!plan) throw new TRPCError({ code: "NOT_FOUND" });
-
-        await ctx.prisma.preBoard90Plan.update({
-            where: { id: plan.id },
-            data: { status: "ABANDONED" },
-        });
+        try {
+            await ctx.prisma.preBoard90Plan.updateMany({
+                where: {
+                    studentId: ctx.user.id,
+                    status: { in: ["ACTIVE", "COMPLETED"] },
+                },
+                data: { status: "ABANDONED" },
+            });
+        } catch (e: any) {
+            if (e?.message?.includes("does not exist") || e?.code === "P2021") {
+                tablesReady = false;
+                await ensurePreBoard90Tables(ctx.prisma);
+                await ctx.prisma.preBoard90Plan.updateMany({
+                    where: {
+                        studentId: ctx.user.id,
+                        status: { in: ["ACTIVE", "COMPLETED"] },
+                    },
+                    data: { status: "ABANDONED" },
+                });
+            } else {
+                throw e;
+            }
+        }
 
         return { success: true };
     }),

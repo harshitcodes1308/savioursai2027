@@ -63,10 +63,13 @@ function PhaseCard({ phase, active, locked }: { phase: number; active?: boolean;
 
 export default function PreBoard90Page() {
     const router = useRouter();
+    const utils = trpc.useUtils();
     const [selectedSubjects, setSelectedSubjects] = useState<string[]>(["Physics", "Chemistry", "Mathematics"]);
     const [startDate, setStartDate] = useState(suggestStartDate);
     const [enrollError, setEnrollError] = useState<string | null>(null);
     const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+    const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
+    const [abandonError, setAbandonError] = useState<string | null>(null);
 
     const { data: profile } = trpc.dashboard.getProfile.useQuery();
     const { data: pb90, refetch: refetchPb90, isLoading } = trpc.preBoard90.getPhaseProgress.useQuery();
@@ -83,7 +86,19 @@ export default function PreBoard90Page() {
         },
     });
     const abandonMutation = trpc.preBoard90.abandonPlan.useMutation({
-        onSuccess: () => { refetchPb90(); refetchTask(); },
+        onSuccess: async () => {
+            setShowAbandonConfirm(false);
+            setAbandonError(null);
+            utils.preBoard90.getPhaseProgress.setData(undefined, null);
+            utils.preBoard90.getTodayTask.setData(undefined, null);
+            await utils.preBoard90.invalidate();
+            await refetchPb90();
+            await refetchTask();
+            router.refresh();
+        },
+        onError: (e) => {
+            setAbandonError(e?.message || "Failed to abandon programme. Please try again.");
+        },
     });
 
     const rawPlanType = (profile as any)?.planType ?? "FREE";
@@ -291,10 +306,99 @@ export default function PreBoard90Page() {
                 </div>
 
                 {/* Abandon */}
-                <div style={{ borderTop: "1px solid var(--bg-border)", paddingTop: 20 }}>
-                    <button onClick={() => { if (confirm("Abandon this programme? Progress will be saved but plan closes.")) abandonMutation.mutate(); }} disabled={abandonMutation.isPending} style={{ background: "transparent", border: "1px solid rgba(229,83,75,0.3)", borderRadius: 8, padding: "8px 18px", fontFamily: "var(--font-body)", fontSize: 12, color: "rgba(229,83,75,0.6)", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(229,83,75,0.6)"; e.currentTarget.style.color = "#E5534B"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(229,83,75,0.3)"; e.currentTarget.style.color = "rgba(229,83,75,0.6)"; }}>
-                        {abandonMutation.isPending ? "Abandoning..." : "Abandon Programme"}
-                    </button>
+                <div style={{ borderTop: "1px solid var(--bg-border)", paddingTop: 24, marginTop: 12 }}>
+                    {!showAbandonConfirm ? (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setAbandonError(null);
+                                setShowAbandonConfirm(true);
+                            }}
+                            disabled={abandonMutation.isPending}
+                            style={{
+                                background: "transparent",
+                                border: "1px solid rgba(229,83,75,0.35)",
+                                borderRadius: 8,
+                                padding: "9px 18px",
+                                fontFamily: "var(--font-body)",
+                                fontSize: 12,
+                                color: "rgba(229,83,75,0.7)",
+                                cursor: "pointer",
+                                transition: "all 0.2s",
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.borderColor = "rgba(229,83,75,0.7)";
+                                e.currentTarget.style.color = "#E5534B";
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.borderColor = "rgba(229,83,75,0.35)";
+                                e.currentTarget.style.color = "rgba(229,83,75,0.7)";
+                            }}
+                        >
+                            Abandon Programme
+                        </button>
+                    ) : (
+                        <div style={{
+                            background: "rgba(229, 83, 75, 0.08)",
+                            border: "1px solid rgba(229, 83, 75, 0.28)",
+                            borderRadius: 12,
+                            padding: "18px 20px",
+                            maxWidth: 460,
+                        }}>
+                            <div style={{ fontFamily: "var(--font-display)", fontSize: 15, color: "#E5534B", fontWeight: 600, marginBottom: 6 }}>
+                                Abandon this programme?
+                            </div>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55, marginBottom: 14 }}>
+                                Your current 90-day countdown will end and today's schedule will be closed. You can enroll in a brand new programme anytime.
+                            </div>
+                            {abandonError && (
+                                <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "#E5534B", marginBottom: 12, background: "rgba(229,83,75,0.12)", padding: "6px 10px", borderRadius: 6 }}>
+                                    {abandonError}
+                                </div>
+                            )}
+                            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => abandonMutation.mutate()}
+                                    disabled={abandonMutation.isPending}
+                                    style={{
+                                        background: "#E5534B",
+                                        border: "none",
+                                        borderRadius: 8,
+                                        padding: "8px 16px",
+                                        fontFamily: "var(--font-body)",
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        color: "#ffffff",
+                                        cursor: abandonMutation.isPending ? "not-allowed" : "pointer",
+                                        opacity: abandonMutation.isPending ? 0.7 : 1,
+                                    }}
+                                >
+                                    {abandonMutation.isPending ? "Abandoning..." : "Yes, Abandon Programme"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowAbandonConfirm(false);
+                                        setAbandonError(null);
+                                    }}
+                                    disabled={abandonMutation.isPending}
+                                    style={{
+                                        background: "transparent",
+                                        border: "1px solid var(--bg-border)",
+                                        borderRadius: 8,
+                                        padding: "8px 16px",
+                                        fontFamily: "var(--font-body)",
+                                        fontSize: 12,
+                                        color: "var(--text-muted)",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         );

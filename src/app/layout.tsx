@@ -7,6 +7,9 @@ import { ConsoleWelcome } from "@/components/ConsoleWelcome";
 export const metadata: Metadata = {
   title: "ICSE Saviours – AI Student OS",
   description: "Your AI-powered academic OS for ICSE success",
+  other: {
+    "strix-verification": "strix-verify-1e416a888abad182cb8699fc0b7a9dcd",
+  },
 };
 
 // CRITICAL: Viewport configuration for mobile responsiveness

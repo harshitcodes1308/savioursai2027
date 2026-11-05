@@ -14,6 +14,7 @@ export const FEATURE_FLAGS = {
   halfYearlySimulator: false,
 
   ebooks:            false,
+  scholarship:       false,
   tracker:           false,  // Class 10 board-prep tracker (interactive PDF)
 
   // Hidden — activate later by flipping to true

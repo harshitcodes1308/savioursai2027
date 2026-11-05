@@ -256,7 +256,7 @@ export default function PreBoard90Page() {
                                     You've completed Phase 1. Upgrade to Pro to unlock Phase 2 (Practice Drills) and Phase 3 (Full Mock Papers).
                                 </div>
                                 <div style={{ maxWidth: 260, margin: "0 auto" }}>
-                                    <RazorpayButton amount={169} type="PRO" email={(profile as any)?.email ?? ""} name={(profile as any)?.name ?? ""} buttonText="Unlock Phases 2 & 3 — ₹169 →" onSuccess={() => { refetchPb90(); refetchTask(); }} />
+                                    <RazorpayButton amount={99} type="PRO" email={(profile as any)?.email ?? ""} name={(profile as any)?.name ?? ""} buttonText="Unlock Phases 2 & 3 — ₹99 →" onSuccess={() => { refetchPb90(); refetchTask(); }} />
                                 </div>
                             </div>
                         ) : todayTask?.task ? (
@@ -434,7 +434,7 @@ export default function PreBoard90Page() {
                     <div>
                         <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, color: ACCENT, marginBottom: 3 }}>Free Plan — Phase 1 Preview</div>
                         <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.55 }}>
-                            All 20 Study days free. Upgrade to Pro (₹169) anytime to unlock Phase 2 Practice and Phase 3 Mock Papers.
+                            All 20 Study days free. Upgrade to Pro (₹99 one-time) anytime to unlock Phase 2 Practice and Phase 3 Mock Papers.
                         </div>
                     </div>
                 </div>

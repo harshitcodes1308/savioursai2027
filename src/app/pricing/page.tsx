@@ -6,7 +6,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { trpc } from "@/lib/trpc/client";
 import AnimatedGlassyPricing from "@/components/ui/animated-glassy-pricing";
 
-type PaidPlan = "PRO" | "BUNDLE";
+type PaidPlan = "PRO";
 
 export default function PricingPage() {
   const router = useRouter();
@@ -41,7 +41,7 @@ export default function PricingPage() {
         amount: orderData.order.amount,
         currency: orderData.order.currency,
         name: "Saviours AI",
-        description: plan === "BUNDLE" ? "Ultimate Bundle" : "AI Pro",
+        description: "Pro Access — ₹99 one-time",
         order_id: orderData.order.id,
         prefill: { name: session?.user?.name || "", email: session?.user?.email || "" },
         theme: { color: "#00D4FF" },

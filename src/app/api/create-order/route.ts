@@ -3,11 +3,9 @@ import Razorpay from "razorpay";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
-import { discountedPrice, isScholarshipOfferActive } from "@/lib/scholarship";
 
 const BASE_PRICING = {
-    PRO: 16900,           // ₹169 in paise
-    BUNDLE: 59900,        // ₹599 in paise
+    PRO: 9900,            // ₹99 in paise
     LNB_CHEMISTRY: 1900,  // ₹19 in paise
 } as const;
 
@@ -19,7 +17,7 @@ export async function POST(req: Request) {
         const requested = String(body.type || "PRO");
         const purchaseType: PurchaseType =
             requested === "LNB_CHEMISTRY" ? "LNB_CHEMISTRY" :
-            requested === "BUNDLE" ? "BUNDLE" : "PRO";
+            "PRO";
 
         const user = await getCurrentUser();
         if (!user) {
@@ -35,7 +33,6 @@ export async function POST(req: Request) {
             where: { id: user.id },
             select: {
                 isPaid: true, planType: true, lnbChemistryUnlocked: true, createdAt: true, creatorCode: true,
-                scholarshipDiscountPercentage: true, scholarshipDiscountExpiresAt: true,
             },
         });
 
@@ -50,26 +47,13 @@ export async function POST(req: Request) {
             if (isGrandfathered || alreadyPaid) {
                 return NextResponse.json({ error: "You already have access" }, { status: 409 });
             }
-        } else if (purchaseType === "BUNDLE") {
-            const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
-            const isGrandfathered = dbUser.createdAt < CUTOFF_DATE;
-            const alreadyBundle = dbUser.planType === "BUNDLE" && dbUser.isPaid;
-            if (isGrandfathered || alreadyBundle) {
-                return NextResponse.json({ error: "You already have Ultimate Bundle access" }, { status: 409 });
-            }
         } else if (purchaseType === "LNB_CHEMISTRY") {
             if (dbUser.isPaid || dbUser.lnbChemistryUnlocked) {
                 return NextResponse.json({ error: "You already have access to all Chemistry sets" }, { status: 409 });
             }
         }
 
-        const scholarshipDiscount = purchaseType === "LNB_CHEMISTRY" || !isScholarshipOfferActive(
-            dbUser.scholarshipDiscountPercentage,
-            dbUser.scholarshipDiscountExpiresAt,
-        ) ? 0 : dbUser.scholarshipDiscountPercentage;
-        const amountPaise = scholarshipDiscount
-            ? discountedPrice(BASE_PRICING[purchaseType], scholarshipDiscount)
-            : BASE_PRICING[purchaseType];
+        const amountPaise = BASE_PRICING[purchaseType];
 
         const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
         const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -91,14 +75,13 @@ export async function POST(req: Request) {
                 userEmail: user.email,
                 expectedAmount: amountPaise.toString(),
                 purchaseType,
-                scholarshipDiscount: scholarshipDiscount.toString(),
             },
         });
 
         return NextResponse.json({
             success: true,
             order,
-            discount: scholarshipDiscount || null,
+            discount: null,
         });
     } catch (error) {
         console.error("Razorpay Order Error:", error);

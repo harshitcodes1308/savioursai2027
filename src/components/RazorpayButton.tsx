@@ -34,25 +34,17 @@ declare global {
 
 interface RazorpayButtonProps {
     amount?: number;
-    type?: "PRO" | "BUNDLE" | "LNB_CHEMISTRY";
+    type?: "PRO" | "LNB_CHEMISTRY";
     email: string;
     name: string;
     onSuccess?: () => void;
     buttonText?: string;
 }
 
-export function RazorpayButton({ amount = 169, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
+export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const { data: profile } = trpc.dashboard.getProfile.useQuery();
-    const scholarshipOffer = profile?.scholarshipOffer;
-    const scholarshipDiscount = scholarshipOffer?.active ? scholarshipOffer.discountPercentage : 0;
-    const discountedAmount = scholarshipDiscount && type !== "LNB_CHEMISTRY"
-        ? Math.round(amount * (1 - scholarshipDiscount / 100))
-        : amount;
-    const effectiveButtonText = scholarshipDiscount && type !== "LNB_CHEMISTRY"
-        ? `${type === "BUNDLE" ? "Get Ultimate Bundle" : "Get Pro"}: ₹${discountedAmount} (${scholarshipDiscount}% off) →`
-        : buttonText || "Get Access";
+    const effectiveButtonText = buttonText || "Get Access";
 
     const loadRazorpay = () => {
         return new Promise((resolve) => {
@@ -92,8 +84,7 @@ export function RazorpayButton({ amount = 169, type = "PRO", email, name, onSucc
             }
 
             const descriptions: Record<string, string> = {
-                PRO: "Pro Access: ₹169",
-                BUNDLE: "Ultimate Bundle: ₹599",
+                PRO: "Pro Access: ₹99",
                 LNB_CHEMISTRY: "Unlock Chemistry Sets",
             };
 

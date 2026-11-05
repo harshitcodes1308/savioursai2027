@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
-import { isLockedRoute, isBundleLockedRoute, getFeatureInfo } from "@/lib/tier-config";
+import { isLockedRoute, isComingSoonRoute, getFeatureInfo } from "@/lib/tier-config";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { getDashboardIcon } from "@/lib/dashboardIcons";
@@ -32,6 +32,7 @@ const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
 };
 
 function isVisible(href: string): boolean {
+  if (href === "/dashboard/ebooks") return true;
   const flag = ROUTE_FLAG_MAP[href];
   if (!flag) return true;
   return FEATURE_FLAGS[flag] === true;
@@ -166,8 +167,9 @@ export default function DashboardSidebar({
   const [upgradeFeature, setUpgradeFeature] = useState<{
     name: string;
     description: string;
-    type: "CHOICE" | "BUNDLE";
+    type: "PRO";
   } | null>(null);
+  const [comingSoon, setComingSoon] = useState(false);
 
   const initials = userName
     ? userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -175,26 +177,17 @@ export default function DashboardSidebar({
 
   const planLabel =
     planType === "PRO" ? "Pro Plan" :
-    planType === "BUNDLE" ? "Ultimate Bundle" :
     isPaid ? "Pro Plan" :
     "Free Plan";
 
   const handleNavigation = (href: string) => {
+    if (isComingSoonRoute(href)) { setComingSoon(true); setIsOpen(false); return; }
     if (!isPaid && isLockedRoute(href)) {
       const info = getFeatureInfo(href);
       if (info) {
         // Bundle-only features cannot be unlocked by Pro, so do not offer the
-        // ₹169 plan from their upgrade prompt.
-        setUpgradeFeature({ ...info, type: isBundleLockedRoute(href) ? "BUNDLE" : "CHOICE" });
-        setIsOpen(false);
-        return;
-      }
-    }
-    if (isPaid && planType === "PRO" && isBundleLockedRoute(href)) {
-      const info = getFeatureInfo(href);
-      if (info) {
-        // A Pro student sees only the ₹599 Bundle offer for Bundle features.
-        setUpgradeFeature({ ...info, type: "BUNDLE" });
+        // The single Pro plan is shown in the upgrade prompt.
+        setUpgradeFeature({ ...info, type: "PRO" });
         setIsOpen(false);
         return;
       }
@@ -381,7 +374,7 @@ export default function DashboardSidebar({
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {item.label}
                     </span>
-                    {((!isPaid && isLockedRoute(item.href)) || (isPaid && planType === "PRO" && isBundleLockedRoute(item.href))) && (
+                    {(isComingSoonRoute(item.href) || (!isPaid && isLockedRoute(item.href))) && (
                       <span style={{ fontSize: 10, opacity: 0.35, flexShrink: 0 }}>⌁</span>
                     )}
                   </button>
@@ -472,6 +465,7 @@ export default function DashboardSidebar({
   return (
     <>
       {/* ── DESKTOP SIDEBAR ── */}
+      {comingSoon && <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(10,10,15,.72)", display: "grid", placeItems: "center", padding: 20 }} onClick={() => setComingSoon(false)}><div onClick={event => event.stopPropagation()} style={{ width: "min(360px, 100%)", padding: 28, borderRadius: 16, border: "1px solid var(--accent-gold-border)", background: "var(--bg-surface)", textAlign: "center" }}><AppIcon name="lock" size={28} color="var(--accent-gold)" /><h2 style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: "12px 0 8px" }}>E-Books coming soon</h2><p style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 13, lineHeight: 1.6, margin: 0 }}>The library is being prepared and is not included in any plan yet.</p></div></div>}
       <div
         className="desktop-only"
         style={{

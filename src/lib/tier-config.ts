@@ -1,8 +1,7 @@
 /**
  * Tier Configuration
  *
- * PRO_LOCKED: unlocked by Pro (₹169) or Bundle (₹599)
- * BUNDLE_LOCKED: unlocked by Bundle (₹599) only
+ * All paid learning features are unlocked by the single Pro plan (₹99).
  */
 
 /** Routes that require at least Pro plan */
@@ -18,9 +17,13 @@ export const PRO_LOCKED_ROUTES = [
     "/dashboard/focus",
 ] as const;
 
-/** Routes that require the Ultimate Bundle plan */
-export const BUNDLE_LOCKED_ROUTES = [
+/** E-books are intentionally not available yet. */
+export const COMING_SOON_ROUTES = [
     "/dashboard/ebooks",
+] as const;
+
+/** Additional routes unlocked by Pro */
+export const BUNDLE_LOCKED_ROUTES = [
     "/dashboard/precision-practice",
     "/dashboard/guess-papers",
     "/dashboard/half-yearly",
@@ -64,7 +67,7 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     },
     "/dashboard/precision-practice": {
         name: "Competency Test",
-        description: "Timed PYQ-based competency testing with detailed accuracy, time-efficiency, and performance analytics for every chapter. Requires the Ultimate Bundle.",
+        description: "Timed PYQ-based competency testing with detailed accuracy, time-efficiency, and performance analytics for every chapter.",
     },
     "/dashboard/strategy": {
         name: "Exam Strategy Builder",
@@ -88,15 +91,15 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     },
     "/dashboard/ebooks": {
         name: "E-Books Library",
-        description: "Access premium ICSE Class 10 e-books from Clarify Knowledge — all subjects with textbooks and question banks. Requires the Ultimate Bundle.",
+        description: "The E-Books Library is coming soon.",
     },
     "/dashboard/guess-papers": {
         name: "Guess Papers",
-        description: "AI-predicted guess papers for all subjects based on PYQ analysis and chapter weightage. Requires the Ultimate Bundle.",
+        description: "AI-predicted guess papers for all subjects based on PYQ analysis and chapter weightage.",
     },
     "/dashboard/half-yearly": {
         name: "Half Yearly Simulator",
-        description: "A guided half-syllabus programme with video lessons, e-books and chapter-wise competency tests. Requires the Ultimate Bundle.",
+        description: "A guided half-syllabus programme with video lessons and chapter-wise competency tests.",
     },
     "/dashboard/last-night-before": {
         name: "Last Night Before",
@@ -120,7 +123,11 @@ export function isProLockedRoute(pathname: string): boolean {
 
 /** Check if a pathname requires the Bundle plan specifically */
 export function isBundleLockedRoute(pathname: string): boolean {
-    return BUNDLE_LOCKED_ROUTES.some(route => pathname.startsWith(route));
+    return false;
+}
+
+export function isComingSoonRoute(pathname: string): boolean {
+    return COMING_SOON_ROUTES.some(route => pathname.startsWith(route));
 }
 
 /** Get feature info for a locked route */

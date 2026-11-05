@@ -57,7 +57,7 @@ function calcMMStats(checked: Record<string, boolean>) {
 const PLAN_LABELS: Record<string, string> = {
     FREE: "Free",
     PRO: "Pro",
-    BUNDLE: "Ultimate Bundle",
+    BUNDLE: "Pro Plan",
 };
 
 function getGreeting(): string {
@@ -337,7 +337,7 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {!profileIsPaid && (
+                {!profileIsPaid && FEATURE_FLAGS.scholarship && (
                     <button
                         onClick={() => router.push("/dashboard/scholarship")}
                         style={{
@@ -356,7 +356,7 @@ export default function DashboardPage() {
                                     {scholarshipOffer?.active ? `Your ${scholarshipOffer.discountPercentage}% scholarship is live` : "Scholarship Test: earn up to 50% off"}
                                 </span>
                                 <span style={{ display: "block", color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, marginTop: 4 }}>
-                                    {scholarshipOffer?.active ? "Your discounted Pro and Ultimate Bundle prices are ready." : scholarshipOffer?.completedAt ? "Your scholarship attempt has already been used." : "10 timed ICSE competency questions. One attempt. A personal paid-plan discount."}
+                                    {scholarshipOffer?.active ? "Your discounted Pro price is ready." : scholarshipOffer?.completedAt ? "Your scholarship attempt has already been used." : "10 timed ICSE competency questions. One attempt. A personal Pro discount."}
                                 </span>
                             </span>
                         </span>

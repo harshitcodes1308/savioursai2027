@@ -1,21 +1,21 @@
-export type Plan = 'free' | 'pro' | 'bundle';
+export type Plan = 'free' | 'pro';
 
 export const PLAN_FEATURES: Record<string, Plan[]> = {
-  aiDoubtSolver:       ['pro', 'bundle'],
-  smartPlanner:        ['free', 'pro', 'bundle'],
-  competencyTest:      ['bundle'],
-  customiseTest:       ['pro', 'bundle'],
-  flipTheQuestion:     ['pro', 'bundle'],
-  focusMode:           ['pro', 'bundle'],
-  todoList:            ['free', 'pro', 'bundle'],
-  chronoScroll:        ['pro', 'bundle'],
-  numericalMastery:    ['pro', 'bundle'],
-  dateBattleArena:     ['pro', 'bundle'],
-  ebooks:              ['bundle'],
-  guessPapers:         ['bundle'],
-  halfYearlySimulator: ['bundle'],
-  preBoard90Phase1:    ['free', 'pro', 'bundle'], // Phase 1 preview for all
-  preBoard90Full:      ['pro', 'bundle'],          // Phases 2+3 require PRO
+  aiDoubtSolver:       ['pro'],
+  smartPlanner:        ['free', 'pro'],
+  competencyTest:      ['pro'],
+  customiseTest:       ['pro'],
+  flipTheQuestion:     ['pro'],
+  focusMode:           ['pro'],
+  todoList:            ['free', 'pro'],
+  chronoScroll:        ['pro'],
+  numericalMastery:    ['pro'],
+  dateBattleArena:     ['pro'],
+  ebooks:              [],
+  guessPapers:         ['pro'],
+  halfYearlySimulator: ['pro'],
+  preBoard90Phase1:    ['free', 'pro'],
+  preBoard90Full:      ['pro'],
 };
 
 export const AI_DOUBT_FREE_LIMIT = 3; // queries per day for free users
@@ -28,7 +28,6 @@ export function canAccess(feature: string, plan: Plan): boolean {
 
 export function getUserPlan(isPaid: boolean, planType?: string): Plan {
   if (planType === 'PRO') return 'pro';
-  if (planType === 'BUNDLE') return 'bundle';
-  if (isPaid) return 'bundle'; // grandfathered users get full access
+  if (isPaid || planType === 'BUNDLE') return 'pro';
   return 'free';
 }

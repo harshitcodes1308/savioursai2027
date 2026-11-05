@@ -23,19 +23,12 @@ const PLANS: Plan[] = [
     features: ["Dashboard", "Smart Planner", "Monthly Mission", "Video Lectures", "Study Flow", "Subjects", "Webinar"],
   },
   {
-    name: "Ultimate Bundle",
-    price: "₹599",
+    name: "Pro",
+    price: "₹99",
     period: "one-time",
     popular: true,
     href: "/signup",
-    features: ["Everything in Pro", "E-Books — All Subjects", "Competency Test (PYQ)", "Guess Papers", "Question Banks", "Priority future features"],
-  },
-  {
-    name: "Pro",
-    price: "₹169",
-    period: "one-time",
-    href: "/signup",
-    features: ["Everything in Free", "AI Doubt Solver", "Customise Test", "Flip the Question", "Focus Mode", "Numerical Mastery", "ChronoScroll", "Date Battle Arena", "Exam Strategy Builder", "Smart Notes"],
+    features: ["Everything in Free", "AI Doubt Solver", "Customise Test", "Guess Papers", "Competency Practice", "Half Yearly Simulator", "Focus Mode", "Numerical Mastery", "ChronoScroll", "Date Battle Arena", "Exam Strategy Builder", "Smart Notes"],
   },
 ];
 
@@ -51,7 +44,7 @@ function PriceCard({
   fan: boolean;
 }) {
   const isLeft = index === 0;
-  const isRight = index === 2;
+  const isRight = index === 1;
   const isCenter = index === 1;
 
   // Scroll-linked 3D fan: flat row at progress 0 → fanned at progress 1.

@@ -406,27 +406,9 @@ const savioursPlans: PricingCardProps[] = [
     isPopular: false,
   },
   {
-    planName: 'Ultimate Bundle',
-    description: 'Everything in one focused ICSE workspace.',
-    price: '599',
-    priceSymbol: '₹',
-    billingLabel: 'one-time',
-    features: [
-      'Everything in Pro',
-      'E-Books for all subjects',
-      'Competency Test (PYQ)',
-      'Guess Papers',
-      'Question Banks',
-      'Priority future features',
-    ],
-    buttonText: 'Get Ultimate Bundle',
-    buttonVariant: 'primary',
-    isPopular: true,
-  },
-  {
     planName: 'Pro',
-    description: 'All AI-powered features till boards.',
-    price: '169',
+    description: 'All premium study tools, in one plan.',
+    price: '99',
     priceSymbol: '₹',
     billingLabel: 'one-time',
     features: [
@@ -438,16 +420,18 @@ const savioursPlans: PricingCardProps[] = [
       'ChronoScroll',
       'Numerical Mastery',
       'Date Battle Arena',
+      'Guess Papers and competency practice',
+      'Half Yearly Simulator',
     ],
     buttonText: 'Choose Pro',
     buttonVariant: 'primary',
-    isPopular: false,
+    isPopular: true,
   },
 ];
 
 interface AnimatedGlassyPricingProps {
   isMobile: boolean;
-  onSelectPlan: (plan: 'FREE' | 'PRO' | 'BUNDLE') => void;
+  onSelectPlan: (plan: 'FREE' | 'PRO') => void;
   userName?: string;
   scholarshipDiscount?: { discountPercentage: number; expiresAt?: string | Date | null } | null;
   // Optional: pass creator discount directly to avoid a database round trip in onboarding.
@@ -466,23 +450,14 @@ export default function AnimatedGlassyPricing({
     enabled: creatorDiscount === undefined,
   });
 
-  const activeScholarship = scholarshipDiscount === undefined
-    ? (profile?.scholarshipOffer?.active ? profile.scholarshipOffer : null)
-    : scholarshipDiscount;
-  const scholarshipPct = activeScholarship?.discountPercentage ?? 0;
+  const scholarshipPct = 0;
   const activeCreatorDiscount = creatorDiscount !== undefined ? creatorDiscount : dbDiscount;
   const creatorPct = activeCreatorDiscount?.discountPercentage ?? 0;
-  const proDiscountPct = scholarshipPct;
-  const bundleDiscountPct = Math.max(scholarshipPct, creatorPct);
-  const proDiscounted = proDiscountPct > 0 ? String(Math.round(169 * (1 - proDiscountPct / 100))) : undefined;
-  const bundleDiscounted = bundleDiscountPct > 0 ? String(Math.round(599 * (1 - bundleDiscountPct / 100))) : undefined;
+  const proDiscountPct = Math.max(scholarshipPct, creatorPct);
+  const proDiscounted = proDiscountPct > 0 ? String(Math.round(99 * (1 - proDiscountPct / 100))) : undefined;
   const scholarshipLabel = scholarshipPct > 0 ? `Scholarship award: ${scholarshipPct}% off` : undefined;
-  const bundleDiscountLabel = scholarshipPct > 0
-    ? scholarshipLabel
-    : creatorPct > 0 ? `Creator reward: ${creatorPct}% off` : undefined;
-  const scholarshipExpiry = activeScholarship?.expiresAt
-    ? new Date(activeScholarship.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
-    : null;
+  const proDiscountLabel = scholarshipPct > 0 ? scholarshipLabel : creatorPct > 0 ? `Creator reward: ${creatorPct}% off` : undefined;
+  const scholarshipExpiry = null;
 
   return (
     <div
@@ -535,7 +510,7 @@ export default function AnimatedGlassyPricing({
             marginBottom: scholarshipExpiry ? '8px' : isMobile ? '32px' : '48px',
           }}
         >
-          {scholarshipPct > 0 ? `Your ${scholarshipPct}% scholarship is applied to every paid plan.` : 'Your boards are in 10 months. Every day counts.'}
+          {scholarshipPct > 0 ? `Your ${scholarshipPct}% scholarship is applied to Pro.` : 'Your boards are in 10 months. Every day counts.'}
         </p>
         {scholarshipExpiry && (
           <p
@@ -555,7 +530,7 @@ export default function AnimatedGlassyPricing({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 340px))', justifyContent: 'center',
             gap: isMobile ? '16px' : '20px',
             marginBottom: '32px',
           }}
@@ -570,13 +545,12 @@ export default function AnimatedGlassyPricing({
               <PricingCard
                 {...plan}
                 discountedPrice={
-                  plan.planName === 'Ultimate Bundle' ? bundleDiscounted : plan.planName === 'Pro' ? proDiscounted : undefined
+                  plan.planName === 'Pro' ? proDiscounted : undefined
                 }
-                discountPct={plan.planName === 'Ultimate Bundle' ? bundleDiscountPct || undefined : plan.planName === 'Pro' ? proDiscountPct || undefined : undefined}
-                discountLabel={plan.planName === 'Ultimate Bundle' ? bundleDiscountLabel : plan.planName === 'Pro' ? scholarshipLabel : undefined}
+                discountPct={plan.planName === 'Pro' ? proDiscountPct || undefined : undefined}
+                discountLabel={plan.planName === 'Pro' ? proDiscountLabel : undefined}
                 onClick={() => {
-                  const key = plan.planName === 'Ultimate Bundle' ? 'BUNDLE' : plan.planName === 'Pro' ? 'PRO' : 'FREE';
-                  onSelectPlan(key as 'FREE' | 'PRO' | 'BUNDLE');
+                  onSelectPlan(plan.planName === 'Pro' ? 'PRO' : 'FREE');
                 }}
               />
             </div>

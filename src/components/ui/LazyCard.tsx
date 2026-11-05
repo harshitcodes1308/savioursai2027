@@ -26,7 +26,7 @@ export function LazyCard({ children, className = '', fallbackHeight = '200px' }:
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
-                    console.log('💫 LazyCard: Rendering card in viewport');
+                    console.log('LazyCard: Rendering card in viewport');
                     setIsVisible(true);
                     observer.disconnect(); // Stop observing once loaded
                 }

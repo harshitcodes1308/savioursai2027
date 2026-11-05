@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import { HALF_YEARLY_DATA, HALF_YEARLY_SUBJECT_KEYS, type HalfYearlySubjectKey } from "@/data/halfYearlyData";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 const PROGRESS_KEY = "half-yearly-progress";
 type Progress = Record<string, { step: number; completed: boolean }>;
@@ -50,7 +51,7 @@ export default function HalfYearlySubjectsPage() {
             const subject = HALF_YEARLY_DATA[key];
             const done = completion(key);
             return <button key={key} onClick={() => router.push(`/dashboard/half-yearly/${key}`)} style={{ minWidth: 0, textAlign: "left", cursor: "pointer", borderRadius: 16, padding: isCompact ? 15 : 20, minHeight: isCompact ? 164 : 185, background: "var(--bg-surface)", border: "1px solid var(--bg-border)", color: "inherit", transition: "transform .2s ease, border-color .2s ease", animation: `hy-in .35s ease-out ${index * 45}ms both` }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.borderColor = `${subject.color}70`; }} onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.borderColor = "var(--bg-border)"; }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><span style={{ fontSize: isCompact ? 28 : 34 }}>{subject.icon}</span><span style={{ color: subject.color, fontFamily: "var(--font-body)", fontSize: 11 }}>{done.percent}%</span></div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><AppIcon name="book" size={isCompact ? 26 : 30} color={subject.color} /><span style={{ color: subject.color, fontFamily: "var(--font-body)", fontSize: 11 }}>{done.percent}%</span></div>
               <div style={{ marginTop: 20, color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: isCompact ? 14 : 17, lineHeight: 1.15, overflowWrap: "anywhere" }}>{subject.label}</div>
               <div style={{ marginTop: 7, color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 11 }}>{done.complete}/{done.total} chapters complete</div>
               <div style={{ height: 4, marginTop: 14, background: "var(--bg-elevated)", borderRadius: 10, overflow: "hidden" }}><div style={{ width: `${done.percent}%`, height: "100%", background: subject.color, borderRadius: 10, transition: "width .3s" }} /></div>

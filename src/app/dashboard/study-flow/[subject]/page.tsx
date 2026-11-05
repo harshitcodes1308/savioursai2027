@@ -6,6 +6,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { STUDY_FLOW_DATA, SUBJECT_META } from "@/data/studyFlowData";
 import type { SubjectKey } from "@/data/studyFlowData";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 const PROGRESS_KEY = "study-flow-progress";
 
@@ -99,7 +100,7 @@ export default function StudyFlowChaptersPage() {
             <div style={{
               fontSize: isMobile ? 32 : 40, lineHeight: 1,
               filter: "drop-shadow(0 0 12px " + meta.color + "30)",
-            }}>{meta.icon}</div>
+            }}><AppIcon name="book" size={isMobile ? 28 : 34} color={meta.color} /></div>
             <div>
               <h1 style={{
                 fontFamily: "var(--font-display)", fontSize: isMobile ? 24 : 34,
@@ -123,7 +124,7 @@ export default function StudyFlowChaptersPage() {
             const demoLocked = isDemo && i > 0;
 
             const statusColor = isCompleted ? "var(--accent-gold)" : isInProgress ? meta.color : "var(--text-disabled)";
-            const statusLabel = demoLocked ? "🔒 Demo limit · create an account" : isCompleted ? "Completed" : isInProgress ? `Step ${p.step} of 3` : "Not started";
+            const statusLabel = demoLocked ? "Demo limit · create an account" : isCompleted ? "Completed" : isInProgress ? `Step ${p.step} of 3` : "Not started";
             const statusIcon = isCompleted ? "✓" : isInProgress ? "◐" : "○";
 
             return (
@@ -172,7 +173,7 @@ export default function StudyFlowChaptersPage() {
                     fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)",
                     marginTop: 3, display: "flex", alignItems: "center", gap: 6,
                   }}>
-                    <span style={{ color: statusColor, fontWeight: 600 }}>{statusIcon}</span>
+                    <span style={{ color: statusColor, fontWeight: 600, display: "inline-flex" }}>{demoLocked ? <AppIcon name="lock" size={12} /> : statusIcon}</span>
                     {statusLabel}
                     {isInProgress && (
                       <span style={{
@@ -200,7 +201,7 @@ export default function StudyFlowChaptersPage() {
             textAlign: "center", padding: "60px 20px",
             animation: "sfFadeIn 0.4s ease-out both",
           }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.4 }}>📚</div>
+            <div style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 16px", display: "grid", placeItems: "center", opacity: .6, color: "var(--accent-gold)", background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)" }}><AppIcon name="book" size={25} /></div>
             <div style={{
               fontFamily: "var(--font-display)", fontSize: 18, color: "var(--text-primary)",
               marginBottom: 8,

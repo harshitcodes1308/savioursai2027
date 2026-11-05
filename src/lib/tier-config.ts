@@ -103,8 +103,8 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
         description: "Panic-mode revision: 30 numericals, 20 formulas, 10 definitions — randomly assigned for focused last-minute cramming.",
     },
     "/dashboard/pre-board-90": {
-        name: "Pre-Board 90",
-        description: "Your 90-day structured countdown to December pre-boards — 30 days Study, 30 days Practice, 30 days full Mock Papers with GPT-4o-mini evaluation. Phase 1 is free. Phases 2 and 3 require Pro.",
+        name: "Pre-Board 60",
+        description: "Your 60-day structured countdown to December pre-boards — 20 days Study, 20 days Practice, and 20 days of full Mock Papers with GPT-4o-mini evaluation. Phase 1 is free. Phases 2 and 3 require Pro.",
     },
 };
 

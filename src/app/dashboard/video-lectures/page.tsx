@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
 import { VIDEO_LECTURES, ALL_SUBJECT_MARATHON, CATEGORY_META } from "@/data/video-lectures";
 import type { VideoCategory, VideoChapter } from "@/data/video-lectures";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 const CATEGORIES: VideoCategory[] = ['oneshot', 'marathon', 'competency'];
 
@@ -92,7 +93,7 @@ export default function VideoLecturesPage() {
                 cursor: "pointer", transition: "all 0.2s ease",
               }}
             >
-              🔥 All-Subject Marathon
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name="play-circle" size={14} /> All-subject marathon</span>
             </button>
             <div style={{
               fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700,
@@ -131,7 +132,7 @@ export default function VideoLecturesPage() {
                     position: "relative", zIndex: active ? 1 : 0,
                   }}
                 >
-                  <span style={{ fontSize: 14 }}>{sub.icon}</span>
+                  <AppIcon name="book" size={14} />
                   {!isMobile && (
                     <span style={{ whiteSpace: "nowrap" }}>
                       {sub.subject.length > 14 ? sub.subject.split(" ")[0] : sub.subject}
@@ -154,7 +155,7 @@ export default function VideoLecturesPage() {
           <Sidebar
             isMobile={isMobile}
             color="#F59E0B"
-            icon="🔥"
+            icon="play-circle"
             title="All-Subject Marathon"
             subtitle={`${ALL_SUBJECT_MARATHON.length} sessions`}
             videos={ALL_SUBJECT_MARATHON}
@@ -164,7 +165,7 @@ export default function VideoLecturesPage() {
           <PlayerPanel
             isMobile={isMobile}
             color="#F59E0B"
-            icon="🔥"
+            icon="play-circle"
             subjectName="All Subjects"
             video={asmVideo}
             embedSrc={embedSrc(asmVideo)}
@@ -216,7 +217,7 @@ export default function VideoLecturesPage() {
                     }} />
                   )}
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: isMobile ? 16 : 20 }}>{meta.icon}</span>
+                    <AppIcon name="play-circle" size={isMobile ? 16 : 20} color={subject.color} />
                     <span style={{
                       fontFamily: "var(--font-display)", fontSize: isMobile ? 12 : 14,
                       fontWeight: 700, color: active ? subject.color : "var(--text-primary)",
@@ -313,7 +314,7 @@ function Sidebar({ isMobile, color, icon, title, subtitle, videos, activeIdx, on
           background: `${color}14`, border: `1px solid ${color}28`,
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 15, flexShrink: 0,
-        }}>{icon}</div>
+        }}><AppIcon name="play-circle" size={16} color={color} /></div>
         <div>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 12,
@@ -358,7 +359,7 @@ function Sidebar({ isMobile, color, icon, title, subtitle, videos, activeIdx, on
                     position: "absolute", inset: 0, background: `${color}55`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <span style={{ fontSize: 12, color: "#fff" }}>▶</span>
+                    <AppIcon name="play" size={13} color="#fff" />
                   </div>
                 )}
               </div>
@@ -436,7 +437,7 @@ function PlayerPanel({ isMobile, color, icon, subjectName, video, embedSrc, vide
               letterSpacing: "0.12em", textTransform: "uppercase",
               color, marginBottom: 5, opacity: 0.8,
             }}>
-              {icon} {subjectName}{categoryLabel ? ` · ${categoryLabel}` : ''}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name="play-circle" size={14} color={color} /> {subjectName}{categoryLabel ? ` · ${categoryLabel}` : ''}</span>
             </div>
             <div style={{
               fontFamily: "var(--font-display)", fontSize: isMobile ? 16 : 20,
@@ -520,7 +521,7 @@ function ComingSoonState({ subject, category, isMobile }: {
         background: `${subject.color}12`, border: `1px solid ${subject.color}30`,
         display: "flex", alignItems: "center", justifyContent: "center",
         fontSize: 38, marginBottom: 22,
-      }}>{meta.icon}</div>
+      }}><AppIcon name="play-circle" size={34} color={subject.color} /></div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: isMobile ? 22 : 28,
         color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 8,

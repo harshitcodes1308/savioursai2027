@@ -8,6 +8,7 @@ import {
   getMonthTaskCounts,
   getSubjectMeta,
 } from '@/data/monthly-mission';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 // ── localStorage ─────────────────────────────────────────────────────────────
 
@@ -239,7 +240,7 @@ export default function MonthlyMissionPage() {
                           {mounted ? `${wkDone}/${wkTotal}` : '—'}
                         </span>
                       </div>
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)', transform: isCollapsed ? 'none' : 'rotate(90deg)', transition: 'transform 0.2s ease' }}>▶</span>
+                      <span style={{ color: 'var(--text-muted)', transform: isCollapsed ? 'none' : 'rotate(90deg)', transition: 'transform 0.2s ease', display: 'inline-flex' }}><AppIcon name="chevron-right" size={13} /></span>
                     </div>
                   </button>
 
@@ -283,7 +284,7 @@ export default function MonthlyMissionPage() {
                                     transition: 'color 0.15s ease',
                                     textDecoration: isDone ? 'line-through' : 'none',
                                   }}>
-                                    <span style={{ fontSize: 11 }}>{meta.icon}</span>
+                                    <AppIcon name="book" size={11} color={meta.color} />
                                     {meta.short}
                                   </span>
                                 )}

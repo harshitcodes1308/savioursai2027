@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useDemoLimit } from "@/hooks/useDemoMode";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 // Dynamically import CodeMirror (client-only, no SSR)
 const CodeMirrorEditor = dynamic(
@@ -173,7 +174,7 @@ function ScoreCard({
   color,
   glow,
 }: {
-  icon: string;
+  icon: AppIconName;
   label: string;
   score: number;
   maxScore: number;
@@ -210,7 +211,7 @@ function ScoreCard({
       />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: "13px", color: C.textMid, fontWeight: 600 }}>
-          {icon} {label}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><AppIcon name={icon} size={15} color={color} /> {label}</span>
         </span>
         <span style={{ fontSize: "18px", fontWeight: 800, color }}>
           {score}/{maxScore}
@@ -528,10 +529,10 @@ export default function FlipTheQuestionPage() {
 
   // Verdict text
   const getVerdict = (score: number) => {
-    if (score >= 90) return { text: "Board exam ready. Examiner would give full marks.", emoji: "🔥", color: C.green };
-    if (score >= 75) return { text: "Strong attempt. Minor fixes needed.", emoji: "👍", color: C.blue };
-    if (score >= 50) return { text: "Core logic works but structure needs improvement.", emoji: "😬", color: C.yellow };
-    return { text: "Study the reference solution and retry.", emoji: "📚", color: C.red };
+    if (score >= 90) return { text: "Board exam ready. Examiner would give full marks.", icon: "trophy" as AppIconName, color: C.green };
+    if (score >= 75) return { text: "Strong attempt. Minor fixes needed.", icon: "award" as AppIconName, color: C.blue };
+    if (score >= 50) return { text: "Core logic works but structure needs improvement.", icon: "alert" as AppIconName, color: C.yellow };
+    return { text: "Study the reference solution and retry.", icon: "book" as AppIconName, color: C.red };
   };
 
   return (
@@ -553,14 +554,12 @@ export default function FlipTheQuestionPage() {
               style={{
                 fontSize: "26px",
                 fontWeight: 800,
-                background: "linear-gradient(135deg, #00D4FF, #ec4899)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: C.text,
                 margin: 0,
                 letterSpacing: "-0.5px",
               }}
             >
-              🔁 Flip the Question
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}><AppIcon name="refresh" size={24} color={C.accent} /> Flip the Question</span>
             </h1>
             <p style={{ color: C.textDim, margin: "4px 0 0", fontSize: "13px" }}>
               Reverse-engineer Java programs from output snippets
@@ -568,8 +567,8 @@ export default function FlipTheQuestionPage() {
           </div>
           <div style={{ display: "flex", gap: "12px" }}>
             {[
-              { val: streak, icon: "🔥", label: "Streak", color: C.accent },
-              { val: bestStreak, icon: "⭐", label: "Best", color: C.yellow },
+              { val: streak, icon: "zap" as AppIconName, label: "Streak", color: C.accent },
+              { val: bestStreak, icon: "star" as AppIconName, label: "Best", color: C.yellow },
             ].map((s) => (
               <div
                 key={s.label}
@@ -583,7 +582,7 @@ export default function FlipTheQuestionPage() {
                 }}
               >
                 <div style={{ fontSize: "22px", fontWeight: 800, color: s.color }}>
-                  {s.icon} {s.val}
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name={s.icon} size={18} /> {s.val}</span>
                 </div>
                 <div
                   style={{
@@ -628,7 +627,7 @@ export default function FlipTheQuestionPage() {
                 pointerEvents: "none",
               }}
             />
-            <div style={{ fontSize: "64px", marginBottom: "16px", position: "relative" }}>🧩</div>
+            <div style={{ width: 64, height: 64, margin: "0 auto 18px", borderRadius: 16, display: "grid", placeItems: "center", position: "relative", color: C.accent, background: C.accentGlow, border: `1px solid ${C.cardBorder}` }}><AppIcon name="code" size={30} /></div>
             <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "12px", position: "relative" }}>
               Ready to Flip?
             </h2>
@@ -642,9 +641,9 @@ export default function FlipTheQuestionPage() {
                 position: "relative",
               }}
             >
-              We show you the <strong style={{ color: "#c4b5fd" }}>output</strong> of a Java program.
+              We show you the <strong style={{ color: C.text }}>output</strong> of a Java program.
               Your job? Write the complete class that produces it. AI evaluates your code on{" "}
-              <strong style={{ color: "#c4b5fd" }}>5 axes</strong> — output match, class structure,
+              <strong style={{ color: C.text }}>5 axes</strong> — output match, class structure,
               logic, code quality, and creativity.
             </p>
 
@@ -690,21 +689,21 @@ export default function FlipTheQuestionPage() {
               onClick={handleNewChallenge}
               disabled={generateMutation.isPending}
               style={{
-                background: `linear-gradient(135deg, ${C.accent}, ${C.pink})`,
-                color: "#fff",
-                border: "none",
-                borderRadius: "14px",
+                background: C.accentGlow,
+                color: C.accent,
+                border: `1px solid ${C.accent}`,
+                borderRadius: "10px",
                 padding: "16px 52px",
                 fontSize: "17px",
                 fontWeight: 700,
                 cursor: "pointer",
-                boxShadow: `0 0 40px ${C.accentGlow}`,
+                boxShadow: "none",
                 transition: "transform 0.2s, box-shadow 0.2s",
                 opacity: generateMutation.isPending ? 0.7 : 1,
                 position: "relative",
               }}
             >
-              {generateMutation.isPending ? "⏳ Generating..." : "⚡ Start Challenge"}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><AppIcon name={generateMutation.isPending ? "hourglass" : "zap"} size={17} /> {generateMutation.isPending ? "Generating..." : "Start challenge"}</span>
             </button>
           </div>
         )}
@@ -741,7 +740,7 @@ export default function FlipTheQuestionPage() {
                   borderBottom: `1px solid ${C.cardBorder}`,
                 }}
               >
-                <span style={{ fontSize: "18px" }}>📋</span>
+                <AppIcon name="file-check" size={18} color={C.accent} />
                 <span style={{ fontSize: "14px", fontWeight: 700, color: C.accent }}>
                   CHALLENGE
                 </span>
@@ -756,7 +755,7 @@ export default function FlipTheQuestionPage() {
                       animation: "flip-spin 1.5s linear infinite",
                     }}
                   >
-                    ⚙️
+                    <AppIcon name="settings" size={42} color={C.accent} />
                   </div>
                   <p style={{ color: C.textDim, fontSize: "14px" }}>
                     Crafting your challenge...
@@ -802,7 +801,7 @@ export default function FlipTheQuestionPage() {
                       transition: "all 0.2s",
                     }}
                   >
-                    💡 Hint {hintsUsed}/3 {hintsUsed < 3 ? "(-5 pts)" : ""}
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><AppIcon name="lightbulb" size={15} /> Hint {hintsUsed}/3 {hintsUsed < 3 ? "(-5 pts)" : ""}</span>
                   </button>
                   <button
                     onClick={handleGiveUp}
@@ -819,7 +818,7 @@ export default function FlipTheQuestionPage() {
                       transition: "all 0.2s",
                     }}
                   >
-                    🏳️ Give Up
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><AppIcon name="flag" size={15} /> Give up</span>
                   </button>
                 </div>
               )}
@@ -848,7 +847,7 @@ export default function FlipTheQuestionPage() {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "18px" }}>✏️</span>
+                  <AppIcon name="pen" size={18} color={C.green} />
                   <span style={{ fontSize: "14px", fontWeight: 700, color: C.green }}>
                     YOUR SOLUTION
                   </span>
@@ -877,21 +876,21 @@ export default function FlipTheQuestionPage() {
                 disabled={evaluateMutation.isPending || !code.trim()}
                 style={{
                   marginTop: "16px",
-                  background: `linear-gradient(135deg, ${C.green}, #059669)`,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "12px",
+                  background: C.greenGlow,
+                  color: C.green,
+                  border: `1px solid rgba(16,185,129,.35)`,
+                  borderRadius: "10px",
                   padding: "14px 32px",
                   fontSize: "15px",
                   fontWeight: 700,
                   cursor: "pointer",
-                  boxShadow: `0 0 25px ${C.greenGlow}`,
+                  boxShadow: "none",
                   width: "100%",
                   transition: "all 0.2s",
                   opacity: evaluateMutation.isPending ? 0.7 : 1,
                 }}
               >
-                {evaluateMutation.isPending ? "⏳ Evaluating..." : "🚀 Submit Solution"}
+                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}><AppIcon name={evaluateMutation.isPending ? "hourglass" : "arrow-right"} size={16} /> {evaluateMutation.isPending ? "Evaluating..." : "Submit solution"}</span>
               </button>
             </div>
           </div>
@@ -932,7 +931,7 @@ export default function FlipTheQuestionPage() {
                 position: "relative",
               }}
             >
-              🧠
+              <AppIcon name="brain" size={52} color={C.accent} />
             </div>
             <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "8px", position: "relative" }}>
               AI is evaluating your code...
@@ -998,7 +997,7 @@ export default function FlipTheQuestionPage() {
                     position: "relative",
                   }}
                 >
-                  {getVerdict(lastScore).emoji} {getVerdict(lastScore).text}
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><AppIcon name={getVerdict(lastScore).icon} size={16} /> {getVerdict(lastScore).text}</span>
                 </div>
               </div>
             )}
@@ -1014,7 +1013,7 @@ export default function FlipTheQuestionPage() {
                   textAlign: "center",
                 }}
               >
-                <div style={{ fontSize: "48px", marginBottom: "12px" }}>📖</div>
+                <div style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 14px", display: "grid", placeItems: "center", color: C.accent, background: C.accentGlow, border: `1px solid ${C.cardBorder}` }}><AppIcon name="book" size={25} /></div>
                 <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "6px" }}>
                   Solution Revealed
                 </h2>
@@ -1034,7 +1033,7 @@ export default function FlipTheQuestionPage() {
                 }}
               >
                 <ScoreCard
-                  icon="✅"
+                  icon="check-circle"
                   label="Output Match"
                   score={parsedScores.output}
                   maxScore={parsedScores.outputMax}
@@ -1042,7 +1041,7 @@ export default function FlipTheQuestionPage() {
                   glow={C.greenGlow}
                 />
                 <ScoreCard
-                  icon="🏗️"
+                  icon="layers"
                   label="Class Structure"
                   score={parsedScores.structure}
                   maxScore={parsedScores.structureMax}
@@ -1050,7 +1049,7 @@ export default function FlipTheQuestionPage() {
                   glow={C.blueGlow}
                 />
                 <ScoreCard
-                  icon="⚙️"
+                  icon="settings"
                   label="Logic Correctness"
                   score={parsedScores.logic}
                   maxScore={parsedScores.logicMax}
@@ -1058,7 +1057,7 @@ export default function FlipTheQuestionPage() {
                   glow={C.accentGlow}
                 />
                 <ScoreCard
-                  icon="📐"
+                  icon="calculator"
                   label="ICSE Quality"
                   score={parsedScores.quality}
                   maxScore={parsedScores.qualityMax}
@@ -1066,7 +1065,7 @@ export default function FlipTheQuestionPage() {
                   glow={C.yellowGlow}
                 />
                 <ScoreCard
-                  icon="⭐"
+                  icon="star"
                   label="Creativity"
                   score={parsedScores.bonus}
                   maxScore={parsedScores.bonusMax}
@@ -1086,7 +1085,7 @@ export default function FlipTheQuestionPage() {
                     }}
                   >
                     <span style={{ fontSize: "13px", color: C.textMid, fontWeight: 600 }}>
-                      📉 Hint Penalty
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><AppIcon name="trending-down" size={15} /> Hint penalty</span>
                     </span>
                     <span style={{ fontSize: "18px", fontWeight: 800, color: C.red }}>
                       -{parsedScores.hintPenalty}
@@ -1114,19 +1113,19 @@ export default function FlipTheQuestionPage() {
                 onClick={handleNewChallenge}
                 disabled={generateMutation.isPending}
                 style={{
-                  background: `linear-gradient(135deg, ${C.accent}, ${C.pink})`,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "14px",
+                  background: C.accentGlow,
+                  color: C.accent,
+                  border: `1px solid ${C.accent}`,
+                  borderRadius: "10px",
                   padding: "14px 44px",
                   fontSize: "16px",
                   fontWeight: 700,
                   cursor: "pointer",
-                  boxShadow: `0 0 30px ${C.accentGlow}`,
+                  boxShadow: "none",
                   transition: "all 0.2s",
                 }}
               >
-                🔁 New Challenge
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><AppIcon name="refresh" size={16} /> New challenge</span>
               </button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc/client";
 import { format } from "date-fns";
 import { typography } from "@/lib/typography";
 import { useResponsive } from "@/hooks/useResponsive";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 export default function ActivityPage() {
     const { isMobile } = useResponsive();
@@ -25,7 +26,7 @@ export default function ActivityPage() {
         <div style={{ minHeight: "100vh", backgroundColor: "#030303", padding: isMobile ? "12px" : "24px", boxSizing: "border-box" as const, overflowX: "hidden" as const }}>
             <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
                 <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#FFFFFF", marginBottom: "8px" }}>
-                    📈 Study Activity
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}><AppIcon name="trending-up" size={27} color="var(--accent-gold)" /> Study activity</span>
                 </h1>
                 <p style={{ color: "#9CA3AF", fontSize: "16px", marginBottom: "32px" }}>
                     Track your daily study progress and completed topics
@@ -38,7 +39,7 @@ export default function ActivityPage() {
                         padding: "48px",
                         textAlign: "center"
                     }}>
-                        <div style={{ fontSize: "48px", marginBottom: "16px" }}>📚</div>
+                        <div style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 16px", display: "grid", placeItems: "center", background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)", color: "var(--accent-gold)" }}><AppIcon name="book" size={25} /></div>
                         <h3 style={{ fontSize: "20px", fontWeight: "600", color: "#FFFFFF", marginBottom: "8px" }}>
                             No Activity Yet
                         </h3>
@@ -96,10 +97,10 @@ export default function ActivityPage() {
                                                     color: plan.completed ? "#10B981" : "#9CA3AF",
                                                     marginBottom: "4px"
                                                 }}>
-                                                    {plan.completed ? "✅" : "⏳"} {plan.topicName || plan.chapter?.name}
+                                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name={plan.completed ? "check-circle" : "hourglass"} size={14} /> {plan.topicName || plan.chapter?.name}</span>
                                                 </div>
                                                 <div style={{ fontSize: "12px", color: "#6B7280" }}>
-                                                    {plan.subject?.icon} {plan.subject?.name}
+                                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="book" size={12} /> {plan.subject?.name}</span>
                                                 </div>
                                             </div>
                                         ))}

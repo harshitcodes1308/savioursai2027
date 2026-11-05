@@ -1,3 +1,5 @@
+import { AlertTriangle } from "lucide-react";
+
 // Loading Skeleton Components
 export function CardSkeleton() {
     return (
@@ -81,7 +83,7 @@ export function ErrorState({
 }: ErrorStateProps) {
     return (
         <div className="rounded-2xl bg-red-500/10 border border-red-500/30 p-8 text-center">
-            <div className="text-5xl mb-4">⚠️</div>
+            <div className="mb-4 flex justify-center"><AlertTriangle className="h-11 w-11 text-amber-400" aria-hidden="true" /></div>
             <h3 className="text-xl font-semibold text-red-300 mb-2">{title}</h3>
             <p className="text-red-400 mb-6 max-w-md mx-auto">{message}</p>
             {retry && (

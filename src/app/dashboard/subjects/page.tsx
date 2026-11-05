@@ -4,6 +4,7 @@ import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { typography } from "@/lib/typography";
 import { useResponsive } from "@/hooks/useResponsive";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 export default function SubjectsPage() {
     const { isMobile, isTablet } = useResponsive();
@@ -16,7 +17,7 @@ export default function SubjectsPage() {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexDirection: "column", gap: 16,
             }}>
-                <div className="animate-float" style={{ fontSize: 48 }}>📚</div>
+                <AppIcon name="book" size={42} color="var(--accent-gold)" />
                 <div style={{
                     fontSize: 15, fontWeight: 600,
                     background: "linear-gradient(135deg, #33DFFF, #00D4FF)",
@@ -57,13 +58,12 @@ export default function SubjectsPage() {
                         fontWeight: 600, color: "#33DFFF", letterSpacing: 1,
                         textTransform: "uppercase", marginBottom: 16,
                     }}>
-                        📚 ICSE Class 10
+                        <AppIcon name="book" size={14} /> ICSE Class 10
                     </div>
                     <h1 style={{
                         fontSize: isMobile ? "22px" : "32px", fontWeight: 800, marginBottom: "8px",
                         letterSpacing: -0.5,
-                        background: "linear-gradient(135deg, #FFFFFF 0%, #33DFFF 100%)",
-                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                        color: "var(--text-primary)",
                     }}>
                         Your Subjects
                     </h1>
@@ -109,13 +109,13 @@ export default function SubjectsPage() {
                                     {/* Icon with background */}
                                     <div style={{
                                         width: 56, height: 56, borderRadius: 16,
-                                        background: `linear-gradient(135deg, ${color}15, ${color}05)`,
+                                        background: `${color}10`,
                                         border: `1px solid ${color}20`,
                                         display: "flex", alignItems: "center", justifyContent: "center",
                                         fontSize: "28px", marginBottom: "18px",
                                         position: "relative",
                                     }}>
-                                        {subject.icon || "📖"}
+                                        <AppIcon name="book" size={27} color={color} />
                                     </div>
 
                                     {/* Subject Name */}
@@ -143,8 +143,7 @@ export default function SubjectsPage() {
                                     }}>
                                         <span style={{
                                             fontSize: "12px", fontWeight: 600,
-                                            background: `linear-gradient(135deg, ${color}, ${color}CC)`,
-                                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                                            color,
                                         }}>
                                             View Chapters →
                                         </span>
@@ -166,11 +165,10 @@ export default function SubjectsPage() {
                     <div className="dashboard-card animate-fadeIn" style={{
                         padding: "64px", textAlign: "center",
                     }}>
-                        <div className="animate-float" style={{ fontSize: "56px", marginBottom: "16px" }}>📚</div>
+                        <AppIcon name="book" size={48} color="var(--accent-gold)" style={{ margin: "0 auto 16px" }} />
                         <h3 style={{
                             fontSize: "18px", fontWeight: 700,
-                            background: "linear-gradient(135deg, #FFF, #33DFFF)",
-                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                            color: "var(--text-primary)",
                             marginBottom: "8px",
                         }}>
                             No Subjects Available

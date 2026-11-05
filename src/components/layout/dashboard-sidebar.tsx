@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { isLockedRoute, isBundleLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { AppIcon } from "@/components/ui/AppIcon";
+import { getDashboardIcon } from "@/lib/dashboardIcons";
 
 const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
   "/dashboard/pre-board-90": "preBoard90",
@@ -63,11 +65,11 @@ const FREE_NAV_GROUPS: NavGroup[] = [
   {
     label: "FREE",
     items: [
-      { icon: "◈", label: "Pre-Board 90",     href: "/dashboard/pre-board-90" },
+      { icon: "◈", label: "Pre-Board 60",     href: "/dashboard/pre-board-90" },
       { icon: "◎", label: "Smart Planner",    href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission",  href: "/dashboard/todo" },
       { icon: "◈", label: "Tracker",          href: "/dashboard/tracker" },
-      { icon: "▶", label: "Study Flow",       href: "/dashboard/study-flow" },
+      { icon: "book", label: "Study Flow",       href: "/dashboard/study-flow" },
       { icon: "▷", label: "Video Lectures",   href: "/dashboard/video-lectures" },
       { icon: "◈", label: "Live Webinar",     href: "/dashboard/webinar" },
     ],
@@ -88,6 +90,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
       { icon: "◉", label: "Competency Test",   href: "/dashboard/precision-practice" },
       { icon: "◈", label: "Half Yearly Sim",   href: "/dashboard/half-yearly" },
       { icon: "◈", label: "Customise Test",    href: "/dashboard/tests" },
+      { icon: "◈", label: "Guess Papers",      href: "/dashboard/guess-papers" },
       { icon: "⇌", label: "Flip the Question", href: "/dashboard/flip-the-question" },
       { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
     ],
@@ -104,7 +107,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
   {
     label: "PLAN",
     items: [
-      { icon: "◈", label: "Pre-Board 90",    href: "/dashboard/pre-board-90" },
+      { icon: "◈", label: "Pre-Board 60",    href: "/dashboard/pre-board-90" },
       { icon: "◎", label: "Smart Planner",   href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission", href: "/dashboard/todo" },
       { icon: "◈", label: "Tracker",         href: "/dashboard/tracker" },
@@ -114,7 +117,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
   {
     label: "STUDY",
     items: [
-      { icon: "▶", label: "Study Flow",        href: "/dashboard/study-flow" },
+      { icon: "book", label: "Study Flow",        href: "/dashboard/study-flow" },
       { icon: "▷", label: "Video Lectures",    href: "/dashboard/video-lectures" },
       { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
       { icon: "◈", label: "E-Books",           href: "/dashboard/ebooks" },
@@ -129,6 +132,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
       { icon: "◉", label: "Competency Test",   href: "/dashboard/precision-practice" },
       { icon: "◈", label: "Half Yearly Sim",   href: "/dashboard/half-yearly" },
       { icon: "◈", label: "Customise Test",    href: "/dashboard/tests" },
+      { icon: "◈", label: "Guess Papers",      href: "/dashboard/guess-papers" },
       { icon: "⇌", label: "Flip the Question", href: "/dashboard/flip-the-question" },
       { icon: "◉", label: "Date Battle Arena", href: "/dashboard/date-battle" },
     ],
@@ -139,7 +143,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
 // Mobile bottom tab bar items
 const MOBILE_TABS = [
   { icon: "⊞", label: "Home", href: "/dashboard" },
-  { icon: "◈", label: "Study", href: "/dashboard/ai-assistant" },
+  { icon: "◈", label: "Study", href: "/dashboard/study-flow" },
   { icon: "◉", label: "Practice", href: "/dashboard/precision-practice" },
   { icon: "◎", label: "Focus", href: "/dashboard/focus" },
   { icon: "○", label: "Account", href: "/dashboard/profile" },
@@ -372,7 +376,7 @@ export default function DashboardSidebar({
                       opacity: isActive ? 1 : 0.5,
                       flexShrink: 0,
                     }}>
-                      {item.icon}
+                      <AppIcon name={getDashboardIcon(item.href)} size={16} />
                     </span>
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {item.label}
@@ -500,7 +504,7 @@ export default function DashboardSidebar({
           transition: "all 0.2s ease",
         }}
       >
-        {isOpen ? "✕" : "☰"}
+        <AppIcon name={isOpen ? "x" : "menu"} size={19} />
       </button>
 
       {/* ── MOBILE OVERLAY ── */}
@@ -572,7 +576,7 @@ export default function DashboardSidebar({
                 position: "relative",
               }}
             >
-              <span style={{ fontSize: 18, lineHeight: 1 }}>{tab.icon}</span>
+              <span style={{ lineHeight: 1 }}><AppIcon name={getDashboardIcon(tab.href)} size={18} /></span>
               <span style={{
                 fontFamily: "var(--font-body)",
                 fontSize: 9,

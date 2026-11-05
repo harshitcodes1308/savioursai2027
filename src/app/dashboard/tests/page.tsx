@@ -7,6 +7,7 @@ import { ICSE_SUBJECTS, ICSE_CHAPTERS } from '@/lib/icse-data';
 import type { MCQ } from '@/lib/test-generator';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useDemoLimit } from '@/hooks/useDemoMode';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 type Step =
     | 'subject'
@@ -342,7 +343,7 @@ export default function CustomiseTestPage() {
                                 fontWeight: 600,
                             }}
                         >
-                            {createMutation.isPending ? 'Generating Questions...' : '▶ Start Test'}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><AppIcon name={createMutation.isPending ? 'hourglass' : 'play'} size={17} /> {createMutation.isPending ? 'Generating questions...' : 'Start test'}</span>
                         </button>
                     </div>
                 </div>
@@ -357,7 +358,7 @@ export default function CustomiseTestPage() {
                             Question {currentQuestion + 1} of {questions.length}
                         </div>
                         <div style={{ ...typography.text, fontSize: '20px', fontWeight: 600, color: timeRemaining < 60 ? '#EF4444' : '#10B981' }}>
-                            ⏱ {formatTime(timeRemaining)}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><AppIcon name="timer" size={17} /> {formatTime(timeRemaining)}</span>
                         </div>
                     </div>
 
@@ -420,7 +421,7 @@ export default function CustomiseTestPage() {
                                         padding: '12px 24px',
                                     }}
                                 >
-                                    {markedReview.includes(currentQ.id) ? '⭐ Marked' : 'Mark for Review'}
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><AppIcon name={markedReview.includes(currentQ.id) ? 'star' : 'flag'} size={15} /> {markedReview.includes(currentQ.id) ? 'Marked' : 'Mark for review'}</span>
                                 </button>
                             </div>
                             <div style={{ display: 'flex', gap: '12px' }}>
@@ -517,8 +518,8 @@ export default function CustomiseTestPage() {
             {/* STEP 7: Results */}
             {step === 'results' && result && (
                 <div className="dashboard-card" style={{ padding: '48px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '64px', marginBottom: '16px' }}>
-                        {result.accuracy >= 75 ? '🎉' : result.accuracy >= 50 ? '👍' : '📚'}
+                    <div style={{ width: 64, height: 64, borderRadius: 16, margin: '0 auto 18px', display: 'grid', placeItems: 'center', background: 'var(--accent-gold-glow)', border: '1px solid var(--accent-gold-border)', color: 'var(--accent-gold)' }}>
+                        <AppIcon name={result.accuracy >= 75 ? 'trophy' : result.accuracy >= 50 ? 'award' : 'book'} size={31} />
                     </div>
                     <h2 style={{ ...typography.display, fontSize: '32px', marginBottom: '24px' }}>
                         Test Completed!
@@ -571,18 +572,18 @@ export default function CustomiseTestPage() {
                             Overall Performance
                         </h3>
                         <div style={{ ...typography.text, fontSize: '16px', lineHeight: '1.8' }}>
-                            <p>✅ Correct: {result.correct}</p>
-                            <p>❌ Incorrect: {result.incorrect}</p>
+                            <p style={{ display: 'flex', alignItems: 'center', gap: 7 }}><AppIcon name="check-circle" size={16} color="#10B981" /> Correct: {result.correct}</p>
+                            <p style={{ display: 'flex', alignItems: 'center', gap: 7 }}><AppIcon name="x-circle" size={16} color="#EF4444" /> Incorrect: {result.incorrect}</p>
                             <p>⊗ Unattempted: {result.unattempted}</p>
-                            <p>📊 Accuracy: {result.accuracy.toFixed(1)}%</p>
-                            <p>⏱ Time Management: {result.timeManagement}</p>
+                            <p style={{ display: 'flex', alignItems: 'center', gap: 7 }}><AppIcon name="chart" size={16} /> Accuracy: {result.accuracy.toFixed(1)}%</p>
+                            <p style={{ display: 'flex', alignItems: 'center', gap: 7 }}><AppIcon name="timer" size={16} /> Time Management: {result.timeManagement}</p>
                         </div>
                     </div>
 
                     {result.strongChapters.length > 0 && (
                         <div style={{ marginBottom: '32px' }}>
                             <h3 style={{ ...typography.text, fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#10B981' }}>
-                                💪 Strong Chapters
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="award" size={17} /> Strong chapters</span>
                             </h3>
                             <ul style={{ ...typography.text, fontSize: '16px', listStyle: 'disc', paddingLeft: '24px' }}>
                                 {result.strongChapters.map((ch: string) => (
@@ -595,7 +596,7 @@ export default function CustomiseTestPage() {
                     {result.weakChapters.length > 0 && (
                         <div style={{ marginBottom: '32px' }}>
                             <h3 style={{ ...typography.text, fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#EF4444' }}>
-                                📖 Needs More Practice
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="book" size={17} /> Needs more practice</span>
                             </h3>
                             <ul style={{ ...typography.text, fontSize: '16px', listStyle: 'disc', paddingLeft: '24px' }}>
                                 {result.weakChapters.map((ch: string) => (
@@ -686,7 +687,7 @@ export default function CustomiseTestPage() {
                                     borderLeft: '4px solid #00D4FF',
                                 }}>
                                     <div style={{ ...typography.text, fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#00D4FF' }}>
-                                        💡 Explanation:
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="lightbulb" size={15} /> Explanation:</span>
                                     </div>
                                     <p style={{ ...typography.text, fontSize: '14px', lineHeight: '1.6', color: '#D1D5DB' }}>
                                         {q.explanation}

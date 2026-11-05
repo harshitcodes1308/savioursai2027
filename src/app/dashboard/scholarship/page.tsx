@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 type ScholarshipQuestion = {
   id: string;
@@ -150,7 +151,7 @@ export default function ScholarshipPage() {
     return <main style={shell}><section style={{ ...card, maxWidth: 820, textAlign: "left" }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center", marginBottom: 20 }}>
         <div><div style={eyebrow}>SCHOLARSHIP CHALLENGE</div><div style={{ color: "var(--text-muted)", fontSize: 13 }}>Question {current + 1} of {questions.length} · {question.marks} mark{question.marks > 1 ? "s" : ""}</div></div>
-        <div style={{ color: timeLeft <= 15 ? "var(--status-red)" : "var(--accent-gold)", fontSize: 24, fontWeight: 800, fontVariantNumeric: "tabular-nums" }}>⏱ {formatTime(timeLeft)}</div>
+        <div style={{ color: timeLeft <= 15 ? "var(--status-red)" : "var(--accent-gold)", fontSize: 24, fontWeight: 800, fontVariantNumeric: "tabular-nums", display: "flex", alignItems: "center", gap: 7 }}><AppIcon name="timer" size={20} />{formatTime(timeLeft)}</div>
       </div>
       <div style={{ height: 5, borderRadius: 99, background: "var(--bg-elevated)", overflow: "hidden", marginBottom: 28 }}><div style={{ width: `${progress}%`, height: "100%", background: "var(--accent-gold)", transition: "width .25s" }} /></div>
       <div style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 8 }}>{question.subject} · {question.chapter} · ICSE {question.year}</div>

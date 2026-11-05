@@ -6,6 +6,9 @@ import { Prisma } from "@prisma/client";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+const PROGRAM_DAYS = 60;
+const PHASE_DAYS = 20;
+
 /** Add `days` calendar days to a Date, returning the result at midnight UTC */
 function addDays(base: Date, days: number): Date {
     const d = new Date(base);
@@ -15,8 +18,8 @@ function addDays(base: Date, days: number): Date {
 
 /** Determine phase from day number (1-indexed) */
 function phaseForDay(day: number): number {
-    if (day <= 30) return 1;
-    if (day <= 60) return 2;
+    if (day <= PHASE_DAYS) return 1;
+    if (day <= PHASE_DAYS * 2) return 2;
     return 3;
 }
 
@@ -297,12 +300,49 @@ async function ensurePreBoard90Tables(prisma: any) {
     }
 }
 
+/** Bring legacy 90-day plans forward without discarding completed progress. */
+async function migratePlanTo60(prisma: any, plan: any): Promise<void> {
+    const start = new Date(plan.startDate);
+    const phase1End = addDays(start, PHASE_DAYS - 1);
+    const phase2End = addDays(start, PHASE_DAYS * 2 - 1);
+    const phase3End = addDays(start, PROGRAM_DAYS - 1);
+
+    if (new Date(plan.phase3End).getTime() === phase3End.getTime()) return;
+
+    await prisma.$transaction([
+        prisma.preBoard90Plan.update({
+            where: { id: plan.id },
+            data: { phase1End, phase2End, phase3End },
+        }),
+        prisma.preBoard90Task.updateMany({
+            where: { planId: plan.id, day: { gte: 1, lte: PHASE_DAYS } },
+            data: { phase: 1, taskType: "STUDY" },
+        }),
+        prisma.preBoard90Task.updateMany({
+            where: { planId: plan.id, day: { gt: PHASE_DAYS, lte: PHASE_DAYS * 2 } },
+            data: { phase: 2, taskType: "PRACTICE" },
+        }),
+        prisma.preBoard90Task.updateMany({
+            where: { planId: plan.id, day: { gt: PHASE_DAYS * 2, lte: PROGRAM_DAYS } },
+            data: { phase: 3, taskType: "TEST" },
+        }),
+        prisma.preBoard90Task.updateMany({
+            where: {
+                planId: plan.id,
+                day: { lte: PROGRAM_DAYS },
+                status: { not: "DONE" },
+            },
+            data: { contentJson: Prisma.JsonNull },
+        }),
+    ]);
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 
 export const preBoard90Router = createTRPCRouter({
     /**
-     * Enroll student in the 90-day programme.
-     * Creates the plan + inserts skeleton tasks for all 90 days.
+     * Enroll student in the 60-day programme.
+     * Creates the plan + inserts skeleton tasks for all 60 days.
      */
     enrollPlan: protectedProcedure
         .input(
@@ -333,14 +373,14 @@ export const preBoard90Router = createTRPCRouter({
             if (existing) {
                 throw new TRPCError({
                     code: "CONFLICT",
-                    message: "You already have an active Pre-Board 90 plan.",
+                    message: "You already have an active Pre-Board 60 plan.",
                 });
             }
 
             const start = new Date(input.startDate + "T00:00:00Z");
-            const phase1End = addDays(start, 29); // Day 30
-            const phase2End = addDays(start, 59); // Day 60
-            const phase3End = addDays(start, 89); // Day 90
+            const phase1End = addDays(start, PHASE_DAYS - 1); // Day 20
+            const phase2End = addDays(start, PHASE_DAYS * 2 - 1); // Day 40
+            const phase3End = addDays(start, PROGRAM_DAYS - 1); // Day 60
 
             const plan = await ctx.prisma.preBoard90Plan.create({
                 data: {
@@ -357,7 +397,7 @@ export const preBoard90Router = createTRPCRouter({
                 },
             });
 
-            // Build 90 skeleton tasks — rotate subjects across days
+            // Build 60 skeleton tasks — rotate subjects across days
             const syllabus = input.subjects.map((s) => ({
                 subject: s,
                 topics: [...(ICSE_SYLLABUS[s] ?? [`${s} Core Topics`])],
@@ -366,7 +406,7 @@ export const preBoard90Router = createTRPCRouter({
             const taskData = [];
             let topicCursors: Record<string, number> = {};
 
-            for (let day = 1; day <= 90; day++) {
+            for (let day = 1; day <= PROGRAM_DAYS; day++) {
                 const subjectIndex = (day - 1) % input.subjects.length;
                 const subjectEntry = syllabus[subjectIndex];
                 const subj = subjectEntry.subject;
@@ -423,6 +463,7 @@ export const preBoard90Router = createTRPCRouter({
             throw e;
         }
         if (!plan) return null;
+        await migratePlanTo60(ctx.prisma, plan);
 
         const today = new Date();
         today.setUTCHours(0, 0, 0, 0);
@@ -432,7 +473,7 @@ export const preBoard90Router = createTRPCRouter({
         const daysSinceStart = Math.floor(
             (today.getTime() - startDay.getTime()) / (1000 * 60 * 60 * 24)
         );
-        const currentDay = Math.min(Math.max(daysSinceStart + 1, 1), 90);
+        const currentDay = Math.min(Math.max(daysSinceStart + 1, 1), PROGRAM_DAYS);
 
         // Mark any ACTIVE tasks before today as MISSED
         await ctx.prisma.preBoard90Task.updateMany({
@@ -585,7 +626,7 @@ export const preBoard90Router = createTRPCRouter({
 
             // Unlock next task
             const nextDay = task.day + 1;
-            if (nextDay <= 90) {
+            if (nextDay <= PROGRAM_DAYS) {
                 await ctx.prisma.preBoard90Task.updateMany({
                     where: {
                         planId: input.planId,
@@ -600,7 +641,7 @@ export const preBoard90Router = createTRPCRouter({
         }),
 
     /**
-     * Get 90-day tracker data for the progress widget.
+     * Get 60-day tracker data for the progress widget.
      */
     getPhaseProgress: protectedProcedure.query(async ({ ctx }) => {
         await ensurePreBoard90Tables(ctx.prisma);
@@ -621,6 +662,7 @@ export const preBoard90Router = createTRPCRouter({
         }
 
         if (!plan) return null;
+        await migratePlanTo60(ctx.prisma, plan);
 
         const today = new Date();
         today.setUTCHours(0, 0, 0, 0);
@@ -631,19 +673,19 @@ export const preBoard90Router = createTRPCRouter({
                 Math.floor((today.getTime() - startDay.getTime()) / (1000 * 60 * 60 * 24)) + 1,
                 1
             ),
-            90
+            PROGRAM_DAYS
         );
 
         const taskMap = new Map(plan.tasks.map((t) => [t.day, t]));
 
-        const days = Array.from({ length: 90 }, (_, i) => {
+        const days = Array.from({ length: PROGRAM_DAYS }, (_, i) => {
             const day = i + 1;
             const t = taskMap.get(day);
             return {
                 day,
                 phase: phaseForDay(day),
                 status: t?.status ?? "LOCKED",
-                taskType: t?.taskType ?? "STUDY",
+                taskType: taskTypeForDay(day),
                 subject: t?.subject ?? "",
                 topicRef: t?.topicRef ?? "",
             };
@@ -652,15 +694,16 @@ export const preBoard90Router = createTRPCRouter({
         const doneDays = days.filter((d) => d.status === "DONE").length;
         const missedDays = days.filter((d) => d.status === "MISSED").length;
 
+        const start = new Date(plan.startDate);
         return {
             planId: plan.id,
             board: plan.board,
             grade: plan.grade,
             subjects: plan.subjects,
             startDate: plan.startDate,
-            phase1End: plan.phase1End,
-            phase2End: plan.phase2End,
-            phase3End: plan.phase3End,
+            phase1End: addDays(start, PHASE_DAYS - 1),
+            phase2End: addDays(start, PHASE_DAYS * 2 - 1),
+            phase3End: addDays(start, PROGRAM_DAYS - 1),
             status: plan.status,
             currentDay,
             days,
@@ -692,6 +735,7 @@ export const preBoard90Router = createTRPCRouter({
             const pending = await ctx.prisma.preBoard90Task.findMany({
                 where: {
                     planId: input.planId,
+                    day: { lte: PROGRAM_DAYS },
                     contentJson: { equals: Prisma.JsonNull },
                     status: { in: ["ACTIVE", "LOCKED"] },
                 },
@@ -762,7 +806,7 @@ export const preBoard90Router = createTRPCRouter({
     }),
 
     /**
-     * Return all 90 tasks for the active plan — used by the "View Full Plan" page.
+     * Return all 60 tasks for the active plan — used by the "View Full Plan" page.
      */
     getPlanSchedule: protectedProcedure.query(async ({ ctx }) => {
         await ensurePreBoard90Tables(ctx.prisma);
@@ -773,6 +817,7 @@ export const preBoard90Router = createTRPCRouter({
                 orderBy: { createdAt: "desc" },
                 include: {
                     tasks: {
+                        where: { day: { lte: PROGRAM_DAYS } },
                         select: {
                             id: true, day: true, phase: true, taskType: true,
                             subject: true, topicRef: true, status: true, completedAt: true,
@@ -790,12 +835,17 @@ export const preBoard90Router = createTRPCRouter({
             throw e;
         }
         if (!plan) return null;
+        await migratePlanTo60(ctx.prisma, plan);
         return {
             planId: plan.id,
             subjects: plan.subjects,
             board: plan.board,
             startDate: plan.startDate,
-            tasks: plan.tasks,
+            tasks: plan.tasks.map((task) => ({
+                ...task,
+                phase: phaseForDay(task.day),
+                taskType: taskTypeForDay(task.day),
+            })),
         };
     }),
 });

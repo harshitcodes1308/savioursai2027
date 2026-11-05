@@ -8,6 +8,7 @@ import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
 import { canAccess, getUserPlan, AI_DOUBT_FREE_LIMIT } from "@/lib/planAccess";
 import { useDemoLimit } from "@/hooks/useDemoMode";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 interface Message {
     role: "user" | "assistant";
@@ -211,7 +212,7 @@ export default function AIAssistantPage() {
                         className="btn-gold"
                         style={{ fontSize: 12, padding: "8px 16px", borderRadius: 8 }}
                     >
-                        {mode === "chat" ? "⚡ Review" : "← Chat"}
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name={mode === "chat" ? "zap" : "arrow-left"} size={14} /> {mode === "chat" ? "Review" : "Chat"}</span>
                     </button>
                 </div>
             </div>
@@ -375,7 +376,7 @@ export default function AIAssistantPage() {
                                 {uploadedFile.type === "image" ? (
                                     <img src={uploadedFile.data} alt="Upload" style={{ width: 40, height: 40, borderRadius: 4, objectFit: "cover" }} />
                                 ) : (
-                                    <span style={{ fontSize: 24 }}>📄</span>
+                                    <AppIcon name="file" size={22} color="var(--text-muted)" />
                                 )}
                                 <span style={{ flex: 1, fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-secondary)" }}>{uploadedFile.name}</span>
                                 <button
@@ -409,7 +410,7 @@ export default function AIAssistantPage() {
                                 }}
                                 title="Attach image or PDF"
                             >
-                                📎
+                                <AppIcon name="file" size={17} />
                             </label>
                             <textarea
                                 value={input}
@@ -472,7 +473,7 @@ export default function AIAssistantPage() {
                         width: "100%",
                         textAlign: "center",
                     }}>
-                        <div style={{ fontFamily: "var(--font-sub)", fontSize: 36, color: "var(--accent-gold)", marginBottom: 20, opacity: 0.7 }}>⚡</div>
+                        <div style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 20px", display: "grid", placeItems: "center", color: "var(--accent-gold)", background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)" }}><AppIcon name="zap" size={25} /></div>
                         <h2 style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 10 }}>
                             Quick Review
                         </h2>

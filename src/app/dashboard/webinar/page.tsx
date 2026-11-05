@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 // ── Update this URL when Pranay Bhaiya sets up the Calendly link ─────────────
 const CALENDLY_URL = "https://calendly.com/saviours-ai";
@@ -149,7 +150,7 @@ export default function WebinarPage() {
                   flexDirection: "column", gap: 2,
                   animation: "wbFloat 4s ease-in-out infinite",
                 }}>
-                  <span style={{ fontSize: isMobile ? 26 : 30 }}>🎓</span>
+                  <AppIcon name="graduation" size={isMobile ? 27 : 31} color="var(--accent-gold)" />
                 </div>
 
                 <div>
@@ -275,15 +276,15 @@ export default function WebinarPage() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 14, position: "relative" }}>
                 {[
-                  { label: "📅 Schedule", value: WEBINAR.date },
-                  { label: "🕖 Time", value: WEBINAR.time },
-                  { label: "⏱ Duration", value: WEBINAR.duration },
-                  { label: "🎯 Format", value: "Live Q&A + Taught Session" },
-                  { label: "💸 Cost", value: "Completely Free" },
-                  { label: "🪑 Seats", value: WEBINAR.seats },
-                ].map(({ label, value }) => (
+                  { icon: "clock" as AppIconName, label: "Schedule", value: WEBINAR.date },
+                  { icon: "clock" as AppIconName, label: "Time", value: WEBINAR.time },
+                  { icon: "timer" as AppIconName, label: "Duration", value: WEBINAR.duration },
+                  { icon: "target" as AppIconName, label: "Format", value: "Live Q&A + Taught Session" },
+                  { icon: "award" as AppIconName, label: "Cost", value: "Completely Free" },
+                  { icon: "users" as AppIconName, label: "Seats", value: WEBINAR.seats },
+                ].map(({ icon, label, value }) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", flexShrink: 0 }}>{label}</span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 7 }}><AppIcon name={icon} size={13} />{label}</span>
                     <span style={{
                       fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600,
                       color: value === "Completely Free" ? "var(--status-green)" : "var(--text-primary)",
@@ -304,23 +305,19 @@ export default function WebinarPage() {
                 style={{
                   width: "100%",
                   padding: "16px 20px",
-                  background: hovered
-                    ? "var(--accent-gold)"
-                    : "linear-gradient(135deg, rgba(0,212,255,0.18), rgba(0,212,255,0.10))",
+                  background: hovered ? "rgba(0,212,255,.16)" : "rgba(0,212,255,.09)",
                   border: "1.5px solid var(--accent-gold)",
                   borderRadius: 14,
                   cursor: "pointer",
                   transition: "all 0.25s cubic-bezier(0.16,1,0.3,1)",
-                  boxShadow: hovered
-                    ? "0 0 32px rgba(0,212,255,0.4), 0 8px 24px rgba(0,0,0,0.3)"
-                    : "0 0 16px rgba(0,212,255,0.2)",
+                  boxShadow: "none",
                   transform: hovered ? "translateY(-2px)" : "translateY(0)",
                 }}
               >
                 <div style={{
                   fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 800,
                   letterSpacing: "0.08em", textTransform: "uppercase",
-                  color: hovered ? "#0A0A0F" : "var(--accent-gold)",
+                  color: "var(--accent-gold)",
                   marginBottom: 4,
                   transition: "color 0.25s ease",
                 }}>
@@ -328,7 +325,7 @@ export default function WebinarPage() {
                 </div>
                 <div style={{
                   fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 500,
-                  color: hovered ? "rgba(10,10,15,0.7)" : "var(--text-muted)",
+                  color: "var(--text-muted)",
                   transition: "color 0.25s ease",
                 }}>
                   It&apos;s completely free — no catch →
@@ -352,7 +349,7 @@ export default function WebinarPage() {
               padding: "14px 18px",
               display: "flex", alignItems: "flex-start", gap: 12,
             }}>
-              <span style={{ fontSize: 18, flexShrink: 0 }}>🔥</span>
+              <AppIcon name="trending-up" size={18} color="var(--status-green)" />
               <div>
                 <div style={{
                   fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 700,

@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { RazorpayButton } from "@/components/RazorpayButton";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 // Design system vars — true to the project's electric-cyan theme
 const ACCENT = "var(--accent-gold)";           // #00D4FF
@@ -14,7 +15,7 @@ const PHASE_COLORS = ["#5B8AF5", "#F5A623", "#E5534B"] as const;
 const PHASE_BG = ["rgba(91,138,245,0.12)", "rgba(245,166,35,0.12)", "rgba(229,83,75,0.12)"] as const;
 const PHASE_LABELS = ["Phase 1 · Study", "Phase 2 · Practice", "Phase 3 · Test"];
 const PHASE_DESC = [
-    "Daily topic-wise revision using the Watch → Revise → Practice loop. AI Doubt Solver on call.",
+    "Daily topic-wise revision using a focused Watch → Revise → Practice loop.",
     "Targeted question drills on weak areas — Numerical Mastery, Flip the Question, Competency Tests.",
     "Full-length timed board-pattern mock papers with GPT-4o-mini partial-marking evaluation.",
 ];
@@ -54,7 +55,7 @@ function PhaseCard({ phase, active, locked }: { phase: number; active?: boolean;
             </div>
             {locked && (
                 <div style={{ marginTop: 10, fontFamily: "var(--font-body)", fontSize: 10, color: ACCENT, fontWeight: 600 }}>
-                    🔒 Requires Pro →
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="lock" size={12} /> Requires Pro <AppIcon name="arrow-right" size={12} /></span>
                 </div>
             )}
         </div>
@@ -79,7 +80,7 @@ export default function PreBoard90Page() {
         onSuccess: () => { refetchPb90(); refetchTask(); setEnrollError(null); },
         onError: (e) => {
             if (e.message.includes("does not exist") || e.message.includes("invocation")) {
-                setEnrollError("Setting up your study plan database... Please tap Start Pre-Board 90 again.");
+                setEnrollError("Setting up your study plan database... Please tap Start Pre-Board 60 again.");
             } else {
                 setEnrollError(e.message);
             }
@@ -125,7 +126,7 @@ export default function PreBoard90Page() {
     // ── ACTIVE PLAN VIEW ──────────────────────────────────────────────────────
     if (pb90 && (pb90.status === "ACTIVE" || pb90.status === "COMPLETED")) {
         const currentDay = pb90.currentDay;
-        const currentPhase = currentDay <= 30 ? 1 : currentDay <= 60 ? 2 : 3;
+        const currentPhase = currentDay <= 20 ? 1 : currentDay <= 40 ? 2 : 3;
         const phaseColor = PHASE_COLORS[currentPhase - 1];
         const taskRequiresUpgrade = todayTask?.requiresUpgrade && !isPaid;
 
@@ -136,12 +137,12 @@ export default function PreBoard90Page() {
 
                 {/* Header */}
                 <div style={{ marginBottom: 28 }}>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: ACCENT, marginBottom: 8 }}>Pre-Board 90 · ICSE</div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: ACCENT, marginBottom: 8 }}>Pre-Board 60 · ICSE</div>
                     <h1 style={{ fontFamily: "var(--font-display)", fontSize: 32, color: "var(--text-primary)", letterSpacing: "-0.02em", margin: "0 0 6px", lineHeight: 1.15 }}>
-                        Day {currentDay} of 90
+                        Day {currentDay} of 60
                     </h1>
                     <div style={{ fontFamily: "var(--font-tagline)", fontSize: 14, fontStyle: "italic", color: "var(--text-muted)", marginTop: 4 }}>
-                        {pb90.status === "COMPLETED" ? "Programme complete. Outstanding." : `${90 - currentDay} days to December pre-boards.`}
+                        {pb90.status === "COMPLETED" ? "Programme complete. Outstanding." : `${60 - currentDay} days to December pre-boards.`}
                     </div>
                 </div>
 
@@ -155,7 +156,7 @@ export default function PreBoard90Page() {
                             border: `1px solid ${p === currentPhase ? `${PHASE_COLORS[p - 1]}40` : "var(--bg-border)"}`,
                             borderRadius: 100, padding: "5px 14px",
                         }}>
-                            {p <= currentPhase ? PHASE_LABELS[p - 1] : `🔒 ${PHASE_LABELS[p - 1]}`}
+                            {p <= currentPhase ? PHASE_LABELS[p - 1] : <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="lock" size={11} /> {PHASE_LABELS[p - 1]}</span>}
                         </div>
                     ))}
                     <button
@@ -171,11 +172,11 @@ export default function PreBoard90Page() {
                         onMouseEnter={e => e.currentTarget.style.background = ACCENT_DIM}
                         onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                     >
-                        View Full Plan ↗
+                        View Full Plan
                     </button>
                 </div>
 
-                {/* 90-day tracker */}
+                {/* 60-day tracker */}
                 <div style={{ background: "var(--bg-surface)", border: `1px solid ${ACCENT_BORDER}`, borderRadius: 18, padding: "20px 22px", marginBottom: 24 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
                         <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", opacity: 0.6 }}>Progress Tracker</div>
@@ -247,7 +248,7 @@ export default function PreBoard90Page() {
 
                         {taskRequiresUpgrade ? (
                             <div style={{ background: "var(--bg-surface)", border: `1px solid ${ACCENT_BORDER}`, borderRadius: 18, padding: "28px", textAlign: "center" }}>
-                                <div style={{ fontSize: 28, marginBottom: 12 }}>🔒</div>
+                                <div style={{ width: 44, height: 44, borderRadius: 12, margin: "0 auto 14px", display: "grid", placeItems: "center", color: ACCENT, background: ACCENT_DIM, border: `1px solid ${ACCENT_BORDER}` }}><AppIcon name="lock" size={21} /></div>
                                 <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--text-primary)", marginBottom: 8 }}>
                                     Phase {todayTask?.task?.phase} Requires Pro
                                 </div>
@@ -284,7 +285,7 @@ export default function PreBoard90Page() {
                             </div>
                         ) : (
                             <div style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: 18, padding: "24px", textAlign: "center" }}>
-                                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--text-primary)", marginBottom: 6 }}>All caught up today 🎉</div>
+                                <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--text-primary)", marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><AppIcon name="check-circle" size={20} color={ACCENT} /> All caught up today</div>
                                 <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)" }}>Tomorrow's task unlocks at midnight. Keep the streak going.</div>
                             </div>
                         )}
@@ -296,7 +297,7 @@ export default function PreBoard90Page() {
                     {[
                         { label: "Completed", value: pb90.doneDays, color: ACCENT },
                         { label: "Missed", value: pb90.missedDays, color: "#E5534B" },
-                        { label: "Remaining", value: 90 - pb90.doneDays - pb90.missedDays, color: "var(--text-secondary)" },
+                        { label: "Remaining", value: 60 - pb90.doneDays - pb90.missedDays, color: "var(--text-secondary)" },
                     ].map(({ label, value, color }) => (
                         <div key={label} style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: 14, padding: "16px", textAlign: "center" }}>
                             <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color, letterSpacing: "-0.03em", marginBottom: 3 }}>{value}</div>
@@ -349,7 +350,7 @@ export default function PreBoard90Page() {
                                 Abandon this programme?
                             </div>
                             <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55, marginBottom: 14 }}>
-                                Your current 90-day countdown will end and today's schedule will be closed. You can enroll in a brand new programme anytime.
+                                Your current 60-day countdown will end and today's schedule will be closed. You can enroll in a brand new programme anytime.
                             </div>
                             {abandonError && (
                                 <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "#E5534B", marginBottom: 12, background: "rgba(229,83,75,0.12)", padding: "6px 10px", borderRadius: 6 }}>
@@ -410,12 +411,12 @@ export default function PreBoard90Page() {
             <button onClick={() => router.push("/dashboard")} style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 13, fontFamily: "var(--font-body)", padding: 0, marginBottom: 32 }}>← Dashboard</button>
 
             <div style={{ marginBottom: 40 }}>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: ACCENT, marginBottom: 10 }}>Pre-Board 90 · ICSE</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: ACCENT, marginBottom: 10 }}>Pre-Board 60 · ICSE</div>
                 <h1 style={{ fontFamily: "var(--font-display)", fontSize: 40, color: "var(--text-primary)", letterSpacing: "-0.02em", margin: "0 0 12px", lineHeight: 1.1 }}>
-                    90 Days to<br />December.
+                    60 Days to<br />December.
                 </h1>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--text-muted)", lineHeight: 1.65, maxWidth: 520, margin: 0 }}>
-                    A structured 90-day countdown split into three phases. One task per day — study, drill, then test under real board conditions. No overwhelm.
+                    A structured 60-day countdown split into three focused phases. One task per day — study, drill, then test under real board conditions. No overwhelm.
                 </p>
             </div>
 
@@ -433,7 +434,7 @@ export default function PreBoard90Page() {
                     <div>
                         <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, color: ACCENT, marginBottom: 3 }}>Free Plan — Phase 1 Preview</div>
                         <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.55 }}>
-                            All 30 Study days free. Upgrade to Pro (₹169) anytime to unlock Phase 2 Practice and Phase 3 Mock Papers.
+                            All 20 Study days free. Upgrade to Pro (₹169) anytime to unlock Phase 2 Practice and Phase 3 Mock Papers.
                         </div>
                     </div>
                 </div>
@@ -442,7 +443,7 @@ export default function PreBoard90Page() {
             {/* Enrolment form */}
             <div style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: 20, padding: "26px 26px" }}>
                 <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 22, opacity: 0.6 }}>
-                    Enrol in Pre-Board 90
+                    Enrol in Pre-Board 60
                 </div>
 
                 {/* Subject picker */}
@@ -466,14 +467,14 @@ export default function PreBoard90Page() {
                 <div style={{ marginBottom: 26 }}>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>
                         Start Date
-                        <span style={{ opacity: 0.5, marginLeft: 8, fontSize: 11 }}>Defaults to today — your 90-day countdown begins immediately</span>
+                        <span style={{ opacity: 0.5, marginLeft: 8, fontSize: 11 }}>Defaults to today — your 60-day countdown begins immediately</span>
                     </div>
                     <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={{ background: "var(--bg-elevated)", border: "1px solid var(--bg-border)", borderRadius: 8, padding: "10px 14px", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-primary)", outline: "none", colorScheme: "dark" }} />
                     {startDate && (
                         <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", marginTop: 6, opacity: 0.7 }}>
-                            Day 90 completion: {(() => {
+                            Day 60 completion: {(() => {
                                 const d = new Date(startDate + "T00:00:00");
-                                d.setDate(d.getDate() + 89);
+                                d.setDate(d.getDate() + 59);
                                 return d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
                             })()}
                         </div>
@@ -493,7 +494,7 @@ export default function PreBoard90Page() {
                     onMouseEnter={e => { if (!enrollMutation.isPending) e.currentTarget.style.filter = "brightness(1.1)"; }}
                     onMouseLeave={e => { e.currentTarget.style.filter = "none"; }}
                 >
-                    {enrollMutation.isPending ? "Setting up your 90-day programme..." : "Start Pre-Board 90 →"}
+                    {enrollMutation.isPending ? "Setting up your 60-day programme..." : "Start Pre-Board 60 →"}
                 </button>
             </div>
         </div>

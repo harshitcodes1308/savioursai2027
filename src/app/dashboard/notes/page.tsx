@@ -6,6 +6,7 @@ import { typography } from '@/lib/typography';
 import ReactMarkdown from 'react-markdown';
 import '../markdown-styles.css';
 import { useResponsive } from '@/hooks/useResponsive';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 export default function NotesPage() {
     const { isMobile } = useResponsive();
@@ -53,7 +54,7 @@ export default function NotesPage() {
             <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 0 }}>
                 <div>
                     <h1 style={{ ...typography.display, fontSize: '32px', marginBottom: '8px' }}>
-                        📖 My Notes
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><AppIcon name="notebook" size={22} color="var(--accent-gold)" /> My notes</span>
                     </h1>
                     <p style={{ ...typography.text, fontSize: '16px', color: '#9CA3AF' }}>
                         AI-powered notes with auto-generated flashcards
@@ -91,7 +92,7 @@ export default function NotesPage() {
                 }}>
                     <div className="dashboard-card" style={{ padding: '32px', maxWidth: '600px', width: '90%', maxHeight: '80vh', overflow: 'auto' }}>
                         <h2 style={{ ...typography.display, fontSize: '24px', marginBottom: '24px' }}>
-                            ✨ Create Smart Note
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="sparkles" size={16} /> Create smart note</span>
                         </h2>
 
                         <div style={{ marginBottom: '16px' }}>
@@ -178,7 +179,7 @@ export default function NotesPage() {
                                     flex: 1,
                                 }}
                             >
-                                {createMutation.isPending ? '✨ AI is refining...' : '✨ Refine & Save'}
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name={createMutation.isPending ? 'hourglass' : 'sparkles'} size={16} /> {createMutation.isPending ? 'AI is refining...' : 'Refine & save'}</span>
                             </button>
                             <button
                                 onClick={() => setIsCreating(false)}
@@ -253,7 +254,7 @@ export default function NotesPage() {
                                         fontWeight: 600,
                                     }}
                                 >
-                                    🎴 Study Flashcards ({selectedNote.flashCards.length})
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="layers" size={16} /> Study flashcards ({selectedNote.flashCards.length})</span>
                                 </button>
                             )}
                             <button
@@ -273,7 +274,7 @@ export default function NotesPage() {
                                     fontSize: '16px',
                                 }}
                             >
-                                🗑 Delete
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="trash" size={16} /> Delete</span>
                             </button>
                         </div>
                     </div>
@@ -383,7 +384,7 @@ export default function NotesPage() {
             {/* Notes Grid or Empty State */}
             {!hasNotes ? (
                 <div className="dashboard-card" style={{ padding: '64px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '64px', marginBottom: '16px' }}>📝</div>
+                    <div style={{ width: 64, height: 64, borderRadius: 16, margin: '0 auto 18px', display: 'grid', placeItems: 'center', background: 'var(--accent-gold-glow)', border: '1px solid var(--accent-gold-border)', color: 'var(--accent-gold)' }}><AppIcon name="notebook" size={31} /></div>
                     <h3 style={{ ...typography.display, fontSize: '24px', marginBottom: '12px' }}>
                         Create Your First Smart Note
                     </h3>
@@ -400,7 +401,7 @@ export default function NotesPage() {
                             fontWeight: 600,
                         }}
                     >
-                        ✨ Create Your First Note
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="sparkles" size={16} /> Create your first note</span>
                     </button>
                 </div>
             ) : (
@@ -437,7 +438,7 @@ export default function NotesPage() {
                                 </span>
                                 {note.flashCards && note.flashCards.length > 0 && (
                                     <span style={{ ...typography.text, fontSize: '12px', color: '#00D4FF', fontWeight: 600 }}>
-                                        🎴 {note.flashCards.length} cards
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><AppIcon name="layers" size={13} /> {note.flashCards.length} cards</span>
                                     </span>
                                 )}
                             </div>

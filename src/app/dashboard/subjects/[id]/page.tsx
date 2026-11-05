@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 export default function SubjectChaptersPage() {
     const params = useParams();
@@ -86,7 +87,7 @@ export default function SubjectChaptersPage() {
                                 color: "#00D4FF",
                                 fontWeight: "600"
                             }}>
-                                📝 Notes coming soon
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name="notebook" size={14} /> Notes coming soon</span>
                             </div>
                         </div>
 
@@ -94,7 +95,7 @@ export default function SubjectChaptersPage() {
                             fontSize: "32px",
                             opacity: 0.3
                         }}>
-                            📚
+                            <AppIcon name="book" size={17} />
                         </div>
                     </div>
                 ))}
@@ -108,7 +109,7 @@ export default function SubjectChaptersPage() {
                     padding: "64px",
                     textAlign: "center"
                 }}>
-                    <div style={{ fontSize: "64px", marginBottom: "16px" }}>📖</div>
+                    <div style={{ width: 64, height: 64, borderRadius: 16, margin: "0 auto 18px", display: "grid", placeItems: "center", background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)", color: "var(--accent-gold)" }}><AppIcon name="book" size={31} /></div>
                     <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#FFFFFF", marginBottom: "8px" }}>
                         No Chapters Available
                     </h3>

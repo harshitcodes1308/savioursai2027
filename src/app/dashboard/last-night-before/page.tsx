@@ -7,21 +7,22 @@ import { LNB_CHEMISTRY_SETS } from "@/data/lnb-chemistry-data";
 import { useResponsive } from "@/hooks/useResponsive";
 import { trpc } from "@/lib/trpc/client";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 type TabKey = "numericals" | "formulas" | "definitions";
 
-const TABS: { key: TabKey; icon: string; label: string; countKey: keyof LNBSet }[] = [
-  { key: "numericals", icon: "🔢", label: "Numericals", countKey: "numericals" },
-  { key: "formulas", icon: "📐", label: "Formulas", countKey: "formulas" },
-  { key: "definitions", icon: "📖", label: "Definitions", countKey: "definitions" },
+const TABS: { key: TabKey; icon: AppIconName; label: string; countKey: keyof LNBSet }[] = [
+  { key: "numericals", icon: "calculator", label: "Numericals", countKey: "numericals" },
+  { key: "formulas", icon: "flask", label: "Formulas", countKey: "formulas" },
+  { key: "definitions", icon: "book", label: "Definitions", countKey: "definitions" },
 ];
 
 function getMotivation(pct: number): string {
-  if (pct >= 100) return "You're ready. Sleep well. 😴";
-  if (pct >= 75) return "Almost there, legend 🌙";
-  if (pct >= 50) return "More than halfway there! 🚀";
-  if (pct >= 25) return "You're warming up 🔥";
-  return "Let's get started 💪";
+  if (pct >= 100) return "You're ready. Sleep well.";
+  if (pct >= 75) return "Almost there.";
+  if (pct >= 50) return "More than halfway there.";
+  if (pct >= 25) return "You're warming up.";
+  return "Let's get started.";
 }
 
 export default function LastNightBeforePage() {
@@ -145,7 +146,7 @@ export default function LastNightBeforePage() {
           }}
           onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 24px rgba(245,158,11,0.15)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>⚡</div>
+            <AppIcon name="zap" size={42} color="#F59E0B" />
             <div style={{ fontSize: 24, fontWeight: 800, color: "#F59E0B" }}>Physics</div>
           </button>
           
@@ -157,7 +158,7 @@ export default function LastNightBeforePage() {
           }}
           onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 24px rgba(16,185,129,0.15)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🧪</div>
+            <AppIcon name="flask" size={42} color="#10B981" />
             <div style={{ fontSize: 24, fontWeight: 800, color: "#10B981" }}>Chemistry</div>
           </button>
         </div>
@@ -211,7 +212,7 @@ export default function LastNightBeforePage() {
         <div style={{
           fontSize: isMobile ? 56 : 72, marginBottom: 24,
           animation: "pulse 2s ease-in-out infinite",
-        }}>⏰</div>
+        }}><AppIcon name="clock" size={isMobile ? 52 : 64} color="#F59E0B" /></div>
 
         {/* Set number */}
         <div style={{
@@ -234,7 +235,7 @@ export default function LastNightBeforePage() {
           fontSize: isMobile ? 18 : 22, color: "#9CA3AF", marginBottom: 8,
           textAlign: "center",
         }}>
-          You&apos;ve got this. 🔥
+          You&apos;ve got this.
         </p>
 
         <p style={{
@@ -249,15 +250,15 @@ export default function LastNightBeforePage() {
           gap: 12, marginBottom: 36, width: "100%", maxWidth: 440,
         }}>
           {[
-            { icon: "🔢", count: 30, label: "Numericals" },
-            { icon: "📐", count: 20, label: "Formulas" },
-            { icon: "📖", count: 10, label: "Definitions" },
+            { icon: "calculator" as AppIconName, count: 30, label: "Numericals" },
+            { icon: "flask" as AppIconName, count: 20, label: "Formulas" },
+            { icon: "book" as AppIconName, count: 10, label: "Definitions" },
           ].map((s) => (
             <div key={s.label} style={{
               background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
               borderRadius: 14, padding: "14px 12px", textAlign: "center",
             }}>
-              <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}><AppIcon name={s.icon} size={20} color="#F59E0B" /></div>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#F5F5F5" }}>{s.count}</div>
               <div style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{s.label}</div>
             </div>
@@ -267,9 +268,8 @@ export default function LastNightBeforePage() {
         {/* CTA */}
         <button onClick={() => setPhase("revise")} style={{
           padding: "16px 48px", fontSize: 16, fontWeight: 700,
-          background: "linear-gradient(135deg, #F59E0B, #D97706)",
-          color: "#000", border: "none", borderRadius: 14, cursor: "pointer",
-          boxShadow: "0 8px 32px rgba(245,158,11,0.3)",
+          background: "rgba(245,158,11,.12)",
+          color: "#FBBF24", border: "1px solid rgba(245,158,11,.35)", borderRadius: 14, cursor: "pointer",
           transition: "all 0.3s ease", letterSpacing: 0.3, marginBottom: 16,
         }}>
           Start Revising →
@@ -280,7 +280,7 @@ export default function LastNightBeforePage() {
           background: "none", border: "none", color: "#6B7280", fontSize: 13,
           cursor: "pointer", textDecoration: "underline", padding: 8,
         }}>
-          {(subject === "Chemistry" && !isPaid && !lnbChemistryUnlocked) ? "🔒 Unlock 4 more sets for ₹19" : (!isPaid && subject === "Physics") ? "🔒 Pro: Re-roll for a different set" : "Re-roll Set"}
+          {(subject === "Chemistry" && !isPaid && !lnbChemistryUnlocked) ? "Unlock 4 more sets for ₹19" : (!isPaid && subject === "Physics") ? "Pro: Re-roll for a different set" : "Re-roll Set"}
         </button>
 
         {/* Reroll confirmation */}
@@ -294,7 +294,7 @@ export default function LastNightBeforePage() {
               background: "#161B22", border: "1px solid rgba(245,158,11,0.2)",
               borderRadius: 20, padding: 32, maxWidth: 380, width: "100%", textAlign: "center",
             }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>🎲</div>
+              <AppIcon name="dice" size={32} color="#F59E0B" />
               <h3 style={{ fontSize: 18, fontWeight: 700, color: "#F5F5F5", marginBottom: 8 }}>
                 Get a different set?
               </h3>
@@ -308,10 +308,10 @@ export default function LastNightBeforePage() {
                   color: "#9CA3AF", fontSize: 14, fontWeight: 600, cursor: "pointer",
                 }}>Cancel</button>
                 <button onClick={handleReroll} style={{
-                  flex: 1, padding: 12, background: "linear-gradient(135deg,#F59E0B,#D97706)",
-                  border: "none", borderRadius: 12, color: "#000", fontSize: 14,
+                  flex: 1, padding: 12, background: "rgba(245,158,11,.12)",
+                  border: "1px solid rgba(245,158,11,.35)", borderRadius: 12, color: "#FBBF24", fontSize: 14,
                   fontWeight: 700, cursor: "pointer",
-                }}>Re-roll 🎲</button>
+                }}>Re-roll</button>
               </div>
             </div>
           </div>
@@ -350,7 +350,7 @@ export default function LastNightBeforePage() {
           </button>
           <div>
             <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 800, color: "#F5F5F5" }}>
-              🌙 Last Night Before
+              Last Night Before
             </div>
             <div style={{ fontSize: 12, color: "#6B7280" }}>
               Set #{currentSet.setId} · {currentSet.subject}
@@ -368,7 +368,7 @@ export default function LastNightBeforePage() {
             background: "none", border: "1px solid rgba(245,158,11,0.2)",
             borderRadius: 8, padding: "6px 12px", color: "#F59E0B",
             fontSize: 12, cursor: "pointer", fontWeight: 600,
-          }}>🎲 Re-roll</button>
+          }}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="dice" size={13} /> Re-roll</span></button>
         </div>
       </div>
 
@@ -396,7 +396,7 @@ export default function LastNightBeforePage() {
               borderBottom: isActive ? "2px solid #F59E0B" : "2px solid transparent",
               transition: "all 0.2s ease",
             }}>
-              {tab.icon} {isMobile ? "" : tab.label} {tabDone}/{count}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name={tab.icon} size={14} />{isMobile ? "" : tab.label} {tabDone}/{count}</span>
             </button>
           );
         })}
@@ -571,9 +571,9 @@ export default function LastNightBeforePage() {
             display: "flex", gap: isMobile ? 8 : 16, fontSize: isMobile ? 11 : 13,
             color: "#9CA3AF", flexWrap: "wrap",
           }}>
-            <span>✅ <strong style={{ color: numDone === 30 ? "#10B981" : "#E5E7EB" }}>{numDone}/30</strong> Num</span>
-            <span>✅ <strong style={{ color: frmDone === 20 ? "#10B981" : "#E5E7EB" }}>{frmDone}/20</strong> Form</span>
-            <span>✅ <strong style={{ color: defDone === 10 ? "#10B981" : "#E5E7EB" }}>{defDone}/10</strong> Def</span>
+            <span><strong style={{ color: numDone === 30 ? "#10B981" : "#E5E7EB" }}>{numDone}/30</strong> Num</span>
+            <span><strong style={{ color: frmDone === 20 ? "#10B981" : "#E5E7EB" }}>{frmDone}/20</strong> Form</span>
+            <span><strong style={{ color: defDone === 10 ? "#10B981" : "#E5E7EB" }}>{defDone}/10</strong> Def</span>
           </div>
           <div style={{
             fontSize: isMobile ? 12 : 13, fontWeight: 700,

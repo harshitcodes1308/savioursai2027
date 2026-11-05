@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { matchStudyFlowChapter } from "@/lib/studyFlowMatcher";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 const ACCENT = "var(--accent-gold)";
 const ACCENT_DIM = "var(--accent-gold-glow)";
@@ -119,7 +120,7 @@ function StudyTaskView({
                     }}
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 18 }}>{subjectMeta?.icon || "▶"}</span>
+                        <AppIcon name="book" size={18} color={ACCENT} />
                         <span
                             style={{
                                 fontFamily: "var(--font-body)",
@@ -176,7 +177,7 @@ function StudyTaskView({
                         }}
                     >
                         <span>Open Exact Chapter in Study Flow</span>
-                        <span>↗</span>
+                        <AppIcon name="arrow-right" size={14} />
                     </button>
                 </div>
 
@@ -333,7 +334,7 @@ function StudyTaskView({
                                     flexShrink: 0,
                                 }}
                             >
-                                ▶
+                                <AppIcon name="play" size={18} />
                             </div>
                             <div style={{ flex: 1 }}>
                                 <div style={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, color: "#FF6B6B" }}>
@@ -344,7 +345,7 @@ function StudyTaskView({
                                 </div>
                             </div>
                             <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#FF6B6B", fontWeight: 600 }}>
-                                Watch ↗
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>Watch <AppIcon name="arrow-right" size={13} /></span>
                             </div>
                         </a>
                     ) : (
@@ -811,7 +812,7 @@ function StudyTaskView({
                             marginTop: 8,
                         }}
                     >
-                        Ticking items records your daily streak and updates your Pre-Board 90 progress.
+                        Ticking items records your daily streak and updates your Pre-Board 60 progress.
                     </div>
                 </div>
             </div>
@@ -1176,7 +1177,7 @@ function TestTaskView({
                     marginBottom: 26,
                 }}
             >
-                Board-pattern paper evaluated by GPT-4o-mini with partial marking. Results link to your Pre-Board 90
+                Board-pattern paper evaluated by GPT-4o-mini with partial marking. Results link to your Pre-Board 60
                 progress and update your weak-topic profile.
             </div>
             <button
@@ -1227,25 +1228,19 @@ function MoreForToday({
 
     const tools = [
         {
-            icon: "▶",
+            icon: "book" as AppIconName,
             label: "Study Flow Module",
             desc: `Watch → Revise → Practice for ${studyFlowMatch.chapter?.title || task.subject}`,
             href: studyFlowMatch.directUrl,
         },
         {
-            icon: "◈",
-            label: "AI Doubt Solver",
-            desc: `Ask doubts about ${task.topicRef}`,
-            href: `/dashboard/ai-assistant?topic=${encodeURIComponent(task.topicRef)}`,
-        },
-        {
-            icon: "◎",
+            icon: "timer" as AppIconName,
             label: "Focus Mode",
             desc: `Timed study session for ${task.subject}`,
             href: "/dashboard/focus",
         },
         {
-            icon: "◉",
+            icon: "target" as AppIconName,
             label: "Competency PYQ Test",
             desc: "Board questions practice",
             href: "/dashboard/precision-practice",
@@ -1304,7 +1299,7 @@ function MoreForToday({
                                 width: 24,
                             }}
                         >
-                            {tool.icon}
+                            <AppIcon name={tool.icon} size={18} />
                         </div>
                         <div style={{ flex: 1 }}>
                             <div
@@ -1384,8 +1379,8 @@ export default function PreBoard90TaskPage() {
                     gap: 16,
                 }}
             >
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--text-primary)" }}>
-                    All done for today 🎉
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 24, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 9 }}>
+                    <AppIcon name="check-circle" size={23} color={ACCENT} /> All done for today
                 </div>
                 <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)" }}>
                     Next task unlocks tomorrow morning.
@@ -1445,7 +1440,7 @@ export default function PreBoard90TaskPage() {
                         padding: 0,
                     }}
                 >
-                    ← Pre-Board 90
+                    ← Pre-Board 60
                 </button>
                 <button
                     onClick={() => router.push("/dashboard/pre-board-90/plan")}
@@ -1466,7 +1461,7 @@ export default function PreBoard90TaskPage() {
                     onMouseEnter={(e) => (e.currentTarget.style.background = ACCENT_DIM)}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                    View Full Plan ↗
+                    View Full Plan
                 </button>
             </div>
 
@@ -1546,7 +1541,7 @@ export default function PreBoard90TaskPage() {
                         marginBottom: 20,
                     }}
                 >
-                    <div style={{ fontSize: 22, marginBottom: 10 }}>⏳</div>
+                    <div style={{ width: 38, height: 38, borderRadius: 10, margin: "0 auto 12px", display: "grid", placeItems: "center", color: ACCENT, background: ACCENT_DIM, border: `1px solid ${ACCENT_BORDER}` }}><AppIcon name="hourglass" size={19} /></div>
                     <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
                         AI is preparing your personalised curriculum. You can still open the Study Flow chapter below.
                     </div>

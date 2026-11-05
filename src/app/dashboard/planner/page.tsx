@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc/client";
 import { useRouter } from "next/navigation";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 interface SelectedChapter {
     chapterId: string;
@@ -434,7 +435,7 @@ function SubjectChapterSelector({
                 }}
             >
                 <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ color }}>{subject.icon}</span>
+                    <AppIcon name="book" size={15} color={color} />
                     {subject.name}
                     {selectedCount > 0 && (
                         <span style={{
@@ -454,7 +455,7 @@ function SubjectChapterSelector({
                     transform: isExpanded ? "rotate(90deg)" : "none",
                     transition: "transform 0.2s ease",
                 }}>
-                    ▶
+                    <AppIcon name="chevron-right" size={13} />
                 </span>
             </button>
 

@@ -7,6 +7,7 @@ import { FocusTaskType, FocusModeType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useDemoMode } from '@/hooks/useDemoMode';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 // --- Types ---
 type FocusState = 'SETUP_CONTEXT' | 'SETUP_TIME' | 'SETUP_STYLE' | 'SETUP_CUSTOM' | 'PREVIEW_PLAN' | 'ACTIVE' | 'REFLECTION' | 'SUMMARY';
@@ -168,7 +169,7 @@ export default function FocusPage() {
             {/* STEP 1: Subject + Task Type */}
             {state === 'SETUP_CONTEXT' && (
                 <>
-                    <h1 style={{ ...typography.display, fontSize: '32px', marginBottom: '24px' }}>🧘 Focus Mode</h1>
+                    <h1 style={{ ...typography.display, fontSize: '32px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: 10 }}><AppIcon name="focus" size={28} color="var(--accent-gold)" /> Focus Mode</h1>
                     <p style={{ fontSize: '16px', color: 'var(--text-muted)', marginBottom: '32px' }}>
                         Distraction-free study sessions with smart timekeeping
                     </p>
@@ -203,7 +204,7 @@ export default function FocusPage() {
                                         padding: '16px',
                                         borderRadius: '8px',
                                         border: `2px solid ${taskType === t.id ? '#00D4FF' : '#333'}`,
-                                        backgroundColor: taskType === t.id ? 'rgba(139,92,246,0.2)' : '#1A1A1D',
+                                        backgroundColor: taskType === t.id ? 'var(--accent-gold-glow)' : 'var(--bg-surface)',
                                         color: '#FFF',
                                         cursor: 'pointer',
                                         fontSize: '16px',
@@ -237,7 +238,7 @@ export default function FocusPage() {
             {/* STEP 2: Total Time */}
             {state === 'SETUP_TIME' && (
                 <>
-                    <h2 style={{ fontSize: '28px', marginBottom: '24px' }}>⏱️ How much time do you have?</h2>
+                    <h2 style={{ fontSize: '28px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: 10 }}><AppIcon name="timer" size={25} color="var(--accent-gold)" /> How much time do you have?</h2>
                     
                     <div className="dashboard-card" style={{ padding: '32px', marginBottom: '24px', textAlign: 'center' }}>
                         <input
@@ -268,7 +269,7 @@ export default function FocusPage() {
                                     padding: '12px',
                                     borderRadius: '8px',
                                     border: `2px solid ${totalMinutes === preset ? '#00D4FF' : '#333'}`,
-                                    backgroundColor: totalMinutes === preset ? 'rgba(139,92,246,0.2)' : '#1A1A1D',
+                                    backgroundColor: totalMinutes === preset ? 'var(--accent-gold-glow)' : 'var(--bg-surface)',
                                     color: '#FFF',
                                     cursor: 'pointer'
                                 }}
@@ -288,7 +289,7 @@ export default function FocusPage() {
             {/* STEP 3: Style Selection */}
             {state === 'SETUP_STYLE' && (
                 <>
-                    <h2 style={{ fontSize: '28px', marginBottom: '24px' }}>🎯 Choose Your Focus Style</h2>
+                    <h2 style={{ fontSize: '28px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: 10 }}><AppIcon name="target" size={25} color="var(--accent-gold)" /> Choose your focus style</h2>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '24px' }}>
                         {Object.values(STYLES).map(style => (
@@ -304,7 +305,7 @@ export default function FocusPage() {
                                     padding: '24px',
                                     borderRadius: '12px',
                                     border: `2px solid ${selectedStyle.id === style.id ? '#00D4FF' : '#333'}`,
-                                    backgroundColor: selectedStyle.id === style.id ? 'rgba(139,92,246,0.15)' : '#1A1A1D',
+                                    backgroundColor: selectedStyle.id === style.id ? 'var(--accent-gold-glow)' : 'var(--bg-surface)',
                                     color: '#FFF',
                                     cursor: 'pointer',
                                     textAlign: 'left'
@@ -323,7 +324,7 @@ export default function FocusPage() {
             {/* STEP 4: Custom Setup */}
             {state === 'SETUP_CUSTOM' && (
                 <>
-                    <h2 style={{ fontSize: '28px', marginBottom: '24px' }}>⚙️ Custom Timing</h2>
+                    <h2 style={{ fontSize: '28px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: 10 }}><AppIcon name="settings" size={25} color="var(--accent-gold)" /> Custom timing</h2>
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '16px' }}>
                         <label style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Focus Block (minutes)</label>
@@ -345,7 +346,7 @@ export default function FocusPage() {
             {/* STEP 5: Preview Plan */}
             {state === 'PREVIEW_PLAN' && (
                 <>
-                    <h2 style={{ fontSize: '28px', marginBottom: '24px' }}>📚 Your Session Plan</h2>
+                    <h2 style={{ fontSize: '28px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: 10 }}><AppIcon name="notebook" size={25} color="var(--accent-gold)" /> Your session plan</h2>
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '24px' }}>
                         <div style={{ fontSize: '18px', marginBottom: '16px' }}>
@@ -356,8 +357,8 @@ export default function FocusPage() {
                         <h3 style={{ fontSize: '16px', marginBottom: '12px', color: '#00D4FF' }}>Structure:</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {generatePlan(selectedStyle, totalMinutes).map((block, i) => (
-                                <div key={i} style={{ padding: '12px', backgroundColor: block.type === 'FOCUS' ? 'rgba(139,92,246,0.2)' : 'rgba(56,189,248,0.2)', borderRadius: '8px' }}>
-                                    {block.type === 'FOCUS' ? '🎯' : '☕'} {block.type === 'FOCUS' ? 'Focus' : 'Break'}: {block.duration} min
+                                <div key={i} style={{ padding: '12px', backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--bg-border)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <AppIcon name={block.type === 'FOCUS' ? 'target' : 'coffee'} size={16} color={block.type === 'FOCUS' ? 'var(--accent-gold)' : 'var(--text-muted)'} /> {block.type === 'FOCUS' ? 'Focus' : 'Break'}: {block.duration} min
                                 </div>
                             ))}
                         </div>
@@ -369,7 +370,7 @@ export default function FocusPage() {
                     
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button onClick={() => setState('SETUP_STYLE')} className="btn-ghost" style={{ flex: 1, padding: '16px' }}>Change Plan</button>
-                        <button onClick={handleStartSession} className="btn-gold" style={{ flex: 2, padding: '16px', fontWeight: 600, fontSize: '18px' }}>🚀 Start Session</button>
+                        <button onClick={handleStartSession} className="btn-gold" style={{ flex: 2, padding: '16px', fontWeight: 600, fontSize: '18px' }}><AppIcon name="play" size={18} /> Start session</button>
                     </div>
                 </>
             )}
@@ -379,7 +380,7 @@ export default function FocusPage() {
                 <>
                     <div className="dashboard-card" style={{ padding: '48px', textAlign: 'center', marginBottom: '24px' }}>
                         <div style={{ fontSize: '18px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-                            {currentBlock.type === 'FOCUS' ? '🎯 Focus Block' : '☕ Break Time'}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name={currentBlock.type === 'FOCUS' ? 'target' : 'coffee'} size={16} /> {currentBlock.type === 'FOCUS' ? 'Focus block' : 'Break time'}</span>
                         </div>
                         
                         <div style={{ fontSize: isMobile ? '48px' : '72px', fontWeight: 'bold', color: currentBlock.type === 'FOCUS' ? '#00D4FF' : '#38BDF8', marginBottom: '16px' }}>
@@ -397,10 +398,10 @@ export default function FocusPage() {
                     
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button onClick={() => setIsPaused(!isPaused)} className="btn-ghost" style={{ flex: 1, padding: '16px', fontSize: '16px' }}>
-                            {isPaused ? '▶️ Resume' : '⏸️ Pause'}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name={isPaused ? 'play-circle' : 'pause'} size={17} /> {isPaused ? 'Resume' : 'Pause'}</span>
                         </button>
                         <button onClick={() => setState('REFLECTION')} style={{ flex: 1, padding: '16px', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', backdropFilter: 'blur(12px)' }}>
-                            🛑 End Early
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><AppIcon name="stop" size={17} /> End early</span>
                         </button>
                     </div>
                 </>
@@ -409,7 +410,7 @@ export default function FocusPage() {
             {/* REFLECTION */}
             {state === 'REFLECTION' && (
                 <>
-                    <h2 style={{ fontSize: '28px', marginBottom: '24px' }}>📊 How was your session?</h2>
+                    <h2 style={{ fontSize: '28px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: 10 }}><AppIcon name="chart" size={25} color="var(--accent-gold)" /> How was your session?</h2>
                     
                     <div className="dashboard-card" style={{ padding: '24px', marginBottom: '16px' }}>
                         <label style={{ fontSize: '16px', marginBottom: '12px', display: 'block' }}>Productivity (1-5)</label>
@@ -456,7 +457,7 @@ export default function FocusPage() {
             {state === 'SUMMARY' && (
                 <>
                     <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                        <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
+                        <div style={{ width: 64, height: 64, borderRadius: 16, margin: '0 auto 18px', display: 'grid', placeItems: 'center', background: 'var(--accent-gold-glow)', border: '1px solid var(--accent-gold-border)', color: 'var(--accent-gold)' }}><AppIcon name="check-circle" size={31} /></div>
                         <h2 style={{ fontSize: '32px', marginBottom: '12px' }}>Session Complete!</h2>
                         <p style={{ fontSize: '18px', color: 'var(--text-muted)' }}>Great work staying focused!</p>
                     </div>

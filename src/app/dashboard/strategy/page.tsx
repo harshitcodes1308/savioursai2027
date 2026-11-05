@@ -4,7 +4,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { typography } from "@/lib/typography";
 import ReactMarkdown from "react-markdown";
-import { ChevronRight, ChevronLeft, Brain, RotateCcw, Copy } from "lucide-react";
+import { ChevronRight, ChevronLeft, Brain, RotateCcw, Copy, ShieldAlert, Target } from "lucide-react";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
 
@@ -194,7 +194,7 @@ export default function StrategyPage() {
                             {/* Weaknesses */}
                             <div>
                                 <h3 style={{ ...typography.text, fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#EF4444' }}>
-                                    🛡️ Needs Improvement
+                                    <ShieldAlert size={18} style={{ verticalAlign: 'text-bottom', marginRight: 7 }} />Needs Improvement
                                 </h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     {data.subjects.map(sub => {
@@ -231,7 +231,7 @@ export default function StrategyPage() {
                             {/* Strengths */}
                             <div>
                                 <h3 style={{ ...typography.text, fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: '#10B981' }}>
-                                    🎯 Strong Subjects
+                                    <Target size={18} style={{ verticalAlign: 'text-bottom', marginRight: 7 }} />Strong Subjects
                                 </h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     {data.subjects.map(sub => {

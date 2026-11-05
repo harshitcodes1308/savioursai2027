@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import { HALF_YEARLY_DATA, type HalfYearlySubjectKey } from "@/data/halfYearlyData";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 const PROGRESS_KEY = "half-yearly-progress";
 type Progress = Record<string, { step: number; completed: boolean }>;
@@ -32,7 +33,7 @@ export default function HalfYearlyChaptersPage() {
     <div style={{ maxWidth: 820, margin: "0 auto" }}>
       <button onClick={() => router.push("/dashboard/half-yearly")} style={backStyle}>← All subjects</button>
       <header style={{ display: "flex", alignItems: "center", gap: 14, margin: "10px 0 30px", minWidth: 0 }}>
-        <span style={{ fontSize: isCompact ? 34 : 42, flexShrink: 0 }}>{subject.icon}</span><div style={{ minWidth: 0 }}><h1 style={{ margin: 0, color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: isCompact ? 27 : 36, letterSpacing: "-.03em", overflowWrap: "anywhere" }}>{subject.label}</h1><p style={{ color: "var(--text-muted)", margin: "5px 0 0", fontSize: 12, fontFamily: "var(--font-body)" }}>{subject.chapters.length} half-yearly chapters · Watch → Read → Test</p></div>
+        <AppIcon name="book" size={isCompact ? 31 : 37} color={subject.color} /><div style={{ minWidth: 0 }}><h1 style={{ margin: 0, color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: isCompact ? 27 : 36, letterSpacing: "-.03em", overflowWrap: "anywhere" }}>{subject.label}</h1><p style={{ color: "var(--text-muted)", margin: "5px 0 0", fontSize: 12, fontFamily: "var(--font-body)" }}>{subject.chapters.length} half-yearly chapters · Watch → Read → Test</p></div>
       </header>
       <div style={{ display: "grid", gap: 10 }}>
         {subject.chapters.map((chapter, index) => {

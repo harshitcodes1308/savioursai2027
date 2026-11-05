@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { useState, useEffect } from "react";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 export default function TimelineViewPage() {
     const router = useRouter();
@@ -35,8 +36,6 @@ export default function TimelineViewPage() {
     const completedCount = plans.filter((p) => p.completed).length;
     const progressPercent = Math.round((completedCount / plans.length) * 100);
 
-    const getDifficultyStars = (difficulty: number) => "⭐️".repeat(difficulty);
-
     // Group plans by date
     const plansByDate = plans.reduce((acc, plan) => {
         const dateKey = new Date(plan.planDate).toDateString();
@@ -51,7 +50,7 @@ export default function TimelineViewPage() {
             <div style={{ backgroundColor: "#0E0E10", padding: "20px 32px", borderBottom: "2px solid #1F1F22" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                     <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#FFFFFF", margin: 0 }}>
-                        📅 Your Study Timeline
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}><AppIcon name="history" size={22} color="var(--accent-gold)" /> Your study timeline</span>
                     </h1>
                     <button
                         onClick={() => router.push("/dashboard/planner")}
@@ -133,10 +132,10 @@ export default function TimelineViewPage() {
                                                     {plan.chapter?.name || "Chapter"}
                                                 </div>
                                                 <div style={{ fontSize: "12px", color: "#9CA3AF", marginBottom: "6px" }}>
-                                                    {plan.subject?.icon} {plan.subject?.name || "Subject"}
+                                                    <AppIcon name="book" size={14} /> {plan.subject?.name || "Subject"}
                                                 </div>
                                                 <div style={{ fontSize: "12px", color: "#00D4FF" }}>
-                                                    {getDifficultyStars(plan.difficulty || 3)}
+                                                    <span style={{ display: "inline-flex", gap: 2 }}>{Array.from({ length: plan.difficulty || 3 }, (_, i) => <AppIcon key={i} name="star" size={12} />)}</span>
                                                 </div>
                                             </div>
                                             <input
@@ -178,7 +177,7 @@ export default function TimelineViewPage() {
                                                 textAlign: "center",
                                             }}
                                         >
-                                            🤖 Click to study with AI Assistant
+                                            Open this topic in your study plan
                                         </div>
                                     </div>
                                 ))}

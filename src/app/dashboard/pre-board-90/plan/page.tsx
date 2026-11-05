@@ -64,7 +64,7 @@ export default function PreBoard90PlanPage() {
         return (
             <div style={{ minHeight: "100vh", background: "var(--bg-base)", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 14 }}>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--text-primary)" }}>No active plan found.</div>
-                <button onClick={() => router.push("/dashboard/pre-board-90")} style={{ background: ACCENT, border: "none", borderRadius: 10, padding: "10px 24px", color: "#0A0A0F", fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Start Pre-Board 90</button>
+                <button onClick={() => router.push("/dashboard/pre-board-90")} style={{ background: ACCENT, border: "none", borderRadius: 10, padding: "10px 24px", color: "#0A0A0F", fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Start Pre-Board 60</button>
             </div>
         );
     }
@@ -74,12 +74,12 @@ export default function PreBoard90PlanPage() {
     return (
         <div style={{ minHeight: "100vh", background: "var(--bg-base)", padding: "32px 24px 80px", maxWidth: 1000, margin: "0 auto" }}>
             {/* Back */}
-            <button onClick={() => router.push("/dashboard/pre-board-90")} style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 13, fontFamily: "var(--font-body)", padding: 0, marginBottom: 28 }}>← Pre-Board 90</button>
+            <button onClick={() => router.push("/dashboard/pre-board-90")} style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 13, fontFamily: "var(--font-body)", padding: 0, marginBottom: 28 }}>← Pre-Board 60</button>
 
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
                 <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: ACCENT, marginBottom: 8 }}>Full Programme Plan</div>
-                <h1 style={{ fontFamily: "var(--font-display)", fontSize: 30, color: "var(--text-primary)", letterSpacing: "-0.02em", margin: "0 0 6px" }}>90 Days · {schedule.board}</h1>
+                <h1 style={{ fontFamily: "var(--font-display)", fontSize: 30, color: "var(--text-primary)", letterSpacing: "-0.02em", margin: "0 0 6px" }}>60 Days · {schedule.board}</h1>
                 <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)" }}>
                     Starting {startDateStr} · {schedule.subjects.join(", ")}
                 </div>
@@ -103,7 +103,7 @@ export default function PreBoard90PlanPage() {
                             <div style={{ width: 7, height: 7, borderRadius: "50%", background: PHASE_COLORS[phase - 1] }} />
                             <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: PHASE_COLORS[phase - 1] }}>Phase {phase} · {PHASE_NAMES[phase - 1]}</div>
                         </div>
-                        <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", marginBottom: 10 }}>Days {(phase - 1) * 30 + 1}–{phase * 30}</div>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", marginBottom: 10 }}>Days {(phase - 1) * 20 + 1}–{phase * 20}</div>
 
                         {/* Progress bar */}
                         <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
@@ -238,7 +238,7 @@ export default function PreBoard90PlanPage() {
 
             {/* Footer note */}
             <div style={{ marginTop: 20, fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", opacity: 0.55, lineHeight: 1.6 }}>
-                Topics rotate across subjects each day. Phase 1 (Days 1–30) focuses on study and revision. Phase 2 (Days 31–60) drills practice questions on the same topics. Phase 3 (Days 61–90) runs full mock papers under board-exam conditions.
+                Topics rotate across subjects each day. Phase 1 (Days 1–20) focuses on study and revision. Phase 2 (Days 21–40) drills practice questions on the same topics. Phase 3 (Days 41–60) runs full mock papers under board-exam conditions.
             </div>
         </div>
     );

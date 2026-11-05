@@ -73,7 +73,7 @@ export default function PreBoard90ReportPage({ params }: { params: Promise<{ att
 
     return (
         <div style={{ minHeight: "100vh", background: "var(--bg-base)", padding: "32px 24px 80px", maxWidth: 720, margin: "0 auto" }}>
-            <button onClick={() => router.push("/dashboard/pre-board-90")} style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 13, fontFamily: "var(--font-body)", padding: 0, marginBottom: 32 }}>← Pre-Board 90</button>
+            <button onClick={() => router.push("/dashboard/pre-board-90")} style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 13, fontFamily: "var(--font-body)", padding: 0, marginBottom: 32 }}>← Pre-Board 60</button>
 
             {/* Header */}
             <div style={{ marginBottom: 30 }}>
@@ -143,7 +143,7 @@ export default function PreBoard90ReportPage({ params }: { params: Promise<{ att
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
                         {weakChapters.map((ch: string) => <div key={ch} style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#E5534B", background: "rgba(229,83,75,0.08)", border: "1px solid rgba(229,83,75,0.18)", borderRadius: 100, padding: "5px 13px" }}>{ch}</div>)}
                     </div>
-                    <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.55 }}>Your next Pre-Board 90 task will prioritise these topics automatically.</div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.55 }}>Your next Pre-Board 60 task will prioritise these topics automatically.</div>
                 </div>
             )}
 

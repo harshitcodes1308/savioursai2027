@@ -7,9 +7,9 @@
  */
 export const FEATURE_FLAGS = {
   // ── LIVE on launch ──────────────────────────────────────────
-  webinar: true,
+  webinar: false,
   videoLectures: true,
-  aiDoubtSolver: true,
+  aiDoubtSolver: false,
   smartPlanner: true,
   customiseTest: true,
   competencyTest: true,
@@ -20,8 +20,8 @@ export const FEATURE_FLAGS = {
   // ── HIDDEN — built but not exposed in UI ────────────────────
   numericalMastery: true,
   chronoScroll: true,
-  guessPapers: false,
-  dateBattleArena: true,
+  guessPapers: true,
+  dateBattleArena: false,
   strategyAI: false,
   lastNightBefore: false,
   notesFlashcards: false,

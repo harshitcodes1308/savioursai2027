@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import { STUDY_FLOW_DATA, SUBJECT_META, SUBJECT_KEYS, COMING_SOON_SUBJECTS } from "@/data/studyFlowData";
 import type { SubjectKey } from "@/data/studyFlowData";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 const PROGRESS_KEY = "study-flow-progress";
 
@@ -116,7 +117,7 @@ export default function StudyFlowSubjectsPage() {
                   {/* Icon */}
                   <div style={{
                     fontSize: isMobile ? 28 : 36, marginBottom: isMobile ? 10 : 16, lineHeight: 1,
-                  }}>{meta.icon}</div>
+                  }}><AppIcon name="book" size={isMobile ? 19 : 23} color={meta.color} /></div>
 
                   {/* Subject name */}
                   <div style={{
@@ -178,7 +179,7 @@ export default function StudyFlowSubjectsPage() {
                 }}
               >
                 <div style={{ position: "relative", zIndex: 1 }}>
-                  <div style={{ fontSize: isMobile ? 28 : 36, marginBottom: isMobile ? 10 : 16, lineHeight: 1 }}>{meta.icon}</div>
+                  <div style={{ marginBottom: isMobile ? 10 : 16, color: meta.color }}><AppIcon name="book" size={isMobile ? 28 : 34} /></div>
                   <div style={{
                     fontFamily: "var(--font-display)", fontSize: isMobile ? 16 : 19,
                     color: "var(--text-primary)", letterSpacing: "-0.01em", marginBottom: 6,

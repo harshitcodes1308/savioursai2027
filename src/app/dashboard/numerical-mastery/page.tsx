@@ -8,6 +8,7 @@ import {
 } from "@/data/numerical-mastery-data";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useRouter } from "next/navigation";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 type Phase = "chapters" | "topics" | "numerical";
 
@@ -170,7 +171,7 @@ export default function NumericalMasteryPage() {
                     border: "1px solid var(--accent-gold-border)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 22,
-                  }}>{ch.icon}</div>
+                  }}><AppIcon name="calculator" size={23} color="var(--accent-gold)" /></div>
                   <div>
                     <div style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "var(--text-primary)", letterSpacing: "-0.01em", lineHeight: 1.25 }}>
                       {ch.name}
@@ -243,7 +244,7 @@ export default function NumericalMasteryPage() {
               border: "1px solid var(--accent-gold-border)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 26,
-            }}>{selectedChapter.icon}</div>
+            }}><AppIcon name="calculator" size={27} color="var(--accent-gold)" /></div>
             <div>
               <h1 style={{
                 fontFamily: "var(--font-display)", fontSize: 28, letterSpacing: "-0.02em",

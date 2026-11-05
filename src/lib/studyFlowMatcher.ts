@@ -24,7 +24,7 @@ export interface MatchedStudyFlow {
 }
 
 /**
- * Match a Pre-Board 90 subject and topicRef to the exact Study Flow chapter
+ * Match a Pre-Board 60 subject and topicRef to the exact Study Flow chapter
  */
 export function matchStudyFlowChapter(subject: string, topicRef: string): MatchedStudyFlow {
   const normSubject = subject.trim().toLowerCase();

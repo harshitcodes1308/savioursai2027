@@ -7,10 +7,11 @@ import { useDemoMode } from "@/hooks/useDemoMode";
 import { STUDY_FLOW_DATA, SUBJECT_META } from "@/data/studyFlowData";
 import type { SubjectKey, StudyFlowQuestion } from "@/data/studyFlowData";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 const PROGRESS_KEY = "study-flow-progress";
 const STEPS = ["Watch", "Revise", "Practice"] as const;
-const STEP_ICONS = ["▶", "📖", "✏️"];
+const STEP_ICONS: AppIconName[] = ["play", "book", "pen"];
 
 function getProgress(): Record<string, { step: number; completed: boolean }> {
   try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}"); }
@@ -62,7 +63,7 @@ function StepBar({ current, isMobile }: { current: number; isMobile: boolean }) 
               <span style={{
                 fontSize: isMobile ? 12 : 14,
                 filter: done || active ? "none" : "grayscale(1) opacity(0.4)",
-              }}>{done ? "✓" : STEP_ICONS[i]}</span>
+              }}>{done ? <AppIcon name="check" size={13} /> : <AppIcon name={STEP_ICONS[i]} size={13} />}</span>
               <span style={{
                 fontFamily: "var(--font-body)", fontSize: isMobile ? 10 : 12,
                 fontWeight: active ? 700 : 500,
@@ -242,7 +243,7 @@ export default function ChapterFlowPage() {
     );
   }
 
-  if (demoLocked) return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "var(--bg-base)", padding: 20 }}><div style={{ maxWidth: 420, textAlign: "center", background: "var(--bg-surface)", border: "1px solid var(--accent-gold-border)", borderRadius: 16, padding: 28 }}><div style={{ fontSize: 34 }}>🔒</div><h1 style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24 }}>One chapter per subject in the demo</h1><p style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 13, lineHeight: 1.6 }}>Create your own account to continue the complete Study Flow.</p><button onClick={() => router.push("/signup?from=demo")} style={{ padding: "10px 16px", cursor: "pointer", borderRadius: 9, border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontWeight: 700 }}>Create account →</button></div></div>;
+  if (demoLocked) return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "var(--bg-base)", padding: 20 }}><div style={{ maxWidth: 420, textAlign: "center", background: "var(--bg-surface)", border: "1px solid var(--accent-gold-border)", borderRadius: 16, padding: 28 }}><div style={{ width: 48, height: 48, borderRadius: 12, margin: "0 auto 14px", display: "grid", placeItems: "center", color: "var(--accent-gold)", background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)" }}><AppIcon name="lock" size={23} /></div><h1 style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 24 }}>One chapter per subject in the demo</h1><p style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 13, lineHeight: 1.6 }}>Create your own account to continue the complete Study Flow.</p><button onClick={() => router.push("/signup?from=demo")} style={{ padding: "10px 16px", cursor: "pointer", borderRadius: 9, border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontWeight: 700 }}>Create account →</button></div></div>;
 
   const goToStep = (s: number) => {
     setStep(s);
@@ -382,7 +383,7 @@ export default function ChapterFlowPage() {
           }}>{chapter.title}</div>
           <div style={{
             fontFamily: "var(--font-body)", fontSize: 11, color: meta.color,
-          }}>{meta.icon} {meta.label} · Chapter {chapterIdx + 1}</div>
+          }}><span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name="book" size={13} />{meta.label} · Chapter {chapterIdx + 1}</span></div>
         </div>
       </div>
 
@@ -527,7 +528,7 @@ export default function ChapterFlowPage() {
                                 background: "rgba(0,212,255,0.4)",
                                 display: "flex", alignItems: "center", justifyContent: "center",
                               }}>
-                                <span style={{ fontSize: 18, color: "#fff" }}>▶</span>
+                                <AppIcon name="play" size={18} color="#fff" />
                               </div>
                             )}
                           </div>
@@ -539,7 +540,7 @@ export default function ChapterFlowPage() {
                                 color: "#22c55e", letterSpacing: "0.08em", textTransform: "uppercase",
                                 marginBottom: 4,
                               }}>
-                                ★ Recommended by {ytCreatorName}
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="star" size={11} /> Recommended by {ytCreatorName}</span>
                               </div>
                             )}
                             <div style={{

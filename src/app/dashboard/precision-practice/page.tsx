@@ -8,6 +8,7 @@ import { mathsQuestions } from "@/data/precision-maths";
 import { chemistryQuestions } from "@/data/precision-chemistry";
 import { PRECISION_BIOLOGY } from "@/data/precision-biology";
 import { computerQuestions } from "@/data/precision-computers";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 import {
   PrecisionQuestion,
   PrecisionSubject,
@@ -33,7 +34,7 @@ const SUBJECTS: PrecisionSubject[] = [
   {
     id: "Physics",
     name: "Physics",
-    icon: "⚡",
+    icon: "zap",
     color: "#F59E0B",
     chapters: [
       { id: "FORCE, WORK, POWER AND ENERGY", name: "Force, Work, Power & Energy" },
@@ -50,7 +51,7 @@ const SUBJECTS: PrecisionSubject[] = [
   {
     id: "Mathematics",
     name: "Mathematics",
-    icon: "🔢",
+    icon: "calculator",
     color: "#3B82F6",
     chapters: [
       { id: "GST", name: "GST" },
@@ -78,7 +79,7 @@ const SUBJECTS: PrecisionSubject[] = [
   {
     id: "Chemistry",
     name: "Chemistry",
-    icon: "🧪",
+    icon: "flask",
     color: "#10B981",
     chapters: [
       { id: "PERIODIC TABLE - PERIODIC PROPERTIES", name: "Periodic Table" },
@@ -102,7 +103,7 @@ const SUBJECTS: PrecisionSubject[] = [
   {
     id: "Biology",
     name: "Biology",
-    icon: "🧬",
+    icon: "brain",
     color: "#EC4899",
     chapters: [
       { id: "Cell Cycle, Cell Division and Structure of Chromosomes", name: "Cell Cycle & Chromosomes" },
@@ -121,7 +122,7 @@ const SUBJECTS: PrecisionSubject[] = [
   {
     id: "Computer Applications",
     name: "Computer Applications",
-    icon: "💻",
+    icon: "code",
     color: "#6366F1",
     chapters: [
       { id: "INTRODUCTION TO OBJECT ORIENTED PROGRAMMING CONCEPTS", name: "Intro to OOP" },
@@ -312,31 +313,26 @@ export default function CompetencyTestPage() {
         <div
           style={{
             position: "relative",
-            background: "linear-gradient(135deg, rgba(245,158,11,0.06), rgba(239,68,68,0.04), rgba(139,92,246,0.06))",
-            border: "1px solid rgba(245,158,11,0.15)",
+            background: "var(--bg-surface)",
+            border: "1px solid var(--bg-border)",
             borderRadius: 24,
             padding: "48px 36px",
             marginBottom: 36,
             overflow: "hidden",
           }}
         >
-          {/* Glow orbs */}
-          <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,158,11,0.12), transparent 70%)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -40, left: -40, width: 160, height: 160, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.1), transparent 70%)", pointerEvents: "none" }} />
-
           <div style={{ position: "relative", zIndex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
               <div style={{
                 width: 56, height: 56, borderRadius: 16,
-                background: "linear-gradient(135deg, #F59E0B, #EF4444)",
+                background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)", color: "var(--accent-gold)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 28, boxShadow: "0 8px 32px rgba(245,158,11,0.3)",
-              }}>⚡</div>
+                boxShadow: "none",
+              }}><AppIcon name="target" size={27} /></div>
               <div>
                 <h1 style={{
                   fontSize: 30, fontWeight: 900, margin: 0,
-                  background: "linear-gradient(135deg, #F59E0B, #EF4444, #00D4FF)",
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                  color: "var(--text-primary)",
                 }}>
                   Competency Based Test
                 </h1>
@@ -353,7 +349,7 @@ export default function CompetencyTestPage() {
               borderLeft: "4px solid #F59E0B",
             }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <span style={{ fontSize: 24, flexShrink: 0 }}>📚</span>
+                <AppIcon name="book" size={22} color="var(--accent-gold)" />
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: "#FFF", marginBottom: 6 }}>
                     20 Years of Past Papers — Handpicked & Curated
@@ -442,7 +438,7 @@ export default function CompetencyTestPage() {
                       background: `linear-gradient(135deg, ${sub.color}25, ${sub.color}10)`,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: 26, border: `1px solid ${sub.color}20`,
-                    }}>{sub.icon}</div>
+                    }}><AppIcon name={sub.icon as AppIconName} size={24} /></div>
                     <div>
                       <div style={{ fontSize: 17, fontWeight: 700, color: "#FFF" }}>{sub.name}</div>
                       <div style={{ fontSize: 12, color: "#6B7280" }}>
@@ -465,7 +461,7 @@ export default function CompetencyTestPage() {
                       padding: "10px 16px", background: "rgba(255,255,255,0.02)", borderRadius: 10,
                       textAlign: "center",
                     }}>
-                      🔒 Questions coming soon
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppIcon name="lock" size={13} /> Questions coming soon</span>
                     </div>
                   )}
                 </div>
@@ -496,7 +492,7 @@ export default function CompetencyTestPage() {
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 30, border: `1px solid ${selectedSubject.color}20`,
             boxShadow: `0 8px 24px ${selectedSubject.color}15`,
-          }}>{selectedSubject.icon}</div>
+          }}><AppIcon name={selectedSubject.icon as AppIconName} size={28} /></div>
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 800, color: "#FFF", margin: 0 }}>
               {selectedSubject.name}
@@ -539,9 +535,9 @@ export default function CompetencyTestPage() {
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: "#FFF", marginBottom: 8 }}>{ch.name}</div>
                   <div style={{ display: "flex", gap: 20, fontSize: 13 }}>
-                    <span style={{ color: selectedSubject.color, fontWeight: 600 }}>{demoLocked ? "🔒 Demo locked" : `📝 ${stats.count} Qs`}</span>
-                    <span style={{ color: "#9CA3AF" }}>⭐ {stats.totalMarks} Marks</span>
-                    <span style={{ color: "#9CA3AF" }}>⏱ {formatSec(stats.totalTime)}</span>
+                    <span style={{ color: selectedSubject.color, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name={demoLocked ? "lock" : "file"} size={13} /> {demoLocked ? "Demo locked" : `${stats.count} Qs`}</span>
+                    <span style={{ color: "#9CA3AF", display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="star" size={13} /> {stats.totalMarks} Marks</span>
+                    <span style={{ color: "#9CA3AF", display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="timer" size={13} /> {formatSec(stats.totalTime)}</span>
                   </div>
                 </div>
                 {hasQ && (
@@ -551,7 +547,7 @@ export default function CompetencyTestPage() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 18, color: selectedSubject.color, fontWeight: 700,
                     border: `1px solid ${selectedSubject.color}20`,
-                  }}>{demoLocked ? "🔒" : "→"}</div>
+                  }}><AppIcon name={demoLocked ? "lock" : "arrow-right"} size={17} /></div>
                 )}
               </button>
             );
@@ -649,13 +645,13 @@ export default function CompetencyTestPage() {
               padding: "5px 12px", borderRadius: 8,
               fontSize: 12, fontWeight: 600, color: "#3B82F6",
             }}>
-              📅 {q.year}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="history" size={13} /> {q.year}</span>
             </span>
             {isOvertime && !isCritical && (
               <span style={{
                 background: "rgba(245,158,11,0.15)", padding: "5px 10px",
                 borderRadius: 8, fontSize: 11, fontWeight: 700, color: "#F59E0B",
-              }}>⚠ OVERTIME</span>
+              }}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><AppIcon name="alert" size={12} /> OVERTIME</span></span>
             )}
           </div>
           <div style={{
@@ -801,11 +797,11 @@ export default function CompetencyTestPage() {
   // ANALYTICS DASHBOARD — Refined
   // =============================================
   if (phase === "analytics" && result) {
-    const classStyles: Record<string, { color: string; emoji: string; grad: string }> = {
-      "Elite Performer": { color: "#10B981", emoji: "🏆", grad: "linear-gradient(135deg, #10B981, #059669)" },
-      "Strong Performer": { color: "#3B82F6", emoji: "💪", grad: "linear-gradient(135deg, #3B82F6, #2563EB)" },
-      Developing: { color: "#F59E0B", emoji: "📈", grad: "linear-gradient(135deg, #F59E0B, #D97706)" },
-      "Needs Structured Practice": { color: "#EF4444", emoji: "📚", grad: "linear-gradient(135deg, #EF4444, #DC2626)" },
+    const classStyles: Record<string, { color: string; icon: AppIconName }> = {
+      "Elite Performer": { color: "#10B981", icon: "trophy" },
+      "Strong Performer": { color: "#3B82F6", icon: "award" },
+      Developing: { color: "#F59E0B", icon: "trending-up" },
+      "Needs Structured Practice": { color: "#EF4444", icon: "book" },
     };
     const cls = classStyles[result.classification] || classStyles["Developing"];
 
@@ -823,10 +819,10 @@ export default function CompetencyTestPage() {
           <div style={{ position: "absolute", bottom: -60, left: -60, width: 200, height: 200, borderRadius: "50%", background: `radial-gradient(circle, ${cls.color}08, transparent 70%)`, pointerEvents: "none" }} />
 
           <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{ fontSize: 52, marginBottom: 8 }}>{cls.emoji}</div>
+            <div style={{ width: 58, height: 58, borderRadius: 15, margin: "0 auto 12px", display: "grid", placeItems: "center", background: `${cls.color}12`, border: `1px solid ${cls.color}28`, color: cls.color }}><AppIcon name={cls.icon} size={28} /></div>
             <div style={{
               display: "inline-block", padding: "6px 20px", borderRadius: 100,
-              background: cls.grad, fontSize: 13, fontWeight: 700, color: "#FFF",
+              background: `${cls.color}14`, border: `1px solid ${cls.color}30`, fontSize: 13, fontWeight: 700, color: cls.color,
               marginBottom: 12, letterSpacing: 0.5,
             }}>{result.classification}</div>
             <div style={{ fontSize: 14, color: "#9CA3AF", marginBottom: 8 }}>
@@ -847,15 +843,15 @@ export default function CompetencyTestPage() {
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20,
         }}>
           {[
-            { label: "Raw Score", value: `${result.rawScore}%`, color: "#00D4FF", icon: "📊" },
-            { label: "Accuracy", value: `${result.accuracy}%`, color: "#10B981", icon: "🎯" },
-            { label: "Time Efficiency", value: `${result.timeEfficiencyScore}%`, color: "#3B82F6", icon: "⏱" },
+            { label: "Raw Score", value: `${result.rawScore}%`, color: "#00D4FF", icon: "chart" as AppIconName },
+            { label: "Accuracy", value: `${result.accuracy}%`, color: "#10B981", icon: "target" as AppIconName },
+            { label: "Time Efficiency", value: `${result.timeEfficiencyScore}%`, color: "#3B82F6", icon: "timer" as AppIconName },
           ].map((card) => (
             <div key={card.label} style={{
               background: `${card.color}08`, border: `1px solid ${card.color}20`,
               borderRadius: 16, padding: "20px 16px", textAlign: "center",
             }}>
-              <div style={{ fontSize: 20, marginBottom: 6 }}>{card.icon}</div>
+              <div style={{ marginBottom: 6, color: card.color }}><AppIcon name={card.icon} size={20} /></div>
               <div style={{ fontSize: 26, fontWeight: 800, color: card.color, marginBottom: 4 }}>{card.value}</div>
               <div style={{ fontSize: 11, color: "#6B7280", textTransform: "uppercase", letterSpacing: 0.5 }}>{card.label}</div>
             </div>
@@ -888,7 +884,7 @@ export default function CompetencyTestPage() {
             borderRadius: 18, padding: "22px",
           }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#FFF", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16 }}>📊</span> Accuracy by Marks
+              <AppIcon name="chart" size={16} color="var(--accent-gold)" /> Accuracy by Marks
             </h3>
             {result.markBreakdown.map((mb) => (
               <div key={mb.marks} style={{ marginBottom: 14 }}>
@@ -915,7 +911,7 @@ export default function CompetencyTestPage() {
             borderRadius: 18, padding: "22px",
           }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#FFF", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16 }}>⏱</span> Time Behavior
+              <AppIcon name="timer" size={16} color="var(--accent-gold)" /> Time Behavior
             </h3>
             {Object.entries(result.timeBehavior.avgTimePerMarkType).map(([marks, avg]) => {
               const allotted = TIME_PER_MARK[Number(marks)] || 60;
@@ -939,12 +935,12 @@ export default function CompetencyTestPage() {
 
         {/* AI Insights */}
         <div style={{
-          background: "linear-gradient(135deg, rgba(139,92,246,0.06), rgba(236,72,153,0.04))",
-          border: "1px solid rgba(139,92,246,0.15)",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--bg-border)",
           borderRadius: 18, padding: "22px", marginBottom: 28,
         }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: "#00D4FF", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 16 }}>🧠</span> AI Insights
+            <AppIcon name="brain" size={16} /> AI Insights
           </h3>
           {result.insights.map((insight, idx) => (
             <div key={idx} style={{
@@ -952,7 +948,7 @@ export default function CompetencyTestPage() {
               padding: "14px 16px", background: "rgba(0,0,0,0.25)",
               borderRadius: 12, borderLeft: "3px solid #00D4FF",
             }}>
-              <span style={{ fontSize: 14, flexShrink: 0 }}>💡</span>
+              <AppIcon name="lightbulb" size={14} color="var(--accent-gold)" />
               <span style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.6 }}>{insight}</span>
             </div>
           ))}
@@ -964,7 +960,7 @@ export default function CompetencyTestPage() {
           borderRadius: 18, padding: "22px", marginBottom: 28,
         }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: "#FFF", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 16 }}>📝</span> Question Review
+            <AppIcon name="file-check" size={16} color="var(--accent-gold)" /> Question Review
           </h3>
           {result.questionResults.map((qr, idx) => {
             const q = questions[idx];
@@ -1008,12 +1004,12 @@ export default function CompetencyTestPage() {
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", paddingBottom: 40 }}>
           <button onClick={() => startTest(selectedSubject!, selectedChapter)} style={{
             padding: "16px 36px",
-            background: "linear-gradient(135deg, #F59E0B, #EF4444)",
-            color: "#FFF", border: "none", borderRadius: 14,
+            background: "var(--accent-gold-glow)",
+            color: "var(--accent-gold)", border: "1px solid var(--accent-gold-border)", borderRadius: 10,
             fontSize: 15, fontWeight: 700, cursor: "pointer",
-            boxShadow: "0 8px 28px rgba(245,158,11,0.25)",
+            boxShadow: "none",
             transition: "all 0.3s",
-          }}>🔄 Retry Chapter</button>
+          }}><span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><AppIcon name="refresh" size={16} /> Retry chapter</span></button>
           <button onClick={resetAll} style={{
             padding: "16px 36px",
             background: "rgba(139,92,246,0.1)", color: "#00D4FF",

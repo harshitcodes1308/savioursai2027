@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { RazorpayButton } from "@/components/RazorpayButton";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 interface UpgradePromptProps {
     featureName: string;
@@ -146,7 +147,7 @@ export function UpgradePrompt({ featureName, description, onClose, type = "PRO" 
 
                     {isDemo ? (
                         <div style={{ textAlign: "center", padding: "12px 4px 4px" }}>
-                            <div style={{ fontSize: 38, marginBottom: 12 }}>🚀</div>
+                            <div style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 14px", display: "grid", placeItems: "center", color: "var(--accent-gold)", background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)" }}><AppIcon name="rocket" size={25} /></div>
                             <h3 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)", fontSize: 22, margin: "0 0 9px" }}>Ready to make this yours?</h3>
                             <p style={{ fontFamily: "var(--font-body)", color: "var(--text-muted)", fontSize: 13, lineHeight: 1.6, margin: "0 0 22px" }}>This is a shared product tour. Create your own account to save work and unlock the real experience.</p>
                             <button onClick={() => router.push("/signup?from=demo")} style={{ width: "100%", padding: 15, cursor: "pointer", border: "1px solid var(--accent-gold-border)", borderRadius: 12, background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontWeight: 700 }}>Create a real account →</button>

@@ -723,7 +723,7 @@ enum SubscriptionStatus {
   CANCELLED
 }
 
-// ── Pre-Board 90 ──────────────────────────────────────────────────────────────
+// ── Pre-Board 60 (legacy model names retained for database compatibility) ─────
 
 model PreBoard90Plan {
   id           String           @id @default(cuid())
@@ -732,9 +732,9 @@ model PreBoard90Plan {
   grade        Int
   subjects     String[]
   startDate    DateTime         @db.Date
-  phase1End    DateTime         @db.Date // Day 30
-  phase2End    DateTime         @db.Date // Day 60
-  phase3End    DateTime         @db.Date // Day 90
+  phase1End    DateTime         @db.Date // Day 20
+  phase2End    DateTime         @db.Date // Day 40
+  phase3End    DateTime         @db.Date // Day 60
   status       PB90Status       @default(ACTIVE)
   weakTopics   Json             @default("{}")
   createdAt    DateTime         @default(now())
@@ -750,7 +750,7 @@ model PreBoard90Plan {
 model PreBoard90Task {
   id           String          @id @default(cuid())
   planId       String
-  day          Int             // 1-90
+  day          Int             // 1-60
   phase        Int             // 1, 2, or 3
   taskType     PB90TaskType
   subject      String

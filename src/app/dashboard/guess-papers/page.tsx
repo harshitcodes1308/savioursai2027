@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { TYQ_SUBJECTS, READING_TIME_MINUTES } from "@/data/tyq-config";
 import { trpc } from "@/lib/trpc/client";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 export default function TYQPage() {
   const router = useRouter();
@@ -27,20 +28,19 @@ export default function TYQPage() {
       {/* Header */}
       <div style={{ marginBottom: 40 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <span style={{ fontSize: 32 }}>📄</span>
+          <div style={{ width: 40, height: 40, borderRadius: 10, border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", display: "grid", placeItems: "center", color: "var(--accent-gold)" }}>
+            <AppIcon name="file" size={20} />
+          </div>
           <h1 style={{
             fontSize: 28,
             fontWeight: 800,
-            color: "#FFF",
+            color: "var(--text-primary)",
             margin: 0,
-            background: "linear-gradient(135deg, #00D4FF, #EC4899)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
           }}>
             Guess Papers
           </h1>
         </div>
-        <p style={{ color: "#9CA3AF", fontSize: 15, margin: 0, lineHeight: 1.6 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: 15, margin: 0, lineHeight: 1.6 }}>
           Practice with ICSE 2026 specimen papers under real exam conditions.
           Select a subject to begin your timed practice session.
         </p>
@@ -49,8 +49,8 @@ export default function TYQPage() {
       {/* Free tier banner */}
       {!isPaid && (
         <div style={{
-          background: "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.05))",
-          border: "1px solid rgba(59,130,246,0.2)",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--accent-gold-border)",
           borderRadius: 14,
           padding: "16px 20px",
           marginBottom: 24,
@@ -58,16 +58,16 @@ export default function TYQPage() {
           alignItems: "center",
           gap: 12,
           fontSize: 13,
-          color: "#9CA3AF",
+          color: "var(--text-muted)",
         }}>
-          <span style={{ fontSize: 18 }}>💡</span>
+          <AppIcon name="info" size={18} color="var(--accent-gold)" />
           <span>
-            <strong style={{ color: "#60A5FA" }}>Free Tier:</strong> Physics guess papers are available for free.{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Free tier:</strong> Physics guess papers are available for free.{" "}
             <button
               onClick={() => setShowUpgrade(true)}
               style={{
-                background: "none", border: "none", color: "#3B82F6",
-                fontWeight: 700, cursor: "pointer", textDecoration: "underline",
+                background: "none", border: "none", color: "var(--accent-gold)",
+                fontWeight: 700, cursor: "pointer",
                 fontSize: 13, padding: 0,
               }}
             >Upgrade to Pro</button> to unlock all 10 subjects.
@@ -77,38 +77,38 @@ export default function TYQPage() {
 
       {/* How It Works */}
       <div style={{
-        background: "linear-gradient(135deg, rgba(139,92,246,0.08), rgba(236,72,153,0.05))",
-        border: "1px solid rgba(139,92,246,0.2)",
+        background: "var(--bg-surface)",
+        border: "1px solid var(--bg-border)",
         borderRadius: 16,
         padding: "24px 28px",
         marginBottom: 36,
       }}>
-        <h3 style={{ color: "#00D4FF", fontSize: 14, fontWeight: 700, margin: "0 0 16px", letterSpacing: 1, textTransform: "uppercase" }}>
-          📋 How It Works
+        <h3 style={{ color: "var(--text-secondary)", fontSize: 13, fontWeight: 700, margin: "0 0 18px", letterSpacing: 1, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 8 }}>
+          <AppIcon name="file-check" size={16} color="var(--accent-gold)" /> How it works
         </h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
           {[
-            { step: "1", icon: "📚", title: "Select Subject", desc: "Choose from 10 ICSE subjects" },
-            { step: "2", icon: "👀", title: "Reading Time", desc: `${READING_TIME_MINUTES} minutes to read questions` },
-            { step: "3", icon: "✍️", title: "Exam Mode", desc: "Timed exam (2h 30m / 3h for Maths)" },
-            { step: "4", icon: "✅", title: "Answer Key", desc: "Review answers after time ends" },
+            { step: "1", icon: "book" as AppIconName, title: "Select subject", desc: "Choose from 9 ICSE subjects" },
+            { step: "2", icon: "eye" as AppIconName, title: "Reading time", desc: `${READING_TIME_MINUTES} minutes to read questions` },
+            { step: "3", icon: "pen" as AppIconName, title: "Exam mode", desc: "Timed exam (2h 30m / 3h for Maths)" },
+            { step: "4", icon: "file-check" as AppIconName, title: "Answer key", desc: "Review answers after time ends" },
           ].map((item) => (
             <div key={item.step} style={{
               display: "flex", alignItems: "flex-start", gap: 12,
             }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10,
-                background: "rgba(139,92,246,0.15)",
+                background: "var(--bg-elevated)", border: "1px solid var(--bg-border)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 18, flexShrink: 0,
+                color: "var(--accent-gold)", flexShrink: 0,
               }}>
-                {item.icon}
+                <AppIcon name={item.icon} size={17} />
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#E5E7EB", marginBottom: 2 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2 }}>
                   Step {item.step}: {item.title}
                 </div>
-                <div style={{ fontSize: 12, color: "#9CA3AF" }}>{item.desc}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{item.desc}</div>
               </div>
             </div>
           ))}
@@ -132,17 +132,15 @@ export default function TYQPage() {
               onMouseLeave={() => setHoveredSubject(null)}
               style={{
                 position: "relative",
-                background: isHovered
-                  ? `linear-gradient(135deg, ${subject.color}15, ${subject.color}08)`
-                  : "rgba(255,255,255,0.03)",
-                border: `1px solid ${isHovered ? subject.color + "40" : "rgba(255,255,255,0.06)"}`,
+                background: isHovered && !isLocked ? "var(--bg-elevated)" : "var(--bg-surface)",
+                border: `1px solid ${isHovered && !isLocked ? "var(--accent-gold-border)" : "var(--bg-border)"}`,
                 borderRadius: 16,
                 padding: "24px 20px",
                 cursor: isLocked ? "default" : "pointer",
                 textAlign: "left",
                 transition: "all 0.3s ease",
                 transform: isHovered && !isLocked ? "translateY(-2px)" : "none",
-                boxShadow: isHovered && !isLocked ? `0 8px 24px ${subject.color}15` : "none",
+                boxShadow: isHovered && !isLocked ? "0 12px 30px rgba(0,0,0,.22)" : "none",
                 opacity: isLocked ? 0.55 : 1,
               }}
             >
@@ -160,18 +158,18 @@ export default function TYQPage() {
                   zIndex: 2,
                 }}>
                   <div style={{
-                    background: "rgba(59,130,246,0.15)",
-                    border: "1px solid rgba(59,130,246,0.3)",
+                    background: "var(--bg-elevated)",
+                    border: "1px solid var(--bg-border)",
                     borderRadius: 12,
                     padding: "8px 16px",
                     fontSize: 12,
                     fontWeight: 700,
-                    color: "#60A5FA",
+                    color: "var(--text-secondary)",
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
                   }}>
-                    🔒 Unlock with Pro
+                    <AppIcon name="lock" size={14} /> Unlock with Pro
                   </div>
                 </div>
               )}
@@ -180,17 +178,17 @@ export default function TYQPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: 14,
-                  background: `${subject.color}18`,
+                  background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 24,
+                  color: "var(--accent-gold)",
                 }}>
-                  {subject.icon}
+                  <AppIcon name={subject.icon} size={22} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#FFF" }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
                     {subject.name}
                   </div>
-                  <div style={{ fontSize: 12, color: "#9CA3AF" }}>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
                     {subject.papers} Specimen Papers
                   </div>
                 </div>
@@ -200,22 +198,22 @@ export default function TYQPage() {
               <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "12px 14px",
-                background: "rgba(0,0,0,0.2)",
+                background: "var(--bg-elevated)", border: "1px solid var(--bg-border)",
                 borderRadius: 10,
               }}>
                 <div>
-                  <div style={{ fontSize: 11, color: "#6B7280", marginBottom: 2 }}>Exam Duration</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: subject.color }}>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 2 }}>Exam duration</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
                     {subject.examDuration === 180 ? "3 Hours" : "2h 30m"}
                   </div>
                 </div>
                 <div style={{
                   width: 32, height: 32, borderRadius: 8,
-                  background: `${subject.color}20`,
+                  background: "transparent",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 16, color: subject.color,
+                  color: isLocked ? "var(--text-disabled)" : "var(--accent-gold)",
                 }}>
-                  {isLocked ? "🔒" : "→"}
+                  <AppIcon name={isLocked ? "lock" : "arrow-right"} size={16} />
                 </div>
               </div>
             </button>

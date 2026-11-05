@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { trpc } from '@/lib/trpc/client';
 import { typography } from '@/lib/typography';
 import { useResponsive } from '@/hooks/useResponsive';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 export default function ProfilePage() {
     const { isMobile } = useResponsive();
@@ -176,7 +177,7 @@ export default function ProfilePage() {
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '32px' }}>
                         <div className="dashboard-card" style={{ padding: '24px' }}>
-                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📝</div>
+                            <AppIcon name="file-check" size={26} color="var(--accent-gold)" style={{ marginBottom: 8 }} />
                             <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px' }}>
                                 {stats.totalTests}
                             </div>
@@ -186,7 +187,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="dashboard-card" style={{ padding: '24px' }}>
-                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📊</div>
+                            <AppIcon name="chart" size={26} color="#10B981" style={{ marginBottom: 8 }} />
                             <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px', color: '#10B981' }}>
                                 {stats.avgAccuracy}%
                             </div>
@@ -196,7 +197,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="dashboard-card" style={{ padding: '24px' }}>
-                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📚</div>
+                            <AppIcon name="book" size={26} color="var(--accent-gold)" style={{ marginBottom: 8 }} />
                             <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px', color: '#00D4FF' }}>
                                 {stats.subjectsStudied.length}
                             </div>
@@ -206,7 +207,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="dashboard-card" style={{ padding: '24px' }}>
-                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>⏱</div>
+                            <AppIcon name="timer" size={26} color="#F59E0B" style={{ marginBottom: 8 }} />
                             <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px', color: '#F59E0B' }}>
                                 {stats.totalStudyTime}
                             </div>
@@ -216,7 +217,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="dashboard-card" style={{ padding: '24px' }}>
-                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📖</div>
+                            <AppIcon name="notebook" size={26} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
                             <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px' }}>
                                 {stats.notesCount}
                             </div>
@@ -226,7 +227,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="dashboard-card" style={{ padding: '24px' }}>
-                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>🤖</div>
+                            <AppIcon name="brain" size={26} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
                             <div style={{ ...typography.display, fontSize: '32px', marginBottom: '4px' }}>
                                 {stats.aiUsage}
                             </div>
@@ -282,7 +283,7 @@ export default function ProfilePage() {
             ) : (
                 /* Empty State */
                 <div className="dashboard-card" style={{ padding: '64px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎓</div>
+                    <div style={{ width: 64, height: 64, borderRadius: 16, margin: '0 auto 18px', display: 'grid', placeItems: 'center', background: 'var(--accent-gold-glow)', border: '1px solid var(--accent-gold-border)', color: 'var(--accent-gold)' }}><AppIcon name="graduation" size={31} /></div>
                     <h3 style={{ ...typography.display, fontSize: '24px', marginBottom: '12px' }}>
                         Start Your Learning Journey
                     </h3>

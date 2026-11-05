@@ -1,0 +1,172 @@
+"use client";
+
+import type { CSSProperties } from "react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Award,
+  BarChart3,
+  BookOpen,
+  BrainCircuit,
+  BriefcaseBusiness,
+  Calculator,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  CirclePause,
+  CirclePlay,
+  Clock3,
+  Coffee,
+  Code2,
+  Copy,
+  Crown,
+  Database,
+  Dices,
+  Eye,
+  FileCheck2,
+  FileText,
+  Flag,
+  FlaskConical,
+  Focus,
+  Gauge,
+  Gem,
+  Globe2,
+  GraduationCap,
+  History,
+  Hourglass,
+  Info,
+  Layers3,
+  Lightbulb,
+  LockKeyhole,
+  Map,
+  Medal,
+  Menu,
+  Moon,
+  NotebookPen,
+  PanelTopOpen,
+  PenLine,
+  Play,
+  RefreshCw,
+  Rocket,
+  RotateCcw,
+  ScrollText,
+  Settings2,
+  ShieldCheck,
+  Sparkles,
+  Square,
+  SquarePen,
+  Star,
+  StopCircle,
+  Target,
+  Timer,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+  Users,
+  X,
+  XCircle,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+
+export type AppIconName =
+  | "alert" | "arrow-left" | "arrow-right" | "award" | "chart" | "book"
+  | "brain" | "briefcase" | "calculator" | "check" | "check-circle" | "chevron-right"
+  | "pause" | "play-circle" | "clock" | "coffee" | "code" | "copy" | "crown"
+  | "database" | "dice" | "eye" | "file-check" | "file" | "flag" | "flask"
+  | "focus" | "gauge" | "gem" | "globe" | "graduation" | "history" | "hourglass"
+  | "info" | "layers" | "lightbulb" | "lock" | "map" | "medal" | "menu" | "moon"
+  | "notebook" | "panel" | "pen" | "play" | "refresh" | "rocket" | "rotate"
+  | "scroll" | "settings" | "shield" | "sparkles" | "square" | "square-pen" | "star"
+  | "stop" | "target" | "timer" | "trash" | "trending-down" | "trending-up"
+  | "trophy" | "users" | "x" | "x-circle" | "zap";
+
+const ICONS: Record<AppIconName, LucideIcon> = {
+  alert: AlertTriangle,
+  "arrow-left": ArrowLeft,
+  "arrow-right": ArrowRight,
+  award: Award,
+  chart: BarChart3,
+  book: BookOpen,
+  brain: BrainCircuit,
+  briefcase: BriefcaseBusiness,
+  calculator: Calculator,
+  check: Check,
+  "check-circle": CheckCircle2,
+  "chevron-right": ChevronRight,
+  pause: CirclePause,
+  "play-circle": CirclePlay,
+  clock: Clock3,
+  coffee: Coffee,
+  code: Code2,
+  copy: Copy,
+  crown: Crown,
+  database: Database,
+  dice: Dices,
+  eye: Eye,
+  "file-check": FileCheck2,
+  file: FileText,
+  flag: Flag,
+  flask: FlaskConical,
+  focus: Focus,
+  gauge: Gauge,
+  gem: Gem,
+  globe: Globe2,
+  graduation: GraduationCap,
+  history: History,
+  hourglass: Hourglass,
+  info: Info,
+  layers: Layers3,
+  lightbulb: Lightbulb,
+  lock: LockKeyhole,
+  map: Map,
+  medal: Medal,
+  menu: Menu,
+  moon: Moon,
+  notebook: NotebookPen,
+  panel: PanelTopOpen,
+  pen: PenLine,
+  play: Play,
+  refresh: RefreshCw,
+  rocket: Rocket,
+  rotate: RotateCcw,
+  scroll: ScrollText,
+  settings: Settings2,
+  shield: ShieldCheck,
+  sparkles: Sparkles,
+  square: Square,
+  "square-pen": SquarePen,
+  star: Star,
+  stop: StopCircle,
+  target: Target,
+  timer: Timer,
+  trash: Trash2,
+  "trending-down": TrendingDown,
+  "trending-up": TrendingUp,
+  trophy: Trophy,
+  users: Users,
+  x: X,
+  "x-circle": XCircle,
+  zap: Zap,
+};
+
+export function AppIcon({
+  name,
+  size = 18,
+  strokeWidth = 1.8,
+  color = "currentColor",
+  style,
+  className,
+}: {
+  name: AppIconName;
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
+  style?: CSSProperties;
+  className?: string;
+}) {
+  const Icon = ICONS[name];
+  return <Icon aria-hidden="true" size={size} strokeWidth={strokeWidth} color={color} style={style} className={className} />;
+}

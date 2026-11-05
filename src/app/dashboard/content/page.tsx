@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
+import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 export default function ContentPage() {
     const [activeTab, setActiveTab] = useState<"upload" | "library">("upload");
@@ -34,9 +35,9 @@ export default function ContentPage() {
     };
 
     const libraryItems = [
-        { id: 1, subject: "Mathematics", chapters: 12, uploaded: "2026-01-10", icon: "🔢" },
-        { id: 2, subject: "Science", chapters: 15, uploaded: "2026-01-08", icon: "🔬" },
-        { id: 3, subject: "English", chapters: 10, uploaded: "2026-01-05", icon: "📚" },
+        { id: 1, subject: "Mathematics", chapters: 12, uploaded: "2026-01-10", icon: "calculator" as AppIconName },
+        { id: 2, subject: "Science", chapters: 15, uploaded: "2026-01-08", icon: "flask" as AppIconName },
+        { id: 3, subject: "English", chapters: 10, uploaded: "2026-01-05", icon: "book" as AppIconName },
     ];
 
     return (
@@ -89,7 +90,7 @@ export default function ContentPage() {
                                     : "border-gray-700 hover:border-gray-600 bg-gray-900"
                                     }`}
                             >
-                                <div className="text-3xl mb-2">📝</div>
+                                <AppIcon name="square-pen" size={28} color="var(--accent-gold)" style={{ marginBottom: 8 }} />
                                 <div className="font-medium text-white mb-1">Paste Text</div>
                                 <div className="text-sm text-gray-400">Copy and paste your syllabus</div>
                             </button>
@@ -101,7 +102,7 @@ export default function ContentPage() {
                                     : "border-gray-700 hover:border-gray-600 bg-gray-900"
                                     }`}
                             >
-                                <div className="text-3xl mb-2">📄</div>
+                                <AppIcon name="file" size={28} color="var(--accent-gold)" style={{ marginBottom: 8 }} />
                                 <div className="font-medium text-white mb-1">Upload File</div>
                                 <div className="text-sm text-gray-400">PDF, DOC, or TXT</div>
                             </button>
@@ -126,7 +127,7 @@ export default function ContentPage() {
                                     disabled={!syllabusText}
                                     className="px-6 py-3 rounded-lg bg-primary hover:bg-cyan-500 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Process with AI ✨
+                                    <span className="inline-flex items-center gap-2"><AppIcon name="sparkles" size={16} /> Process with AI</span>
                                 </button>
                             </div>
                         </div>
@@ -139,7 +140,7 @@ export default function ContentPage() {
                                 Upload Syllabus File
                             </h3>
                             <div className="border-2 border-dashed border-gray-700 rounded-xl p-12 text-center hover:border-primary transition-all bg-gray-900">
-                                <div className="text-5xl mb-4">📁</div>
+                                <AppIcon name="briefcase" size={42} color="var(--text-muted)" style={{ margin: "0 auto 16px" }} />
                                 <p className="text-white font-medium mb-2">
                                     Drop your file here or click to browse
                                 </p>
@@ -173,7 +174,7 @@ export default function ContentPage() {
                                             onClick={handleUpload}
                                             className="px-6 py-2 rounded-lg bg-primary hover:bg-cyan-500 text-white font-semibold transition-all"
                                         >
-                                            Upload ✨
+                                            <span className="inline-flex items-center gap-2"><AppIcon name="sparkles" size={15} /> Upload</span>
                                         </button>
                                     </div>
                                 </div>
@@ -188,7 +189,7 @@ export default function ContentPage() {
                         borderColor: "rgba(59, 130, 246, 0.3)"
                     }}>
                         <div className="flex items-start space-x-3">
-                            <div className="text-2xl">🤖</div>
+                            <AppIcon name="brain" size={23} color="#60A5FA" />
                             <div>
                                 <h4 className="font-semibold text-blue-300 mb-2">
                                     AI-Powered Processing
@@ -216,7 +217,7 @@ export default function ContentPage() {
                                 className="dashboard-card"
                                 style={{ padding: "24px", cursor: "pointer" }}
                             >
-                                <div className="text-4xl mb-3">{item.icon}</div>
+                                <AppIcon name={item.icon} size={34} color="var(--accent-gold)" style={{ marginBottom: 12 }} />
                                 <h3 className="text-xl font-semibold text-white mb-2">
                                     {item.subject}
                                 </h3>

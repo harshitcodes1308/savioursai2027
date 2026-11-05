@@ -6,6 +6,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { useResponsive } from "@/hooks/useResponsive";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -407,7 +408,7 @@ export default function TrackerViewer() {
               padding: 40,
             }}
           >
-            <div style={{ fontSize: 48, opacity: 0.3 }}>⚠</div>
+            <AppIcon name="alert" size={42} color="var(--text-muted)" />
             <p
               style={{
                 fontFamily: "var(--font-display)",

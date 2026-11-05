@@ -1,9 +1,9 @@
 export const FEATURE_FLAGS = {
   // Currently live
   studyFlow:         true,
-  webinar:           true,
+  webinar:           false,
   videoLectures:     true,
-  aiDoubtSolver:     true,
+  aiDoubtSolver:     false,
   smartPlanner:      true,
   competencyTest:    true,
   customiseTest:     true,
@@ -11,16 +11,16 @@ export const FEATURE_FLAGS = {
   focusMode:         true,
   todoList:          true,
   youtubeDiscovery:  true,   // YouTube-powered Watch step in study flow
-  halfYearlySimulator: true,
+  halfYearlySimulator: false,
 
-  ebooks:            true,
-  tracker:           true,   // Class 10 board-prep tracker (interactive PDF)
+  ebooks:            false,
+  tracker:           false,  // Class 10 board-prep tracker (interactive PDF)
 
   // Hidden — activate later by flipping to true
   numericalMastery:  true,
   chronoScroll:      true,
-  guessPapers:       false,
-  dateBattleArena:   true,
+  guessPapers:       true,
+  dateBattleArena:   false,
   strategyAI:        false,
   lastNightBefore:   false,
   notesFlashcards:   false,

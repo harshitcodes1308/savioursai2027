@@ -7,6 +7,8 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import ShimmerText from "@/components/ui/shimmer-text";
 import { MONTHLY_MISSION, getCurrentMonthIndex, getMonthTaskCounts } from "@/data/monthly-mission";
+import { AppIcon } from "@/components/ui/AppIcon";
+import { getDashboardIcon } from "@/lib/dashboardIcons";
 
 const MM_KEY = "saviours-monthly-mission-v2";
 const MODE_KEY = "saviours-stats-mode";
@@ -174,12 +176,13 @@ export default function DashboardPage() {
     }, []);
 
     const featureCards = [
-        { flag: "studyFlow" as const, label: "Study Flow", desc: "Watch → Revise → Practice", path: "/dashboard/study-flow", icon: "▶", tagline: "Your guided learning path" },
+        { flag: "studyFlow" as const, label: "Study Flow", desc: "Watch → Revise → Practice", path: "/dashboard/study-flow", icon: "book", tagline: "Your guided learning path" },
         { flag: "halfYearlySimulator" as const, label: "Half Yearly Simulator", desc: "Watch → Read → Test half the syllabus", path: "/dashboard/half-yearly", icon: "◈", tagline: "Your guided route to half-yearly mastery" },
         { flag: "aiDoubtSolver" as const, label: "AI Doubt Solver", desc: "Ask anything, get instant answers", path: "/dashboard/ai-assistant", icon: "◈", tagline: "Your 24/7 academic companion" },
         { flag: "smartPlanner" as const, label: "Smart Planner", desc: "Your day, mapped intelligently", path: "/dashboard/planner", icon: "◎", tagline: "Because time waits for no one" },
         { flag: "competencyTest" as const, label: "Competency Test", desc: "PYQ-based timed practice", path: "/dashboard/precision-practice", icon: "◉", tagline: "Practice like it's the real thing" },
         { flag: "customiseTest" as const, label: "Customise Test", desc: "Build your own MCQ set", path: "/dashboard/tests", icon: "◈", tagline: "Your test, your rules" },
+        { flag: "guessPapers" as const, label: "Guess Papers", desc: "AI-predicted papers built from PYQ patterns", path: "/dashboard/guess-papers", icon: "◈", tagline: "Revise what is most likely to matter." },
         { flag: "flipTheQuestion" as const, label: "Flip the Question", desc: "Reverse-engineer from answers", path: "/dashboard/flip-the-question", icon: "⇌", tagline: "See questions from the other side" },
         { flag: "focusMode" as const, label: "Focus Mode", desc: "Distraction-free deep work", path: "/dashboard/focus", icon: "◎", tagline: "Where deep work happens" },
         { flag: "todoList" as const, label: "Monthly Mission", desc: "12-month ICSE board prep checklist", path: "/dashboard/todo", icon: "○", tagline: "One month at a time" },
@@ -189,7 +192,7 @@ export default function DashboardPage() {
         { flag: "numericalMastery" as const, label: "Numerical Mastery", desc: "Physics formulas, solved examples & PYQs", path: "/dashboard/numerical-mastery", icon: "◈", tagline: "Every formula, every numerical, mastered." },
         { flag: "dateBattleArena" as const, label: "Date Battle Arena", desc: "Gamified history dates, 60-second battles", path: "/dashboard/date-battle", icon: "◉", tagline: "Speed meets memory in the arena." },
         { flag: "ebooks" as const, label: "E-Books", desc: "Premium ICSE textbooks by Clarify Knowledge", path: "/dashboard/ebooks", icon: "◈", tagline: "10 subjects. One library. Zero excuses." },
-        { flag: "preBoard90" as const, label: "Pre-Board 90", desc: "90-day countdown to December pre-boards", path: "/dashboard/pre-board-90", icon: "◈", tagline: "Study. Practice. Test. December ready." },
+        { flag: "preBoard90" as const, label: "Pre-Board 60", desc: "60-day countdown to December pre-boards", path: "/dashboard/pre-board-90", icon: "◈", tagline: "Study. Practice. Test. December ready." },
     ].filter(card => FEATURE_FLAGS[card.flag]);
 
     if (profileLoading || !stats) {
@@ -282,7 +285,7 @@ export default function DashboardPage() {
                                 color: paymentWarning === "EXPIRED" ? "#ef4444" : "#f59e0b",
                                 lineHeight: 1,
                             }}>
-                                ⚠
+                                <AppIcon name="alert" size={21} />
                             </div>
                             <div>
                                 <div style={{
@@ -347,7 +350,7 @@ export default function DashboardPage() {
                         }}
                     >
                         <span style={{ display: "flex", alignItems: "center", gap: 13 }}>
-                            <span style={{ fontSize: 28 }}>{scholarshipOffer?.active ? "🏆" : "🎓"}</span>
+                            <span style={{ width: 40, height: 40, borderRadius: 10, display: "grid", placeItems: "center", background: "var(--bg-elevated)", border: "1px solid var(--bg-border)", color: scholarshipOffer?.active ? "#3ECF8E" : "var(--accent-gold)" }}><AppIcon name={scholarshipOffer?.active ? "trophy" : "graduation"} size={21} /></span>
                             <span>
                                 <span style={{ display: "block", color: "var(--text-primary)", fontFamily: "var(--font-display)", fontSize: 17 }}>
                                     {scholarshipOffer?.active ? `Your ${scholarshipOffer.discountPercentage}% scholarship is live` : "Scholarship Test: earn up to 50% off"}
@@ -513,7 +516,7 @@ export default function DashboardPage() {
                         <RingStatCard key={s.label} {...s} />
                     ))}
                 </div>
-                {/* ── Pre-Board 90 Mini-Widget ── */}
+                {/* ── Pre-Board 60 Mini-Widget ── */}
                 {pb90Progress && pb90Progress.status === "ACTIVE" && (
                     <div
                         onClick={() => router.push("/dashboard/pre-board-90")}
@@ -538,20 +541,20 @@ export default function DashboardPage() {
                         {/* Header row */}
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--accent-gold)", opacity: 0.85 }}>Pre-Board 90</div>
+                                <div style={{ fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--accent-gold)", opacity: 0.85 }}>Pre-Board 60</div>
                                 <div style={{
                                     fontFamily: "var(--font-body)", fontSize: 9, fontWeight: 700,
                                     letterSpacing: "0.1em", textTransform: "uppercase",
-                                    color: pb90Progress.currentDay <= 30 ? "#5B8AF5" : pb90Progress.currentDay <= 60 ? "#F5A623" : "#E5534B",
-                                    background: pb90Progress.currentDay <= 30 ? "rgba(91,138,245,0.12)" : pb90Progress.currentDay <= 60 ? "rgba(245,166,35,0.12)" : "rgba(229,83,75,0.12)",
-                                    border: `1px solid ${pb90Progress.currentDay <= 30 ? "rgba(91,138,245,0.3)" : pb90Progress.currentDay <= 60 ? "rgba(245,166,35,0.3)" : "rgba(229,83,75,0.3)"}`,
+                                    color: pb90Progress.currentDay <= 20 ? "#5B8AF5" : pb90Progress.currentDay <= 40 ? "#F5A623" : "#E5534B",
+                                    background: pb90Progress.currentDay <= 20 ? "rgba(91,138,245,0.12)" : pb90Progress.currentDay <= 40 ? "rgba(245,166,35,0.12)" : "rgba(229,83,75,0.12)",
+                                    border: `1px solid ${pb90Progress.currentDay <= 20 ? "rgba(91,138,245,0.3)" : pb90Progress.currentDay <= 40 ? "rgba(245,166,35,0.3)" : "rgba(229,83,75,0.3)"}`,
                                     borderRadius: 100, padding: "3px 9px",
-                                }}>Phase {pb90Progress.currentDay <= 30 ? "1 · Study" : pb90Progress.currentDay <= 60 ? "2 · Practice" : "3 · Test"}</div>
+                                }}>Phase {pb90Progress.currentDay <= 20 ? "1 · Study" : pb90Progress.currentDay <= 40 ? "2 · Practice" : "3 · Test"}</div>
                             </div>
-                            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--accent-gold)", fontWeight: 600 }}>Day {pb90Progress.currentDay} / 90 →</div>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--accent-gold)", fontWeight: 600 }}>Day {pb90Progress.currentDay} / 60 →</div>
                         </div>
 
-                        {/* 90-day tracker bar */}
+                        {/* 60-day tracker bar */}
                         <div style={{ display: "flex", gap: 2, marginBottom: 10, overflowX: "auto", paddingBottom: 2 }}>
                             {pb90Progress.days.map((d) => {
                                 const isDone = d.status === "DONE";
@@ -586,10 +589,10 @@ export default function DashboardPage() {
                                 <span style={{ color: "#E5534B", fontWeight: 700 }}>{pb90Progress.missedDays}</span> missed
                             </div>
                             <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>
-                                <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{90 - pb90Progress.doneDays - pb90Progress.missedDays}</span> remaining
+                                <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{60 - pb90Progress.doneDays - pb90Progress.missedDays}</span> remaining
                             </div>
                             <div style={{ marginLeft: "auto", fontFamily: "var(--font-tagline)", fontSize: 11, fontStyle: "italic", color: "var(--accent-gold)", opacity: 0.55 }}>
-                                {90 - pb90Progress.currentDay} days to pre-boards
+                                {60 - pb90Progress.currentDay} days to pre-boards
                             </div>
                         </div>
                     </div>
@@ -666,7 +669,7 @@ export default function DashboardPage() {
                                         opacity: hoveredCard === card.path ? 0.9 : 0.5,
                                         transition: "opacity 0.3s ease",
                                     }}>
-                                        {card.icon}
+                                        <AppIcon name={getDashboardIcon(card.path)} size={23} />
                                     </div>
 
                                     {/* Title */}

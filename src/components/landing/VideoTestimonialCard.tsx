@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import type { VideoTestimonial } from "@/data/video-testimonials";
+import { Play } from "lucide-react";
 
 /** A 9:16 vertical video card. Autoplays muted on hover (desktop), tap-to-play
  *  on mobile. Lazy: video source is only attached once the card nears the viewport. */
@@ -100,7 +101,7 @@ export default function VideoTestimonialCard({ data }: { data: VideoTestimonial 
               paddingLeft: 3,
             }}
           >
-            ▶
+            <Play size={19} fill="currentColor" />
           </div>
           <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.04em" }}>
             Video coming soon

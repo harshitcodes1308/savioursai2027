@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import { EBOOK_SUBJECTS, EBOOK_PUBLISHER } from "@/data/ebooks-config";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 function getStoredPage(subjectId: string): number {
   if (typeof window === "undefined") return 0;
@@ -193,7 +194,7 @@ export default function EbooksLibraryPage() {
                     transition: "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
                   }}
                 >
-                  {subject.icon}
+                  <AppIcon name="book" size={25} color={subject.color} />
                 </div>
 
                 {/* Text */}

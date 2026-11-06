@@ -25,6 +25,7 @@ import {
   Dices,
   Eye,
   FileCheck2,
+  FileDown,
   FileText,
   Flag,
   FlaskConical,
@@ -75,7 +76,7 @@ export type AppIconName =
   | "alert" | "arrow-left" | "arrow-right" | "award" | "chart" | "book"
   | "brain" | "briefcase" | "calculator" | "check" | "check-circle" | "chevron-right"
   | "pause" | "play-circle" | "clock" | "coffee" | "code" | "copy" | "crown"
-  | "database" | "dice" | "eye" | "file-check" | "file" | "flag" | "flask"
+  | "database" | "dice" | "download" | "eye" | "file-check" | "file" | "flag" | "flask"
   | "focus" | "gauge" | "gem" | "globe" | "graduation" | "history" | "hourglass"
   | "info" | "layers" | "lightbulb" | "lock" | "map" | "medal" | "menu" | "moon"
   | "notebook" | "panel" | "pen" | "play" | "refresh" | "rocket" | "rotate"
@@ -105,6 +106,7 @@ const ICONS: Record<AppIconName, LucideIcon> = {
   crown: Crown,
   database: Database,
   dice: Dices,
+  download: FileDown,
   eye: Eye,
   "file-check": FileCheck2,
   file: FileText,

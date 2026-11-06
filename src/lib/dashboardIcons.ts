@@ -11,6 +11,7 @@ const ROUTE_ICONS: Record<string, AppIconName> = {
   "/dashboard/webinar": "play-circle",
   "/dashboard/ai-assistant": "brain",
   "/dashboard/ebooks": "book",
+  "/dashboard/cheat-sheets": "file-check",
   "/dashboard/chronoscroll": "scroll",
   "/dashboard/numerical-mastery": "calculator",
   "/dashboard/focus": "focus",

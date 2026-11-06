@@ -80,6 +80,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
       { icon: "◈", label: "E-Books",           href: "/dashboard/ebooks" },
+      { icon: "◈", label: "Cheat Sheets",       href: "/dashboard/cheat-sheets" },
       { icon: "◎", label: "ChronoScroll",      href: "/dashboard/chronoscroll" },
       { icon: "◈", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
       { icon: "◉", label: "Focus Mode",        href: "/dashboard/focus" },
@@ -122,6 +123,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
       { icon: "▷", label: "Video Lectures",    href: "/dashboard/video-lectures" },
       { icon: "◈", label: "AI Doubt Solver",   href: "/dashboard/ai-assistant" },
       { icon: "◈", label: "E-Books",           href: "/dashboard/ebooks" },
+      { icon: "◈", label: "Cheat Sheets",       href: "/dashboard/cheat-sheets" },
       { icon: "◎", label: "ChronoScroll",      href: "/dashboard/chronoscroll" },
       { icon: "◈", label: "Numerical Mastery", href: "/dashboard/numerical-mastery" },
       { icon: "◉", label: "Focus Mode",        href: "/dashboard/focus" },

@@ -14,7 +14,7 @@ const META = [
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const diamondRef = useRef<SVGSVGElement>(null);
+  const brandMarkRef = useRef<HTMLImageElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const subRef = useRef<HTMLDivElement>(null);
   const metaRef = useRef<HTMLDivElement>(null);
@@ -31,14 +31,7 @@ export default function Hero() {
     }
 
     const ctx = gsap.context(() => {
-      const paths = diamondRef.current?.querySelectorAll("path");
-      if (paths) {
-        paths.forEach((p) => {
-          const len = (p as SVGPathElement).getTotalLength?.() ?? 200;
-          gsap.set(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 1 });
-        });
-        gsap.to(paths, { strokeDashoffset: 0, duration: 1.3, ease: "power2.inOut", stagger: 0.18 });
-      }
+      gsap.from(brandMarkRef.current, { opacity: 0, scale: 0.76, duration: 0.55, ease: "back.out(1.7)" });
 
       gsap.timeline({ delay: 0.4 })
         .from(eyebrowRef.current, { opacity: 0, y: 14, duration: 0.6, ease: "power3.out" })
@@ -102,10 +95,7 @@ export default function Hero() {
           ref={eyebrowRef}
           style={{ display: "inline-flex", alignItems: "center", gap: 14, marginBottom: 32 }}
         >
-          <svg ref={diamondRef} width="28" height="28" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-            <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="2" />
-            <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1.5" opacity="0.6" />
-          </svg>
+          <img ref={brandMarkRef} src="/brand/logo-mark.svg" width="30" height="30" alt="" aria-hidden="true" style={{ display: "block", objectFit: "contain" }} />
           <span className="sa-eyebrow">Saviours AI · ICSE Prep, Reimagined</span>
         </div>
 

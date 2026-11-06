@@ -45,10 +45,7 @@ export default function Footer() {
         {/* Top row: brand + account links */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <svg width="22" height="22" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-              <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5" />
-              <path d="M24 4L44 18L24 32L4 18L24 4Z" fill="rgba(0,212,255,0.12)" />
-            </svg>
+            <img src="/brand/logo-mark.svg" width="25" height="25" alt="" aria-hidden="true" style={{ display: "block", objectFit: "contain" }} />
             <span style={{ fontFamily: "var(--font-display)", fontSize: 13, letterSpacing: "0.18em", color: "var(--text-primary)", textTransform: "uppercase" }}>
               Saviours AI
             </span>

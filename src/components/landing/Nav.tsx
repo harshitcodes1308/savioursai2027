@@ -3,14 +3,7 @@
 import { useEffect, useState } from "react";
 import MagneticButton from "./MagneticButton";
 
-function DiamondMark({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5" />
-      <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1" opacity="0.55" />
-    </svg>
-  );
-}
+function BrandMark({ size = 24 }: { size?: number }) { return <img src="/brand/logo-mark.svg" width={size} height={size} alt="" aria-hidden="true" style={{ display: "block", objectFit: "contain" }} />; }
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -49,7 +42,7 @@ export default function Nav() {
           href="#top"
           style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none" }}
         >
-          <DiamondMark />
+          <BrandMark size={26} />
           <span
             style={{
               fontFamily: "var(--font-display)",

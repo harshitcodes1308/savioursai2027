@@ -143,9 +143,7 @@ export default function ProductPreview() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingLeft: 4 }}>
-                <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
-                  <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="2" />
-                </svg>
+                <img src="/brand/logo-mark.svg" width="19" height="19" alt="" aria-hidden="true" style={{ display: "block", objectFit: "contain" }} />
                 <span style={{ fontFamily: "var(--font-display)", fontSize: 10, letterSpacing: "0.14em", color: "var(--text-primary)" }}>
                   SAVIOURS
                 </span>

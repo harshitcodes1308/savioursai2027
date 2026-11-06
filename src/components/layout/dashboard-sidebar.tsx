@@ -38,13 +38,7 @@ function isVisible(href: string): boolean {
   return FEATURE_FLAGS[flag] === true;
 }
 
-const DiamondLogo = ({ size = 28 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-    <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5"/>
-    <path d="M24 4L44 18L24 32L4 18L24 4Z" fill="var(--accent-gold-glow)"/>
-    <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1" opacity="0.5"/>
-  </svg>
-);
+const BrandMark = ({ size = 28 }: { size?: number }) => <img src="/brand/logo-mark.svg" width={size} height={size} alt="Saviours AI" style={{ display: "block", objectFit: "contain" }} />;
 
 type NavItem = { icon: string; label: string; href: string };
 type NavGroup = { label: string; items: NavItem[] };
@@ -233,7 +227,7 @@ export default function DashboardSidebar({
         alignItems: "center",
         gap: 12,
       }}>
-        <DiamondLogo size={28} />
+        <BrandMark size={30} />
         <div>
           <div style={{
             fontFamily: "var(--font-display)",

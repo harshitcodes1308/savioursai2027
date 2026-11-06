@@ -344,11 +344,7 @@ export default function OnboardingFlow() {
         transform: logoVisible ? 'scale(1) translateY(0)' : 'scale(0.7) translateY(20px)',
         transition: 'all 1s cubic-bezier(0.16,1,0.3,1)',
       }}>
-        <svg width="64" height="64" viewBox="0 0 48 48" fill="none" style={{ margin: '0 auto 20px' }}>
-          <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5" style={{ animation: 'goldGlow 3s ease-in-out infinite' }}/>
-          <path d="M24 4L44 18L24 32L4 18L24 4Z" fill="rgba(0,212,255,0.08)"/>
-          <path d="M4 18L24 32L44 18" stroke="var(--accent-gold)" strokeWidth="1" opacity="0.6"/>
-        </svg>
+        <img src="/brand/logo-mark.svg" width="66" height="66" alt="Saviours AI" style={{ display: 'block', margin: '0 auto 20px' }} />
 
         <div style={{
           fontFamily: 'var(--font-display)',
@@ -774,9 +770,7 @@ export default function OnboardingFlow() {
           width: 40, height: 40,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-            <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5"/>
-          </svg>
+          <img src="/brand/logo-mark.svg" width="34" height="34" alt="Saviours AI" style={{ display: 'block' }} />
         </div>
 
         <div style={{
@@ -882,10 +876,7 @@ export default function OnboardingFlow() {
         opacity: 0,
         animation: 'fadeInLogo 0.6s ease-out 0.3s forwards',
       }}>
-        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-          <path d="M24 4L44 18L24 44L4 18L24 4Z" fill="none" stroke="var(--accent-gold)" strokeWidth="1.5"/>
-          <path d="M24 4L44 18L24 32L4 18L24 4Z" fill="rgba(0,212,255,0.08)"/>
-        </svg>
+        <img src="/brand/logo-mark.svg" width="34" height="34" alt="Saviours AI" style={{ display: 'block' }} />
       </div>
 
       {/* Vapour text: fades in → holds → disintegrates → dashboard */}

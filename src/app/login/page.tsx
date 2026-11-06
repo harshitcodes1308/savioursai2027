@@ -128,11 +128,7 @@ export default function LoginPage() {
           <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 420, padding: "0 48px" }}>
             {/* Logo mark */}
             <div style={{ marginBottom: 24 }}>
-              <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-                <circle cx="26" cy="26" r="25" stroke="rgba(0,212,255,0.6)" strokeWidth="1"/>
-                <path d="M26 8L42 20L26 44L10 20L26 8Z" fill="none" stroke="rgba(0,212,255,0.9)" strokeWidth="1.5"/>
-                <path d="M26 8L42 20L26 32L10 20L26 8Z" fill="rgba(0,212,255,0.15)"/>
-              </svg>
+              <img src="/brand/logo-mark.svg" width="54" height="54" alt="Saviours AI" style={{ display: "block" }} />
             </div>
             <div style={{
               fontFamily: "var(--font-body)",
@@ -178,11 +174,7 @@ export default function LoginPage() {
         {/* Mobile logo */}
         {isMobile && (
           <div style={{ textAlign: "center", marginBottom: 36 }}>
-            <svg width="36" height="36" viewBox="0 0 52 52" fill="none">
-              <circle cx="26" cy="26" r="25" stroke="rgba(0,212,255,0.6)" strokeWidth="1"/>
-              <path d="M26 8L42 20L26 44L10 20L26 8Z" fill="none" stroke="rgba(0,212,255,0.9)" strokeWidth="1.5"/>
-              <path d="M26 8L42 20L26 32L10 20L26 8Z" fill="rgba(0,212,255,0.15)"/>
-            </svg>
+            <img src="/brand/logo-mark.svg" width="38" height="38" alt="Saviours AI" style={{ display: "block" }} />
           </div>
         )}
 

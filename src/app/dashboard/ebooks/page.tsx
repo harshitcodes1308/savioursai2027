@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
-import { EBOOK_SUBJECTS, EBOOK_PUBLISHER } from "@/data/ebooks-config";
+import { EBOOK_SUBJECTS } from "@/data/ebooks-config";
 import { AppIcon } from "@/components/ui/AppIcon";
 
 function getStoredPage(subjectId: string): number {
@@ -89,7 +89,7 @@ export default function EbooksLibraryPage() {
               margin: 0,
             }}
           >
-            E-Books
+            Sidekick Ebooks
           </h1>
         </div>
         <p
@@ -101,7 +101,7 @@ export default function EbooksLibraryPage() {
             margin: "4px 0 0 0",
           }}
         >
-          Premium ICSE textbooks by {EBOOK_PUBLISHER} — your entire syllabus, one tap away.
+          Pro-only ICSE study companions for focused, chapter-wise revision.
         </p>
       </div>
 
@@ -263,7 +263,7 @@ export default function EbooksLibraryPage() {
                     opacity: 0.7,
                   }}
                 >
-                  by {EBOOK_PUBLISHER}
+                  Pro library
                 </span>
 
                 {savedPage > 1 && (

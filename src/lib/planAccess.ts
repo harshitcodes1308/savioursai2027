@@ -11,7 +11,7 @@ export const PLAN_FEATURES: Record<string, Plan[]> = {
   chronoScroll:        ['pro'],
   numericalMastery:    ['pro'],
   dateBattleArena:     ['pro'],
-  ebooks:              [],
+  ebooks:              ['pro'],
   guessPapers:         ['pro'],
   halfYearlySimulator: ['pro'],
   preBoard90Phase1:    ['free', 'pro'],

@@ -15,10 +15,6 @@ export const PRO_LOCKED_ROUTES = [
     "/dashboard/numerical-mastery",
     "/dashboard/flip-the-question",
     "/dashboard/focus",
-] as const;
-
-/** E-books are intentionally not available yet. */
-export const COMING_SOON_ROUTES = [
     "/dashboard/ebooks",
 ] as const;
 
@@ -90,8 +86,8 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
         description: "Master Physics numericals with step-by-step formulas, solved examples, and 50+ Previous Year Questions from 2007–2025.",
     },
     "/dashboard/ebooks": {
-        name: "E-Books Library",
-        description: "The E-Books Library is coming soon.",
+        name: "Sidekick Ebooks",
+        description: "Read the complete Sidekick ICSE subject e-books inside the platform.",
     },
     "/dashboard/guess-papers": {
         name: "Guess Papers",
@@ -124,10 +120,6 @@ export function isProLockedRoute(pathname: string): boolean {
 /** Check if a pathname requires the Bundle plan specifically */
 export function isBundleLockedRoute(pathname: string): boolean {
     return false;
-}
-
-export function isComingSoonRoute(pathname: string): boolean {
-    return COMING_SOON_ROUTES.some(route => pathname.startsWith(route));
 }
 
 /** Get feature info for a locked route */

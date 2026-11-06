@@ -19,7 +19,7 @@
 
 Saviours AI gives ICSE Class 10 students a structured place to plan study time, learn chapter-by-chapter, practise exam-style questions, and track preparation. The product has a Free plan and one paid plan: **Pro, ₹99 one-time**.
 
-E-Books are deliberately unavailable to every plan until the library is released. They remain visible in the sidebar as a locked **Coming soon** destination.
+Sidekick Ebooks are a Pro-only, in-platform reading library. Students can read them in the React PDF viewer; download controls are intentionally not provided.
 
 ## Current product status
 
@@ -44,12 +44,12 @@ Feature visibility is controlled in `src/lib/featureFlags.ts`. The lists below d
 | Focus Mode | Pro | Pomodoro, deep-focus, and light-focus sessions with logging and recent-session history. |
 | ChronoScroll | Pro | Interactive History and Civics timeline and quick-recall learning cards. |
 | Numerical Mastery | Pro | Physics numerical practice organised by chapter and topic, with formulas, worked examples, PYQs, and mastery tracking. |
+| Sidekick Ebooks | Pro | Ten ICSE subject e-books read inside the platform with the React PDF viewer. |
 
 ### Hidden or coming-soon features
 
 | Feature | Status | Intended functionality |
 |---|---|---|
-| E-Books | Coming soon, locked for everyone | A future subject library of textbooks and question banks. It is visible but cannot be opened or purchased yet. |
 | AI Doubt Solver | Hidden | ICSE-focused AI chat with image/PDF support, step-by-step explanations, and recommended learning resources. |
 | Live Webinar | Hidden | A session-details and booking page for free live classes. |
 | Half Yearly Simulator | Hidden | Guided half-syllabus preparation with lesson videos, reading, competency testing, and chapter progress. |
@@ -65,11 +65,11 @@ Feature visibility is controlled in `src/lib/featureFlags.ts`. The lists below d
 | Plan | Price | Includes |
 |---|---:|---|
 | Free | ₹0 | Dashboard, Smart Planner, Monthly Mission, Study Flow, Video Lectures, the first Pre-Board 60 phase, subjects, profile, and activity. |
-| Pro | **₹99 one-time** | Everything in Free plus Guess Papers, Competency Practice, Customise Test, Flip the Question, Focus Mode, ChronoScroll, Numerical Mastery, and the paid Pre-Board 60 phases. |
+| Pro | **₹99 one-time** | Everything in Free plus Sidekick Ebooks, Guess Papers, Competency Practice, Customise Test, Flip the Question, Focus Mode, ChronoScroll, Numerical Mastery, and the paid Pre-Board 60 phases. |
 
 - There is no Ultimate or Bundle plan.
 - Pro is a one-time Razorpay purchase; it is not a subscription.
-- E-Books are not included in Free or Pro until explicitly released.
+- Sidekick Ebooks are available to Pro students in the in-platform reader only; no download option is offered.
 - Scholarship discounts are disabled: Pro checkout is always ₹99.
 
 ## Technology

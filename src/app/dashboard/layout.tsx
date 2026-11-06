@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemedDashboardContent } from "@/components/providers/themed-dashboard";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
-import { isLockedRoute, isComingSoonRoute, getFeatureInfo } from "@/lib/tier-config";
+import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import type { SessionUser } from "@/lib/auth";
 
 export default function DashboardLayout({
@@ -51,9 +51,7 @@ export default function DashboardLayout({
                         <button onClick={() => window.location.href = "/signup?from=demo"} style={{ cursor: "pointer", border: "1px solid var(--accent-gold-border)", borderRadius: 7, padding: "6px 9px", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700 }}>Create account →</button>
                     </div>
                 )}
-                {isComingSoonRoute(pathname) ? (
-                    <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, background: "var(--bg-base)" }}><section style={{ maxWidth: 420, padding: 30, textAlign: "center", border: "1px solid var(--accent-gold-border)", borderRadius: 18, background: "var(--bg-surface)" }}><h1 style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>E-Books coming soon</h1><p style={{ color: "var(--text-muted)", fontFamily: "var(--font-body)", lineHeight: 1.6 }}>The e-books library is being prepared and is not currently included with any plan.</p></section></main>
-                ) : showUpgrade ? (
+                {showUpgrade ? (
                     <UpgradePrompt
                         featureName={featureInfo?.name ?? "Premium Feature"}
                         description={featureInfo?.description ?? "This feature requires an upgrade."}

@@ -13,7 +13,7 @@ export const FEATURE_FLAGS = {
   youtubeDiscovery:  true,   // YouTube-powered Watch step in study flow
   halfYearlySimulator: false,
 
-  ebooks:            false,
+  ebooks:            true,
   scholarship:       false,
   tracker:           false,  // Class 10 board-prep tracker (interactive PDF)
 

@@ -93,6 +93,29 @@ graph TD
 - Razorpay for the one-time Pro purchase
 - OpenAI and YouTube APIs for enabled learning tools
 
+## Colour system
+
+The current interface is a restrained dark dashboard. **Electric cyan is the only primary accent.**
+
+| Role | Token | Value | Usage |
+|---|---|---:|---|
+| Base background | `--bg-base` | `#0D0D1A` | App canvas and page background |
+| Surface | `--bg-surface` | `#13131F` | Cards, sidebars, and modals |
+| Elevated surface | `--bg-elevated` | `#1A1A2E` | Raised controls, menus, and selected areas |
+| Borders | `--bg-border` | `#252538` | Card and input boundaries |
+| Primary text | `--text-primary` | `#F5F0E8` | Headings and high-emphasis content |
+| Secondary text | `--text-secondary` | `#B0AABA` | Supporting copy |
+| Muted text | `--text-muted` | `#6B6B80` | Labels and inactive metadata |
+| Primary accent | `--accent-gold`* | `#00D4FF` | Cyan CTAs, active navigation, focus states, and progress |
+| Accent hover | `--accent-gold-dim`* | `#00A3CC` | Cyan hover and pressed states |
+| Accent glow | `--accent-gold-glow`* | `rgba(0, 212, 255, 0.15)` | Subtle cyan fills and emphasis |
+| Success | `--status-green` | `#3ECF8E` | Completed and positive states |
+| Error | `--status-red` | `#F87171` | Errors and destructive states |
+| Informational | `--status-blue` | `#60A5FA` | Informational indicators |
+| Caution | `--status-orange` | `#FB923C` | Warnings only, never a primary brand accent |
+
+\*These legacy variable names are retained for compatibility with existing components; their rendered values are cyan. Buttons and active UI use restrained cyan borders and translucent fills rather than bright multi-colour gradients.
+
 ## Project structure
 
 ```text

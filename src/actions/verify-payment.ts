@@ -5,6 +5,7 @@ import { getCurrentUser, createToken, setSessionCookie } from "@/lib/auth";
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import Razorpay from "razorpay";
+import { qualifyReferralForProPurchase } from "@/lib/referrals";
 
 interface RazorpayResponse {
     razorpay_order_id?: string;
@@ -53,7 +54,7 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
             }
 
             const subscription = await razorpay.subscriptions.fetch(razorpay_subscription_id);
-            const notesUserId = (subscription.notes as any)?.userId;
+            const notesUserId = (subscription.notes as Record<string, string> | null | undefined)?.userId;
             if (notesUserId && notesUserId !== user.id) {
                 return { success: false, error: "Subscription does not belong to you" };
             }
@@ -90,7 +91,7 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
             return { success: true };
         }
 
-        // One-time order: PRO (₹99) or LNB_CHEMISTRY (₹19)
+        // One-time order: PRO (₹99), EBOOKS (₹79), or LNB_CHEMISTRY (₹19)
         if (!razorpay_order_id) {
             return { success: false, error: "Missing order or subscription id" };
         }
@@ -106,12 +107,36 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
 
         const order = await razorpay.orders.fetch(razorpay_order_id);
         const purchaseType = (order.notes?.purchaseType as string) || "PRO";
+        const orderUserId = order.notes?.userId as string | undefined;
+        const expectedAmounts: Record<string, number> = {
+            PRO: 9900,
+            LNB_CHEMISTRY: 1900,
+            EBOOKS: 7900,
+        };
+        const expectedAmount = expectedAmounts[purchaseType];
+        if (
+            orderUserId !== user.id ||
+            !expectedAmount ||
+            Number(order.amount) !== expectedAmount ||
+            Number(order.notes?.expectedAmount) !== expectedAmount
+        ) {
+            return { success: false, error: "Order validation failed" };
+        }
 
         let updatedUser;
         if (purchaseType === "LNB_CHEMISTRY") {
             updatedUser = await prisma.user.update({
                 where: { id: user.id },
                 data: { lnbChemistryUnlocked: true },
+            });
+        } else if (purchaseType === "EBOOKS") {
+            updatedUser = await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    ebooksUnlocked: true,
+                    ebooksUnlockedAt: new Date(),
+                    ebooksUnlockSource: "PURCHASE",
+                },
             });
         } else {
             // PRO or BUNDLE — valid till March 2027 (boards end)
@@ -128,6 +153,7 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
                     subscriptionExpiry: expiryDate,
                 },
             });
+            await qualifyReferralForProPurchase(user.id);
         }
 
         const newToken = await createToken({
@@ -145,6 +171,7 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
         await setSessionCookie(newToken, true);
 
         revalidatePath("/dashboard");
+        revalidatePath("/dashboard/ebooks");
         return { success: true };
     } catch (error) {
         console.error("Payment Verification Error:", error);

@@ -22,6 +22,7 @@ export const authRouter = createTRPCRouter({
                 name: z.string().min(2),
                 phone: z.string().optional().default(""),
                 role: z.enum(["STUDENT", "TEACHER"]).optional().default("STUDENT"),
+                referralCode: z.string().max(20).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -66,7 +67,8 @@ export const authRouter = createTRPCRouter({
                     input.password,
                     input.name,
                     input.role,
-                    input.phone // Pass phone to createUser
+                    input.phone,
+                    input.referralCode
                 );
 
                 if (input.role === "STUDENT") {

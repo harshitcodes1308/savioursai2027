@@ -3,6 +3,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { type UserRole, type PlanType, type SubscriptionStatus } from "@prisma/client";
+import { getReferrerId } from "@/lib/referrals";
 
 if (!process.env.JWT_SECRET) {
     throw new Error("FATAL: JWT_SECRET environment variable is not set");
@@ -190,9 +191,11 @@ export async function createUser(
     password: string,
     name: string,
     role: UserRole = "STUDENT",
-    phone?: string
+    phone?: string,
+    referralCode?: string | null
 ): Promise<SessionUser> {
     const hashedPassword = await hashPassword(password);
+    const referredById = await getReferrerId(referralCode);
 
     const user = await prisma.user.create({
         data: {
@@ -205,6 +208,7 @@ export async function createUser(
             planType: "FREE",
             subscriptionStatus: "ACTIVE",
             onboardingComplete: false,
+            referredById,
         },
     });
 

@@ -191,7 +191,7 @@ export default function DashboardPage() {
         { flag: "chronoScroll" as const, label: "ChronoScroll", desc: "Scroll through history, snap dates", path: "/dashboard/chronoscroll", icon: "◎", tagline: "Scroll. Snap. Remember." },
         { flag: "numericalMastery" as const, label: "Numerical Mastery", desc: "Physics formulas, solved examples & PYQs", path: "/dashboard/numerical-mastery", icon: "◈", tagline: "Every formula, every numerical, mastered." },
         { flag: "dateBattleArena" as const, label: "Date Battle Arena", desc: "Gamified history dates, 60-second battles", path: "/dashboard/date-battle", icon: "◉", tagline: "Speed meets memory in the arena." },
-        { flag: "ebooks" as const, label: "Sidekick Ebooks", desc: "Pro-only ICSE subject e-books", path: "/dashboard/ebooks", icon: "book", tagline: "10 subjects. One focused library." },
+        { flag: "ebooks" as const, label: "Sidekick Ebooks", desc: "Unlock by referral or ₹79 one-time", path: "/dashboard/ebooks", icon: "book", tagline: "10 subjects. One focused library." },
         { flag: "preBoard90" as const, label: "Pre-Board 60", desc: "60-day countdown to December pre-boards", path: "/dashboard/pre-board-90", icon: "◈", tagline: "Study. Practice. Test. December ready." },
     ].filter(card => FEATURE_FLAGS[card.flag]);
 

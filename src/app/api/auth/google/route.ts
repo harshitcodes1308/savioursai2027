@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, GOOGLE_AUTH_RATE_LIMIT } from "@/lib/api-rate-limit";
 import crypto from "crypto";
+import { normalizeReferralCode } from "@/lib/referrals";
 
 export async function GET(request: NextRequest) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
     const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
     const state = crypto.randomBytes(32).toString("hex");
+    const referralCode = normalizeReferralCode(request.nextUrl.searchParams.get("ref"));
 
     const params = new URLSearchParams({
         client_id: clientId,
@@ -51,13 +53,22 @@ export async function GET(request: NextRequest) {
     ];
     if (isSecure) cookieParts.push("Secure");
     const cookieHeader = cookieParts.join("; ");
+    const headers = new Headers({ Location: googleAuthUrl, "Cache-Control": "no-store" });
+    headers.append("Set-Cookie", cookieHeader);
+    if (referralCode) {
+        const referralCookie = [
+            `oauth-referral=${referralCode}`,
+            "Path=/",
+            "HttpOnly",
+            "SameSite=Lax",
+            "Max-Age=600",
+            ...(isSecure ? ["Secure"] : []),
+        ].join("; ");
+        headers.append("Set-Cookie", referralCookie);
+    }
 
     return new NextResponse(null, {
         status: 302,
-        headers: {
-            Location: googleAuthUrl,
-            "Set-Cookie": cookieHeader,
-            "Cache-Control": "no-store",
-        },
+        headers,
     });
 }

@@ -12,12 +12,14 @@ export function ThemedDashboardContent({
     userEmail,
     isPaid,
     planType,
+    ebooksUnlocked,
 }: {
     children: ReactNode;
     userName?: string;
     userEmail?: string;
     isPaid?: boolean;
     planType?: string;
+    ebooksUnlocked?: boolean;
 }) {
     const [isMobile, setIsMobile] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -83,6 +85,7 @@ export function ThemedDashboardContent({
                 userEmail={userEmail}
                 isPaid={isPaid}
                 planType={planType}
+                ebooksUnlocked={ebooksUnlocked}
             />
 
             {/* Main content — above video, with transparent bg override */}

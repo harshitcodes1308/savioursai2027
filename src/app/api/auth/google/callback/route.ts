@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createToken, setSessionCookie } from "@/lib/auth";
 import type { SessionUser } from "@/lib/auth";
+import { getReferrerId } from "@/lib/referrals";
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
@@ -68,6 +69,7 @@ export async function GET(request: NextRequest) {
 
         if (!user) {
             // New user — create account
+            const referredById = await getReferrerId(request.cookies.get("oauth-referral")?.value);
             user = await prisma.user.create({
                 data: {
                     email: profile.email.toLowerCase(),
@@ -78,6 +80,7 @@ export async function GET(request: NextRequest) {
                     role: "STUDENT",
                     isPaid: false,
                     emailVerified: new Date(),
+                    referredById,
                 },
             });
 
@@ -126,13 +129,12 @@ export async function GET(request: NextRequest) {
             : `${baseUrl}/dashboard`;
 
         // Clear the oauth-state cookie by emitting an expired Set-Cookie.
+        const headers = new Headers({ Location: redirectUrl, "Cache-Control": "no-store" });
+        headers.append("Set-Cookie", "oauth-state=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax");
+        headers.append("Set-Cookie", "oauth-referral=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax");
         return new NextResponse(null, {
             status: 302,
-            headers: {
-                Location: redirectUrl,
-                "Set-Cookie": "oauth-state=; Path=/; Max-Age=0",
-                "Cache-Control": "no-store",
-            },
+            headers,
         });
     } catch (err) {
         console.error("Google auth callback error:", err);

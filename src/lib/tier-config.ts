@@ -15,7 +15,6 @@ export const PRO_LOCKED_ROUTES = [
     "/dashboard/numerical-mastery",
     "/dashboard/flip-the-question",
     "/dashboard/focus",
-    "/dashboard/ebooks",
 ] as const;
 
 /** Additional routes unlocked by Pro */

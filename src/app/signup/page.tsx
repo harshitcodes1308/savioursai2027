@@ -71,6 +71,8 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [focused, setFocused] = useState<string | null>(null);
   const [demoLoading, setDemoLoading] = useState(false);
+  const getReferralCode = () =>
+    new URLSearchParams(window.location.search).get("ref")?.trim().toUpperCase() || undefined;
 
   const handleDemoSignup = async () => {
     setDemoLoading(true);
@@ -111,13 +113,16 @@ export default function SignupPage() {
     if (!name || !email || !password) { setError("Please fill in all fields"); return; }
     if (password !== confirmPassword) { setError("Passwords do not match"); return; }
     if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
-    signupMutation.mutate({ name, email, password, phone: "", role: "STUDENT" });
+    signupMutation.mutate({ name, email, password, phone: "", role: "STUDENT", referralCode: getReferralCode() });
   };
 
   const handleGoogleSignup = () => {
     // Route through our server endpoint so it can set the oauth-state cookie
     // and include a CSRF state parameter before redirecting to Google.
-    window.location.href = "/api/auth/google";
+    const referralCode = getReferralCode();
+    window.location.href = referralCode
+      ? `/api/auth/google?ref=${encodeURIComponent(referralCode)}`
+      : "/api/auth/google";
   };
 
   return (

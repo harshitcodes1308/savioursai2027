@@ -61,6 +61,7 @@ export const dashboardRouter = createTRPCRouter({
             studentProfile: user.studentProfile,
             teacherProfile: user.teacherProfile,
             lnbChemistryUnlocked: user.lnbChemistryUnlocked,
+            ebooksUnlocked: user.ebooksUnlocked,
             // Plan state
             // A demo's tier is stored in its signed session, rather than on the
             // shared demo database record.

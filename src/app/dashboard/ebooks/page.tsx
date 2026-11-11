@@ -77,7 +77,7 @@ export default function EbooksLibraryPage() {
               fontSize: 20,
             }}
           >
-            ◈
+            <AppIcon name="book" size={20} color="var(--accent-gold)" />
           </div>
           <h1
             style={{
@@ -101,7 +101,7 @@ export default function EbooksLibraryPage() {
             margin: "4px 0 0 0",
           }}
         >
-          Pro-only ICSE study companions for focused, chapter-wise revision.
+          Ten focused ICSE study companions in one distraction-free library.
         </p>
       </div>
 

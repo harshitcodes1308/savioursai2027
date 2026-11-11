@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
+import { qualifyReferralForProPurchase } from "@/lib/referrals";
 
 /**
  * POST /api/razorpay/webhook
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
         if (event === "payment.captured") {
             const payment = payload.payload?.payment?.entity;
             const notes = payment?.notes;
+            const notesUserId = notes?.userId as string | undefined;
             const userEmail = notes?.userEmail || payment?.email;
             const paymentAmount = payment?.amount || 0;
             const purchaseType = notes?.purchaseType || "PRO";
@@ -64,19 +66,33 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
             }
 
-            if (userEmail) {
+            if (notesUserId || userEmail) {
                 const user = await prisma.user.findUnique({
-                    where: { email: userEmail },
-                    select: { id: true, isPaid: true, lnbChemistryUnlocked: true },
+                    where: notesUserId ? { id: notesUserId } : { email: userEmail },
+                    select: { id: true, isPaid: true, lnbChemistryUnlocked: true, ebooksUnlocked: true },
                 });
 
                 if (user) {
-                    if (purchaseType === "LNB_CHEMISTRY" && !user.lnbChemistryUnlocked) {
-                        await prisma.user.update({
-                            where: { id: user.id },
-                            data: { lnbChemistryUnlocked: true },
-                        });
+                    if (purchaseType === "LNB_CHEMISTRY") {
+                        if (!user.lnbChemistryUnlocked) {
+                            await prisma.user.update({
+                                where: { id: user.id },
+                                data: { lnbChemistryUnlocked: true },
+                            });
+                        }
                         console.log("[razorpay-webhook] LNB Chemistry unlocked:", userEmail);
+                    } else if (purchaseType === "EBOOKS") {
+                        if (!user.ebooksUnlocked) {
+                            await prisma.user.update({
+                                where: { id: user.id },
+                                data: {
+                                    ebooksUnlocked: true,
+                                    ebooksUnlockedAt: new Date(),
+                                    ebooksUnlockSource: "PURCHASE",
+                                },
+                            });
+                        }
+                        console.log("[razorpay-webhook] Sidekick Ebooks unlocked:", userEmail);
                     } else {
                         const expiryDate = new Date("2027-03-31T23:59:59+05:30");
                         await prisma.user.update({
@@ -88,6 +104,7 @@ export async function POST(req: NextRequest) {
                                 subscriptionExpiry: expiryDate,
                             },
                         });
+                        await qualifyReferralForProPurchase(user.id);
                         console.log("[razorpay-webhook] User upgraded:", userEmail);
                     }
                 }

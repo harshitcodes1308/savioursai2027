@@ -8,59 +8,68 @@ datasource db {
 }
 
 model Creator {
-  id                  String   @id @default(cuid())
-  creatorName         String   @map("creator_name")
-  creatorCode         String   @unique @map("creator_code")
-  channelId           String?  @map("channel_id")
-  discountPercentage  Int      @default(0) @map("discount_percentage")
-  revenueSharePercentage Int     @default(20) @map("revenue_share_percentage")
-  createdAt           DateTime @default(now()) @map("created_at")
+  id                     String   @id @default(cuid())
+  creatorName            String   @map("creator_name")
+  creatorCode            String   @unique @map("creator_code")
+  channelId              String?  @map("channel_id")
+  discountPercentage     Int      @default(0) @map("discount_percentage")
+  revenueSharePercentage Int      @default(20) @map("revenue_share_percentage")
+  createdAt              DateTime @default(now()) @map("created_at")
 
   @@map("creators")
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  password           String?
-  name               String
-  creatorCode        String?  @map("creator_code")
-  role               UserRole            @default(STUDENT)
-  emailVerified      DateTime?
-  image              String?
-  createdAt          DateTime            @default(now())
-  isPaid             Boolean             @default(false)
-  lnbChemistryUnlocked Boolean           @default(false)
-  flipStreak         Int                 @default(0)
-  flipBestStreak     Int                 @default(0)
-  phone                  String?             @unique
-  authProvider           String              @default("credentials")
-  planType               PlanType            @default(FREE)
-  subscriptionStatus     SubscriptionStatus  @default(ACTIVE)
-  subscriptionExpiry     DateTime?
-  razorpaySubscriptionId String?             @unique
-  onboardingComplete     Boolean             @default(false)
-  scholarshipDiscountPercentage Int          @default(0)
-  scholarshipDiscountExpiresAt   DateTime?
-  scholarshipTestCompletedAt     DateTime?
-  scholarshipScore               Int?
-  aiUsageLogs        AiUsageLog[]
-  auditLogs          AuditLog[]
-  dailyPlans         DailyPlan[]
-  doubtConversations DoubtConversation[]
-  focusSessions      FocusSession[]
-  notes              Note[]
-  revisionPlans      RevisionPlan[]
-  revisionSchedules  RevisionSchedule[]
-  sessions           Session[]
-  sprint15Days       Sprint15Day[]
-  studentProfile     StudentProfile?
-  studyPlans         StudyPlan[]
-  teacherProfile     TeacherProfile?
-  testAttempts       TestAttempt[]
-  scholarshipAttempts ScholarshipAttempt[]
-  preBoard90Plans    PreBoard90Plan[]
+  id                            String               @id @default(cuid())
+  email                         String               @unique
+  password                      String?
+  name                          String
+  creatorCode                   String?              @map("creator_code")
+  role                          UserRole             @default(STUDENT)
+  emailVerified                 DateTime?
+  image                         String?
+  createdAt                     DateTime             @default(now())
+  isPaid                        Boolean              @default(false)
+  lnbChemistryUnlocked          Boolean              @default(false)
+  ebooksUnlocked                Boolean              @default(false)
+  ebooksUnlockedAt              DateTime?
+  ebooksUnlockSource            String?
+  referralCode                  String?              @unique
+  referredById                  String?
+  referralQualifiedAt           DateTime?
+  flipStreak                    Int                  @default(0)
+  flipBestStreak                Int                  @default(0)
+  phone                         String?              @unique
+  authProvider                  String               @default("credentials")
+  planType                      PlanType             @default(FREE)
+  subscriptionStatus            SubscriptionStatus   @default(ACTIVE)
+  subscriptionExpiry            DateTime?
+  razorpaySubscriptionId        String?              @unique
+  onboardingComplete            Boolean              @default(false)
+  scholarshipDiscountPercentage Int                  @default(0)
+  scholarshipDiscountExpiresAt  DateTime?
+  scholarshipTestCompletedAt    DateTime?
+  scholarshipScore              Int?
+  aiUsageLogs                   AiUsageLog[]
+  auditLogs                     AuditLog[]
+  dailyPlans                    DailyPlan[]
+  doubtConversations            DoubtConversation[]
+  focusSessions                 FocusSession[]
+  notes                         Note[]
+  revisionPlans                 RevisionPlan[]
+  revisionSchedules             RevisionSchedule[]
+  sessions                      Session[]
+  sprint15Days                  Sprint15Day[]
+  studentProfile                StudentProfile?
+  studyPlans                    StudyPlan[]
+  teacherProfile                TeacherProfile?
+  testAttempts                  TestAttempt[]
+  scholarshipAttempts           ScholarshipAttempt[]
+  preBoard90Plans               PreBoard90Plan[]
+  referredBy                    User?                @relation("StudentReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referredUsers                 User[]               @relation("StudentReferrals")
 
+  @@index([referredById])
   @@map("users")
 }
 
@@ -726,21 +735,21 @@ enum SubscriptionStatus {
 // ── Pre-Board 60 (legacy model names retained for database compatibility) ─────
 
 model PreBoard90Plan {
-  id           String           @id @default(cuid())
-  studentId    String
-  board        String           // "ICSE" | "CBSE"
-  grade        Int
-  subjects     String[]
-  startDate    DateTime         @db.Date
-  phase1End    DateTime         @db.Date // Day 20
-  phase2End    DateTime         @db.Date // Day 40
-  phase3End    DateTime         @db.Date // Day 60
-  status       PB90Status       @default(ACTIVE)
-  weakTopics   Json             @default("{}")
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  tasks        PreBoard90Task[]
-  student      User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  id         String           @id @default(cuid())
+  studentId  String
+  board      String // "ICSE" | "CBSE"
+  grade      Int
+  subjects   String[]
+  startDate  DateTime         @db.Date
+  phase1End  DateTime         @db.Date // Day 20
+  phase2End  DateTime         @db.Date // Day 40
+  phase3End  DateTime         @db.Date // Day 60
+  status     PB90Status       @default(ACTIVE)
+  weakTopics Json             @default("{}")
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  tasks      PreBoard90Task[]
+  student    User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId])
   @@index([status])
@@ -748,18 +757,18 @@ model PreBoard90Plan {
 }
 
 model PreBoard90Task {
-  id           String          @id @default(cuid())
+  id           String         @id @default(cuid())
   planId       String
-  day          Int             // 1-60
-  phase        Int             // 1, 2, or 3
+  day          Int // 1-60
+  phase        Int // 1, 2, or 3
   taskType     PB90TaskType
   subject      String
-  topicRef     String          // chapter / topic name
-  contentJson  Json?           // AI-generated task payload
-  status       PB90TaskStatus  @default(LOCKED)
+  topicRef     String // chapter / topic name
+  contentJson  Json? // AI-generated task payload
+  status       PB90TaskStatus @default(LOCKED)
   completedAt  DateTime?
-  testResultId String?         // links to TestResult.id for Phase 3 mocks
-  plan         PreBoard90Plan  @relation(fields: [planId], references: [id], onDelete: Cascade)
+  testResultId String? // links to TestResult.id for Phase 3 mocks
+  plan         PreBoard90Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId, day])
   @@index([planId, status])

@@ -180,7 +180,7 @@ export default function EbookViewerPage() {
           gap: 16,
         }}
       >
-        <div style={{ fontSize: 48, opacity: 0.4 }}>◈</div>
+        <div style={{ opacity: 0.4 }}><AppIcon name="book" size={42} /></div>
         <p
           style={{
             fontFamily: "var(--font-display)",

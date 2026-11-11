@@ -7,6 +7,7 @@ import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
 const BASE_PRICING = {
     PRO: 9900,            // ₹99 in paise
     LNB_CHEMISTRY: 1900,  // ₹19 in paise
+    EBOOKS: 7900,         // ₹79 in paise
 } as const;
 
 type PurchaseType = keyof typeof BASE_PRICING;
@@ -17,11 +18,15 @@ export async function POST(req: Request) {
         const requested = String(body.type || "PRO");
         const purchaseType: PurchaseType =
             requested === "LNB_CHEMISTRY" ? "LNB_CHEMISTRY" :
+            requested === "EBOOKS" ? "EBOOKS" :
             "PRO";
 
         const user = await getCurrentUser();
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        if (user.isDemo) {
+            return NextResponse.json({ error: "Create an account before purchasing" }, { status: 403 });
         }
 
         const rateCheck = checkRateLimit(`payment:${user.id}`, PAYMENT_RATE_LIMIT);
@@ -32,7 +37,7 @@ export async function POST(req: Request) {
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
             select: {
-                isPaid: true, planType: true, lnbChemistryUnlocked: true, createdAt: true, creatorCode: true,
+                isPaid: true, planType: true, lnbChemistryUnlocked: true, ebooksUnlocked: true, createdAt: true, creatorCode: true,
             },
         });
 
@@ -51,6 +56,8 @@ export async function POST(req: Request) {
             if (dbUser.isPaid || dbUser.lnbChemistryUnlocked) {
                 return NextResponse.json({ error: "You already have access to all Chemistry sets" }, { status: 409 });
             }
+        } else if (purchaseType === "EBOOKS" && dbUser.ebooksUnlocked) {
+            return NextResponse.json({ error: "You already have access to Sidekick Ebooks" }, { status: 409 });
         }
 
         const amountPaise = BASE_PRICING[purchaseType];

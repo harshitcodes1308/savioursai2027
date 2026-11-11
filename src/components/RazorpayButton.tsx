@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { trpc } from "@/lib/trpc/client";
+
+interface RazorpayResponse {
+    razorpay_order_id?: string;
+    razorpay_subscription_id?: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+}
 
 interface RazorpayOptions {
     key: string;
@@ -11,7 +17,7 @@ interface RazorpayOptions {
     name: string;
     description: string;
     order_id: string;
-    handler: (response: any) => void;
+    handler: (response: RazorpayResponse) => void;
     prefill: {
         name?: string;
         email?: string;
@@ -34,14 +40,15 @@ declare global {
 
 interface RazorpayButtonProps {
     amount?: number;
-    type?: "PRO" | "LNB_CHEMISTRY";
+    type?: "PRO" | "LNB_CHEMISTRY" | "EBOOKS";
     email: string;
     name: string;
     onSuccess?: () => void;
     buttonText?: string;
+    successRedirect?: string;
 }
 
-export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSuccess, buttonText }: RazorpayButtonProps) {
+export function RazorpayButton({ type = "PRO", email, name, onSuccess, buttonText, successRedirect = "/dashboard" }: RazorpayButtonProps) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const effectiveButtonText = buttonText || "Get Access";
@@ -86,6 +93,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
             const descriptions: Record<string, string> = {
                 PRO: "Pro Access: ₹99",
                 LNB_CHEMISTRY: "Unlock Chemistry Sets",
+                EBOOKS: "Sidekick Ebooks: ₹79 one-time",
             };
 
             const options: RazorpayOptions = {
@@ -95,7 +103,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
                 name: "ICSE Saviours",
                 description: descriptions[type] || "Saviours AI",
                 order_id: orderData.order.id,
-                handler: async function (response: any) {
+                handler: async function (response: RazorpayResponse) {
                     setLoading(true);
 
                     try {
@@ -104,7 +112,7 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
 
                         if (result.success) {
                             if(onSuccess) onSuccess();
-                            router.push("/dashboard");
+                            router.push(successRedirect);
                             router.refresh();
                         } else {
                             alert("Payment Verified Failed: " + result.error);
@@ -142,15 +150,15 @@ export function RazorpayButton({ amount = 99, type = "PRO", email, name, onSucce
             style={{
                 width: "100%",
                 padding: "16px",
-                backgroundColor: "#FFF",
-                color: "#000",
+                backgroundColor: type === "EBOOKS" ? "rgba(0,212,255,0.10)" : "#FFF",
+                color: type === "EBOOKS" ? "var(--accent-gold)" : "#000",
                 fontSize: "16px",
                 fontWeight: 700,
-                border: "none",
+                border: type === "EBOOKS" ? "1px solid var(--accent-gold-border)" : "none",
                 borderRadius: "12px",
                 cursor: loading ? "wait" : "pointer",
                 transition: "transform 0.2s",
-                boxShadow: "0 4px 14px 0 rgba(255, 255, 255, 0.39)"
+                boxShadow: type === "EBOOKS" ? "none" : "0 4px 14px 0 rgba(255, 255, 255, 0.22)"
             }}
             onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
             onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}

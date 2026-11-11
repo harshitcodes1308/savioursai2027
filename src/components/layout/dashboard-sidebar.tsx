@@ -150,11 +150,13 @@ export default function DashboardSidebar({
   userEmail,
   isPaid = true,
   planType = "FREE",
+  ebooksUnlocked = false,
 }: {
   userName?: string;
   userEmail?: string;
   isPaid?: boolean;
   planType?: string;
+  ebooksUnlocked?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -367,8 +369,8 @@ export default function DashboardSidebar({
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {item.label}
                     </span>
-                    {!isPaid && isLockedRoute(item.href) && (
-                      <span style={{ fontSize: 10, opacity: 0.35, flexShrink: 0 }}>⌁</span>
+                    {((!isPaid && isLockedRoute(item.href)) || (item.href === "/dashboard/ebooks" && !ebooksUnlocked)) && (
+                      <span style={{ opacity: 0.45, flexShrink: 0, display: "flex" }}><AppIcon name="lock" size={12} /></span>
                     )}
                   </button>
                 );

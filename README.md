@@ -153,6 +153,19 @@ RAZORPAY_WEBHOOK_SECRET=
 
 ```bash
 npm run dev      # Start the local development server
-npm run build    # Generate Prisma client and create a production build
+npm run build    # Apply pending migrations, generate Prisma Client, and build Next.js
 npx tsc --noEmit # Type-check the application
 ```
+
+## Database migrations and deployment
+
+Production builds use the following sequence:
+
+```bash
+prisma migrate deploy && prisma generate && next build
+```
+
+- Schema changes must include a checked-in migration under `prisma/migrations/`.
+- `prisma migrate deploy` applies only pending migrations and runs without interactive prompts, making it suitable for Vercel and other CI environments.
+- Production builds do not use `prisma db push` or `--accept-data-loss`. This prevents deployment prompts and avoids silently accepting destructive schema changes.
+- The Sidekick referral entitlement is introduced by `20261112000000_add_ebook_referrals`. It adds ebook-access state, unique referral codes, referral attribution, and successful-referral tracking to users.

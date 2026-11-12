@@ -11,6 +11,7 @@ import {
   BrainCircuit,
   BriefcaseBusiness,
   Calculator,
+  CalendarDays,
   Check,
   CheckCircle2,
   ChevronRight,
@@ -75,6 +76,7 @@ import {
 export type AppIconName =
   | "alert" | "arrow-left" | "arrow-right" | "award" | "chart" | "book"
   | "brain" | "briefcase" | "calculator" | "check" | "check-circle" | "chevron-right"
+  | "calendar"
   | "pause" | "play-circle" | "clock" | "coffee" | "code" | "copy" | "crown"
   | "database" | "dice" | "download" | "eye" | "file-check" | "file" | "flag" | "flask"
   | "focus" | "gauge" | "gem" | "globe" | "graduation" | "history" | "hourglass"
@@ -94,6 +96,7 @@ const ICONS: Record<AppIconName, LucideIcon> = {
   brain: BrainCircuit,
   briefcase: BriefcaseBusiness,
   calculator: Calculator,
+  calendar: CalendarDays,
   check: Check,
   "check-circle": CheckCircle2,
   "chevron-right": ChevronRight,

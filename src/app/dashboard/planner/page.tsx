@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { useRouter } from "next/navigation";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
@@ -15,13 +15,13 @@ interface SelectedChapter {
 }
 
 const SUBJECT_COLORS: Record<string, string> = {
-    Mathematics: "#C9A84C",
-    Physics: "#60a5fa",
-    Chemistry: "#33DFFF",
-    Biology: "#22c55e",
-    English: "#f472b6",
-    "History & Civics": "#fb923c",
-    Geography: "#34d399",
+    Mathematics: "#00D4FF",
+    Physics: "#38BDF8",
+    Chemistry: "#22D3EE",
+    Biology: "#67E8F9",
+    English: "#7DD3FC",
+    "History & Civics": "#5EE7F2",
+    Geography: "#60A5FA",
 };
 
 export default function SmartPlannerPage() {
@@ -31,8 +31,16 @@ export default function SmartPlannerPage() {
     const [startDate, setStartDate] = useState("");
     const [targetDate, setTargetDate] = useState("");
     const [dailyHours, setDailyHours] = useState(2);
+    const [activeSubjectId, setActiveSubjectId] = useState("");
+    const [formError, setFormError] = useState("");
 
     const { data: subjects } = trpc.content.getSubjects.useQuery();
+    const resolvedSubjectId = activeSubjectId || subjects?.[0]?.id || "";
+    const activeSubject = subjects?.find(subject => subject.id === resolvedSubjectId);
+    const { data: activeChapters, isLoading: chaptersLoading } = trpc.content.getChaptersBySubject.useQuery(
+        { subjectId: resolvedSubjectId },
+        { enabled: Boolean(resolvedSubjectId) }
+    );
     const { data: plans, refetch: refetchPlans } = trpc.planner.getMyPlans.useQuery({});
 
     const generatePlan = trpc.planner.generateSmartPlan.useMutation();
@@ -48,9 +56,14 @@ export default function SmartPlannerPage() {
 
     const handleGeneratePlan = async () => {
         if (selectedChapters.length === 0 || !startDate || !targetDate) {
-            alert("Please select chapters and dates");
+            setFormError("Choose at least one chapter and both dates to continue.");
             return;
         }
+        if (new Date(targetDate) < new Date(startDate)) {
+            setFormError("Target date must be after the start date.");
+            return;
+        }
+        setFormError("");
         const chaptersBySubject = selectedChapters.reduce((acc, ch) => {
             if (!acc[ch.subjectId]) acc[ch.subjectId] = [];
             acc[ch.subjectId].push(ch.chapterId);
@@ -60,8 +73,9 @@ export default function SmartPlannerPage() {
         for (const [subjectId, chapterIds] of Object.entries(chaptersBySubject)) {
             try {
                 await generatePlan.mutateAsync({ subjectId, chapterIds, startDate, targetDate, dailyHours });
-            } catch (err: any) {
-                alert(`Error: ${err.message}`);
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : "Could not generate the plan";
+                setFormError(message);
                 return;
             }
         }
@@ -78,13 +92,18 @@ export default function SmartPlannerPage() {
     const completedCount = plans?.filter(p => p.completed).length || 0;
     const totalPlans = plans?.length || 0;
     const progressPercent = totalPlans > 0 ? Math.round((completedCount / totalPlans) * 100) : 0;
+    const selectedChapterIds = useMemo(
+        () => new Set(selectedChapters.map(chapter => chapter.chapterId)),
+        [selectedChapters]
+    );
 
-    const plansByDate = (plans || []).reduce((acc, plan: any) => {
+    type PlannerPlan = NonNullable<typeof plans>[number];
+    const plansByDate = (plans || []).reduce((acc, plan) => {
         const key = new Date(plan.planDate).toDateString();
         if (!acc[key]) acc[key] = [];
         acc[key].push(plan);
         return acc;
-    }, {} as Record<string, any[]>);
+    }, {} as Record<string, PlannerPlan[]>);
 
     // ── Timeline view ──
     if (plans && plans.length > 0) {
@@ -181,7 +200,7 @@ export default function SmartPlannerPage() {
                                     gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(300px, 1fr))",
                                     gap: 12,
                                 }}>
-                                    {dayPlans.map((plan: any) => {
+                                    {dayPlans.map((plan) => {
                                         const color = SUBJECT_COLORS[plan.subject?.name] || "var(--accent-gold)";
                                         return (
                                             <div
@@ -268,11 +287,14 @@ export default function SmartPlannerPage() {
             padding: isMobile ? "24px 16px" : "48px",
             overflowY: "auto",
         }}>
-            <div style={{ maxWidth: 720, margin: "0 auto" }}>
-                <div style={{ marginBottom: 32, animation: "pageEnter 0.4s ease-out both" }}>
+            <div style={{ maxWidth: 960, margin: "0 auto" }}>
+                <div style={{ marginBottom: isMobile ? 24 : 30 }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
+                        <AppIcon name="map" size={15} /> Personal study route
+                    </div>
                     <h1 style={{
                         fontFamily: "var(--font-display)",
-                        fontSize: isMobile ? 32 : 44,
+                        fontSize: isMobile ? 32 : 42,
                         fontWeight: 700,
                         color: "var(--text-primary)",
                         letterSpacing: "-0.03em",
@@ -281,69 +303,145 @@ export default function SmartPlannerPage() {
                         Smart Planner
                     </h1>
                     <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                        Select chapters and dates — AI builds a day-by-day revision timeline.
+                        Pick what you need to finish. We will arrange it into a realistic day-by-day timeline.
                     </p>
                 </div>
 
                 <div style={{
-                    background: "var(--bg-surface)",
+                    background: "rgba(19, 19, 31, 0.92)",
                     border: "1px solid var(--bg-border)",
-                    borderRadius: 20,
-                    padding: isMobile ? "20px 16px" : "36px",
+                    borderRadius: 18,
+                    padding: isMobile ? "18px 14px" : "28px",
+                    boxShadow: "0 18px 48px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.035)",
                 }}>
-                    {/* Chapter selector */}
-                    <div style={{ marginBottom: 28 }}>
-                        <div style={{
-                            fontFamily: "var(--font-body)",
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color: "var(--text-muted)",
-                            letterSpacing: "0.1em",
-                            textTransform: "uppercase",
-                            marginBottom: 14,
-                        }}>
-                            Chapters{" "}
-                            {selectedChapters.length > 0 && (
-                                <span style={{ color: "var(--accent-gold)", fontFamily: "var(--font-body)" }}>
-                                    — {selectedChapters.length} selected
-                                </span>
-                            )}
+                    <div style={{ marginBottom: 26 }}>
+                        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+                            <div>
+                                <div style={{ fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 5 }}>
+                                    1 · Choose a subject
+                                </div>
+                                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-secondary)" }}>Switch subjects without losing your chapter selections.</div>
+                            </div>
+                            <div style={{ flexShrink: 0, padding: "5px 9px", borderRadius: 7, border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700 }}>
+                                {selectedChapters.length} selected
+                            </div>
                         </div>
-                        <div style={{ maxHeight: 300, overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
-                            {subjects?.map(subject => (
-                                <SubjectChapterSelector
-                                    key={subject.id}
-                                    subject={subject}
-                                    selectedChapters={selectedChapters}
-                                    onToggleChapter={toggleChapter}
-                                />
-                            ))}
+                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))", gap: 8 }}>
+                            {subjects?.map(subject => {
+                                const active = subject.id === resolvedSubjectId;
+                                const selectedCount = selectedChapters.filter(chapter => chapter.subjectId === subject.id).length;
+                                return (
+                                    <button
+                                        key={subject.id}
+                                        onClick={() => setActiveSubjectId(subject.id)}
+                                        aria-pressed={active}
+                                        style={{
+                                            minHeight: 62,
+                                            padding: "10px 11px",
+                                            borderRadius: 11,
+                                            border: active ? "1px solid var(--accent-gold-border)" : "1px solid var(--bg-border)",
+                                            borderBottomColor: active ? "rgba(0,212,255,0.5)" : "rgba(0,0,0,0.55)",
+                                            background: active ? "rgba(0,212,255,0.09)" : "var(--bg-base)",
+                                            boxShadow: active ? "0 4px 0 rgba(0,107,128,0.32), inset 0 1px 0 rgba(255,255,255,0.05)" : "0 3px 0 rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.025)",
+                                            color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                                            cursor: "pointer",
+                                            textAlign: "left",
+                                            fontFamily: "var(--font-body)",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "space-between",
+                                            gap: 7,
+                                            transition: "border-color 120ms ease, background 120ms ease, color 120ms ease",
+                                        }}
+                                    >
+                                        <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                                            <AppIcon name="book" size={14} color={active ? "var(--accent-gold)" : "var(--text-muted)"} />
+                                            <span style={{ fontSize: 12, fontWeight: 650, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{subject.name}</span>
+                                        </span>
+                                        <span style={{ color: selectedCount ? "var(--accent-gold)" : "var(--text-muted)", fontSize: 10, fontWeight: 600 }}>
+                                            {selectedCount ? `${selectedCount} chosen` : "Select chapters"}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div style={{ marginTop: 12, border: "1px solid var(--bg-border)", borderRadius: 12, background: "var(--bg-base)", overflow: "hidden" }}>
+                            <div style={{ padding: "11px 13px", borderBottom: "1px solid var(--bg-border)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                                <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 650, color: "var(--text-primary)" }}>{activeSubject?.name || "Select a subject"} chapters</span>
+                                <span style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--text-muted)" }}>{activeChapters?.length || 0} available</span>
+                            </div>
+                            <div style={{ maxHeight: 230, overflowY: "auto", padding: 8, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))", gap: 5 }}>
+                                {chaptersLoading ? (
+                                    <div style={{ gridColumn: "1 / -1", padding: 18, color: "var(--text-muted)", fontFamily: "var(--font-body)", fontSize: 12, textAlign: "center" }}>Loading chapters...</div>
+                                ) : activeChapters?.map(chapter => {
+                                    const selected = selectedChapterIds.has(chapter.id);
+                                    return (
+                                        <button
+                                            key={chapter.id}
+                                            onClick={() => activeSubject && toggleChapter({ chapterId: chapter.id, chapterName: chapter.name, subjectId: activeSubject.id, subjectName: activeSubject.name })}
+                                            aria-pressed={selected}
+                                            style={{
+                                                minHeight: 42,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 10,
+                                                padding: "8px 10px",
+                                                borderRadius: 8,
+                                                border: selected ? "1px solid rgba(0,212,255,0.24)" : "1px solid transparent",
+                                                background: selected ? "rgba(0,212,255,0.07)" : "transparent",
+                                                color: selected ? "var(--text-primary)" : "var(--text-secondary)",
+                                                cursor: "pointer",
+                                                textAlign: "left",
+                                                fontFamily: "var(--font-body)",
+                                            }}
+                                        >
+                                            <span style={{ width: 18, height: 18, borderRadius: 5, flexShrink: 0, display: "grid", placeItems: "center", border: selected ? "1px solid var(--accent-gold)" : "1px solid var(--bg-border-light)", background: selected ? "var(--accent-gold-glow)" : "var(--bg-surface)", color: "var(--accent-gold)" }}>
+                                                {selected && <AppIcon name="check" size={12} strokeWidth={2.4} />}
+                                            </span>
+                                            <span style={{ fontSize: 12, lineHeight: 1.35 }}><span style={{ color: "var(--text-muted)", marginRight: 5 }}>{chapter.order}.</span>{chapter.name}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Date inputs */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }}>
+                    <div style={{ marginBottom: 12, fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase" }}>2 · Set your study window</div>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12, marginBottom: 22 }}>
                         {[
-                            { label: "Start Date", val: startDate, set: setStartDate },
-                            { label: "Target Date", val: targetDate, set: setTargetDate },
-                        ].map(({ label, val, set }) => (
-                            <div key={label}>
-                                <div style={{ fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
-                                    {label}
+                            { label: "Start date", hint: "When the plan begins", val: startDate, set: setStartDate },
+                            { label: "Target date", hint: "When you want to finish", val: targetDate, set: setTargetDate },
+                        ].map(({ label, hint, val, set }) => (
+                            <label key={label} className="planner-date-card" style={{
+                                display: "block",
+                                padding: "13px 14px 11px",
+                                borderRadius: 12,
+                                border: "1px solid var(--bg-border)",
+                                borderBottomColor: "rgba(0,0,0,0.62)",
+                                background: "var(--bg-base)",
+                                boxShadow: "0 5px 0 rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.035)",
+                            }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
+                                    <div style={{ width: 30, height: 30, borderRadius: 8, display: "grid", placeItems: "center", background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)", color: "var(--accent-gold)" }}><AppIcon name="calendar" size={15} /></div>
+                                    <div>
+                                        <div style={{ fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700, color: "var(--text-primary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
+                                        <div style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>{hint}</div>
+                                    </div>
                                 </div>
                                 <input
                                     type="date"
                                     value={val}
-                                    onChange={e => set(e.target.value)}
-                                    className="sa-input"
-                                    style={{ width: "100%", boxSizing: "border-box" }}
+                                    min={label === "Target date" ? startDate || undefined : undefined}
+                                    onChange={e => { set(e.target.value); setFormError(""); }}
+                                    style={{ width: "100%", boxSizing: "border-box", height: 38, borderRadius: 8, border: "1px solid var(--bg-border)", background: "var(--bg-surface)", color: val ? "var(--text-primary)" : "var(--text-muted)", padding: "0 10px", colorScheme: "dark", fontFamily: "var(--font-body)", fontSize: 12, outline: "none" }}
                                 />
-                            </div>
+                            </label>
                         ))}
                     </div>
 
                     {/* Daily hours slider */}
-                    <div style={{ marginBottom: 32 }}>
+                    <div style={{ marginBottom: 24 }}>
                         <div style={{
                             fontFamily: "var(--font-body)",
                             fontSize: 11, fontWeight: 700,
@@ -367,6 +465,12 @@ export default function SmartPlannerPage() {
                         </div>
                     </div>
 
+                    {formError && (
+                        <div role="alert" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 12, borderRadius: 9, border: "1px solid rgba(248,113,113,0.24)", background: "rgba(248,113,113,0.07)", color: "var(--status-red)", fontFamily: "var(--font-body)", fontSize: 12 }}>
+                            <AppIcon name="alert" size={15} /> {formError}
+                        </div>
+                    )}
+
                     <button
                         onClick={handleGeneratePlan}
                         disabled={generatePlan.isPending}
@@ -375,9 +479,10 @@ export default function SmartPlannerPage() {
                             width: "100%",
                             padding: "15px",
                             fontSize: 15,
-                            borderRadius: 12,
+                            borderRadius: 10,
                             opacity: generatePlan.isPending ? 0.6 : 1,
                             cursor: generatePlan.isPending ? "not-allowed" : "pointer",
+                            boxShadow: "0 4px 0 rgba(0,107,128,0.38)",
                         }}
                     >
                         {generatePlan.isPending ? "Generating..." : "Generate Plan →"}
@@ -390,107 +495,6 @@ export default function SmartPlannerPage() {
                 label="Building Your Plan..."
                 subLabel="Optimizing timeline based on difficulty..."
             />
-        </div>
-    );
-}
-
-function SubjectChapterSelector({
-    subject,
-    selectedChapters,
-    onToggleChapter,
-}: {
-    subject: any;
-    selectedChapters: SelectedChapter[];
-    onToggleChapter: (chapter: SelectedChapter) => void;
-}) {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const { data: chapters } = trpc.content.getChaptersBySubject.useQuery(
-        { subjectId: subject.id },
-        { enabled: isExpanded }
-    );
-    const selectedCount = selectedChapters.filter(c => c.subjectId === subject.id).length;
-    const color = SUBJECT_COLORS[subject.name] || "var(--accent-gold)";
-
-    return (
-        <div style={{
-            background: "var(--bg-base)",
-            border: "1px solid var(--bg-border)",
-            borderRadius: 10,
-            overflow: "hidden",
-        }}>
-            <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    background: "transparent",
-                    color: "var(--text-primary)",
-                    border: "none",
-                    fontFamily: "var(--font-body)",
-                    fontSize: 13, fontWeight: 600,
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                }}
-            >
-                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <AppIcon name="book" size={15} color={color} />
-                    {subject.name}
-                    {selectedCount > 0 && (
-                        <span style={{
-                            background: "rgba(0,212,255,0.12)",
-                            color: "var(--accent-gold)",
-                            padding: "2px 8px",
-                            borderRadius: 6,
-                            fontSize: 10, fontWeight: 700,
-                        }}>
-                            {selectedCount}
-                        </span>
-                    )}
-                </span>
-                <span style={{
-                    fontSize: 10,
-                    color: "var(--text-muted)",
-                    transform: isExpanded ? "rotate(90deg)" : "none",
-                    transition: "transform 0.2s ease",
-                }}>
-                    <AppIcon name="chevron-right" size={13} />
-                </span>
-            </button>
-
-            {isExpanded && (
-                <div style={{ borderTop: "1px solid var(--bg-border)", padding: "8px 12px", maxHeight: 200, overflowY: "auto" }}>
-                    {chapters?.map(chapter => {
-                        const isSelected = selectedChapters.some(c => c.chapterId === chapter.id);
-                        return (
-                            <label
-                                key={chapter.id}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 10,
-                                    padding: "8px 10px",
-                                    borderRadius: 8,
-                                    cursor: "pointer",
-                                    background: isSelected ? "rgba(0,212,255,0.06)" : "transparent",
-                                    marginBottom: 2,
-                                }}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    onChange={() => onToggleChapter({ chapterId: chapter.id, chapterName: chapter.name, subjectId: subject.id, subjectName: subject.name })}
-                                    style={{ width: 16, height: 16, accentColor: "var(--accent-gold)", cursor: "pointer" }}
-                                />
-                                <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: isSelected ? "var(--text-primary)" : "var(--text-secondary)" }}>
-                                    Ch {chapter.order}: {chapter.name}
-                                </span>
-                            </label>
-                        );
-                    })}
-                </div>
-            )}
         </div>
     );
 }

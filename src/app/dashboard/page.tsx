@@ -176,6 +176,7 @@ export default function DashboardPage() {
     }, []);
 
     const featureCards = [
+        { flag: "preboardReady" as const, label: "Are You Pre-Board Ready?", desc: "Free 15-question PYQ check on the chapters students skip", path: "/dashboard/preboard-ready", icon: "◉", tagline: "15 questions. 15 minutes. Brutal honesty." },
         { flag: "studyFlow" as const, label: "Study Flow", desc: "Watch → Revise → Practice", path: "/dashboard/study-flow", icon: "book", tagline: "Your guided learning path" },
         { flag: "halfYearlySimulator" as const, label: "Half Yearly Simulator", desc: "Watch → Read → Test half the syllabus", path: "/dashboard/half-yearly", icon: "◈", tagline: "Your guided route to half-yearly mastery" },
         { flag: "aiDoubtSolver" as const, label: "AI Doubt Solver", desc: "Ask anything, get instant answers", path: "/dashboard/ai-assistant", icon: "◈", tagline: "Your 24/7 academic companion" },

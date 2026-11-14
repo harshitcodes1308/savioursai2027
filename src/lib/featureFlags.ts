@@ -26,6 +26,7 @@ export const FEATURE_FLAGS = {
   lastNightBefore:   false,
   notesFlashcards:   false,
   preBoard90:        true,
+  preboardReady:     true,   // Free 15-Q "Are you ready for pre-boards?" check
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAGS;

@@ -10,6 +10,7 @@ import { getDashboardIcon } from "@/lib/dashboardIcons";
 
 const ROUTE_FLAG_MAP: Partial<Record<string, keyof typeof FEATURE_FLAGS>> = {
   "/dashboard/pre-board-90": "preBoard90",
+  "/dashboard/preboard-ready": "preboardReady",
   "/dashboard/study-flow": "studyFlow",
   "/dashboard/webinar": "webinar",
   "/dashboard/video-lectures": "videoLectures",
@@ -59,6 +60,7 @@ const FREE_NAV_GROUPS: NavGroup[] = [
   {
     label: "FREE",
     items: [
+      { icon: "◉", label: "Pre-Board Ready?", href: "/dashboard/preboard-ready" },
       { icon: "◈", label: "Pre-Board 60",     href: "/dashboard/pre-board-90" },
       { icon: "◎", label: "Smart Planner",    href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission",  href: "/dashboard/todo" },
@@ -102,6 +104,7 @@ const PAID_NAV_GROUPS: NavGroup[] = [
   {
     label: "PLAN",
     items: [
+      { icon: "◉", label: "Pre-Board Ready?", href: "/dashboard/preboard-ready" },
       { icon: "◈", label: "Pre-Board 60",    href: "/dashboard/pre-board-90" },
       { icon: "◎", label: "Smart Planner",   href: "/dashboard/planner" },
       { icon: "○", label: "Monthly Mission", href: "/dashboard/todo" },

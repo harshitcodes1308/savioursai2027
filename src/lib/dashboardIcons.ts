@@ -3,6 +3,7 @@ import type { AppIconName } from "@/components/ui/AppIcon";
 const ROUTE_ICONS: Record<string, AppIconName> = {
   "/dashboard": "panel",
   "/dashboard/pre-board-90": "history",
+  "/dashboard/preboard-ready": "gauge",
   "/dashboard/planner": "map",
   "/dashboard/todo": "check-circle",
   "/dashboard/tracker": "chart",

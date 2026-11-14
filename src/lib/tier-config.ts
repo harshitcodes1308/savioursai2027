@@ -44,6 +44,7 @@ export const FREE_ROUTES = [
     "/dashboard/activity",
     "/dashboard/last-night-before",
     "/dashboard/pre-board-90",
+    "/dashboard/preboard-ready",
 ] as const;
 
 /** Feature info for UpgradePrompt — maps route to display name + description */
@@ -99,6 +100,10 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     "/dashboard/last-night-before": {
         name: "Last Night Before",
         description: "Panic-mode revision: 30 numericals, 20 formulas, 10 definitions — randomly assigned for focused last-minute cramming.",
+    },
+    "/dashboard/preboard-ready": {
+        name: "Pre-Board Ready Check",
+        description: "Free 15-question PYQ check that finds the chapters you've missed before pre-boards.",
     },
     "/dashboard/pre-board-90": {
         name: "Pre-Board 60",

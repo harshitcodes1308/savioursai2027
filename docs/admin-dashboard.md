@@ -4,23 +4,25 @@ Open `/admin` and sign in with the configured administrator account. The default
 
 ## Metrics
 
+All admin reporting uses **1 November 2026, 00:00 IST** as the standalone-business boundary. Users created before that date, their activity, and payments before that date are excluded from the workspace so creator-partnership results do not mix with standalone performance.
+
 - **Total signups:** registered user records, excluding `demo@saviours.test`.
 - **Paid users:** current paid entitlements, including legacy paid access and manual grants; expired access is excluded. This is not a count of verified purchases.
 - **Free ebooks claimed:** users with `ebookSpinAt` set; one claim per account. Later upgrades do not erase the claim.
 - **Online now:** distinct users with a visible dashboard heartbeat in the past two minutes. Visible dashboard tabs heartbeat every minute. Multiple tabs update the same presence record.
 - **Active today:** users whose most recent dashboard heartbeat is today in IST.
 - **Most opened features:** feature navigation events, deduplicated per user/feature/minute. These are distinct from completed tasks or server-recorded AI requests.
-- Signup dates and daily charts use Asia/Kolkata. Thirty-day signup charts include today and the previous 29 calendar days, including zero days.
+- Signup dates and daily charts use Asia/Kolkata and show every day from 1 November 2026, including zero days.
 
 Presence and feature opens are stored in the existing `audit_logs` table and begin with this release. No schema migration or external analytics service is required. Only allowlisted feature identifiers are collected; page content and complete URLs are not sent. The panel refreshes every 30 seconds while visible.
 
 ## Captured payment ledger
 
-Revenue is loaded read-only from Razorpay's Payments API and cached for five minutes. It includes historical captures, refunds, fees, product notes, payment methods and recent customers. If Razorpay is temporarily unavailable, the page falls back to recorded webhook captures. Keep `payment.captured` (and `subscription.charged` for legacy subscriptions) enabled on `/api/razorpay/webhook` with `RAZORPAY_WEBHOOK_SECRET`; the webhook remains responsible for entitlement grants and the fallback ledger.
+Revenue is loaded read-only from Razorpay's Payments API and cached for five minutes. Only captures created from 1 November 2026 onward are included. It reports refunds, fees, product notes, payment methods and recent customers. If Razorpay is temporarily unavailable, the page falls back to post-boundary webhook captures. Keep `payment.captured` (and `subscription.charged` for legacy subscriptions) enabled on `/api/razorpay/webhook` with `RAZORPAY_WEBHOOK_SECRET`; the webhook remains responsible for entitlement grants and the fallback ledger.
 
 The overview can show the latest Instagram follower count through Meta's official API. Configure `INSTAGRAM_USER_ID`, a long-lived `INSTAGRAM_ACCESS_TOKEN` with `instagram_business_basic`, and optionally `INSTAGRAM_USERNAME`. The count is cached for 15 minutes. `INSTAGRAM_GRAPH_BASE_URL` and `INSTAGRAM_GRAPH_VERSION` can override the defaults for a different Meta login flow.
 
-The ledger starts with this release: historical purchases are not backfilled. It reports gross captures, before refunds, fees and settlements. Manual plan changes and referral grants do not create payment records.
+Manual plan changes and referral grants do not create payment records.
 
 ## Verification
 

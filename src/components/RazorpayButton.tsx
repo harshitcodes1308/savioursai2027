@@ -49,11 +49,13 @@ interface RazorpayButtonProps {
     email: string;
     name: string;
     onSuccess?: () => void;
+    /** Release any modal containing this button before checkout takes focus. */
+    onCheckoutOpen?: () => void;
     buttonText?: string;
     successRedirect?: string;
 }
 
-export function RazorpayButton({ type = "PRO", ebookId, variant, size = "md", email, name, onSuccess, buttonText, successRedirect = "/dashboard" }: RazorpayButtonProps) {
+export function RazorpayButton({ type = "PRO", ebookId, variant, size = "md", email, name, onSuccess, onCheckoutOpen, buttonText, successRedirect = "/dashboard" }: RazorpayButtonProps) {
     const outline = (variant ?? (type === "EBOOK_SINGLE" ? "outline" : "solid")) === "outline";
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -141,6 +143,7 @@ export function RazorpayButton({ type = "PRO", ebookId, variant, size = "md", em
             };
 
             const paymentObject = new window.Razorpay(options);
+            onCheckoutOpen?.();
             paymentObject.open();
         } catch (error) {
             console.error("Payment Error:", error);

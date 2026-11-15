@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { track } from "@vercel/analytics";
 import { trpc } from "@/lib/trpc/client";
 import { EBOOK_SUBJECTS } from "@/data/ebooks-config";
@@ -96,7 +97,11 @@ export function EbookBundleOffer({ userId, signInId, canSpin, name, email }: {
         <div className={styles.price}><s>₹{EBOOK_SINGLE_PRICE * EBOOK_SUBJECTS.length}</s><strong>₹{EBOOK_BUNDLE_PRICE}</strong><span>One-time payment<br />No recurring charges</span></div>
         <div className={styles.bonus}><span className={styles.check}>✓</span><div><strong>Saviours AI Pro included</strong><span>Worth ₹99 · At no extra cost</span></div><span className={styles.included}>INCLUDED</span></div>
         <p className={styles.detail}>AI study tools, practice and premium features.<br />Pro access through 31 March 2027.</p>
-        <RazorpayButton type="EBOOK_BUNDLE" name={name} email={email} buttonText={`Get the complete bundle · ₹${EBOOK_BUNDLE_PRICE}`} successRedirect="/dashboard/ebooks" onSuccess={() => {
+        <RazorpayButton type="EBOOK_BUNDLE" name={name} email={email} buttonText={`Get the complete bundle · ₹${EBOOK_BUNDLE_PRICE}`} successRedirect="/dashboard/ebooks" onCheckoutOpen={() => {
+          // Native dialogs occupy the browser's top layer. Release it and restore
+          // focus/scroll synchronously before Razorpay opens its own modal.
+          flushSync(() => setOpen(false));
+        }} onSuccess={() => {
           setOpen(false);
           void utils.dashboard.getProfile.invalidate();
           void utils.auth.getSession.invalidate();

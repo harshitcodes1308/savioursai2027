@@ -1,16 +1,17 @@
 "use client";
 import Link from "next/link";
-import { Users, CreditCard, BookOpen, Radio, ArrowUpRight } from "lucide-react";
+import { Users, CreditCard, BookOpen, Radio, ArrowUpRight, Instagram } from "lucide-react";
 import type { OverviewStats } from "@/lib/admin";
 import { PageHeading, Metric, Panel, Empty, TrendChart, FeatureRanking, number, dateTime } from "./AdminUI";
 export default function OverviewDashboard({ data }: { data: OverviewStats }) {
   return <div className="admin-page">
     <PageHeading eyebrow="Your workspace, at a glance" title="Overview" description="Students, Sidekick and product activity in one place."><span className="admin-updated">Updated {dateTime(data.updatedAt)} IST</span></PageHeading>
-    <div className="admin-metrics">
+    <div className="admin-metrics admin-metrics-five">
       <Metric label="Total signups" value={data.totalUsers} detail={`${number(data.usersToday)} joined today · IST`} icon={<Users size={17}/>}/>
       <Metric label="Paid users" value={data.paidUsers} detail={`${data.conversionRate}% have current paid access`} icon={<CreditCard size={17}/>}/>
       <Metric label="Free ebooks claimed" value={data.claims} detail={`${number(data.claimsToday)} claimed today`} icon={<BookOpen size={17}/>}/>
       <Metric label="Online now" value={data.onlineUsers} detail="Visible dashboard in the last 2 minutes" icon={<Radio size={17}/>} live/>
+      <Metric label="Instagram followers" value={data.instagram.followers ?? "—"} detail={data.instagram.followers !== null ? `@${data.instagram.username} · Live from Meta` : data.instagram.configured ? (data.instagram.error ?? "Temporarily unavailable") : "Connect Meta API to show the live count"} icon={<Instagram size={17}/>}/>
     </div>
     <div className="admin-summary-strip"><span>New signups <strong>{number(data.usersWeek)}</strong><small>last 7 days</small></span><span>New signups <strong>{number(data.usersMonth)}</strong><small>last 30 days</small></span><span>Active today <strong>{number(data.activeToday)}</strong><small>dashboard visitors</small></span><span>Bundle owners <strong>{number(data.bundleOwners)}</strong><small>purchased bundle access</small></span></div>
     <div className="admin-grid-main"><Panel title="Signup growth" caption="Daily signups · Last 30 calendar days · IST"><TrendChart data={data.signupTrend}/></Panel>

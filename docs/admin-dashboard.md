@@ -16,7 +16,9 @@ Presence and feature opens are stored in the existing `audit_logs` table and beg
 
 ## Captured payment ledger
 
-Revenue is read from recorded Razorpay capture events rather than inferred from user plans. Enable `payment.captured` (and `subscription.charged` for legacy subscriptions) on the existing `/api/razorpay/webhook` endpoint with `RAZORPAY_WEBHOOK_SECRET`. Each INR payment ID is recorded once, even if the webhook retries or both event types arrive. The existing user entitlement grant still runs.
+Revenue is loaded read-only from Razorpay's Payments API and cached for five minutes. It includes historical captures, refunds, fees, product notes, payment methods and recent customers. If Razorpay is temporarily unavailable, the page falls back to recorded webhook captures. Keep `payment.captured` (and `subscription.charged` for legacy subscriptions) enabled on `/api/razorpay/webhook` with `RAZORPAY_WEBHOOK_SECRET`; the webhook remains responsible for entitlement grants and the fallback ledger.
+
+The overview can show the latest Instagram follower count through Meta's official API. Configure `INSTAGRAM_USER_ID`, a long-lived `INSTAGRAM_ACCESS_TOKEN` with `instagram_business_basic`, and optionally `INSTAGRAM_USERNAME`. The count is cached for 15 minutes. `INSTAGRAM_GRAPH_BASE_URL` and `INSTAGRAM_GRAPH_VERSION` can override the defaults for a different Meta login flow.
 
 The ledger starts with this release: historical purchases are not backfilled. It reports gross captures, before refunds, fees and settlements. Manual plan changes and referral grants do not create payment records.
 

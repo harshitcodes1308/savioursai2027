@@ -2,14 +2,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { LayoutDashboard, Users, CreditCard, ChartNoAxesCombined, Handshake, LogOut, RefreshCw, ArrowUpRight, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Users, CreditCard, ChartNoAxesCombined, LogOut, RefreshCw, ArrowUpRight, ShieldCheck } from "lucide-react";
 
 const navigation = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Revenue", href: "/admin/revenue", icon: CreditCard },
   { label: "Features", href: "/admin/features", icon: ChartNoAxesCombined },
-  { label: "Creators", href: "/admin/creators", icon: Handshake },
 ];
 export default function AdminShell({ children, adminEmail }: { children: React.ReactNode; adminEmail: string }) {
   const pathname = usePathname();

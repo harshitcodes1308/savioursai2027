@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { DASHBOARD_FEATURES, ONLINE_WINDOW_MS, PRESENCE_ACTION } from "@/lib/dashboard-activity";
 import { EBOOK_SUBJECTS } from "@/data/ebooks-config";
+import { getInstagramAudience } from "@/lib/instagram";
+import { getRazorpayRevenueSnapshot } from "@/lib/razorpay-revenue";
 
 const realUser: Prisma.UserWhereInput = { email: { not: "demo@saviours.test" } };
 const realUserSql = Prisma.sql`u.email <> 'demo@saviours.test'`;
@@ -36,7 +38,7 @@ export async function getOverviewStats() {
   const monthAgo = new Date(today.getTime() - 29 * 86400_000);
   const weekAgo = new Date(today.getTime() - 6 * 86400_000);
   const onlineSince = new Date(now.getTime() - ONLINE_WINDOW_MS);
-  const [totalUsers, paidUsers, usersToday, usersWeek, usersMonth, claims, claimsToday, bundleOwners, onlineUsers, activeToday, signupRows, featureRows, claimGroups, recentUsers, recentClaims, plans] = await Promise.all([
+  const [totalUsers, paidUsers, usersToday, usersWeek, usersMonth, claims, claimsToday, bundleOwners, onlineUsers, activeToday, signupRows, featureRows, claimGroups, recentUsers, recentClaims, plans, instagram] = await Promise.all([
     prisma.user.count({ where: realUser }),
     prisma.user.count({ where: paidAccessWhere(now) }),
     prisma.user.count({ where: { ...realUser, createdAt: { gte: today } } }),
@@ -53,6 +55,7 @@ export async function getOverviewStats() {
     prisma.user.findMany({ where: realUser, select: { id: true, name: true, email: true, planType: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: 6 }),
     prisma.user.findMany({ where: { ...realUser, ebookSpinAt: { not: null } }, select: { id: true, name: true, ebookSpinPrize: true, ebookSpinAt: true }, orderBy: { ebookSpinAt: "desc" }, take: 5 }),
     prisma.user.groupBy({ by: ["planType"], where: paidAccessWhere(now), _count: { id: true } }),
+    getInstagramAudience(),
   ]);
   return {
     totalUsers, paidUsers, freeUsers: totalUsers - paidUsers, usersToday, usersWeek, usersMonth,
@@ -65,6 +68,7 @@ export async function getOverviewStats() {
     recentUsers: recentUsers.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })),
     recentClaims: recentClaims.map(u => ({ id: u.id, name: u.name, subject: EBOOK_SUBJECTS.find(b => b.id === u.ebookSpinPrize)?.name ?? "Sidekick", claimedAt: u.ebookSpinAt!.toISOString() })),
     planBreakdown: [{ plan: "Free", count: totalUsers - paidUsers }, ...plans.map(p => ({ plan: p.planType === "FREE" ? "Legacy paid" : p.planType === "BUNDLE" ? "Bundle" : "Pro", count: p._count.id }))],
+    instagram,
     updatedAt: now.toISOString(),
   };
 }
@@ -96,17 +100,69 @@ export async function getUsersList(search = "", filter = "", page = 1) {
 export type AdminUsers = Awaited<ReturnType<typeof getUsersList>>;
 
 export async function getRevenueData() {
-  const [summary, products, timeline, payments, access] = await Promise.all([
+  const [razorpay, access] = await Promise.all([getRazorpayRevenueSnapshot(), prisma.user.count({ where: paidAccessWhere() })]);
+  if (razorpay.status === "ready") {
+    const userIds = [...new Set(razorpay.payments.map(payment => payment.userId).filter(Boolean))];
+    const emails = [...new Set(razorpay.payments.map(payment => payment.email).filter(Boolean))];
+    const users = await prisma.user.findMany({
+      where: { OR: [{ id: { in: userIds } }, { email: { in: emails, mode: "insensitive" } }] },
+      select: { id: true, name: true, email: true },
+    });
+    const usersById = new Map(users.map(user => [user.id, user]));
+    const usersByEmail = new Map(users.map(user => [user.email.toLowerCase(), user]));
+    const products = new Map<string, { amount: number; payments: number }>();
+    const timeline = new Map<string, number>();
+    const buyers = new Set<string>();
+    let amountPaise = 0;
+    let refundedPaise = 0;
+    let feePaise = 0;
+    for (const payment of razorpay.payments) {
+      amountPaise += payment.amountPaise;
+      refundedPaise += payment.refundedPaise;
+      feePaise += payment.feePaise;
+      buyers.add(payment.userId || payment.email.toLowerCase() || payment.contact || payment.id);
+      const product = products.get(payment.product) ?? { amount: 0, payments: 0 };
+      product.amount += payment.amountPaise - payment.refundedPaise;
+      product.payments += 1;
+      products.set(payment.product, product);
+      const day = istDay(new Date(payment.createdAt));
+      timeline.set(day, (timeline.get(day) ?? 0) + payment.amountPaise - payment.refundedPaise);
+    }
+    const timelineRows = [...timeline].map(([date, count]) => ({ date, count: BigInt(count) }));
+    return {
+      amount: amountPaise / 100,
+      refunded: refundedPaise / 100,
+      fees: feePaise / 100,
+      net: (amountPaise - refundedPaise - feePaise) / 100,
+      payments: razorpay.payments.length,
+      buyers: buyers.size,
+      paidAccess: access,
+      source: "razorpay" as const,
+      fetchedAt: razorpay.fetchedAt,
+      truncated: razorpay.truncated,
+      sourceMessage: "Live Razorpay payment history · refreshed every 5 minutes",
+      products: [...products].map(([product, value]) => ({ product, amount: value.amount / 100, payments: value.payments })).sort((a, b) => b.amount - a.amount),
+      timeline: daysTrend(timelineRows).map(row => ({ date: row.date, count: row.count / 100 })),
+      recentPayments: [...razorpay.payments].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20).map(payment => {
+        const user = usersById.get(payment.userId) ?? usersByEmail.get(payment.email.toLowerCase());
+        return { id: payment.id, name: user?.name ?? payment.email.split("@")[0] ?? "Customer", email: user?.email ?? payment.email, amount: payment.amountPaise / 100, refunded: payment.refundedPaise / 100, product: payment.product, paymentId: payment.id, method: payment.method, date: payment.createdAt };
+      }),
+    };
+  }
+
+  const [summary, products, timeline, payments] = await Promise.all([
     prisma.$queryRaw<{ amount: bigint; payments: bigint; buyers: bigint }[]>(Prisma.sql`SELECT COALESCE(SUM((a.metadata->>'amountPaise')::bigint),0)::bigint AS amount, COUNT(*)::bigint AS payments, COUNT(DISTINCT a."userId")::bigint AS buyers FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND ${realUserSql}`),
     prisma.$queryRaw<{ product: string; amount: bigint; payments: bigint }[]>(Prisma.sql`SELECT a.metadata->>'purchaseType' AS product, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount, COUNT(*)::bigint AS payments FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND ${realUserSql} GROUP BY 1 ORDER BY amount DESC`),
     prisma.$queryRaw<{ date: string; amount: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND ${realUserSql} AND a.timestamp >= NOW() - INTERVAL '30 days' GROUP BY 1 ORDER BY 1`),
     prisma.auditLog.findMany({ where: { action: "PAYMENT_CAPTURED", user: realUser }, include: { user: { select: { name: true, email: true } } }, orderBy: { timestamp: "desc" }, take: 20 }),
-    prisma.user.count({ where: paidAccessWhere() }),
   ]);
-  return { amount: Number(summary[0]?.amount ?? 0) / 100, payments: Number(summary[0]?.payments ?? 0), buyers: Number(summary[0]?.buyers ?? 0), paidAccess: access,
+  const amount = Number(summary[0]?.amount ?? 0) / 100;
+  return { amount, refunded: 0, fees: 0, net: amount, payments: Number(summary[0]?.payments ?? 0), buyers: Number(summary[0]?.buyers ?? 0), paidAccess: access,
+    source: "ledger" as const, fetchedAt: razorpay.fetchedAt, truncated: false,
+    sourceMessage: razorpay.status === "unconfigured" ? "Add Razorpay server credentials to load complete payment history." : (razorpay.error ?? "Razorpay unavailable. Showing verified webhook records."),
     products: products.map(r => ({ product: r.product, amount: Number(r.amount) / 100, payments: Number(r.payments) })),
     timeline: daysTrend(timeline.map(r => ({ date: r.date, count: r.amount }))).map(r => ({ date: r.date, count: r.count / 100 })),
-    recentPayments: payments.map(p => { const m = p.metadata as { amountPaise: number; purchaseType: string; paymentId: string }; return { id: p.id, name: p.user.name, email: p.user.email, amount: m.amountPaise / 100, product: m.purchaseType, paymentId: m.paymentId, date: p.timestamp.toISOString() }; }),
+    recentPayments: payments.map(p => { const m = p.metadata as { amountPaise: number; purchaseType: string; paymentId: string }; return { id: p.id, name: p.user.name, email: p.user.email, amount: m.amountPaise / 100, refunded: 0, product: m.purchaseType, paymentId: m.paymentId, method: "—", date: p.timestamp.toISOString() }; }),
   };
 }
 export type RevenueStats = Awaited<ReturnType<typeof getRevenueData>>;

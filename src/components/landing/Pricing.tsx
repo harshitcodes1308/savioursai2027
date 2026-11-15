@@ -26,9 +26,16 @@ const PLANS: Plan[] = [
     name: "Pro",
     price: "₹99",
     period: "one-time",
-    popular: true,
     href: "/signup",
     features: ["Everything in Free", "AI Doubt Solver", "Customise Test", "Guess Papers", "Competency Practice", "Half Yearly Simulator", "Focus Mode", "Numerical Mastery", "ChronoScroll", "Date Battle Arena", "Exam Strategy Builder", "Smart Notes"],
+  },
+  {
+    name: "Sidekick Bundle",
+    price: "₹299",
+    period: "one-time",
+    popular: true,
+    href: "/signup",
+    features: ["All 10 Sidekick e-books", "Every upcoming Sidekick e-book", "Pro plan included", "All AI tools and practice", "₹490 of e-books if bought separately"],
   },
 ];
 
@@ -44,7 +51,7 @@ function PriceCard({
   fan: boolean;
 }) {
   const isLeft = index === 0;
-  const isRight = index === 1;
+  const isRight = index === 2;
   const isCenter = index === 1;
 
   // Scroll-linked 3D fan: flat row at progress 0 → fanned at progress 1.
@@ -127,7 +134,7 @@ function PriceCard({
         }}
         ariaLabel={`Choose ${plan.name}`}
       >
-        {plan.name === "Free" ? "Start Free" : `Get ${plan.name}`} →
+        {plan.name === "Free" ? "Start Free" : `Get ${plan.name === "Sidekick Bundle" ? "the Bundle" : plan.name}`} →
       </MagneticButton>
     </motion.div>
   );
@@ -183,7 +190,7 @@ export default function Pricing() {
           ref={gridRef}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
             gap: 18,
             alignItems: "stretch",
             perspective: 1200,

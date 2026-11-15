@@ -392,7 +392,7 @@ export default function PreBoardReadyPage() {
             <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.55 }}>
               {ebooksUnlocked
                 ? "You already have the library. Open it and go straight to the chapters above."
-                : "Exam-focused notes for all 10 subjects. Unlock once for ₹79 or free by referring a friend."}
+                : "Preview it free, buy this one for ₹49, or get all 10 Sidekick e-books plus Pro for ₹299."}
             </div>
           </div>
           <button className="btn-ghost" onClick={() => cta("ebook", ebooksUnlocked ? `/dashboard/ebooks/${subject.ebookId}` : "/dashboard/ebooks")}>

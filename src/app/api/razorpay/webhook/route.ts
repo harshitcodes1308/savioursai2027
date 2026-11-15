@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { qualifyReferralForProPurchase } from "@/lib/referrals";
+import { applyEbookPurchase, isEbookPurchaseType } from "@/lib/ebook-purchases";
 
 /**
  * POST /api/razorpay/webhook
@@ -81,18 +82,12 @@ export async function POST(req: NextRequest) {
                             });
                         }
                         console.log("[razorpay-webhook] LNB Chemistry unlocked:", userEmail);
-                    } else if (purchaseType === "EBOOKS") {
-                        if (!user.ebooksUnlocked) {
-                            await prisma.user.update({
-                                where: { id: user.id },
-                                data: {
-                                    ebooksUnlocked: true,
-                                    ebooksUnlockedAt: new Date(),
-                                    ebooksUnlockSource: "PURCHASE",
-                                },
-                            });
+                    } else if (isEbookPurchaseType(purchaseType)) {
+                        // EBOOK_SINGLE (₹49), EBOOK_BUNDLE (₹299 incl. Pro), legacy EBOOKS (₹79). Idempotent.
+                        if (purchaseType !== "EBOOKS" || !user.ebooksUnlocked) {
+                            await applyEbookPurchase(user.id, purchaseType, notes?.ebookId);
                         }
-                        console.log("[razorpay-webhook] Sidekick Ebooks unlocked:", userEmail);
+                        console.log(`[razorpay-webhook] Sidekick ${purchaseType} granted:`, userEmail);
                     } else {
                         const expiryDate = new Date("2027-03-31T23:59:59+05:30");
                         await prisma.user.update({

@@ -6,6 +6,8 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import Razorpay from "razorpay";
 import { qualifyReferralForProPurchase } from "@/lib/referrals";
+import { applyEbookPurchase, isEbookPurchaseType } from "@/lib/ebook-purchases";
+import { EBOOK_BUNDLE_PAISE, EBOOK_SINGLE_PAISE } from "@/lib/ebook-access";
 
 interface RazorpayResponse {
     razorpay_order_id?: string;
@@ -112,6 +114,8 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
             PRO: 9900,
             LNB_CHEMISTRY: 1900,
             EBOOKS: 7900,
+            EBOOK_SINGLE: EBOOK_SINGLE_PAISE,
+            EBOOK_BUNDLE: EBOOK_BUNDLE_PAISE,
         };
         const expectedAmount = expectedAmounts[purchaseType];
         if (
@@ -129,15 +133,9 @@ export async function verifyPaymentAction(response: RazorpayResponse) {
                 where: { id: user.id },
                 data: { lnbChemistryUnlocked: true },
             });
-        } else if (purchaseType === "EBOOKS") {
-            updatedUser = await prisma.user.update({
-                where: { id: user.id },
-                data: {
-                    ebooksUnlocked: true,
-                    ebooksUnlockedAt: new Date(),
-                    ebooksUnlockSource: "PURCHASE",
-                },
-            });
+        } else if (isEbookPurchaseType(purchaseType)) {
+            // EBOOK_SINGLE (₹49), EBOOK_BUNDLE (₹299 incl. Pro), legacy EBOOKS (₹79)
+            updatedUser = await applyEbookPurchase(user.id, purchaseType, order.notes?.ebookId as string | undefined);
         } else {
             // PRO or BUNDLE — valid till March 2027 (boards end)
             const expiryDate = new Date("2027-03-31T23:59:59+05:30");

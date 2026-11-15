@@ -247,7 +247,7 @@ export default function OnboardingFlow() {
       const orderRes = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: planKey }),
+        body: JSON.stringify({ type: planKey === 'BUNDLE' ? 'EBOOK_BUNDLE' : 'PRO' }),
       });
       const orderData = await orderRes.json();
 
@@ -257,7 +257,7 @@ export default function OnboardingFlow() {
       }
 
       const description = planKey === 'BUNDLE'
-        ? 'Pro Access: ₹99 one-time'
+        ? 'All Sidekick e-books + Pro: ₹299 one-time'
         : 'Pro Access: ₹99 one-time';
 
       const options = {

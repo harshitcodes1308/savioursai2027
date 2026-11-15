@@ -7,7 +7,7 @@ import { ThemedDashboardContent } from "@/components/providers/themed-dashboard"
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import type { SessionUser } from "@/lib/auth";
-import { EbookUnlockGate } from "@/components/ebooks/EbookUnlockGate";
+import { EbookSpinWheel } from "@/components/ebooks/EbookSpinWheel";
 
 export default function DashboardLayout({
     children,
@@ -17,7 +17,6 @@ export default function DashboardLayout({
     const { data: profile } = trpc.dashboard.getProfile.useQuery();
     const { data: session } = trpc.auth.getSession.useQuery();
     const pathname = usePathname();
-    const isEbookRoute = pathname.startsWith("/dashboard/ebooks");
 
     const user = session?.user as SessionUser | undefined;
     const isDemo = user?.isDemo === true;
@@ -54,13 +53,8 @@ export default function DashboardLayout({
                         <button onClick={() => window.location.href = "/signup?from=demo"} style={{ cursor: "pointer", border: "1px solid var(--accent-gold-border)", borderRadius: 7, padding: "6px 9px", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700 }}>Create account →</button>
                     </div>
                 )}
-                {isEbookRoute && isDemo ? (
-                    <UpgradePrompt featureName="Sidekick Ebooks" description="Create your own account to refer a friend or unlock the ebook library for ₹79." type="PRO" />
-                ) : isEbookRoute && !profile ? (
-                    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", color: "var(--text-muted)", fontFamily: "var(--font-body)" }}>Checking ebook access...</div>
-                ) : isEbookRoute && profile && !profile.ebooksUnlocked ? (
-                    <EbookUnlockGate name={profile.name} email={profile.email} />
-                ) : showUpgrade ? (
+                {profile?.canSpinForEbook && <EbookSpinWheel autoOpen />}
+                {showUpgrade ? (
                     <UpgradePrompt
                         featureName={featureInfo?.name ?? "Premium Feature"}
                         description={featureInfo?.description ?? "This feature requires an upgrade."}

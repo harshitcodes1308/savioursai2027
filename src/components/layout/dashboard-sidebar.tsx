@@ -372,7 +372,7 @@ export default function DashboardSidebar({
                     <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       {item.label}
                     </span>
-                    {((!isPaid && isLockedRoute(item.href)) || (item.href === "/dashboard/ebooks" && !ebooksUnlocked)) && (
+                    {(!isPaid && isLockedRoute(item.href)) && (
                       <span style={{ opacity: 0.45, flexShrink: 0, display: "flex" }}><AppIcon name="lock" size={12} /></span>
                     )}
                   </button>

@@ -11,7 +11,7 @@ export const PLAN_FEATURES: Record<string, Plan[]> = {
   chronoScroll:        ['pro'],
   numericalMastery:    ['pro'],
   dateBattleArena:     ['pro'],
-  ebooks:              [], // Independent ₹79/referral entitlement; never inherited from Pro.
+  ebooks:              [], // Per-book (₹49 / spin prize) or ₹299 bundle; see src/lib/ebook-access.ts.
   guessPapers:         ['pro'],
   halfYearlySimulator: ['pro'],
   preBoard90Phase1:    ['free', 'pro'],

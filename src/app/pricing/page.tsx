@@ -6,7 +6,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { trpc } from "@/lib/trpc/client";
 import AnimatedGlassyPricing from "@/components/ui/animated-glassy-pricing";
 
-type PaidPlan = "PRO";
+type PaidPlan = "PRO" | "BUNDLE";
 
 export default function PricingPage() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function PricingPage() {
       const orderResponse = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: plan }),
+        body: JSON.stringify({ type: plan === "BUNDLE" ? "EBOOK_BUNDLE" : "PRO" }),
       });
       const orderData = await orderResponse.json();
       if (!orderResponse.ok || !orderData.success) throw new Error(orderData.error || "Unable to prepare checkout.");
@@ -41,7 +41,7 @@ export default function PricingPage() {
         amount: orderData.order.amount,
         currency: orderData.order.currency,
         name: "Saviours AI",
-        description: "Pro Access — ₹99 one-time",
+        description: plan === "BUNDLE" ? "All Sidekick e-books + Pro: ₹299 one-time" : "Pro Access: ₹99 one-time",
         order_id: orderData.order.id,
         prefill: { name: session?.user?.name || "", email: session?.user?.email || "" },
         theme: { color: "#00D4FF" },

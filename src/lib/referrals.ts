@@ -43,27 +43,14 @@ export async function getReferrerId(referralCode?: string | null) {
   return referrer?.id ?? null;
 }
 
-/** One successful referred Pro purchase unlocks only the referrer's ebooks. */
+/**
+ * Records that a referred user made a paid purchase. The referral ebook reward
+ * was retired with the ₹49 / ₹299 ebook launch, so this only tracks attribution;
+ * referrers who already earned the library keep it.
+ */
 export async function qualifyReferralForProPurchase(purchaserId: string) {
-  const purchaser = await prisma.user.findUnique({
-    where: { id: purchaserId },
-    select: { referredById: true, referralQualifiedAt: true },
+  await prisma.user.updateMany({
+    where: { id: purchaserId, referredById: { not: null }, referralQualifiedAt: null },
+    data: { referralQualifiedAt: new Date() },
   });
-  if (!purchaser?.referredById || purchaser.referralQualifiedAt) return;
-
-  const now = new Date();
-  await prisma.$transaction([
-    prisma.user.updateMany({
-      where: { id: purchaserId, referralQualifiedAt: null },
-      data: { referralQualifiedAt: now },
-    }),
-    prisma.user.updateMany({
-      where: { id: purchaser.referredById, ebooksUnlocked: false },
-      data: {
-        ebooksUnlocked: true,
-        ebooksUnlockedAt: now,
-        ebooksUnlockSource: "REFERRAL",
-      },
-    }),
-  ]);
 }

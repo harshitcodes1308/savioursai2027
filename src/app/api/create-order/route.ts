@@ -3,11 +3,13 @@ import Razorpay from "razorpay";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, PAYMENT_RATE_LIMIT } from "@/lib/api-rate-limit";
+import { EBOOK_BUNDLE_PAISE, EBOOK_SINGLE_PAISE, isEbookId, ownsEbook } from "@/lib/ebook-access";
 
 const BASE_PRICING = {
-    PRO: 9900,            // ₹99 in paise
-    LNB_CHEMISTRY: 1900,  // ₹19 in paise
-    EBOOKS: 7900,         // ₹79 in paise
+    PRO: 9900,                       // ₹99 in paise
+    LNB_CHEMISTRY: 1900,             // ₹19 in paise
+    EBOOK_SINGLE: EBOOK_SINGLE_PAISE, // ₹49 per Sidekick ebook
+    EBOOK_BUNDLE: EBOOK_BUNDLE_PAISE, // ₹299 all ebooks + Pro
 } as const;
 
 type PurchaseType = keyof typeof BASE_PRICING;
@@ -18,8 +20,13 @@ export async function POST(req: Request) {
         const requested = String(body.type || "PRO");
         const purchaseType: PurchaseType =
             requested === "LNB_CHEMISTRY" ? "LNB_CHEMISTRY" :
-            requested === "EBOOKS" ? "EBOOKS" :
+            requested === "EBOOK_SINGLE" ? "EBOOK_SINGLE" :
+            requested === "EBOOK_BUNDLE" || requested === "BUNDLE" ? "EBOOK_BUNDLE" :
             "PRO";
+        const ebookId = purchaseType === "EBOOK_SINGLE" ? body.ebookId : null;
+        if (purchaseType === "EBOOK_SINGLE" && !isEbookId(ebookId)) {
+            return NextResponse.json({ error: "Unknown ebook" }, { status: 400 });
+        }
 
         const user = await getCurrentUser();
         if (!user) {
@@ -37,7 +44,7 @@ export async function POST(req: Request) {
         const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
             select: {
-                isPaid: true, planType: true, lnbChemistryUnlocked: true, ebooksUnlocked: true, createdAt: true, creatorCode: true,
+                isPaid: true, planType: true, lnbChemistryUnlocked: true, ebooksUnlocked: true, ebooksOwned: true, createdAt: true, creatorCode: true,
             },
         });
 
@@ -56,8 +63,10 @@ export async function POST(req: Request) {
             if (dbUser.isPaid || dbUser.lnbChemistryUnlocked) {
                 return NextResponse.json({ error: "You already have access to all Chemistry sets" }, { status: 409 });
             }
-        } else if (purchaseType === "EBOOKS" && dbUser.ebooksUnlocked) {
-            return NextResponse.json({ error: "You already have access to Sidekick Ebooks" }, { status: 409 });
+        } else if (purchaseType === "EBOOK_SINGLE" && ownsEbook(dbUser, ebookId)) {
+            return NextResponse.json({ error: "You already own this ebook" }, { status: 409 });
+        } else if (purchaseType === "EBOOK_BUNDLE" && dbUser.ebooksUnlocked && dbUser.planType === "BUNDLE") {
+            return NextResponse.json({ error: "You already have the Sidekick bundle" }, { status: 409 });
         }
 
         const amountPaise = BASE_PRICING[purchaseType];
@@ -82,6 +91,7 @@ export async function POST(req: Request) {
                 userEmail: user.email,
                 expectedAmount: amountPaise.toString(),
                 purchaseType,
+                ...(ebookId ? { ebookId } : {}),
             },
         });
 

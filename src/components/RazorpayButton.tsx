@@ -40,7 +40,12 @@ declare global {
 
 interface RazorpayButtonProps {
     amount?: number;
-    type?: "PRO" | "LNB_CHEMISTRY" | "EBOOKS";
+    type?: "PRO" | "LNB_CHEMISTRY" | "EBOOK_SINGLE" | "EBOOK_BUNDLE";
+    /** Required when type is EBOOK_SINGLE. */
+    ebookId?: string;
+    /** Visual style. Defaults to "solid" (white) for Pro/bundle, "outline" otherwise. */
+    variant?: "solid" | "outline";
+    size?: "md" | "sm";
     email: string;
     name: string;
     onSuccess?: () => void;
@@ -48,7 +53,8 @@ interface RazorpayButtonProps {
     successRedirect?: string;
 }
 
-export function RazorpayButton({ type = "PRO", email, name, onSuccess, buttonText, successRedirect = "/dashboard" }: RazorpayButtonProps) {
+export function RazorpayButton({ type = "PRO", ebookId, variant, size = "md", email, name, onSuccess, buttonText, successRedirect = "/dashboard" }: RazorpayButtonProps) {
+    const outline = (variant ?? (type === "EBOOK_SINGLE" ? "outline" : "solid")) === "outline";
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const effectiveButtonText = buttonText || "Get Access";
@@ -79,7 +85,7 @@ export function RazorpayButton({ type = "PRO", email, name, onSuccess, buttonTex
             const orderRes = await fetch("/api/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type }),
+                body: JSON.stringify({ type, ebookId }),
             });
             const orderData = await orderRes.json();
 
@@ -93,7 +99,8 @@ export function RazorpayButton({ type = "PRO", email, name, onSuccess, buttonTex
             const descriptions: Record<string, string> = {
                 PRO: "Pro Access: ₹99",
                 LNB_CHEMISTRY: "Unlock Chemistry Sets",
-                EBOOKS: "Sidekick Ebooks: ₹79 one-time",
+                EBOOK_SINGLE: "Sidekick e-book: ₹49",
+                EBOOK_BUNDLE: "All Sidekick e-books + Pro: ₹299",
             };
 
             const options: RazorpayOptions = {
@@ -149,16 +156,16 @@ export function RazorpayButton({ type = "PRO", email, name, onSuccess, buttonTex
             disabled={loading}
             style={{
                 width: "100%",
-                padding: "16px",
-                backgroundColor: type === "EBOOKS" ? "rgba(0,212,255,0.10)" : "#FFF",
-                color: type === "EBOOKS" ? "var(--accent-gold)" : "#000",
-                fontSize: "16px",
+                padding: size === "sm" ? "9px 10px" : "16px",
+                backgroundColor: outline ? "rgba(0,212,255,0.10)" : "#FFF",
+                color: outline ? "var(--accent-gold)" : "#000",
+                fontSize: size === "sm" ? "13px" : "16px",
                 fontWeight: 700,
-                border: type === "EBOOKS" ? "1px solid var(--accent-gold-border)" : "none",
-                borderRadius: "12px",
+                border: outline ? "1px solid var(--accent-gold-border)" : "none",
+                borderRadius: size === "sm" ? "10px" : "12px",
                 cursor: loading ? "wait" : "pointer",
                 transition: "transform 0.2s",
-                boxShadow: type === "EBOOKS" ? "none" : "0 4px 14px 0 rgba(255, 255, 255, 0.22)"
+                boxShadow: outline ? "none" : "0 4px 14px 0 rgba(255, 255, 255, 0.22)"
             }}
             onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
             onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}

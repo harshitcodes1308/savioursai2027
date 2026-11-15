@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { isScholarshipOfferActive } from "@/lib/scholarship";
+import { canSpinForEbook } from "@/lib/ebook-access";
 
 export const dashboardRouter = createTRPCRouter({
     /**
@@ -61,7 +62,11 @@ export const dashboardRouter = createTRPCRouter({
             studentProfile: user.studentProfile,
             teacherProfile: user.teacherProfile,
             lnbChemistryUnlocked: user.lnbChemistryUnlocked,
-            ebooksUnlocked: user.ebooksUnlocked,
+            // Sidekick ebooks: demo accounts only ever get previews.
+            ebooksUnlocked: ctx.user.isDemo ? false : user.ebooksUnlocked,
+            ebooksOwned: ctx.user.isDemo ? [] : user.ebooksOwned,
+            ebookSpinPrize: user.ebookSpinPrize,
+            canSpinForEbook: canSpinForEbook({ ...user, isDemo: ctx.user.isDemo === true }),
             // Plan state
             // A demo's tier is stored in its signed session, rather than on the
             // shared demo database record.

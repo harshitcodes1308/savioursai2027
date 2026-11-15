@@ -33,6 +33,7 @@ import {
   Focus,
   Gauge,
   Gem,
+  Gift,
   Globe2,
   GraduationCap,
   History,
@@ -79,7 +80,7 @@ export type AppIconName =
   | "calendar"
   | "pause" | "play-circle" | "clock" | "coffee" | "code" | "copy" | "crown"
   | "database" | "dice" | "download" | "eye" | "file-check" | "file" | "flag" | "flask"
-  | "focus" | "gauge" | "gem" | "globe" | "graduation" | "history" | "hourglass"
+  | "focus" | "gauge" | "gem" | "gift" | "globe" | "graduation" | "history" | "hourglass"
   | "info" | "layers" | "lightbulb" | "lock" | "map" | "medal" | "menu" | "moon"
   | "notebook" | "panel" | "pen" | "play" | "refresh" | "rocket" | "rotate"
   | "scroll" | "settings" | "shield" | "sparkles" | "square" | "square-pen" | "star"
@@ -118,6 +119,7 @@ const ICONS: Record<AppIconName, LucideIcon> = {
   focus: Focus,
   gauge: Gauge,
   gem: Gem,
+  gift: Gift,
   globe: Globe2,
   graduation: GraduationCap,
   history: History,

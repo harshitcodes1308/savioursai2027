@@ -197,7 +197,7 @@ function PricingCard({
             borderRadius: '0 0 8px 8px',
           }}
         >
-          Most Popular
+          Best Value
         </div>
       )}
 
@@ -424,14 +424,34 @@ const savioursPlans: PricingCardProps[] = [
       'Half Yearly Simulator',
     ],
     buttonText: 'Choose Pro',
+    buttonVariant: 'secondary',
+    isPopular: false,
+  },
+  {
+    planName: 'Sidekick Bundle',
+    description: 'All 10 Sidekick e-books and the Pro plan, together.',
+    price: '299',
+    priceSymbol: '₹',
+    billingLabel: 'one-time',
+    savingsLabel: '₹490 if bought separately · Pro included',
+    features: [
+      'All 10 Sidekick e-books',
+      'Every upcoming Sidekick e-book',
+      'Pro plan included (all AI tools)',
+      'Everything in Free and Pro',
+    ],
+    buttonText: 'Get the Bundle',
     buttonVariant: 'primary',
     isPopular: true,
   },
 ];
 
+export type PricingSelection = 'FREE' | 'PRO' | 'BUNDLE';
+const PLAN_KEYS: Record<string, PricingSelection> = { Free: 'FREE', Pro: 'PRO', 'Sidekick Bundle': 'BUNDLE' };
+
 interface AnimatedGlassyPricingProps {
   isMobile: boolean;
-  onSelectPlan: (plan: 'FREE' | 'PRO') => void;
+  onSelectPlan: (plan: PricingSelection) => void;
   userName?: string;
   scholarshipDiscount?: { discountPercentage: number; expiresAt?: string | Date | null } | null;
   // Optional: pass creator discount directly to avoid a database round trip in onboarding.
@@ -530,7 +550,7 @@ export default function AnimatedGlassyPricing({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, minmax(0, 340px))', justifyContent: 'center',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 320px))', justifyContent: 'center',
             gap: isMobile ? '16px' : '20px',
             marginBottom: '32px',
           }}
@@ -550,7 +570,7 @@ export default function AnimatedGlassyPricing({
                 discountPct={plan.planName === 'Pro' ? proDiscountPct || undefined : undefined}
                 discountLabel={plan.planName === 'Pro' ? proDiscountLabel : undefined}
                 onClick={() => {
-                  onSelectPlan(plan.planName === 'Pro' ? 'PRO' : 'FREE');
+                  onSelectPlan(PLAN_KEYS[plan.planName] ?? 'FREE');
                 }}
               />
             </div>

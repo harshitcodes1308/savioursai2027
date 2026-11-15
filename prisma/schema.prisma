@@ -37,6 +37,9 @@ model User {
   referralCode                  String?              @unique
   referredById                  String?
   referralQualifiedAt           DateTime?
+  ebooksOwned                   String[]             @default([])
+  ebookSpinAt                   DateTime?
+  ebookSpinPrize                String?
   flipStreak                    Int                  @default(0)
   flipBestStreak                Int                  @default(0)
   phone                         String?              @unique

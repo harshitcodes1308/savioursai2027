@@ -7,7 +7,7 @@ import { ThemedDashboardContent } from "@/components/providers/themed-dashboard"
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import type { SessionUser } from "@/lib/auth";
-import { EbookSpinWheel } from "@/components/ebooks/EbookSpinWheel";
+import { EbookBundleOffer } from "@/components/ebooks/EbookBundleOffer";
 
 export default function DashboardLayout({
     children,
@@ -53,7 +53,16 @@ export default function DashboardLayout({
                         <button onClick={() => window.location.href = "/signup?from=demo"} style={{ cursor: "pointer", border: "1px solid var(--accent-gold-border)", borderRadius: 7, padding: "6px 9px", background: "var(--accent-gold-glow)", color: "var(--accent-gold)", fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700 }}>Create account →</button>
                     </div>
                 )}
-                {profile?.canSpinForEbook && <EbookSpinWheel autoOpen />}
+                {profile && user && !isDemo && !isPaid && !profile.ebooksUnlocked && (
+                    <EbookBundleOffer
+                        key={`${profile.id}:${user.signInId ?? "legacy"}`}
+                        userId={profile.id}
+                        signInId={user.signInId}
+                        canSpin={profile.canSpinForEbook}
+                        name={profile.name}
+                        email={profile.email}
+                    />
+                )}
                 {showUpgrade ? (
                     <UpgradePrompt
                         featureName={featureInfo?.name ?? "Premium Feature"}

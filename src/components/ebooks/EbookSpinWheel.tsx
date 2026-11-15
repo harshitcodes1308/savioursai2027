@@ -13,6 +13,7 @@ const SEG = 360 / N;
 const R = 190;
 const SPIN_MS = 5200;
 const DISMISS_KEY = "saviours-ebook-spin-dismissed";
+export const EBOOK_SPIN_VISIBILITY_EVENT = "saviours:ebook-spin-visibility";
 
 type Phase = "idle" | "spinning" | "won" | "error";
 
@@ -34,7 +35,7 @@ function wedge(i: number) {
  * - `autoOpen`: opens itself once per browser session (used in the dashboard layout).
  * - `inline`: renders a banner that opens the wheel (used on the ebook library).
  */
-export function EbookSpinWheel({ autoOpen = false, inline = false }: { autoOpen?: boolean; inline?: boolean }) {
+export function EbookSpinWheel({ autoOpen = false, inline = false, dismissalKey = DISMISS_KEY }: { autoOpen?: boolean; inline?: boolean; dismissalKey?: string }) {
   const router = useRouter();
   const utils = trpc.useUtils();
   const [open, setOpen] = useState(false);
@@ -48,14 +49,24 @@ export function EbookSpinWheel({ autoOpen = false, inline = false }: { autoOpen?
     if (!autoOpen) return;
     const t = setTimeout(() => {
       let dismissed = false;
-      try { dismissed = sessionStorage.getItem(DISMISS_KEY) === "1"; } catch { /* ignore */ }
+      try { dismissed = sessionStorage.getItem(dismissalKey) === "1"; } catch { /* ignore */ }
       if (!dismissed) {
         setOpen(true);
         track("ebook_spin_shown", { source: "auto" });
+      } else {
+        window.dispatchEvent(new CustomEvent(EBOOK_SPIN_VISIBILITY_EVENT, { detail: false }));
       }
     }, 900);
     return () => clearTimeout(t);
-  }, [autoOpen]);
+  }, [autoOpen, dismissalKey]);
+
+  useEffect(() => {
+    if (!open) return;
+    window.dispatchEvent(new CustomEvent(EBOOK_SPIN_VISIBILITY_EVENT, { detail: true }));
+    return () => {
+      window.dispatchEvent(new CustomEvent(EBOOK_SPIN_VISIBILITY_EVENT, { detail: false }));
+    };
+  }, [open]);
 
   useEffect(() => () => { if (doneTimer.current) clearTimeout(doneTimer.current); }, []);
 
@@ -92,7 +103,7 @@ export function EbookSpinWheel({ autoOpen = false, inline = false }: { autoOpen?
     if (phase === "won" || phase === "error") {
       void utils.dashboard.getProfile.invalidate();
     } else {
-      try { sessionStorage.setItem(DISMISS_KEY, "1"); } catch { /* ignore */ }
+      try { sessionStorage.setItem(dismissalKey, "1"); } catch { /* ignore */ }
     }
   };
 

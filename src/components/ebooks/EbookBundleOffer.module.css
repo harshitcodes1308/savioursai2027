@@ -1,0 +1,23 @@
+.dialog { padding: 0; width: min(540px, calc(100vw - 28px)); max-height: calc(100dvh - 32px); border: 1px solid rgba(0,212,255,.25); border-radius: 24px; background: #07111e; color: #f5f7fa; box-shadow: 0 28px 100px #0008; overflow-y: auto; margin: auto; }
+.dialog::backdrop { background: rgba(2,6,14,.8); backdrop-filter: blur(6px); }
+.content { padding: 32px; position: relative; text-align: center; font-family: var(--font-body); }
+.close { position: absolute; right: 12px; top: 10px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #ffffff08; color: #b0bac8; font-size: 25px; cursor: pointer; }
+.close:hover { background: #ffffff15; color: white; }
+.eyebrow { color: #00d4ff; font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; padding-right: 14px; }
+.content h2 { margin: 14px 0 10px; font: 700 clamp(28px, 6vw, 38px)/1.08 var(--font-display); letter-spacing: -.035em; }
+.description { color: #a9b4c4; font-size: 13px; line-height: 1.6; margin: 0; }
+.books { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px 8px; padding: 22px 5px 18px; }
+.books img { width: 100%; height: auto; border-radius: 4px; border: 1px solid #ffffff14; box-shadow: 0 6px 12px #0005; }
+.price { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 16px; }
+.price s { color: #8391a4; font-size: 22px; }
+.price strong { font-size: 48px; line-height: 1.15; letter-spacing: -.04em; }
+.price > span { text-align: left; color: #a9b4c4; font-size: 11px; line-height: 1.6; }
+.bonus { display: flex; align-items: center; gap: 10px; padding: 13px; border: 1px solid #00d4ff35; background: #00d4ff08; border-radius: 12px; text-align: left; }
+.check { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #00d4ff; background: #00d4ff15; flex-shrink: 0; }
+.bonus strong { display: block; font-size: 13px; font-weight: 600; }
+.bonus div > span { display: block; color: #a9b4c4; font-size: 11px; margin-top: 3px; }
+.included { color: #00d4ff; font-size: 8px; letter-spacing: .08em; margin-left: auto; }
+.detail { color: #91a0b3; font-size: 11px; line-height: 1.6; margin: 12px 0 18px; }
+.later { background: transparent; color: #a9b4c4; border: none; padding: 12px 18px 0; font-size: 12px; cursor: pointer; }
+.content button:focus-visible { outline: 2px solid #00d4ff; outline-offset: 4px; }
+@media (max-width: 440px) { .content { padding: 30px 18px 18px; } .books { gap: 10px 5px; } .price { gap: 8px; } .price strong { font-size: 42px; } .included { display: none; } }

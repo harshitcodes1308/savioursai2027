@@ -11,6 +11,8 @@ if (!process.env.JWT_SECRET) {
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export interface SessionUser {
+    /** Stable across token refreshes; regenerated on each fresh sign-in. */
+    signInId?: string;
     id: string;
     email: string;
     name: string;
@@ -54,7 +56,7 @@ export async function verifyPassword(
  * Create JWT token
  */
 export async function createToken(user: SessionUser): Promise<string> {
-    const token = await new SignJWT({ user })
+    const token = await new SignJWT({ user: { ...user, signInId: user.signInId ?? crypto.randomUUID() } })
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime("7d")

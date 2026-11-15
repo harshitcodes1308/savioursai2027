@@ -29,3 +29,9 @@ ADMIN_TEST_URL=http://localhost:3102 ADMIN_TEST_PASSWORD='<admin password>' npx 
 ```
 
 The check uses temporary users in the configured database and removes them in `finally`. It checks login/logout, protected data/APIs, active versus expired paid access, claims and search, heartbeat/feature deduplication, captured-payment deduplication, plan changes, and mobile layout. Chrome must be installed. Screenshots are saved under `output/admin/`.
+
+## Deployment
+
+`npm run build` generates Prisma Client and builds Next.js. It does not run database migrations: parallel preview/production builds must not compete for Prisma's migration advisory lock. This admin release uses existing tables and adds no migration.
+
+For future schema releases, run `npm run db:migrate` once in a serialised release step against the target database before promoting the application. Use Neon's direct (non-pooler) connection for that migration job, supplied as its `DATABASE_URL`; retain the pooled URL for the application. Keep advisory locking enabled. If another migration owns the lock, let it finish and retry the migration job. Do not skip pending schema migrations or mark them applied without executing them.

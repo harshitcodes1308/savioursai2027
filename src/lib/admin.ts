@@ -5,13 +5,16 @@ import { DASHBOARD_FEATURES, ONLINE_WINDOW_MS, PRESENCE_ACTION } from "@/lib/das
 import { EBOOK_SUBJECTS } from "@/data/ebooks-config";
 import { getInstagramAudience } from "@/lib/instagram";
 import { getRazorpayRevenueSnapshot } from "@/lib/razorpay-revenue";
-import { ADMIN_TRACKING_START, adminTrackingDays } from "@/lib/admin-period";
+import { ADMIN_TRACKING_START, adminScopeDays, type AdminScope } from "@/lib/admin-period";
 
+const realUser: Prisma.UserWhereInput = { email: { not: "demo@saviours.test" } };
 const standaloneUser: Prisma.UserWhereInput = { email: { not: "demo@saviours.test" }, createdAt: { gte: ADMIN_TRACKING_START } };
 const standaloneUserSql = Prisma.sql`u.email <> 'demo@saviours.test' AND u."createdAt" >= ${ADMIN_TRACKING_START}`;
 const realUserSql = Prisma.sql`u.email <> 'demo@saviours.test'`;
-export function paidAccessWhere(now = new Date()): Prisma.UserWhereInput {
-  return { AND: [standaloneUser, { OR: [
+const scopeUserWhere = (scope: AdminScope) => scope === "all" ? realUser : standaloneUser;
+const scopeUserSql = (scope: AdminScope) => scope === "all" ? realUserSql : standaloneUserSql;
+export function paidAccessWhere(now = new Date(), scope: AdminScope = "november"): Prisma.UserWhereInput {
+  return { AND: [scopeUserWhere(scope), { OR: [
     { isPaid: true, subscriptionExpiry: null },
     { OR: [{ isPaid: true }, { planType: { in: ["PRO", "BUNDLE"] }, subscriptionStatus: "ACTIVE" }], subscriptionExpiry: { gt: now } },
     { planType: { in: ["PRO", "BUNDLE"] }, subscriptionStatus: "ACTIVE", subscriptionExpiry: null },
@@ -27,36 +30,37 @@ function daysTrend(rows: { date: string; count: bigint }[], days = 30) {
   });
 }
 
-async function getFeatureRanking(since: Date) {
-  const rows = await prisma.$queryRaw<{ feature: string; opens: bigint; users: bigint }[]>(Prisma.sql`SELECT a.metadata->>'feature' AS feature, COUNT(*)::bigint AS opens, COUNT(DISTINCT a."userId")::bigint AS users FROM audit_logs a JOIN users u ON u.id = a."userId" WHERE a.action = 'DASHBOARD_FEATURE_OPEN' AND a.timestamp >= ${since} AND ${standaloneUserSql} GROUP BY 1 ORDER BY opens DESC LIMIT 8`);
+async function getFeatureRanking(scope: AdminScope) {
+  const period = scope === "all" ? Prisma.empty : Prisma.sql`AND a.timestamp >= ${ADMIN_TRACKING_START}`;
+  const rows = await prisma.$queryRaw<{ feature: string; opens: bigint; users: bigint }[]>(Prisma.sql`SELECT a.metadata->>'feature' AS feature, COUNT(*)::bigint AS opens, COUNT(DISTINCT a."userId")::bigint AS users FROM audit_logs a JOIN users u ON u.id = a."userId" WHERE a.action = 'DASHBOARD_FEATURE_OPEN' ${period} AND ${scopeUserSql(scope)} GROUP BY 1 ORDER BY opens DESC LIMIT 8`);
   return rows.filter(row => Object.hasOwn(DASHBOARD_FEATURES, row.feature)).map(row => ({
     feature: row.feature, label: DASHBOARD_FEATURES[row.feature], opens: Number(row.opens), users: Number(row.users),
   }));
 }
 
-export async function getOverviewStats() {
+export async function getOverviewStats(scope: AdminScope = "november") {
   const now = new Date();
   const today = new Date(`${istDay(now)}T00:00:00+05:30`);
-  const monthAgo = ADMIN_TRACKING_START;
-  const weekAgo = new Date(Math.max(ADMIN_TRACKING_START.getTime(), today.getTime() - 6 * 86400_000));
+  const periodUser = scopeUserWhere(scope);
+  const weekAgo = new Date(scope === "all" ? today.getTime() - 6 * 86400_000 : Math.max(ADMIN_TRACKING_START.getTime(), today.getTime() - 6 * 86400_000));
   const onlineSince = new Date(now.getTime() - ONLINE_WINDOW_MS);
   const [totalUsers, paidUsers, usersToday, usersWeek, usersMonth, claims, claimsToday, bundleOwners, onlineUsers, activeToday, signupRows, featureRows, claimGroups, recentUsers, recentClaims, plans, instagram] = await Promise.all([
-    prisma.user.count({ where: standaloneUser }),
-    prisma.user.count({ where: paidAccessWhere(now) }),
-    prisma.user.count({ where: { ...standaloneUser, createdAt: { gte: today } } }),
-    prisma.user.count({ where: { ...standaloneUser, createdAt: { gte: weekAgo } } }),
-    prisma.user.count({ where: standaloneUser }),
-    prisma.user.count({ where: { ...standaloneUser, ebookSpinAt: { gte: ADMIN_TRACKING_START } } }),
-    prisma.user.count({ where: { ...standaloneUser, ebookSpinAt: { gte: today } } }),
-    prisma.user.count({ where: { ...standaloneUser, ebooksUnlockSource: "BUNDLE", ebooksUnlocked: true } }),
-    prisma.auditLog.count({ where: { action: PRESENCE_ACTION, timestamp: { gte: onlineSince }, user: standaloneUser } }),
-    prisma.auditLog.count({ where: { action: PRESENCE_ACTION, timestamp: { gte: today }, user: standaloneUser } }),
-    prisma.$queryRaw<{ date: string; count: bigint }[]>(Prisma.sql`SELECT (u."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, COUNT(*)::bigint AS count FROM users u WHERE ${standaloneUserSql} GROUP BY 1 ORDER BY 1`),
-    getFeatureRanking(monthAgo),
-    prisma.user.groupBy({ by: ["ebookSpinPrize"], where: { ...standaloneUser, ebookSpinAt: { gte: ADMIN_TRACKING_START } }, _count: { id: true }, orderBy: { _count: { id: "desc" } } }),
-    prisma.user.findMany({ where: standaloneUser, select: { id: true, name: true, email: true, planType: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: 6 }),
-    prisma.user.findMany({ where: { ...standaloneUser, ebookSpinAt: { gte: ADMIN_TRACKING_START } }, select: { id: true, name: true, ebookSpinPrize: true, ebookSpinAt: true }, orderBy: { ebookSpinAt: "desc" }, take: 5 }),
-    prisma.user.groupBy({ by: ["planType"], where: paidAccessWhere(now), _count: { id: true } }),
+    prisma.user.count({ where: periodUser }),
+    prisma.user.count({ where: paidAccessWhere(now, scope) }),
+    prisma.user.count({ where: { ...periodUser, createdAt: { gte: today } } }),
+    prisma.user.count({ where: { ...periodUser, createdAt: { gte: weekAgo } } }),
+    prisma.user.count({ where: periodUser }),
+    prisma.user.count({ where: { ...periodUser, ebookSpinAt: scope === "all" ? { not: null } : { gte: ADMIN_TRACKING_START } } }),
+    prisma.user.count({ where: { ...periodUser, ebookSpinAt: { gte: today } } }),
+    prisma.user.count({ where: { ...periodUser, ebooksUnlockSource: "BUNDLE", ebooksUnlocked: true } }),
+    prisma.auditLog.count({ where: { action: PRESENCE_ACTION, timestamp: { gte: onlineSince }, user: periodUser } }),
+    prisma.auditLog.count({ where: { action: PRESENCE_ACTION, timestamp: { gte: today }, user: periodUser } }),
+    prisma.$queryRaw<{ date: string; count: bigint }[]>(Prisma.sql`SELECT (u."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, COUNT(*)::bigint AS count FROM users u WHERE ${scopeUserSql(scope)} GROUP BY 1 ORDER BY 1`),
+    getFeatureRanking(scope),
+    prisma.user.groupBy({ by: ["ebookSpinPrize"], where: { ...periodUser, ebookSpinAt: scope === "all" ? { not: null } : { gte: ADMIN_TRACKING_START } }, _count: { id: true }, orderBy: { _count: { id: "desc" } } }),
+    prisma.user.findMany({ where: periodUser, select: { id: true, name: true, email: true, planType: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: 6 }),
+    prisma.user.findMany({ where: { ...periodUser, ebookSpinAt: scope === "all" ? { not: null } : { gte: ADMIN_TRACKING_START } }, select: { id: true, name: true, ebookSpinPrize: true, ebookSpinAt: true }, orderBy: { ebookSpinAt: "desc" }, take: 5 }),
+    prisma.user.groupBy({ by: ["planType"], where: paidAccessWhere(now, scope), _count: { id: true } }),
     getInstagramAudience(),
   ]);
   return {
@@ -64,26 +68,26 @@ export async function getOverviewStats() {
     claims, claimsToday, bundleOwners, onlineUsers, activeToday,
     conversionRate: totalUsers ? (paidUsers / totalUsers * 100).toFixed(1) : "0.0",
     claimRate: totalUsers ? (claims / totalUsers * 100).toFixed(1) : "0.0",
-    signupTrend: daysTrend(signupRows, adminTrackingDays(now)),
+    signupTrend: daysTrend(signupRows, adminScopeDays(scope, signupRows[0]?.date, now)),
     featureRanking: featureRows,
     claimBreakdown: claimGroups.map(r => ({ subject: EBOOK_SUBJECTS.find(b => b.id === r.ebookSpinPrize)?.name ?? "Other", count: r._count.id })),
     recentUsers: recentUsers.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })),
     recentClaims: recentClaims.map(u => ({ id: u.id, name: u.name, subject: EBOOK_SUBJECTS.find(b => b.id === u.ebookSpinPrize)?.name ?? "Sidekick", claimedAt: u.ebookSpinAt!.toISOString() })),
     planBreakdown: [{ plan: "Free", count: totalUsers - paidUsers }, ...plans.map(p => ({ plan: p.planType === "FREE" ? "Legacy paid" : p.planType === "BUNDLE" ? "Bundle" : "Pro", count: p._count.id }))],
     instagram,
-    updatedAt: now.toISOString(),
+    scope, updatedAt: now.toISOString(),
   };
 }
 export type OverviewStats = Awaited<ReturnType<typeof getOverviewStats>>;
 
 export async function getUsersList(search = "", filter = "", page = 1) {
   const now = new Date();
-  const where: Prisma.UserWhereInput = { AND: [standaloneUser] };
+  const where: Prisma.UserWhereInput = { AND: [realUser] };
   const conditions = where.AND as Prisma.UserWhereInput[];
   if (search) conditions.push({ OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }] });
-  if (filter === "paid") conditions.push(paidAccessWhere(now));
-  if (filter === "free") conditions.push({ NOT: paidAccessWhere(now) });
-  if (filter === "claimed") conditions.push({ ebookSpinAt: { gte: ADMIN_TRACKING_START } });
+  if (filter === "paid") conditions.push(paidAccessWhere(now, "all"));
+  if (filter === "free") conditions.push({ NOT: paidAccessWhere(now, "all") });
+  if (filter === "claimed") conditions.push({ ebookSpinAt: { not: null } });
   if (filter === "online") conditions.push({ auditLogs: { some: { action: PRESENCE_ACTION, timestamp: { gte: new Date(now.getTime() - ONLINE_WINDOW_MS) } } } });
   if (filter === "bundle") conditions.push({ ebooksUnlockSource: "BUNDLE", ebooksUnlocked: true });
   const total = await prisma.user.count({ where });
@@ -101,11 +105,12 @@ export async function getUsersList(search = "", filter = "", page = 1) {
 }
 export type AdminUsers = Awaited<ReturnType<typeof getUsersList>>;
 
-export async function getRevenueData() {
-  const [razorpay, access] = await Promise.all([getRazorpayRevenueSnapshot(), prisma.user.count({ where: paidAccessWhere() })]);
+export async function getRevenueData(scope: AdminScope = "november") {
+  const [razorpay, access] = await Promise.all([getRazorpayRevenueSnapshot(), prisma.user.count({ where: paidAccessWhere(new Date(), scope) })]);
   if (razorpay.status === "ready") {
-    const userIds = [...new Set(razorpay.payments.map(payment => payment.userId).filter(Boolean))];
-    const emails = [...new Set(razorpay.payments.map(payment => payment.email).filter(Boolean))];
+    const scopedPayments = scope === "all" ? razorpay.payments : razorpay.payments.filter(payment => new Date(payment.createdAt) >= ADMIN_TRACKING_START);
+    const userIds = [...new Set(scopedPayments.map(payment => payment.userId).filter(Boolean))];
+    const emails = [...new Set(scopedPayments.map(payment => payment.email).filter(Boolean))];
     const users = await prisma.user.findMany({
       where: { OR: [{ id: { in: userIds } }, { email: { in: emails, mode: "insensitive" } }] },
       select: { id: true, name: true, email: true },
@@ -118,7 +123,7 @@ export async function getRevenueData() {
     let amountPaise = 0;
     let refundedPaise = 0;
     let feePaise = 0;
-    for (const payment of razorpay.payments) {
+    for (const payment of scopedPayments) {
       amountPaise += payment.amountPaise;
       refundedPaise += payment.refundedPaise;
       feePaise += payment.feePaise;
@@ -136,53 +141,58 @@ export async function getRevenueData() {
       refunded: refundedPaise / 100,
       fees: feePaise / 100,
       net: (amountPaise - refundedPaise - feePaise) / 100,
-      payments: razorpay.payments.length,
+      payments: scopedPayments.length,
       buyers: buyers.size,
       paidAccess: access,
       source: "razorpay" as const,
       fetchedAt: razorpay.fetchedAt,
       truncated: razorpay.truncated,
-      sourceMessage: "Standalone revenue since 1 Nov 2026 · Live Razorpay history · refreshed every 5 minutes",
+      sourceMessage: `${scope === "all" ? "All-time" : "Standalone revenue since 1 Nov 2026"} · Live Razorpay history · refreshed every 5 minutes`,
       products: [...products].map(([product, value]) => ({ product, amount: value.amount / 100, payments: value.payments })).sort((a, b) => b.amount - a.amount),
-      timeline: daysTrend(timelineRows, adminTrackingDays()).map(row => ({ date: row.date, count: row.count / 100 })),
-      recentPayments: [...razorpay.payments].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20).map(payment => {
+      timeline: daysTrend(timelineRows, adminScopeDays(scope, [...timeline.keys()].sort()[0])).map(row => ({ date: row.date, count: row.count / 100 })),
+      recentPayments: [...scopedPayments].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20).map(payment => {
         const user = usersById.get(payment.userId) ?? usersByEmail.get(payment.email.toLowerCase());
         return { id: payment.id, name: user?.name ?? payment.email.split("@")[0] ?? "Customer", email: user?.email ?? payment.email, amount: payment.amountPaise / 100, refunded: payment.refundedPaise / 100, product: payment.product, paymentId: payment.id, method: payment.method, date: payment.createdAt };
       }),
     };
   }
 
+  const revenuePeriodSql = scope === "all" ? Prisma.empty : Prisma.sql`AND a.timestamp >= ${ADMIN_TRACKING_START}`;
+  const paymentWhere: Prisma.AuditLogWhereInput = { action: "PAYMENT_CAPTURED", user: realUser, ...(scope === "all" ? {} : { timestamp: { gte: ADMIN_TRACKING_START } }) };
   const [summary, products, timeline, payments] = await Promise.all([
-    prisma.$queryRaw<{ amount: bigint; payments: bigint; buyers: bigint }[]>(Prisma.sql`SELECT COALESCE(SUM((a.metadata->>'amountPaise')::bigint),0)::bigint AS amount, COUNT(*)::bigint AS payments, COUNT(DISTINCT a."userId")::bigint AS buyers FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND a.timestamp >= ${ADMIN_TRACKING_START} AND ${realUserSql}`),
-    prisma.$queryRaw<{ product: string; amount: bigint; payments: bigint }[]>(Prisma.sql`SELECT a.metadata->>'purchaseType' AS product, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount, COUNT(*)::bigint AS payments FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND a.timestamp >= ${ADMIN_TRACKING_START} AND ${realUserSql} GROUP BY 1 ORDER BY amount DESC`),
-    prisma.$queryRaw<{ date: string; amount: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND a.timestamp >= ${ADMIN_TRACKING_START} AND ${realUserSql} GROUP BY 1 ORDER BY 1`),
-    prisma.auditLog.findMany({ where: { action: "PAYMENT_CAPTURED", timestamp: { gte: ADMIN_TRACKING_START }, user: { email: { not: "demo@saviours.test" } } }, include: { user: { select: { name: true, email: true } } }, orderBy: { timestamp: "desc" }, take: 20 }),
+    prisma.$queryRaw<{ amount: bigint; payments: bigint; buyers: bigint }[]>(Prisma.sql`SELECT COALESCE(SUM((a.metadata->>'amountPaise')::bigint),0)::bigint AS amount, COUNT(*)::bigint AS payments, COUNT(DISTINCT a."userId")::bigint AS buyers FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${revenuePeriodSql} AND ${realUserSql}`),
+    prisma.$queryRaw<{ product: string; amount: bigint; payments: bigint }[]>(Prisma.sql`SELECT a.metadata->>'purchaseType' AS product, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount, COUNT(*)::bigint AS payments FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${revenuePeriodSql} AND ${realUserSql} GROUP BY 1 ORDER BY amount DESC`),
+    prisma.$queryRaw<{ date: string; amount: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${revenuePeriodSql} AND ${realUserSql} GROUP BY 1 ORDER BY 1`),
+    prisma.auditLog.findMany({ where: paymentWhere, include: { user: { select: { name: true, email: true } } }, orderBy: { timestamp: "desc" }, take: 20 }),
   ]);
   const amount = Number(summary[0]?.amount ?? 0) / 100;
   return { amount, refunded: 0, fees: 0, net: amount, payments: Number(summary[0]?.payments ?? 0), buyers: Number(summary[0]?.buyers ?? 0), paidAccess: access,
     source: "ledger" as const, fetchedAt: razorpay.fetchedAt, truncated: false,
     sourceMessage: razorpay.status === "unconfigured" ? "Add Razorpay server credentials to load complete payment history." : (razorpay.error ?? "Razorpay unavailable. Showing verified webhook records."),
     products: products.map(r => ({ product: r.product, amount: Number(r.amount) / 100, payments: Number(r.payments) })),
-    timeline: daysTrend(timeline.map(r => ({ date: r.date, count: r.amount })), adminTrackingDays()).map(r => ({ date: r.date, count: r.count / 100 })),
+    timeline: daysTrend(timeline.map(r => ({ date: r.date, count: r.amount })), adminScopeDays(scope, timeline[0]?.date)).map(r => ({ date: r.date, count: r.count / 100 })),
     recentPayments: payments.map(p => { const m = p.metadata as { amountPaise: number; purchaseType: string; paymentId: string }; return { id: p.id, name: p.user.name, email: p.user.email, amount: m.amountPaise / 100, refunded: 0, product: m.purchaseType, paymentId: m.paymentId, method: "—", date: p.timestamp.toISOString() }; }),
   };
 }
 export type RevenueStats = Awaited<ReturnType<typeof getRevenueData>>;
 
-export async function getFeatureUsageData() {
-  const since = ADMIN_TRACKING_START;
+export async function getFeatureUsageData(scope: AdminScope = "november") {
+  const periodUser = scopeUserWhere(scope);
+  const timestampFilter = scope === "all" ? {} : { timestamp: { gte: ADMIN_TRACKING_START } };
+  const createdFilter = scope === "all" ? {} : { createdAt: { gte: ADMIN_TRACKING_START } };
+  const periodSql = scope === "all" ? Prisma.empty : Prisma.sql`AND a.timestamp >= ${ADMIN_TRACKING_START}`;
   const [featureRanking, ai, tests, focus, notes, doubts, aiTrend] = await Promise.all([
-    getFeatureRanking(since),
-    prisma.aiUsageLog.groupBy({ by: ["feature"], where: { user: standaloneUser, timestamp: { gte: since } }, _count: { id: true }, _sum: { tokens: true }, orderBy: { _count: { id: "desc" } } }),
-    prisma.testAttempt.count({ where: { student: standaloneUser, createdAt: { gte: since } } }),
-    prisma.focusSession.aggregate({ where: { user: standaloneUser, createdAt: { gte: since } }, _count: { id: true }, _sum: { actualDuration: true } }),
-    prisma.note.count({ where: { student: standaloneUser, createdAt: { gte: since } } }),
-    prisma.doubtConversation.count({ where: { student: standaloneUser, createdAt: { gte: since } } }),
-    prisma.$queryRaw<{ date: string; count: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, COUNT(*)::bigint AS count FROM ai_usage_logs a JOIN users u ON u.id=a."userId" WHERE a.timestamp >= ${since} AND ${standaloneUserSql} GROUP BY 1 ORDER BY 1`),
+    getFeatureRanking(scope),
+    prisma.aiUsageLog.groupBy({ by: ["feature"], where: { user: periodUser, ...timestampFilter }, _count: { id: true }, _sum: { tokens: true }, orderBy: { _count: { id: "desc" } } }),
+    prisma.testAttempt.count({ where: { student: periodUser, ...createdFilter } }),
+    prisma.focusSession.aggregate({ where: { user: periodUser, ...createdFilter }, _count: { id: true }, _sum: { actualDuration: true } }),
+    prisma.note.count({ where: { student: periodUser, ...createdFilter } }),
+    prisma.doubtConversation.count({ where: { student: periodUser, ...createdFilter } }),
+    prisma.$queryRaw<{ date: string; count: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, COUNT(*)::bigint AS count FROM ai_usage_logs a JOIN users u ON u.id=a."userId" WHERE ${scopeUserSql(scope)} ${periodSql} GROUP BY 1 ORDER BY 1`),
   ]);
   return { featureRanking, ai: ai.map(r => ({ feature: r.feature.replaceAll("_", " ").toLowerCase(), calls: r._count.id, tokens: r._sum.tokens ?? 0 })),
     totalAiCalls: ai.reduce((sum,r) => sum + r._count.id, 0), tokens: ai.reduce((sum,r) => sum + (r._sum.tokens ?? 0),0),
-    tests, focusSessions: focus._count.id, focusHours: Math.round((focus._sum.actualDuration ?? 0) / 60), notes, doubts, aiTrend: daysTrend(aiTrend, adminTrackingDays()),
+    tests, focusSessions: focus._count.id, focusHours: Math.round((focus._sum.actualDuration ?? 0) / 60), notes, doubts, aiTrend: daysTrend(aiTrend, adminScopeDays(scope, aiTrend[0]?.date)), scope,
   };
 }
 export type FeatureStats = Awaited<ReturnType<typeof getFeatureUsageData>>;

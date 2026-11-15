@@ -3,11 +3,25 @@ import type { ReactNode } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
+import type { AdminScope } from "@/lib/admin-period";
 export const number = (n: number) => n.toLocaleString("en-IN");
 export const money = (n: number) => `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 export const dateTime = (value: string) => new Date(value).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 export function PageHeading({ eyebrow, title, description, children }: { eyebrow?: string; title: string; description: string; children?: ReactNode }) {
   return <div className="admin-page-heading"><div>{eyebrow && <div className="admin-eyebrow">{eyebrow}</div>}<h1>{title}</h1><p>{description}</p></div>{children}</div>;
+}
+export function ScopeSelect({ scope }: { scope: AdminScope }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [pending, startTransition] = useTransition();
+  return <label className="admin-scope"><span>Reporting period</span><select aria-label="Reporting period" value={scope} disabled={pending} onChange={event => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (event.target.value === "all") params.set("scope", "all"); else params.delete("scope");
+    startTransition(() => router.replace(`${pathname}${params.size ? `?${params}` : ""}`));
+  }}><option value="november">Since 1 Nov 2026</option><option value="all">All time</option></select></label>;
 }
 export function Metric({ label, value, detail, icon, live }: { label: string; value: string | number; detail: string; icon?: ReactNode; live?: boolean }) {
   return <section className="admin-metric"><div className="admin-metric-label">{label}<span>{icon}</span></div><div className="admin-metric-value">{live && <i className="admin-online-dot"/>}{typeof value === "number" ? number(value) : value}</div><p>{detail}</p></section>;

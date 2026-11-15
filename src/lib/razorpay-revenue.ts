@@ -1,7 +1,6 @@
 import "server-only";
 import Razorpay from "razorpay";
 import { unstable_cache } from "next/cache";
-import { ADMIN_TRACKING_START } from "@/lib/admin-period";
 
 export type RazorpayRevenuePayment = {
   id: string;
@@ -59,7 +58,7 @@ async function fetchRazorpayRevenue(): Promise<RazorpayRevenueSnapshot> {
       for (const payment of items) {
         const captured = payment.captured || payment.status === "captured" || payment.status === "refunded";
         const amountPaise = Number(payment.amount);
-        if (!captured || payment.currency !== "INR" || !Number.isFinite(amountPaise) || payment.created_at * 1000 < ADMIN_TRACKING_START.getTime()) continue;
+        if (!captured || payment.currency !== "INR" || !Number.isFinite(amountPaise)) continue;
         payments.push({
           id: payment.id,
           amountPaise,
@@ -87,6 +86,6 @@ async function fetchRazorpayRevenue(): Promise<RazorpayRevenueSnapshot> {
 
 export const getRazorpayRevenueSnapshot = unstable_cache(
   fetchRazorpayRevenue,
-  ["admin-razorpay-revenue-from-nov-2026-v1"],
+  ["admin-razorpay-revenue-all-time-v1"],
   { revalidate: 300 },
 );

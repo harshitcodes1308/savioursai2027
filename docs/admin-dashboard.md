@@ -4,7 +4,7 @@ Open `/admin` and sign in with the configured administrator account. The default
 
 ## Metrics
 
-All admin reporting uses **1 November 2026, 00:00 IST** as the standalone-business boundary. Users created before that date, their activity, and payments before that date are excluded from the workspace so creator-partnership results do not mix with standalone performance.
+Overview, Revenue and Features default to **1 November 2026, 00:00 IST** as the standalone-business boundary. Their reporting-period selector can switch to **All time**. The Users directory is deliberately always all-time so historical students remain searchable and manageable regardless of the selected analytics period.
 
 - **Total signups:** registered user records, excluding `demo@saviours.test`.
 - **Paid users:** current paid entitlements, including legacy paid access and manual grants; expired access is excluded. This is not a count of verified purchases.

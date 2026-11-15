@@ -7,6 +7,7 @@ import { ThemedDashboardContent } from "@/components/providers/themed-dashboard"
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import type { SessionUser } from "@/lib/auth";
+import { DashboardActivity } from "@/components/providers/DashboardActivity";
 import { EbookBundleOffer } from "@/components/ebooks/EbookBundleOffer";
 
 export default function DashboardLayout({
@@ -47,6 +48,7 @@ export default function DashboardLayout({
                 planType={planType}
                 ebooksUnlocked={profile?.ebooksUnlocked === true}
             >
+                {profile && !isDemo && <DashboardActivity />}
                 {isDemo && (
                     <div style={{ position: "fixed", right: 18, bottom: 18, zIndex: 180, display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 12, background: "rgba(14,14,23,.94)", border: "1px solid rgba(245,158,11,.38)", boxShadow: "0 10px 30px rgba(0,0,0,.35)" }}>
                         <span style={{ color: "#F59E0B", fontFamily: "var(--font-body)", fontSize: 11, fontWeight: 700 }}>LIVE DEMO</span>

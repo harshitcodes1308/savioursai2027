@@ -1,210 +1,130 @@
+import "server-only";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { DASHBOARD_FEATURES, ONLINE_WINDOW_MS, PRESENCE_ACTION } from "@/lib/dashboard-activity";
+import { EBOOK_SUBJECTS } from "@/data/ebooks-config";
 
-/* ─── Overview Stats ─── */
+const realUser: Prisma.UserWhereInput = { email: { not: "demo@saviours.test" } };
+const realUserSql = Prisma.sql`u.email <> 'demo@saviours.test'`;
+export function paidAccessWhere(now = new Date()): Prisma.UserWhereInput {
+  return { AND: [realUser, { OR: [
+    { isPaid: true, subscriptionExpiry: null },
+    { OR: [{ isPaid: true }, { planType: { in: ["PRO", "BUNDLE"] }, subscriptionStatus: "ACTIVE" }], subscriptionExpiry: { gt: now } },
+    { planType: { in: ["PRO", "BUNDLE"] }, subscriptionStatus: "ACTIVE", subscriptionExpiry: null },
+  ] }] };
+}
+const istDay = (date: Date) => new Date(date.getTime() + 330 * 60_000).toISOString().slice(0, 10);
+function daysTrend(rows: { date: string; count: bigint }[], days = 30) {
+  const counts = new Map(rows.map(row => [row.date, Number(row.count)]));
+  const end = new Date(`${istDay(new Date())}T00:00:00+05:30`);
+  return Array.from({ length: days }, (_, i) => {
+    const date = istDay(new Date(end.getTime() - (days - i - 1) * 86400_000));
+    return { date, count: counts.get(date) ?? 0 };
+  });
+}
+
+async function getFeatureRanking(since: Date) {
+  const rows = await prisma.$queryRaw<{ feature: string; opens: bigint; users: bigint }[]>(Prisma.sql`SELECT a.metadata->>'feature' AS feature, COUNT(*)::bigint AS opens, COUNT(DISTINCT a."userId")::bigint AS users FROM audit_logs a JOIN users u ON u.id = a."userId" WHERE a.action = 'DASHBOARD_FEATURE_OPEN' AND a.timestamp >= ${since} AND ${realUserSql} GROUP BY 1 ORDER BY opens DESC LIMIT 8`);
+  return rows.filter(row => Object.hasOwn(DASHBOARD_FEATURES, row.feature)).map(row => ({
+    feature: row.feature, label: DASHBOARD_FEATURES[row.feature], opens: Number(row.opens), users: Number(row.users),
+  }));
+}
 
 export async function getOverviewStats() {
   const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-  const [
-    totalUsers,
-    paidUsers,
-    usersToday,
-    usersWeek,
-    usersMonth,
-    activeSessions,
-    authProviders,
-    planTypeBreakdown,
-    signupTrendRaw,
-  ] = await Promise.all([
-    prisma.user.count(),
-    prisma.user.count({ where: { isPaid: true } }),
-    prisma.user.count({ where: { createdAt: { gte: todayStart } } }),
-    prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
-    prisma.user.count({ where: { createdAt: { gte: monthAgo } } }),
-    prisma.session.count({ where: { expiresAt: { gt: now } } }),
-    prisma.user.groupBy({ by: ["authProvider"], _count: { id: true } }),
-    prisma.user.groupBy({ by: ["planType"], _count: { id: true } }),
-    prisma.$queryRaw<{ date: string; count: bigint }[]>(
-      Prisma.sql`SELECT DATE("createdAt")::text as date, COUNT(*)::bigint as count
-                 FROM users WHERE "createdAt" >= ${monthAgo}
-                 GROUP BY DATE("createdAt") ORDER BY date ASC`
-    ),
+  const today = new Date(`${istDay(now)}T00:00:00+05:30`);
+  const monthAgo = new Date(today.getTime() - 29 * 86400_000);
+  const weekAgo = new Date(today.getTime() - 6 * 86400_000);
+  const onlineSince = new Date(now.getTime() - ONLINE_WINDOW_MS);
+  const [totalUsers, paidUsers, usersToday, usersWeek, usersMonth, claims, claimsToday, bundleOwners, onlineUsers, activeToday, signupRows, featureRows, claimGroups, recentUsers, recentClaims, plans] = await Promise.all([
+    prisma.user.count({ where: realUser }),
+    prisma.user.count({ where: paidAccessWhere(now) }),
+    prisma.user.count({ where: { ...realUser, createdAt: { gte: today } } }),
+    prisma.user.count({ where: { ...realUser, createdAt: { gte: weekAgo } } }),
+    prisma.user.count({ where: { ...realUser, createdAt: { gte: monthAgo } } }),
+    prisma.user.count({ where: { ...realUser, ebookSpinAt: { not: null } } }),
+    prisma.user.count({ where: { ...realUser, ebookSpinAt: { gte: today } } }),
+    prisma.user.count({ where: { ...realUser, ebooksUnlockSource: "BUNDLE", ebooksUnlocked: true } }),
+    prisma.auditLog.count({ where: { action: PRESENCE_ACTION, timestamp: { gte: onlineSince }, user: realUser } }),
+    prisma.auditLog.count({ where: { action: PRESENCE_ACTION, timestamp: { gte: today }, user: realUser } }),
+    prisma.$queryRaw<{ date: string; count: bigint }[]>(Prisma.sql`SELECT (u."createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, COUNT(*)::bigint AS count FROM users u WHERE ${realUserSql} AND u."createdAt" >= ${monthAgo} GROUP BY 1 ORDER BY 1`),
+    getFeatureRanking(monthAgo),
+    prisma.user.groupBy({ by: ["ebookSpinPrize"], where: { ...realUser, ebookSpinAt: { not: null } }, _count: { id: true }, orderBy: { _count: { id: "desc" } } }),
+    prisma.user.findMany({ where: realUser, select: { id: true, name: true, email: true, planType: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: 6 }),
+    prisma.user.findMany({ where: { ...realUser, ebookSpinAt: { not: null } }, select: { id: true, name: true, ebookSpinPrize: true, ebookSpinAt: true }, orderBy: { ebookSpinAt: "desc" }, take: 5 }),
+    prisma.user.groupBy({ by: ["planType"], where: paidAccessWhere(now), _count: { id: true } }),
   ]);
-
-  const freeUsers = totalUsers - paidUsers;
-  const conversionRate = totalUsers > 0 ? ((paidUsers / totalUsers) * 100).toFixed(1) : "0";
-  const estimatedRevenue = paidUsers * 99;
-
-  const signupTrend = signupTrendRaw.map((r) => ({
-    date: r.date,
-    count: Number(r.count),
-  }));
-
   return {
-    totalUsers,
-    paidUsers,
-    freeUsers,
-    conversionRate,
-    estimatedRevenue,
-    usersToday,
-    usersWeek,
-    usersMonth,
-    activeSessions,
-    authProviders: authProviders.map((a) => ({ provider: a.authProvider, count: a._count.id })),
-    planTypeBreakdown: planTypeBreakdown.map((p) => ({ plan: p.planType, count: p._count.id })),
-    signupTrend,
+    totalUsers, paidUsers, freeUsers: totalUsers - paidUsers, usersToday, usersWeek, usersMonth,
+    claims, claimsToday, bundleOwners, onlineUsers, activeToday,
+    conversionRate: totalUsers ? (paidUsers / totalUsers * 100).toFixed(1) : "0.0",
+    claimRate: totalUsers ? (claims / totalUsers * 100).toFixed(1) : "0.0",
+    signupTrend: daysTrend(signupRows),
+    featureRanking: featureRows,
+    claimBreakdown: claimGroups.map(r => ({ subject: EBOOK_SUBJECTS.find(b => b.id === r.ebookSpinPrize)?.name ?? "Other", count: r._count.id })),
+    recentUsers: recentUsers.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })),
+    recentClaims: recentClaims.map(u => ({ id: u.id, name: u.name, subject: EBOOK_SUBJECTS.find(b => b.id === u.ebookSpinPrize)?.name ?? "Sidekick", claimedAt: u.ebookSpinAt!.toISOString() })),
+    planBreakdown: [{ plan: "Free", count: totalUsers - paidUsers }, ...plans.map(p => ({ plan: p.planType === "FREE" ? "Legacy paid" : p.planType === "BUNDLE" ? "Bundle" : "Pro", count: p._count.id }))],
+    updatedAt: now.toISOString(),
   };
 }
+export type OverviewStats = Awaited<ReturnType<typeof getOverviewStats>>;
 
-/* ─── Users List ─── */
-
-export async function getUsersList(search?: string, filter?: string) {
-  const where: Prisma.UserWhereInput = {};
-
-  if (search) {
-    where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { email: { contains: search, mode: "insensitive" } },
-    ];
-  }
-
-  if (filter === "paid") where.isPaid = true;
-  else if (filter === "free") where.isPaid = false;
-  else if (filter === "phone") where.phone = { not: null };
-  else if (filter === "monthly") where.planType = "PRO";
-  else if (filter === "yearly") where.planType = "BUNDLE";
-
-  const users = await prisma.user.findMany({
-    where,
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      isPaid: true,
-      planType: true,
-      subscriptionStatus: true,
-      authProvider: true,
-      createdAt: true,
-      flipBestStreak: true,
-      onboardingComplete: true,
-      _count: {
-        select: {
-          testAttempts: true,
-          aiUsageLogs: true,
-          focusSessions: true,
-          notes: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
-
-  return users.map((u) => ({
-    ...u,
-    createdAt: u.createdAt.toISOString(),
-  }));
+export async function getUsersList(search = "", filter = "", page = 1) {
+  const now = new Date();
+  const where: Prisma.UserWhereInput = { AND: [realUser] };
+  const conditions = where.AND as Prisma.UserWhereInput[];
+  if (search) conditions.push({ OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }] });
+  if (filter === "paid") conditions.push(paidAccessWhere(now));
+  if (filter === "free") conditions.push({ NOT: paidAccessWhere(now) });
+  if (filter === "claimed") conditions.push({ ebookSpinAt: { not: null } });
+  if (filter === "online") conditions.push({ auditLogs: { some: { action: PRESENCE_ACTION, timestamp: { gte: new Date(now.getTime() - ONLINE_WINDOW_MS) } } } });
+  if (filter === "bundle") conditions.push({ ebooksUnlockSource: "BUNDLE", ebooksUnlocked: true });
+  const total = await prisma.user.count({ where });
+  const currentPage = Math.min(Math.max(1, page), Math.max(1, Math.ceil(total / 50)));
+  const users = await prisma.user.findMany({ where, select: {
+    id: true, name: true, email: true, phone: true, isPaid: true, planType: true, subscriptionStatus: true, subscriptionExpiry: true,
+    authProvider: true, createdAt: true, ebookSpinPrize: true, ebookSpinAt: true, ebooksUnlocked: true, onboardingComplete: true,
+    auditLogs: { where: { action: PRESENCE_ACTION }, select: { timestamp: true }, take: 1 },
+  }, orderBy: { createdAt: "desc" }, skip: (currentPage - 1) * 50, take: 50 });
+  return { total, page: currentPage, pages: Math.max(1, Math.ceil(total / 50)), users: users.map(({ auditLogs, ...u }) => ({
+    ...u, createdAt: u.createdAt.toISOString(), ebookSpinAt: u.ebookSpinAt?.toISOString() ?? null,
+    subscriptionExpiry: u.subscriptionExpiry?.toISOString() ?? null,
+    online: !!auditLogs[0] && now.getTime() - auditLogs[0].timestamp.getTime() < ONLINE_WINDOW_MS,
+  })) };
 }
-
-/* ─── Revenue Data ─── */
+export type AdminUsers = Awaited<ReturnType<typeof getUsersList>>;
 
 export async function getRevenueData() {
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-  const [paidUsers, totalUsers, planBreakdown, revenueTimeline] = await Promise.all([
-    prisma.user.count({ where: { isPaid: true } }),
-    prisma.user.count(),
-    prisma.user.groupBy({ by: ["planType"], _count: { id: true } }),
-    prisma.$queryRaw<{ month: string; paid_count: bigint }[]>(
-      Prisma.sql`SELECT TO_CHAR(DATE_TRUNC('month', "createdAt"), 'YYYY-MM') as month,
-                        COUNT(*)::bigint as paid_count
-                 FROM users WHERE "isPaid" = true AND "createdAt" >= ${sixMonthsAgo}
-                 GROUP BY DATE_TRUNC('month', "createdAt")
-                 ORDER BY month ASC`
-    ),
+  const [summary, products, timeline, payments, access] = await Promise.all([
+    prisma.$queryRaw<{ amount: bigint; payments: bigint; buyers: bigint }[]>(Prisma.sql`SELECT COALESCE(SUM((a.metadata->>'amountPaise')::bigint),0)::bigint AS amount, COUNT(*)::bigint AS payments, COUNT(DISTINCT a."userId")::bigint AS buyers FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND ${realUserSql}`),
+    prisma.$queryRaw<{ product: string; amount: bigint; payments: bigint }[]>(Prisma.sql`SELECT a.metadata->>'purchaseType' AS product, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount, COUNT(*)::bigint AS payments FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND ${realUserSql} GROUP BY 1 ORDER BY amount DESC`),
+    prisma.$queryRaw<{ date: string; amount: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' AND ${realUserSql} AND a.timestamp >= NOW() - INTERVAL '30 days' GROUP BY 1 ORDER BY 1`),
+    prisma.auditLog.findMany({ where: { action: "PAYMENT_CAPTURED", user: realUser }, include: { user: { select: { name: true, email: true } } }, orderBy: { timestamp: "desc" }, take: 20 }),
+    prisma.user.count({ where: paidAccessWhere() }),
   ]);
-
-  const conversionRate = totalUsers > 0 ? ((paidUsers / totalUsers) * 100).toFixed(1) : "0";
-  const estimatedRevenue = paidUsers * 99;
-  const arpu = paidUsers > 0 ? (estimatedRevenue / paidUsers).toFixed(0) : "0";
-
-  // Build cumulative revenue
-  let cumulative = 0;
-  const cumulativeTimeline = revenueTimeline.map((r) => {
-    cumulative += Number(r.paid_count) * 99;
-    return { month: r.month, revenue: cumulative, users: Number(r.paid_count) };
-  });
-
-  return {
-    paidUsers,
-    totalUsers,
-    conversionRate,
-    estimatedRevenue,
-    arpu,
-    planBreakdown: planBreakdown.map((p) => ({ plan: p.planType, count: p._count.id })),
-    cumulativeTimeline,
+  return { amount: Number(summary[0]?.amount ?? 0) / 100, payments: Number(summary[0]?.payments ?? 0), buyers: Number(summary[0]?.buyers ?? 0), paidAccess: access,
+    products: products.map(r => ({ product: r.product, amount: Number(r.amount) / 100, payments: Number(r.payments) })),
+    timeline: daysTrend(timeline.map(r => ({ date: r.date, count: r.amount }))).map(r => ({ date: r.date, count: r.count / 100 })),
+    recentPayments: payments.map(p => { const m = p.metadata as { amountPaise: number; purchaseType: string; paymentId: string }; return { id: p.id, name: p.user.name, email: p.user.email, amount: m.amountPaise / 100, product: m.purchaseType, paymentId: m.paymentId, date: p.timestamp.toISOString() }; }),
   };
 }
-
-/* ─── Feature Usage ─── */
+export type RevenueStats = Awaited<ReturnType<typeof getRevenueData>>;
 
 export async function getFeatureUsageData() {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const [
-    featureBreakdown,
-    totalTests,
-    focusAggregate,
-    totalNotes,
-    totalDoubts,
-    flipAvg,
-    aiTrendRaw,
-  ] = await Promise.all([
-    prisma.aiUsageLog.groupBy({
-      by: ["feature"],
-      _count: { id: true },
-      _sum: { tokens: true },
-    }),
-    prisma.testAttempt.count(),
-    prisma.focusSession.aggregate({ _sum: { actualDuration: true }, _count: { id: true } }),
-    prisma.note.count(),
-    prisma.doubtConversation.count(),
-    prisma.user.aggregate({ _avg: { flipBestStreak: true } }),
-    prisma.$queryRaw<{ date: string; count: bigint }[]>(
-      Prisma.sql`SELECT DATE("timestamp")::text as date, COUNT(*)::bigint as count
-                 FROM ai_usage_logs WHERE "timestamp" >= ${thirtyDaysAgo}
-                 GROUP BY DATE("timestamp") ORDER BY date ASC`
-    ),
+  const since = new Date(Date.now() - 30 * 86400_000);
+  const [featureRanking, ai, tests, focus, notes, doubts, aiTrend] = await Promise.all([
+    getFeatureRanking(since),
+    prisma.aiUsageLog.groupBy({ by: ["feature"], where: { user: realUser, timestamp: { gte: since } }, _count: { id: true }, _sum: { tokens: true }, orderBy: { _count: { id: "desc" } } }),
+    prisma.testAttempt.count({ where: { student: realUser, createdAt: { gte: since } } }),
+    prisma.focusSession.aggregate({ where: { user: realUser, createdAt: { gte: since } }, _count: { id: true }, _sum: { actualDuration: true } }),
+    prisma.note.count({ where: { student: realUser, createdAt: { gte: since } } }),
+    prisma.doubtConversation.count({ where: { student: realUser, createdAt: { gte: since } } }),
+    prisma.$queryRaw<{ date: string; count: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, COUNT(*)::bigint AS count FROM ai_usage_logs a JOIN users u ON u.id=a."userId" WHERE a.timestamp >= ${since} AND ${realUserSql} GROUP BY 1 ORDER BY 1`),
   ]);
-
-  const totalAiCalls = featureBreakdown.reduce((s, f) => s + f._count.id, 0);
-  const totalTokens = featureBreakdown.reduce((s, f) => s + (f._sum.tokens ?? 0), 0);
-  const focusHours = Math.round((focusAggregate._sum.actualDuration ?? 0) / 60);
-
-  return {
-    totalAiCalls,
-    totalTokens,
-    totalTests,
-    focusSessions: focusAggregate._count.id,
-    focusHours,
-    totalNotes,
-    totalDoubts,
-    avgFlipStreak: Math.round(flipAvg._avg.flipBestStreak ?? 0),
-    featureBreakdown: featureBreakdown
-      .map((f) => ({
-        feature: f.feature,
-        calls: f._count.id,
-        tokens: f._sum.tokens ?? 0,
-        pct: totalAiCalls > 0 ? Math.round((f._count.id / totalAiCalls) * 100) : 0,
-      }))
-      .sort((a, b) => b.calls - a.calls),
-    aiTrend: aiTrendRaw.map((r) => ({ date: r.date, count: Number(r.count) })),
+  return { featureRanking, ai: ai.map(r => ({ feature: r.feature.replaceAll("_", " ").toLowerCase(), calls: r._count.id, tokens: r._sum.tokens ?? 0 })),
+    totalAiCalls: ai.reduce((sum,r) => sum + r._count.id, 0), tokens: ai.reduce((sum,r) => sum + (r._sum.tokens ?? 0),0),
+    tests, focusSessions: focus._count.id, focusHours: Math.round((focus._sum.actualDuration ?? 0) / 60), notes, doubts, aiTrend: daysTrend(aiTrend),
   };
 }
+export type FeatureStats = Awaited<ReturnType<typeof getFeatureUsageData>>;

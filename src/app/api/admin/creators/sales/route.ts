@@ -1,30 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
-import { cookies } from "next/headers";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 
-async function verifyAdmin(req?: NextRequest): Promise<boolean> {
-  try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET + "-admin-panel");
 
-    // 1. Try Authorization header first (set by client from localStorage)
-    const authHeader = req?.headers.get("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const headerToken = authHeader.slice(7);
-      const { payload } = await jwtVerify(headerToken, secret);
-      return payload.role === "admin";
-    }
-
-    // 2. Fall back to HttpOnly cookie
-    const cookieStore = await cookies();
-    const token = cookieStore.get("admin-token")?.value;
-    if (!token) return false;
-    const { payload } = await jwtVerify(token, secret);
-    return payload.role === "admin";
-  } catch {
-    return false;
-  }
-}
 
 export async function GET(req: NextRequest) {
   if (!(await verifyAdmin(req))) {
@@ -135,7 +113,7 @@ export async function GET(req: NextRequest) {
       },
       students: filteredUsers,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("Error fetching creator sales details for admin:", e);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getAdminEmail } from "@/lib/admin-auth";
 import { revalidatePath } from "next/cache";
 
 type PlanAction = "FREE" | "PRO" | "BUNDLE";
@@ -10,10 +10,12 @@ type PlanAction = "FREE" | "PRO" | "BUNDLE";
  * Admin-only action: Update a user's subscription plan.
  */
 export async function adminUpdateUserPlan(userId: string, plan: PlanAction) {
-    const admin = await getCurrentUser();
-    if (!admin || admin.role !== "ADMIN") {
+    const admin = await getAdminEmail();
+    if (!admin) {
         return { success: false, error: "Unauthorized" };
     }
+
+    if (!["FREE", "PRO", "BUNDLE"].includes(plan)) return { success: false, error: "Invalid plan" };
 
     try {
         if (plan === "FREE") {
@@ -46,6 +48,9 @@ export async function adminUpdateUserPlan(userId: string, plan: PlanAction) {
                 data: {
                     isPaid: true,
                     planType: "BUNDLE",
+                    ebooksUnlocked: true,
+                    ebooksUnlockSource: "ADMIN",
+                    ebooksUnlockedAt: new Date(),
                     subscriptionStatus: "ACTIVE",
                     subscriptionExpiry: expiry,
                 },

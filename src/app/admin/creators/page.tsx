@@ -1,9 +1,11 @@
+import { getAdminEmail } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import CreatorsDashboard from "./CreatorsDashboard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCreatorsPage() {
+  if (!(await getAdminEmail())) return null;
   const creators = await prisma.creator.findMany({
     orderBy: { createdAt: "asc" },
   });

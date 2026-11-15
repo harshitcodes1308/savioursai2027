@@ -1,0 +1,1 @@
+export default function AdminLoading() { return <div className="admin-page" role="status"><div className="admin-eyebrow">Saviours AI</div><h1>Loading workspace…</h1><p className="admin-footnote">Fetching the latest data.</p></div>; }

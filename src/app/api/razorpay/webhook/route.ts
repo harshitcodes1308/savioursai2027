@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { recordCapturedPayment } from "@/lib/payment-ledger";
 import { prisma } from "@/lib/prisma";
 import { qualifyReferralForProPurchase } from "@/lib/referrals";
 import { applyEbookPurchase, isEbookPurchaseType } from "@/lib/ebook-purchases";
@@ -74,6 +75,7 @@ export async function POST(req: NextRequest) {
                 });
 
                 if (user) {
+                    await recordCapturedPayment(user.id, payment, purchaseType);
                     if (purchaseType === "LNB_CHEMISTRY") {
                         if (!user.lnbChemistryUnlocked) {
                             await prisma.user.update({
@@ -130,6 +132,7 @@ export async function POST(req: NextRequest) {
 
         switch (event) {
             case "subscription.charged": {
+                await recordCapturedPayment(user.id, payload.payload?.payment?.entity ?? {}, "PRO_SUBSCRIPTION");
                 // Recurring payment succeeded → extend expiry by 30 days from now
                 const expiryDate = new Date();
                 expiryDate.setDate(expiryDate.getDate() + 30);

@@ -1,0 +1,31 @@
+# Admin dashboard
+
+Open `/admin` and sign in with the configured administrator account. The default account is `care.savioursai@gmail.com`; the password is stored as a server-side bcrypt hash. Set `ADMIN_PASSWORD_HASH` to override the default hash. `JWT_SECRET` is required. Login is rate limited; the session is an HttpOnly cookie. Admin data pages, APIs and plan actions check this session.
+
+## Metrics
+
+- **Total signups:** registered user records, excluding `demo@saviours.test`.
+- **Paid users:** current paid entitlements, including legacy paid access and manual grants; expired access is excluded. This is not a count of verified purchases.
+- **Free ebooks claimed:** users with `ebookSpinAt` set; one claim per account. Later upgrades do not erase the claim.
+- **Online now:** distinct users with a visible dashboard heartbeat in the past two minutes. Visible dashboard tabs heartbeat every minute. Multiple tabs update the same presence record.
+- **Active today:** users whose most recent dashboard heartbeat is today in IST.
+- **Most opened features:** feature navigation events, deduplicated per user/feature/minute. These are distinct from completed tasks or server-recorded AI requests.
+- Signup dates and daily charts use Asia/Kolkata. Thirty-day signup charts include today and the previous 29 calendar days, including zero days.
+
+Presence and feature opens are stored in the existing `audit_logs` table and begin with this release. No schema migration or external analytics service is required. Only allowlisted feature identifiers are collected; page content and complete URLs are not sent. The panel refreshes every 30 seconds while visible.
+
+## Captured payment ledger
+
+Revenue is read from recorded Razorpay capture events rather than inferred from user plans. Enable `payment.captured` (and `subscription.charged` for legacy subscriptions) on the existing `/api/razorpay/webhook` endpoint with `RAZORPAY_WEBHOOK_SECRET`. Each INR payment ID is recorded once, even if the webhook retries or both event types arrive. The existing user entitlement grant still runs.
+
+The ledger starts with this release: historical purchases are not backfilled. It reports gross captures, before refunds, fees and settlements. Manual plan changes and referral grants do not create payment records.
+
+## Verification
+
+Start a local Next server, then run:
+
+```sh
+ADMIN_TEST_URL=http://localhost:3102 ADMIN_TEST_PASSWORD='<admin password>' npx tsx scripts/check-admin-dashboard.ts
+```
+
+The check uses temporary users in the configured database and removes them in `finally`. It checks login/logout, protected data/APIs, active versus expired paid access, claims and search, heartbeat/feature deduplication, captured-payment deduplication, plan changes, and mobile layout. Chrome must be installed. Screenshots are saved under `output/admin/`.

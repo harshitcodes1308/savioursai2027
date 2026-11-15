@@ -1,30 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
-import { cookies } from "next/headers";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 
-async function verifyAdmin(req?: NextRequest): Promise<boolean> {
-    try {
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET + "-admin-panel");
 
-        // 1. Try Authorization header first (set by client from localStorage)
-        const authHeader = req?.headers.get("Authorization");
-        if (authHeader?.startsWith("Bearer ")) {
-            const headerToken = authHeader.slice(7);
-            const { payload } = await jwtVerify(headerToken, secret);
-            return payload.role === "admin";
-        }
-
-        // 2. Fall back to HttpOnly cookie
-        const cookieStore = await cookies();
-        const token = cookieStore.get("admin-token")?.value;
-        if (!token) return false;
-        const { payload } = await jwtVerify(token, secret);
-        return payload.role === "admin";
-    } catch {
-        return false;
-    }
-}
 
 /** GET /api/admin/creators — list all */
 export async function GET(req: NextRequest) {
@@ -60,8 +38,8 @@ export async function POST(req: NextRequest) {
             },
         });
         return NextResponse.json({ creator });
-    } catch (e: any) {
-        if (e.code === "P2002") return NextResponse.json({ error: `Code "${creatorCode}" is already taken` }, { status: 409 });
+    } catch (e: unknown) {
+        if (e && typeof e === "object" && "code" in e && e.code === "P2002") return NextResponse.json({ error: `Code "${creatorCode}" is already taken` }, { status: 409 });
         return NextResponse.json({ error: "Failed to create creator" }, { status: 500 });
     }
 }

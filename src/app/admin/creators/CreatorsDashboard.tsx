@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Handshake } from "lucide-react";
+import { Metric, PageHeading } from "../AdminUI";
 
 interface Creator {
   id: string;
@@ -46,23 +48,12 @@ const EMPTY_FORM = {
 };
 
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
-  return (
-    <div style={{
-      background: "var(--bg-surface)",
-      border: "1px solid var(--bg-border)",
-      borderRadius: 14, padding: "18px 22px",
-      display: "flex", flexDirection: "column", gap: 4,
-    }}>
-      <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>{value}</div>
-      {sub && <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)" }}>{sub}</div>}
-    </div>
-  );
+  return <Metric label={label} value={value} detail={sub ?? ""} />;
 }
 
 export default function CreatorsDashboard({ creators }: { creators: Creator[] }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -124,12 +115,11 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
     const revShare = Number(form.revenueSharePercentage);
     if (!form.revenueSharePercentage || isNaN(revShare) || revShare < 0 || revShare > 100) { setError("Revenue share must be between 0 and 100."); return; }
 
-    const token = localStorage.getItem("admin-token") ?? "";
     setSaving(true);
     try {
       const res = await fetch("/api/admin/creators", {
         method: editingId ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: editingId,
           creatorName: name,
@@ -144,8 +134,8 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
       setSuccess(editingId ? "Creator updated." : "Creator added.");
       setShowForm(false);
       startTransition(() => router.refresh());
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Request failed");
     } finally {
       setSaving(false);
     }
@@ -154,18 +144,17 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
   async function handleDelete(id: string, name: string) {
     if (!confirm(`Delete creator "${name}"? This won't affect users who already used their code.`)) return;
     setDeleting(id);
-    const token = localStorage.getItem("admin-token") ?? "";
     try {
       const res = await fetch("/api/admin/creators", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Delete failed");
       startTransition(() => router.refresh());
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Request failed");
     } finally {
       setDeleting(null);
     }
@@ -176,20 +165,19 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
     setSalesLoading(true);
     setSalesError("");
     try {
-      const token = localStorage.getItem("admin-token") ?? "";
-      const params = new URLSearchParams({ code: creatorCode });
+        const params = new URLSearchParams({ code: creatorCode });
       if (fromDate) params.append("from", fromDate);
       if (toDate) params.append("to", toDate);
 
       const res = await fetch(`/api/admin/creators/sales?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "same-origin",
       });
 
       if (!res.ok) throw new Error("Failed to load sales data");
       const json = await res.json();
       setSalesData(json);
-    } catch (err: any) {
-      setSalesError(err.message || "Something went wrong fetching sales");
+    } catch (err: unknown) {
+      setSalesError(err instanceof Error ? err.message : "Unable to fetch sales");
     } finally {
       setSalesLoading(false);
     }
@@ -230,30 +218,9 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
   };
 
   return (
-    <div style={{ padding: "32px 32px 80px", maxWidth: 1050, margin: "0 auto" }}>
+    <div className="admin-page">
 
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, gap: 16, flexWrap: "wrap" }}>
-        <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, color: "var(--text-primary)", letterSpacing: "-0.02em", margin: 0, marginBottom: 4 }}>
-            Creator Onboarding
-          </h1>
-          <div style={{ fontFamily: "var(--font-tagline)", fontSize: 13, fontStyle: "italic", color: "var(--text-muted)" }}>
-            Manage affiliate creator codes, discount rates, and track student sales revenue shares
-          </div>
-        </div>
-        <button
-          onClick={openAdd}
-          style={{
-            padding: "10px 22px", borderRadius: 10, cursor: "pointer",
-            background: "var(--accent-gold)", color: "#0A0A0F",
-            fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700,
-            border: "none", letterSpacing: "0.02em", flexShrink: 0,
-          }}
-        >
-          + Add Creator
-        </button>
-      </div>
+      <PageHeading eyebrow="Affiliate partners" title="Creators" description="Manage creator codes, discounts and student referrals."><button className="admin-button primary" onClick={openAdd}>+ Add creator</button></PageHeading>
 
       {/* Success banner */}
       {success && (
@@ -273,7 +240,7 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
         <StatCard label="Total Creators" value={creators.length} sub="active affiliate partners" />
         <StatCard label="Students via Creators" value={totalUsers} sub="used a creator code" />
         <StatCard label="Avg Discount" value={`${creators.length ? Math.round(creators.reduce((s, c) => s + c.discountPercentage, 0) / creators.length) : 0}%`} sub="across all creators" />
-        <StatCard label="Top Creator" value={creators.sort((a, b) => b.userCount - a.userCount)[0]?.creatorName?.split(" ")[0] ?? "—"} sub={`${Math.max(...creators.map(c => c.userCount), 0)} students`} />
+        <StatCard label="Top Creator" value={[...creators].sort((a, b) => b.userCount - a.userCount)[0]?.creatorName?.split(" ")[0] ?? "—"} sub={`${Math.max(...creators.map(c => c.userCount), 0)} students`} />
       </div>
 
       {/* Creator cards */}
@@ -282,7 +249,7 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
           padding: "60px 24px", textAlign: "center",
           background: "var(--bg-surface)", border: "1px solid var(--bg-border)", borderRadius: 16,
         }}>
-          <div style={{ fontSize: 36, marginBottom: 12 }}>🤝</div>
+          <Handshake size={28} color="#00d4ff" style={{ margin: "0 auto 12px" }}/>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--text-primary)", marginBottom: 6 }}>No creators yet</div>
           <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginBottom: 20 }}>Add your first affiliate creator to start offering discount codes.</div>
           <button onClick={openAdd} style={{ padding: "10px 24px", borderRadius: 10, cursor: "pointer", background: "var(--accent-gold)", color: "#0A0A0F", fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 700, border: "none" }}>
@@ -290,7 +257,7 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
           </button>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="admin-creator-list" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* Table header */}
           <div style={{
             display: "grid", gridTemplateColumns: "1.8fr 1fr 80px 80px 80px 90px 170px",
@@ -443,7 +410,7 @@ export default function CreatorsDashboard({ creators }: { creators: Creator[] })
                 <div style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
                   {editingId ? "Edit Creator" : "Add Creator"}
                 </div>
-                <div style={{ fontFamily: "var(--font-tagline)", fontSize: 12, fontStyle: "italic", color: "var(--text-muted)", marginTop: 2 }}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12,  color: "var(--text-muted)", marginTop: 2 }}>
                   {editingId ? "Update the creator's details below" : "Fill in the details to add a new affiliate partner"}
                 </div>
               </div>

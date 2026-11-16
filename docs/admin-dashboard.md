@@ -20,6 +20,8 @@ Presence and feature opens are stored in the existing `audit_logs` table and beg
 
 Revenue is loaded read-only from Razorpay's Payments API and cached for five minutes. Only captures created from 1 November 2026 onward are included. It reports refunds, fees, product notes, payment methods and recent customers. If Razorpay is temporarily unavailable, the page falls back to post-boundary webhook captures. Keep `payment.captured` (and `subscription.charged` for legacy subscriptions) enabled on `/api/razorpay/webhook` with `RAZORPAY_WEBHOOK_SECRET`; the webhook remains responsible for entitlement grants and the fallback ledger.
 
+The Revenue page defaults to today's IST revenue and offers Last 7 days, This month, Total period and custom inclusive date ranges. The Total revenue card remains scoped only by the main November/all-time selector; the remaining cards, chart, product split and transaction table follow the selected revenue window.
+
 The overview can show the latest Instagram follower count through Meta's official API. Configure `INSTAGRAM_USER_ID`, a long-lived `INSTAGRAM_ACCESS_TOKEN` with `instagram_business_basic`, and optionally `INSTAGRAM_USERNAME`. The count is cached for 15 minutes. `INSTAGRAM_GRAPH_BASE_URL` and `INSTAGRAM_GRAPH_VERSION` can override the defaults for a different Meta login flow.
 
 Manual plan changes and referral grants do not create payment records.

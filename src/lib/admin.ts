@@ -5,7 +5,7 @@ import { DASHBOARD_FEATURES, ONLINE_WINDOW_MS, PRESENCE_ACTION } from "@/lib/das
 import { EBOOK_SUBJECTS } from "@/data/ebooks-config";
 import { getInstagramAudience } from "@/lib/instagram";
 import { getRazorpayRevenueSnapshot } from "@/lib/razorpay-revenue";
-import { ADMIN_TRACKING_START, adminScopeDays, type AdminScope } from "@/lib/admin-period";
+import { ADMIN_TRACKING_START, adminScopeDays, type AdminScope, type RevenuePeriod } from "@/lib/admin-period";
 
 const realUser: Prisma.UserWhereInput = { email: { not: "demo@saviours.test" } };
 const standaloneUser: Prisma.UserWhereInput = { email: { not: "demo@saviours.test" }, createdAt: { gte: ADMIN_TRACKING_START } };
@@ -21,9 +21,9 @@ export function paidAccessWhere(now = new Date(), scope: AdminScope = "november"
   ] }] };
 }
 const istDay = (date: Date) => new Date(date.getTime() + 330 * 60_000).toISOString().slice(0, 10);
-function daysTrend(rows: { date: string; count: bigint }[], days = 30) {
+function daysTrend(rows: { date: string; count: bigint }[], days = 30, endDate = new Date()) {
   const counts = new Map(rows.map(row => [row.date, Number(row.count)]));
-  const end = new Date(`${istDay(new Date())}T00:00:00+05:30`);
+  const end = new Date(`${istDay(endDate)}T00:00:00+05:30`);
   return Array.from({ length: days }, (_, i) => {
     const date = istDay(new Date(end.getTime() - (days - i - 1) * 86400_000));
     return { date, count: counts.get(date) ?? 0 };
@@ -105,12 +105,18 @@ export async function getUsersList(search = "", filter = "", page = 1) {
 }
 export type AdminUsers = Awaited<ReturnType<typeof getUsersList>>;
 
-export async function getRevenueData(scope: AdminScope = "november") {
+export async function getRevenueData(scope: AdminScope, period: RevenuePeriod) {
   const [razorpay, access] = await Promise.all([getRazorpayRevenueSnapshot(), prisma.user.count({ where: paidAccessWhere(new Date(), scope) })]);
   if (razorpay.status === "ready") {
     const scopedPayments = scope === "all" ? razorpay.payments : razorpay.payments.filter(payment => new Date(payment.createdAt) >= ADMIN_TRACKING_START);
-    const userIds = [...new Set(scopedPayments.map(payment => payment.userId).filter(Boolean))];
-    const emails = [...new Set(scopedPayments.map(payment => payment.email).filter(Boolean))];
+    const start = period.start ? new Date(period.start) : null;
+    const end = period.end ? new Date(period.end) : null;
+    const periodPayments = scopedPayments.filter(payment => (!start || new Date(payment.createdAt) >= start) && (!end || new Date(payment.createdAt) < end));
+    const totalAmountPaise = scopedPayments.reduce((sum, payment) => sum + payment.amountPaise, 0);
+    const totalRefundedPaise = scopedPayments.reduce((sum, payment) => sum + payment.refundedPaise, 0);
+    const totalFeePaise = scopedPayments.reduce((sum, payment) => sum + payment.feePaise, 0);
+    const userIds = [...new Set(periodPayments.map(payment => payment.userId).filter(Boolean))];
+    const emails = [...new Set(periodPayments.map(payment => payment.email).filter(Boolean))];
     const users = await prisma.user.findMany({
       where: { OR: [{ id: { in: userIds } }, { email: { in: emails, mode: "insensitive" } }] },
       select: { id: true, name: true, email: true },
@@ -123,7 +129,7 @@ export async function getRevenueData(scope: AdminScope = "november") {
     let amountPaise = 0;
     let refundedPaise = 0;
     let feePaise = 0;
-    for (const payment of scopedPayments) {
+    for (const payment of periodPayments) {
       amountPaise += payment.amountPaise;
       refundedPaise += payment.refundedPaise;
       feePaise += payment.feePaise;
@@ -136,12 +142,15 @@ export async function getRevenueData(scope: AdminScope = "november") {
       timeline.set(day, (timeline.get(day) ?? 0) + payment.amountPaise - payment.refundedPaise);
     }
     const timelineRows = [...timeline].map(([date, count]) => ({ date, count: BigInt(count) }));
+    const timelineDays = period.range === "total" ? adminScopeDays(scope, [...timeline.keys()].sort()[0]) : period.days;
     return {
+      totalAmount: totalAmountPaise / 100,
+      totalNet: (totalAmountPaise - totalRefundedPaise - totalFeePaise) / 100,
       amount: amountPaise / 100,
       refunded: refundedPaise / 100,
       fees: feePaise / 100,
       net: (amountPaise - refundedPaise - feePaise) / 100,
-      payments: scopedPayments.length,
+      payments: periodPayments.length,
       buyers: buyers.size,
       paidAccess: access,
       source: "razorpay" as const,
@@ -149,28 +158,32 @@ export async function getRevenueData(scope: AdminScope = "november") {
       truncated: razorpay.truncated,
       sourceMessage: `${scope === "all" ? "All-time" : "Standalone revenue since 1 Nov 2026"} · Live Razorpay history · refreshed every 5 minutes`,
       products: [...products].map(([product, value]) => ({ product, amount: value.amount / 100, payments: value.payments })).sort((a, b) => b.amount - a.amount),
-      timeline: daysTrend(timelineRows, adminScopeDays(scope, [...timeline.keys()].sort()[0])).map(row => ({ date: row.date, count: row.count / 100 })),
-      recentPayments: [...scopedPayments].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20).map(payment => {
+      timeline: daysTrend(timelineRows, timelineDays, new Date(`${period.lastDay}T00:00:00+05:30`)).map(row => ({ date: row.date, count: row.count / 100 })),
+      recentPayments: [...periodPayments].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 20).map(payment => {
         const user = usersById.get(payment.userId) ?? usersByEmail.get(payment.email.toLowerCase());
         return { id: payment.id, name: user?.name ?? payment.email.split("@")[0] ?? "Customer", email: user?.email ?? payment.email, amount: payment.amountPaise / 100, refunded: payment.refundedPaise / 100, product: payment.product, paymentId: payment.id, method: payment.method, date: payment.createdAt };
       }),
     };
   }
 
-  const revenuePeriodSql = scope === "all" ? Prisma.empty : Prisma.sql`AND a.timestamp >= ${ADMIN_TRACKING_START}`;
-  const paymentWhere: Prisma.AuditLogWhereInput = { action: "PAYMENT_CAPTURED", user: realUser, ...(scope === "all" ? {} : { timestamp: { gte: ADMIN_TRACKING_START } }) };
-  const [summary, products, timeline, payments] = await Promise.all([
-    prisma.$queryRaw<{ amount: bigint; payments: bigint; buyers: bigint }[]>(Prisma.sql`SELECT COALESCE(SUM((a.metadata->>'amountPaise')::bigint),0)::bigint AS amount, COUNT(*)::bigint AS payments, COUNT(DISTINCT a."userId")::bigint AS buyers FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${revenuePeriodSql} AND ${realUserSql}`),
-    prisma.$queryRaw<{ product: string; amount: bigint; payments: bigint }[]>(Prisma.sql`SELECT a.metadata->>'purchaseType' AS product, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount, COUNT(*)::bigint AS payments FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${revenuePeriodSql} AND ${realUserSql} GROUP BY 1 ORDER BY amount DESC`),
-    prisma.$queryRaw<{ date: string; amount: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${revenuePeriodSql} AND ${realUserSql} GROUP BY 1 ORDER BY 1`),
+  const scopePeriodSql = scope === "all" ? Prisma.empty : Prisma.sql`AND a.timestamp >= ${ADMIN_TRACKING_START}`;
+  const selectedStartSql = period.start ? Prisma.sql`AND a.timestamp >= ${new Date(period.start)}` : Prisma.empty;
+  const selectedEndSql = period.end ? Prisma.sql`AND a.timestamp < ${new Date(period.end)}` : Prisma.empty;
+  const timestampWhere = { ...(period.start ? { gte: new Date(period.start) } : {}), ...(period.end ? { lt: new Date(period.end) } : {}) };
+  const paymentWhere: Prisma.AuditLogWhereInput = { action: "PAYMENT_CAPTURED", user: realUser, ...(Object.keys(timestampWhere).length ? { timestamp: timestampWhere } : {}) };
+  const [totalSummary, summary, products, timeline, payments] = await Promise.all([
+    prisma.$queryRaw<{ amount: bigint }[]>(Prisma.sql`SELECT COALESCE(SUM((a.metadata->>'amountPaise')::bigint),0)::bigint AS amount FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${scopePeriodSql} AND ${realUserSql}`),
+    prisma.$queryRaw<{ amount: bigint; payments: bigint; buyers: bigint }[]>(Prisma.sql`SELECT COALESCE(SUM((a.metadata->>'amountPaise')::bigint),0)::bigint AS amount, COUNT(*)::bigint AS payments, COUNT(DISTINCT a."userId")::bigint AS buyers FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${selectedStartSql} ${selectedEndSql} AND ${realUserSql}`),
+    prisma.$queryRaw<{ product: string; amount: bigint; payments: bigint }[]>(Prisma.sql`SELECT a.metadata->>'purchaseType' AS product, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount, COUNT(*)::bigint AS payments FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${selectedStartSql} ${selectedEndSql} AND ${realUserSql} GROUP BY 1 ORDER BY amount DESC`),
+    prisma.$queryRaw<{ date: string; amount: bigint }[]>(Prisma.sql`SELECT (a.timestamp AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date::text AS date, SUM((a.metadata->>'amountPaise')::bigint)::bigint AS amount FROM audit_logs a JOIN users u ON u.id=a."userId" WHERE a.action='PAYMENT_CAPTURED' ${selectedStartSql} ${selectedEndSql} AND ${realUserSql} GROUP BY 1 ORDER BY 1`),
     prisma.auditLog.findMany({ where: paymentWhere, include: { user: { select: { name: true, email: true } } }, orderBy: { timestamp: "desc" }, take: 20 }),
   ]);
   const amount = Number(summary[0]?.amount ?? 0) / 100;
-  return { amount, refunded: 0, fees: 0, net: amount, payments: Number(summary[0]?.payments ?? 0), buyers: Number(summary[0]?.buyers ?? 0), paidAccess: access,
+  return { totalAmount: Number(totalSummary[0]?.amount ?? 0) / 100, totalNet: Number(totalSummary[0]?.amount ?? 0) / 100, amount, refunded: 0, fees: 0, net: amount, payments: Number(summary[0]?.payments ?? 0), buyers: Number(summary[0]?.buyers ?? 0), paidAccess: access,
     source: "ledger" as const, fetchedAt: razorpay.fetchedAt, truncated: false,
     sourceMessage: razorpay.status === "unconfigured" ? "Add Razorpay server credentials to load complete payment history." : (razorpay.error ?? "Razorpay unavailable. Showing verified webhook records."),
     products: products.map(r => ({ product: r.product, amount: Number(r.amount) / 100, payments: Number(r.payments) })),
-    timeline: daysTrend(timeline.map(r => ({ date: r.date, count: r.amount })), adminScopeDays(scope, timeline[0]?.date)).map(r => ({ date: r.date, count: r.count / 100 })),
+    timeline: daysTrend(timeline.map(r => ({ date: r.date, count: r.amount })), period.range === "total" ? adminScopeDays(scope, timeline[0]?.date) : period.days, new Date(`${period.lastDay}T00:00:00+05:30`)).map(r => ({ date: r.date, count: r.count / 100 })),
     recentPayments: payments.map(p => { const m = p.metadata as { amountPaise: number; purchaseType: string; paymentId: string }; return { id: p.id, name: p.user.name, email: p.user.email, amount: m.amountPaise / 100, refunded: 0, product: m.purchaseType, paymentId: m.paymentId, method: "—", date: p.timestamp.toISOString() }; }),
   };
 }

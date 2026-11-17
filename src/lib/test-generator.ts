@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const apiKey = process.env.OPENAI_API_KEY;
+const openai = apiKey && !apiKey.startsWith("your_") ? new OpenAI({ apiKey }) : null;
 
 export interface MCQ {
     id: string;
@@ -10,6 +11,53 @@ export interface MCQ {
     explanation: string;
     chapter: string;
     difficulty: "easy" | "medium" | "hard";
+}
+
+function fallbackMCQs(subject: string, chapters: string[], count: number, startAt = 0): MCQ[] {
+    const chapter = chapters[0] || subject;
+    return Array.from({ length: count }, (_, offset) => {
+        const index = startAt + offset;
+        return {
+            id: `q${index + 1}`,
+            question: `ICSE ${subject} practice question ${index + 1} from ${chapter}`,
+            options: ["Option A", "Option B", "Option C", "Option D"],
+            correctAnswer: index % 4,
+            explanation: "This fallback question keeps the test available while AI generation is temporarily unavailable.",
+            chapter,
+            difficulty: "medium" as const,
+        };
+    });
+}
+
+function normalizeQuestions(value: unknown, subject: string, chapters: string[], count: number): MCQ[] {
+    const generated = Array.isArray(value) ? value.filter((question) => {
+        if (!question || typeof question !== "object") return false;
+        const candidate = question as Record<string, unknown>;
+        return typeof candidate.question === "string" &&
+            Array.isArray(candidate.options) &&
+            candidate.options.length === 4 &&
+            candidate.options.every(option => typeof option === "string") &&
+            Number.isInteger(candidate.correctAnswer) &&
+            Number(candidate.correctAnswer) >= 0 &&
+            Number(candidate.correctAnswer) <= 3;
+    }).slice(0, count) : [];
+
+    const normalized = generated.map((question, index) => {
+        const candidate = question as Record<string, unknown>;
+        return {
+            id: `q${index + 1}`,
+            question: candidate.question as string,
+            options: candidate.options as string[],
+            correctAnswer: Number(candidate.correctAnswer),
+            explanation: typeof candidate.explanation === "string" ? candidate.explanation : "Review the concept and compare each option carefully.",
+            chapter: typeof candidate.chapter === "string" ? candidate.chapter : (chapters[0] || subject),
+            difficulty: candidate.difficulty === "easy" || candidate.difficulty === "medium" ? candidate.difficulty : "hard",
+        } satisfies MCQ;
+    });
+
+    return normalized.length === count
+        ? normalized
+        : [...normalized, ...fallbackMCQs(subject, chapters, count - normalized.length, normalized.length)];
 }
 
 /**
@@ -22,6 +70,8 @@ export async function generateMCQs(params: {
     perChapter?: Record<string, number>;
 }): Promise<MCQ[]> {
     const { subject, chapters, count } = params;
+
+    if (!openai) return fallbackMCQs(subject, chapters, count);
 
     const prompt = `You are an ICSE 2026 board exam question paper setter specializing in COMPETENCY-BASED questions.
 
@@ -136,8 +186,8 @@ REMEMBER: NO easy, NO medium - ONLY HARD multi-step competency-based questions!`
                 { role: "user", content: prompt }
             ],
             temperature: 0.5, // Lower for strict adherence to hard competency-based requirements
-            max_tokens: 4000, // Increased for complex multi-step explanations
-        });
+            max_tokens: Math.min(6000, Math.max(1800, count * 500)),
+        }, { signal: AbortSignal.timeout(25_000) });
 
         const content = completion.choices[0].message.content || "[]";
 
@@ -147,26 +197,10 @@ REMEMBER: NO easy, NO medium - ONLY HARD multi-step competency-based questions!`
             .replace(/```\n?/g, "")
             .trim();
 
-        const questions = JSON.parse(cleanedContent);
-
-        // Add unique IDs
-        return questions.map((q: any, i: number) => ({
-            ...q,
-            id: `q${i + 1}`,
-        }));
+        return normalizeQuestions(JSON.parse(cleanedContent), subject, chapters, count);
     } catch (error) {
         console.error("MCQ generation error:", error);
-
-        // Fallback mock questions
-        return Array.from({ length: Math.min(count, 5) }, (_, i) => ({
-            id: `q${i + 1}`,
-            question: `Sample ICSE ${subject} question ${i + 1} from ${chapters[0]}`,
-            options: ["Option A", "Option B", "Option C", "Option D"],
-            correctAnswer: i % 4,
-            explanation: "This is a sample question. AI generation failed.",
-            chapter: chapters[0],
-            difficulty: "medium" as const,
-        }));
+        return fallbackMCQs(subject, chapters, count);
     }
 }
 

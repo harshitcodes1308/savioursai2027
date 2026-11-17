@@ -11,10 +11,10 @@ export const testRouter = createTRPCRouter({
      */
     createTest: previewUseProcedure
         .input(z.object({
-            subject: z.string(),
-            chapters: z.array(z.string()),
-            totalQuestions: z.number(),
-            duration: z.number(),
+            subject: z.string().min(1),
+            chapters: z.array(z.string().min(1)).min(1),
+            totalQuestions: z.number().int().min(1).max(20),
+            duration: z.number().int().min(1).max(180),
         }))
         .mutation(async ({ ctx, input }) => {
             // Generate MCQs
@@ -22,17 +22,6 @@ export const testRouter = createTRPCRouter({
                 subject: input.subject,
                 chapters: input.chapters,
                 count: input.totalQuestions,
-            });
-
-            // Log AI usage (Bypass rate limit)
-            await ctx.prisma.aiUsageLog.create({
-                data: {
-                    userId: ctx.user.id,
-                    feature: "FLASHCARD_GENERATION",
-                    tokens: input.totalQuestions * 150, // Estimate
-                    cost: 0,
-                    metadata: { subject: input.subject, count: input.totalQuestions },
-                },
             });
 
             // Create test attempt
@@ -48,6 +37,17 @@ export const testRouter = createTRPCRouter({
                     status: "IN_PROGRESS",
                 },
             });
+
+            // Analytics must never stop an already-created test from loading.
+            await ctx.prisma.aiUsageLog.create({
+                data: {
+                    userId: ctx.user.id,
+                    feature: "FLASHCARD_GENERATION",
+                    tokens: input.totalQuestions * 150,
+                    cost: 0,
+                    metadata: { subject: input.subject, count: input.totalQuestions },
+                },
+            }).catch(error => console.error("Custom test usage log failed:", error));
 
             return { attemptId: attempt.id, questions };
         }),

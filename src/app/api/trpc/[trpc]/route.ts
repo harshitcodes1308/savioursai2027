@@ -3,6 +3,10 @@ import { type NextRequest } from "next/server";
 import { appRouter } from "@/server/routers/_app";
 import { createTRPCContext } from "@/server/trpc";
 
+// AI-backed procedures such as Customise Test can take longer than the
+// platform's short default function window.
+export const maxDuration = 60;
+
 const handler = async (req: NextRequest) => {
     // FIX for Next.js 15+ / 16+ where NextRequest body stream gets locked/undefined
     const request = new Request(req.url, {

@@ -180,7 +180,17 @@ export const featurePreviewProcedure = (feature: FeaturePreviewId, options: { co
             });
         }
 
-        return next({ ctx });
+        try {
+            return await next({ ctx });
+        } catch (error) {
+            // A failed generation must not spend the student's preview. The
+            // guarded decrement also prevents the counter going below zero.
+            await ctx.prisma.featurePreview.updateMany({
+                where: { userId: ctx.user.id, feature, used: { gt: 0 } },
+                data: { used: { decrement: 1 } },
+            });
+            throw error;
+        }
     });
 
 /**

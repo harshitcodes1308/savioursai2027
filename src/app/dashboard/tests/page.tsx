@@ -25,7 +25,7 @@ type Step =
 export default function CustomiseTestPage() {
     const { isMobile } = useResponsive();
     const demoLimit = useDemoLimit('custom-tests', 1);
-    const { requestUpgrade } = useFeaturePreviewAccess();
+    const { isFreePreview, requestUpgrade } = useFeaturePreviewAccess();
     const [step, setStep] = useState<Step>('subject');
 
     // Config states
@@ -42,6 +42,7 @@ export default function CustomiseTestPage() {
     const [markedReview, setMarkedReview] = useState<string[]>([]);
     const [timeRemaining, setTimeRemaining] = useState(0);
     const [result, setResult] = useState<any>(null);
+    const [creationError, setCreationError] = useState('');
 
     // Mutations
     const createMutation = trpc.test.createTest.useMutation();
@@ -66,16 +67,20 @@ export default function CustomiseTestPage() {
     }, [step, timeRemaining]);
 
     const handleCreateTest = async () => {
-        if (!demoLimit.consume()) { window.location.href = '/signup?from=demo'; return; }
+        if (demoLimit.exhausted) { window.location.href = '/signup?from=demo'; return; }
+        setCreationError('');
         try {
             const result = await createMutation.mutateAsync({ subject, chapters: selectedChapters, totalQuestions, duration });
+            if (!result.questions.length) throw new Error('No questions were generated. Please try again.');
+            if (!demoLimit.consume()) { window.location.href = '/signup?from=demo'; return; }
             setAttemptId(result.attemptId);
             setQuestions(result.questions as MCQ[]);
+            setCurrentQuestion(0);
             setTimeRemaining(duration * 60);
             setStep('test');
         } catch (error) {
             if (isFeaturePreviewLimitError(error)) requestUpgrade();
-            else throw error;
+            else setCreationError(error instanceof Error ? error.message : 'The test could not be generated. Please try again.');
         }
     };
 
@@ -211,7 +216,7 @@ export default function CustomiseTestPage() {
                             inputMode="numeric"
                             pattern="[0-9]*"
                             value={totalQuestions || ""}
-                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setTotalQuestions(isNaN(v) ? 0 : v); }}
+                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setTotalQuestions(isNaN(v) ? 0 : Math.min(20, v)); }}
                             style={{
                                 ...typography.text,
                                 width: '100%',
@@ -264,7 +269,7 @@ export default function CustomiseTestPage() {
                             inputMode="numeric"
                             pattern="[0-9]*"
                             value={duration || ""}
-                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setDuration(isNaN(v) ? 0 : v); }}
+                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setDuration(isNaN(v) ? 0 : Math.min(180, v)); }}
                             style={{
                                 ...typography.text,
                                 width: '100%',
@@ -332,15 +337,15 @@ export default function CustomiseTestPage() {
                         </button>
                         <button
                             onClick={handleCreateTest}
-                            disabled={createMutation.isPending}
+                            disabled={createMutation.isPending || totalQuestions < 1 || duration < 1}
                             style={{
                                 ...typography.text,
                                 padding: '16px 32px',
-                                backgroundColor: createMutation.isPending ? '#4B5563' : '#10B981',
+                                backgroundColor: createMutation.isPending || totalQuestions < 1 || duration < 1 ? '#4B5563' : '#10B981',
                                 color: '#FFF',
                                 border: 'none',
                                 borderRadius: '8px',
-                                cursor: createMutation.isPending ? 'wait' : 'pointer',
+                                cursor: createMutation.isPending ? 'wait' : totalQuestions < 1 || duration < 1 ? 'not-allowed' : 'pointer',
                                 fontSize: '18px',
                                 fontWeight: 600,
                             }}
@@ -348,6 +353,11 @@ export default function CustomiseTestPage() {
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><AppIcon name={createMutation.isPending ? 'hourglass' : 'play'} size={17} /> {createMutation.isPending ? 'Generating questions...' : 'Start test'}</span>
                         </button>
                     </div>
+                    {creationError && (
+                        <div role="alert" style={{ marginTop: '16px', padding: '12px 14px', borderRadius: '9px', border: '1px solid rgba(248, 113, 113, 0.35)', background: 'rgba(248, 113, 113, 0.08)', color: '#FCA5A5', ...typography.text }}>
+                            {creationError} {isFreePreview ? 'Your free attempt has not been used—please try again.' : 'Please try again.'}
+                        </div>
+                    )}
                 </div>
             )}
 

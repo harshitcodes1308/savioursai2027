@@ -1,0 +1,261 @@
+.page,
+.examPage,
+.paper,
+.subjectCard,
+.questionCard,
+.answerKey {
+  width: 100%;
+  min-width: 0;
+}
+
+.page,
+.examPage {
+  overflow-x: clip;
+}
+
+.subjectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+}
+
+.subjectCard {
+  overflow: hidden;
+}
+
+.subjectName,
+.questionText,
+.sectionInstructions,
+.answerValue {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.timerBar,
+.timerLeft,
+.timerRight,
+.questionHeader,
+.subQuestionHeader {
+  min-width: 0;
+}
+
+.answerHeader,
+.answerRow {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  column-gap: 18px;
+}
+
+.answerHeader {
+  padding: 13px 20px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--bg-border);
+}
+
+.answerRow {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  align-items: start;
+}
+
+.answerRow:last-child {
+  border-bottom: 0;
+}
+
+.answerLabel {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.answerQuestion {
+  display: inline-flex;
+  width: fit-content;
+  min-width: 34px;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 1px solid var(--bg-border);
+  border-radius: 7px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.answerValue {
+  color: #34d399;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .page,
+  .examPage {
+    padding: 20px 12px 32px !important;
+  }
+
+  .pageHeader {
+    margin-bottom: 26px !important;
+  }
+
+  .freeBanner {
+    align-items: flex-start !important;
+    padding: 14px !important;
+  }
+
+  .howItWorks {
+    padding: 18px 16px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .subjectGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .subjectCard {
+    padding: 18px 16px !important;
+  }
+
+  .introCard,
+  .answerHero {
+    padding: 28px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .introStats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .instructions {
+    padding: 18px 16px !important;
+  }
+
+  .instructions ul {
+    padding-left: 18px !important;
+    line-height: 1.75 !important;
+  }
+
+  .primaryAction {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 16px !important;
+  }
+
+  .timerBar {
+    position: sticky !important;
+    top: 0 !important;
+    margin: 0 -4px 18px !important;
+    padding: 12px !important;
+    gap: 10px !important;
+    align-items: center !important;
+  }
+
+  .timerLeft {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .subjectLabel {
+    display: none;
+  }
+
+  .phaseBadge {
+    padding: 5px 8px !important;
+    font-size: 9px !important;
+    white-space: nowrap;
+  }
+
+  .timerRight {
+    gap: 8px !important;
+  }
+
+  .timerValue {
+    font-size: 20px !important;
+    white-space: nowrap;
+  }
+
+  .timerAction {
+    padding: 7px 9px !important;
+    font-size: 10px !important;
+    white-space: nowrap;
+  }
+
+  .transitionOverlay {
+    padding: 16px;
+  }
+
+  .transitionCard {
+    width: 100% !important;
+    padding: 32px 18px !important;
+  }
+
+  .paperHeader {
+    padding: 22px 16px !important;
+  }
+
+  .sectionHeader {
+    padding: 13px 14px !important;
+  }
+
+  .questionCard {
+    padding: 16px 14px !important;
+  }
+
+  .questionHeader,
+  .subQuestionHeader {
+    gap: 8px;
+  }
+
+  .questionHeader > :first-child,
+  .subQuestionHeader > :first-child {
+    min-width: 0;
+  }
+
+  .questionOptions {
+    padding-left: 0 !important;
+  }
+
+  .subQuestion {
+    margin-left: 0 !important;
+    padding: 12px !important;
+  }
+
+  .subQuestionOptions {
+    padding-left: 0 !important;
+  }
+
+  .answerHeader,
+  .answerRow {
+    grid-template-columns: 58px minmax(0, 1fr);
+    column-gap: 10px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .answerActions {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  .answerActions button {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 14px !important;
+  }
+
+  .questionReferenceBar {
+    align-items: center !important;
+  }
+
+  .questionReferenceBar .subjectLabel {
+    display: none;
+  }
+}

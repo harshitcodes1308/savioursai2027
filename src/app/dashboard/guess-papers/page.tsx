@@ -6,6 +6,7 @@ import { TYQ_SUBJECTS, READING_TIME_MINUTES } from "@/data/tyq-config";
 import { trpc } from "@/lib/trpc/client";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
+import styles from "./GuessPapers.module.css";
 
 export default function TYQPage() {
   const router = useRouter();
@@ -24,9 +25,9 @@ export default function TYQPage() {
   };
 
   return (
-    <div style={{ padding: "32px 24px", maxWidth: 1200, margin: "0 auto" }}>
+    <div className={styles.page} style={{ padding: "32px 24px", maxWidth: 1200, margin: "0 auto" }}>
       {/* Header */}
-      <div style={{ marginBottom: 40 }}>
+      <div className={styles.pageHeader} style={{ marginBottom: 40 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, border: "1px solid var(--accent-gold-border)", background: "var(--accent-gold-glow)", display: "grid", placeItems: "center", color: "var(--accent-gold)" }}>
             <AppIcon name="file" size={20} />
@@ -48,7 +49,7 @@ export default function TYQPage() {
 
       {/* Free tier banner */}
       {!isPaid && (
-        <div style={{
+        <div className={styles.freeBanner} style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--accent-gold-border)",
           borderRadius: 14,
@@ -76,7 +77,7 @@ export default function TYQPage() {
       )}
 
       {/* How It Works */}
-      <div style={{
+      <div className={styles.howItWorks} style={{
         background: "var(--bg-surface)",
         border: "1px solid var(--bg-border)",
         borderRadius: 16,
@@ -116,7 +117,7 @@ export default function TYQPage() {
       </div>
 
       {/* Subject Grid */}
-      <div style={{
+      <div className={styles.subjectGrid} style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
         gap: 16,
@@ -126,6 +127,7 @@ export default function TYQPage() {
           const isLocked = !isPaid && subject.id !== "physics";
           return (
             <button
+              className={styles.subjectCard}
               key={subject.id}
               onClick={() => handleSubjectClick(subject.id)}
               onMouseEnter={() => setHoveredSubject(subject.id)}
@@ -184,8 +186,8 @@ export default function TYQPage() {
                 }}>
                   <AppIcon name={subject.icon} size={22} />
                 </div>
-                <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
+                <div style={{ minWidth: 0 }}>
+                  <div className={styles.subjectName} style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>
                     {subject.name}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)" }}>

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getSubjectById, READING_TIME_MINUTES, formatTime } from "@/data/tyq-config";
 import { getRandomPaper, getAnswerKey, TYQPaper, TYQAnswerKey } from "@/data/tyq-papers";
 import { AppIcon } from "@/components/ui/AppIcon";
+import styles from "../GuessPapers.module.css";
 
 type Phase = "intro" | "reading" | "transition" | "exam" | "answers" | "questions";
 
@@ -104,7 +105,7 @@ export default function TYQExamPage() {
   // =============================================
   if (phase === "intro") {
     return (
-      <div style={{ padding: "32px 24px", maxWidth: 700, margin: "0 auto" }}>
+      <div className={styles.examPage} style={{ padding: "32px 24px", maxWidth: 700, margin: "0 auto" }}>
         <button onClick={() => router.push("/dashboard/guess-papers")}
           style={{
             background: "none", border: "none", color: "#9CA3AF", cursor: "pointer",
@@ -113,7 +114,7 @@ export default function TYQExamPage() {
           <AppIcon name="arrow-left" size={15} /> Back to subjects
         </button>
 
-        <div style={{
+        <div className={styles.introCard} style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--bg-border)",
           borderRadius: 20,
@@ -131,7 +132,7 @@ export default function TYQExamPage() {
           </p>
 
           {/* Exam Info Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
+          <div className={styles.introStats} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
             <div style={{
               background: "var(--bg-elevated)", border: "1px solid var(--bg-border)", borderRadius: 12, padding: "16px 12px",
             }}>
@@ -149,7 +150,7 @@ export default function TYQExamPage() {
           </div>
 
           {/* Instructions */}
-          <div style={{
+          <div className={styles.instructions} style={{
             background: "var(--bg-elevated)", border: "1px solid var(--bg-border)", borderRadius: 14, padding: "20px 24px",
             textAlign: "left", marginBottom: 32,
           }}>
@@ -170,6 +171,7 @@ export default function TYQExamPage() {
           {/* Start Button */}
           <div style={{ display: "flex", justifyContent: "center" }}>
             <button
+              className={styles.primaryAction}
               onClick={startReadingTime}
               style={{
                 padding: "16px 48px",
@@ -197,9 +199,9 @@ export default function TYQExamPage() {
   // =============================================
   if (phase === "reading") {
     return (
-      <div style={{ padding: "0 24px 40px", maxWidth: 900, margin: "0 auto" }}>
+      <div className={styles.examPage} style={{ padding: "0 24px 40px", maxWidth: 900, margin: "0 auto" }}>
         {/* Sticky Timer Bar */}
-        <div style={{
+        <div className={styles.timerBar} style={{
           position: "sticky", top: 0, zIndex: 50,
           background: "rgba(10,10,16,.94)",
           borderBottom: "1px solid var(--bg-border)",
@@ -208,17 +210,17 @@ export default function TYQExamPage() {
           marginBottom: 24, borderRadius: "0 0 16px 16px",
           backdropFilter: "blur(12px)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{
+          <div className={styles.timerLeft} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span className={styles.phaseBadge} style={{
               background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)", padding: "4px 10px",
               borderRadius: 8, fontSize: 12, fontWeight: 600, color: "var(--accent-gold)", display: "inline-flex", alignItems: "center", gap: 6,
             }}>
               <AppIcon name="book" size={13} /> READING TIME
             </span>
-            <span style={{ color: "var(--text-muted)", fontSize: 13 }}>{subject.name}</span>
+            <span className={styles.subjectLabel} style={{ color: "var(--text-muted)", fontSize: 13 }}>{subject.name}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{
+          <div className={styles.timerRight} style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div className={styles.timerValue} style={{
               fontSize: 28, fontWeight: 800, fontFamily: "monospace",
               color: timeLeft <= 60 ? "#EF4444" : "var(--text-primary)",
               textShadow: timeLeft <= 60 ? "0 0 12px rgba(239,68,68,0.5)" : "none",
@@ -227,6 +229,7 @@ export default function TYQExamPage() {
               {formatTime(timeLeft)}
             </div>
             <button
+              className={styles.timerAction}
               onClick={skipReadingTime}
               style={{
                 padding: "8px 14px", background: "var(--bg-elevated)",
@@ -258,13 +261,13 @@ export default function TYQExamPage() {
   // =============================================
   if (phase === "transition") {
     return (
-      <div style={{
+      <div className={styles.transitionOverlay} style={{
         position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
         background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
         display: "flex", alignItems: "center", justifyContent: "center",
         zIndex: 1000,
       }}>
-        <div style={{
+        <div className={styles.transitionCard} style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--bg-border)",
           borderRadius: 24, padding: "48px 40px",
@@ -289,6 +292,7 @@ export default function TYQExamPage() {
           </p>
 
           <button
+            className={styles.primaryAction}
             onClick={startExam}
             style={{
               padding: "18px 56px",
@@ -319,9 +323,9 @@ export default function TYQExamPage() {
     const isCriticalTime = timeLeft <= 120; // 2 minutes
 
     return (
-      <div style={{ padding: "0 24px 40px", maxWidth: 900, margin: "0 auto" }}>
+      <div className={styles.examPage} style={{ padding: "0 24px 40px", maxWidth: 900, margin: "0 auto" }}>
         {/* Sticky Timer Bar */}
-        <div style={{
+        <div className={styles.timerBar} style={{
           position: "sticky", top: 0, zIndex: 50,
           background: isCriticalTime ? "rgba(48,16,16,.96)" : isLowTime ? "rgba(40,30,12,.96)" : "rgba(10,10,16,.94)",
           borderBottom: `1px solid ${isCriticalTime ? "rgba(239,68,68,0.5)" : isLowTime ? "rgba(245,158,11,0.3)" : "var(--bg-border)"}`,
@@ -330,8 +334,8 @@ export default function TYQExamPage() {
           marginBottom: 24, borderRadius: "0 0 16px 16px",
           backdropFilter: "blur(12px)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{
+          <div className={styles.timerLeft} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span className={styles.phaseBadge} style={{
               background: isCriticalTime ? "rgba(239,68,68,0.12)" : "var(--accent-gold-glow)",
               padding: "4px 12px",
               borderRadius: 8, fontSize: 12, fontWeight: 600,
@@ -339,10 +343,10 @@ export default function TYQExamPage() {
             }}>
               <AppIcon name="pen" size={13} /> EXAM IN PROGRESS
             </span>
-            <span style={{ color: "var(--text-muted)", fontSize: 13 }}>{subject.name}</span>
+            <span className={styles.subjectLabel} style={{ color: "var(--text-muted)", fontSize: 13 }}>{subject.name}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{
+          <div className={styles.timerRight} style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div className={styles.timerValue} style={{
               fontSize: 28, fontWeight: 800, fontFamily: "monospace",
               color: isCriticalTime ? "#EF4444" : isLowTime ? "#F59E0B" : "var(--text-primary)",
               textShadow: isCriticalTime ? "0 0 12px rgba(239,68,68,0.5)" : "none",
@@ -351,6 +355,7 @@ export default function TYQExamPage() {
               {formatTime(timeLeft)}
             </div>
             <button
+              className={styles.timerAction}
               onClick={endExamEarly}
               style={{
                 padding: "8px 16px", background: "rgba(239,68,68,0.15)",
@@ -381,9 +386,9 @@ export default function TYQExamPage() {
   // =============================================
   if (phase === "answers") {
     return (
-      <div style={{ padding: "32px 24px", maxWidth: 900, margin: "0 auto" }}>
+      <div className={styles.examPage} style={{ padding: "32px 24px", maxWidth: 900, margin: "0 auto" }}>
         {/* Header */}
-        <div style={{
+        <div className={styles.answerHero} style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--bg-border)",
           borderRadius: 20, padding: "32px 28px",
@@ -411,47 +416,25 @@ export default function TYQExamPage() {
 
         {/* Answer Key Display */}
         {answerKey && (
-          <div style={{
+          <div className={styles.answerKey} style={{
             background: "var(--bg-surface)",
             border: "1px solid var(--bg-border)",
             borderRadius: 16, overflow: "hidden",
           }}>
             {/* Table Header */}
-            <div style={{
-              display: "grid", gridTemplateColumns: "80px 1fr 2fr",
-              padding: "14px 20px",
-              background: "var(--bg-elevated)",
-              borderBottom: "1px solid var(--bg-border)",
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Q. No.</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Answer</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Explanation</div>
+            <div className={styles.answerHeader}>
+              <div className={styles.answerLabel}>Question</div>
+              <div className={styles.answerLabel}>Correct answer</div>
             </div>
 
             {/* Answer Rows */}
             {answerKey.answers.map((answer, idx) => (
-              <div key={idx} style={{
-                display: "grid", gridTemplateColumns: "80px 1fr 2fr",
-                padding: "14px 20px",
-                borderBottom: "1px solid rgba(255,255,255,0.04)",
-                background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
-              }}>
-                <div style={{
-                  fontSize: 14, fontWeight: 700, color: "var(--text-primary)",
-                  display: "flex", alignItems: "flex-start",
-                }}>
+              <div className={styles.answerRow} key={idx} style={{ background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.012)" }}>
+                <div className={styles.answerQuestion}>
                   {answer.questionNumber}
                 </div>
-                <div style={{
-                  fontSize: 14, fontWeight: 600, color: "#10B981",
-                  display: "flex", alignItems: "flex-start",
-                }}>
+                <div className={styles.answerValue}>
                   {answer.answer}
-                </div>
-                <div style={{
-                  fontSize: 13, color: "var(--text-muted)", lineHeight: 1.5,
-                }}>
-                  {answer.explanation}
                 </div>
               </div>
             ))}
@@ -459,7 +442,7 @@ export default function TYQExamPage() {
         )}
 
         {/* Action Buttons */}
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
+        <div className={styles.answerActions} style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
           <button
             onClick={() => setPhase("questions")}
             style={{
@@ -492,9 +475,9 @@ export default function TYQExamPage() {
   // =============================================
   if (phase === "questions") {
     return (
-      <div style={{ padding: "32px 24px", maxWidth: 900, margin: "0 auto" }}>
+      <div className={styles.examPage} style={{ padding: "32px 24px", maxWidth: 900, margin: "0 auto" }}>
         {/* Header with Back to Answers */}
-        <div style={{
+        <div className={`${styles.timerBar} ${styles.questionReferenceBar}`} style={{
           position: "sticky", top: 0, zIndex: 50,
           background: "rgba(10,10,16,.94)",
           borderBottom: "1px solid var(--bg-border)",
@@ -503,18 +486,19 @@ export default function TYQExamPage() {
           marginBottom: 24, borderRadius: "0 0 16px 16px",
           backdropFilter: "blur(12px)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{
+          <div className={styles.timerLeft} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span className={styles.phaseBadge} style={{
               background: "var(--accent-gold-glow)", border: "1px solid var(--accent-gold-border)", padding: "4px 10px",
               borderRadius: 8, fontSize: 12, fontWeight: 600, color: "var(--accent-gold)", display: "inline-flex", alignItems: "center", gap: 6,
             }}>
               <AppIcon name="file" size={13} /> QUESTION PAPER
             </span>
-            <span style={{ color: "#9CA3AF", fontSize: 13 }}>
+            <span className={styles.subjectLabel} style={{ color: "#9CA3AF", fontSize: 13 }}>
               {subject.name} • Paper {paper?.paperNumber}
             </span>
           </div>
           <button
+            className={styles.timerAction}
             onClick={() => setPhase("answers")}
             style={{
               padding: "8px 18px", background: "rgba(16,185,129,0.15)",
@@ -555,9 +539,9 @@ export default function TYQExamPage() {
 // ==========================================
 function PaperDisplay({ paper }: { paper: TYQPaper }) {
   return (
-    <div>
+    <div className={styles.paper}>
       {/* Paper Header */}
-      <div style={{
+      <div className={styles.paperHeader} style={{
         background: "var(--bg-surface)",
         border: "1px solid var(--bg-border)",
         borderRadius: 16, padding: "28px 24px",
@@ -584,7 +568,7 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
       {paper.sections.map((section, sIdx) => (
         <div key={sIdx} style={{ marginBottom: 32 }}>
           {/* Section Header */}
-          <div style={{
+          <div className={styles.sectionHeader} style={{
             background: "var(--bg-elevated)",
             border: "1px solid var(--bg-border)",
             borderRadius: 12, padding: "14px 20px",
@@ -593,25 +577,25 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
             <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
               {section.name}
             </h3>
-            <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "4px 0 0" }}>
+            <p className={styles.sectionInstructions} style={{ fontSize: 12, color: "var(--text-muted)", margin: "4px 0 0" }}>
               {section.instructions}
             </p>
           </div>
 
           {/* Questions */}
           {section.questions.map((question, qIdx) => (
-            <div key={qIdx} style={{
+            <div className={`${styles.questionCard}`} key={qIdx} style={{
               background: "rgba(255,255,255,0.02)",
               border: "1px solid rgba(255,255,255,0.05)",
               borderRadius: 14, padding: "20px 24px",
               marginBottom: 12,
             }}>
               {/* Question Header */}
-              <div style={{
+              <div className={styles.questionHeader} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "flex-start",
                 marginBottom: question.text ? 12 : 0,
               }}>
-                <div style={{ display: "flex", gap: 8, flex: 1 }}>
+                <div style={{ display: "flex", gap: 8, flex: 1, minWidth: 0 }}>
                   <span style={{
                     background: "var(--accent-gold-glow)", color: "var(--accent-gold)",
                     padding: "2px 10px", borderRadius: 6,
@@ -620,7 +604,7 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
                     Q{question.number}
                   </span>
                   {question.text && (
-                    <span style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.6 }}>
+                    <span className={styles.questionText} style={{ fontSize: 14, color: "var(--text-primary)", lineHeight: 1.6 }}>
                       {question.text}
                     </span>
                   )}
@@ -635,7 +619,7 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
 
               {/* Options (for MCQ main question) */}
               {question.options && (
-                <div style={{ marginTop: 12, paddingLeft: 36 }}>
+                <div className={styles.questionOptions} style={{ marginTop: 12, paddingLeft: 36 }}>
                   {question.options.map((opt, oIdx) => (
                     <div key={oIdx} style={{
                       padding: "8px 14px", marginBottom: 6,
@@ -651,21 +635,21 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
 
               {/* Sub-Questions */}
               {question.subQuestions && question.subQuestions.map((sub, sIdx) => (
-                <div key={sIdx} style={{
+                <div className={styles.subQuestion} key={sIdx} style={{
                   padding: "12px 16px", marginTop: 8, marginLeft: 24,
                   background: "rgba(255,255,255,0.01)",
                   borderLeft: "2px solid var(--accent-gold-border)",
                   borderRadius: "0 8px 8px 0",
                 }}>
-                  <div style={{
+                  <div className={styles.subQuestionHeader} style={{
                     display: "flex", justifyContent: "space-between",
                     alignItems: "flex-start", marginBottom: sub.options ? 10 : 0,
                   }}>
-                    <div style={{ display: "flex", gap: 8, flex: 1 }}>
+                    <div style={{ display: "flex", gap: 8, flex: 1, minWidth: 0 }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-gold)", flexShrink: 0 }}>
                         {sub.number}
                       </span>
-                      <span style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.5 }}>
+                      <span className={styles.questionText} style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.5 }}>
                         {sub.text}
                       </span>
                     </div>
@@ -678,7 +662,7 @@ function PaperDisplay({ paper }: { paper: TYQPaper }) {
 
                   {/* Sub-question options */}
                   {sub.options && (
-                    <div style={{ marginTop: 8, paddingLeft: 28 }}>
+                    <div className={styles.subQuestionOptions} style={{ marginTop: 8, paddingLeft: 28 }}>
                       {sub.options.map((opt, oIdx) => (
                         <div key={oIdx} style={{
                           padding: "6px 12px", marginBottom: 4,

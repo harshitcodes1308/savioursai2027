@@ -17,9 +17,9 @@
 
 ## What it is
 
-Saviours AI gives ICSE Class 10 students a structured place to plan study time, learn chapter-by-chapter, practise exam-style questions, and track preparation. The product has a Free plan and one paid plan: **Pro, ₹99 one-time**.
+Saviours AI gives ICSE Class 10 students a structured place to plan study time, learn chapter-by-chapter, practise exam-style questions, and track preparation. The product has a Free plan, **Pro for ₹99 one-time**, and the **Sidekick Bundle for ₹299 one-time**.
 
-Sidekick Ebooks are a separate in-platform reading library, not part of Free or Pro. Any signed-in student can unlock the library for ₹79 one-time, or unlock it free after one referred friend signs up through their personal link and purchases Pro for ₹99. Students read the books in the React PDF viewer; download controls are intentionally not provided.
+Sidekick Ebooks are an in-platform reading library. A student can buy any e-book for ₹49, or get all 10 current e-books, every upcoming Sidekick e-book, and Saviours AI Pro with the ₹299 bundle. Students read the books in the React PDF viewer; download controls are intentionally not provided.
 
 ## Current product status
 
@@ -37,14 +37,14 @@ Feature visibility is controlled in `src/lib/featureFlags.ts`. The lists below d
 | Pre-Board 60 | Free and Pro | A 60-day pre-board programme: the initial study phase is free; Pro unlocks practice and mock-paper phases. |
 | Subjects | Free and Pro | Browse ICSE subjects and their chapter structure. |
 | Profile and Activity | Free and Pro | Manage profile details and review study activity. |
-| Guess Papers | Pro | Subject-wise, PYQ-informed guess-paper preparation with a professional dashboard experience. |
-| Competency Practice | Pro | Timed, PYQ-based question practice with accuracy, timing, chapter-level analysis, and improvement insights. |
-| Customise Test | Pro | Builds tailored MCQ tests from selected subjects, chapters, difficulty, and question counts. |
-| Flip the Question | Pro | A reverse-engineering coding challenge where students reconstruct a question and receive AI evaluation. |
-| Focus Mode | Pro | Pomodoro, deep-focus, and light-focus sessions with logging and recent-session history. |
-| ChronoScroll | Pro | Interactive History and Civics timeline and quick-recall learning cards. |
-| Numerical Mastery | Pro | Physics numerical practice organised by chapter and topic, with formulas, worked examples, PYQs, and mastery tracking. |
-| Sidekick Ebooks | Separate entitlement | Ten ICSE subject e-books read inside the platform with the React PDF viewer. Unlock with a ₹79 one-time purchase or one successful referred Pro purchase. |
+| Guess Papers | Free preview; Pro/Bundle full access | Subject-wise, PYQ-informed guess-paper preparation with a professional dashboard experience. |
+| Competency Practice | Free preview; Pro/Bundle full access | Timed, PYQ-based question practice with accuracy, timing, chapter-level analysis, and improvement insights. |
+| Customise Test | Free preview; Pro/Bundle full access | Builds tailored MCQ tests from selected subjects, chapters, difficulty, and question counts. |
+| Flip the Question | Free preview; Pro/Bundle full access | A reverse-engineering coding challenge where students reconstruct a question and receive AI evaluation. |
+| Focus Mode | Free preview; Pro/Bundle full access | Pomodoro, deep-focus, and light-focus sessions with logging and recent-session history. |
+| ChronoScroll | Free preview; Pro/Bundle full access | Interactive History and Civics timeline and quick-recall learning cards. |
+| Numerical Mastery | Free preview; Pro/Bundle full access | Physics numerical practice organised by chapter and topic, with formulas, worked examples, PYQs, and mastery tracking. |
+| Sidekick Ebooks | Per-book or Bundle entitlement | Ten ICSE subject e-books read inside the platform. Buy one for ₹49 or get the complete library plus Pro for ₹299. |
 
 ### Hidden or coming-soon features
 
@@ -64,15 +64,38 @@ Feature visibility is controlled in `src/lib/featureFlags.ts`. The lists below d
 
 | Plan | Price | Includes |
 |---|---:|---|
-| Free | ₹0 | Dashboard, Smart Planner, Monthly Mission, Study Flow, Video Lectures, the first Pre-Board 60 phase, subjects, profile, and activity. |
-| Pro | **₹99 one-time** | Everything in Free plus Guess Papers, Competency Practice, Customise Test, Flip the Question, Focus Mode, ChronoScroll, Numerical Mastery, and the paid Pre-Board 60 phases. Sidekick Ebooks are not included. |
+| Free | ₹0 | Core free tools plus limited previews of paid learning features. |
+| Pro | **₹99 one-time** | Full access to paid learning tools and the paid Pre-Board 60 phases. Sidekick Ebooks are not included. |
+| Sidekick Bundle | **₹299 one-time** | All 10 Sidekick e-books, every upcoming Sidekick e-book, and Saviours AI Pro. |
 
-- There is no Ultimate or Bundle plan.
 - Pro is a one-time Razorpay purchase; it is not a subscription.
-- Sidekick Ebooks cost ₹79 one-time for both Free and Pro students, or unlock free when one referred friend signs up through the student’s unique link and buys Pro for ₹99.
-- A referral reward unlocks Sidekick Ebooks only. It does not grant the referrer any Pro features.
+- Each Sidekick e-book costs ₹49 when purchased separately.
+- The ₹299 Sidekick Bundle includes Pro and represents ₹490 worth of current e-books when bought separately.
 - Sidekick Ebooks use the in-platform reader only; no download option is offered.
 - Scholarship discounts are disabled: Pro checkout is always ₹99.
+
+## Free “Try” previews
+
+Free students can open paid features marked **TRY** in the dashboard sidebar. There is no timer: each feature has its own action or content allowance. When that feature’s allowance is finished, the student sees a choice between **Pro for ₹99** and the **Sidekick Bundle for ₹299**.
+
+The upgrade popup belongs only to the feature whose limit was reached. It closes automatically when the student moves to another feature, allowing that feature’s separate free preview to be used normally.
+
+| Feature | Free preview allowance |
+|---|---|
+| AI Doubt Solver | 3 AI prompts in total. Asking a doubt and generating flashcards both use this allowance. |
+| Customise Test | 1 complete generated test. The student can finish and submit that test. |
+| Exam Strategy Builder | 1 generated exam strategy. |
+| Smart Notes | 2 AI-refined notes. |
+| ChronoScroll | The first 10 timeline dates. |
+| Date Battle Arena | 1 complete battle. |
+| Numerical Mastery | The first chapter and its first topic. |
+| Flip the Question | 1 complete generated challenge. |
+| Focus Mode | Pomodoro mode. The other focus modes require Pro. |
+| Competency Test | The first chapter test. |
+| Guess Papers | The Physics guess paper. Other subjects require Pro. |
+| Half Yearly Simulator | Lesson videos plus the first chapter test. In-platform reading and later chapter tests require Pro. |
+
+Preview usage is saved to the student’s account, so refreshing, signing out, or returning later does not reset an action-based allowance. Pro and Bundle students receive full access without preview limits. Some preview-ready features may remain hidden until their feature flag is enabled in `src/lib/featureFlags.ts`.
 
 ## Technology
 

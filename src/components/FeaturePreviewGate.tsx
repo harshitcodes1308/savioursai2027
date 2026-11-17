@@ -39,6 +39,18 @@ export function FeaturePreviewGate({ children, isPaid, isDemo }: {
   isDemo: boolean;
 }) {
   const pathname = usePathname();
+
+  return <FeaturePreviewRouteGate key={pathname} pathname={pathname} isPaid={isPaid} isDemo={isDemo}>
+    {children}
+  </FeaturePreviewRouteGate>;
+}
+
+function FeaturePreviewRouteGate({ children, pathname, isPaid, isDemo }: {
+  children: React.ReactNode;
+  pathname: string;
+  isPaid: boolean;
+  isDemo: boolean;
+}) {
   const previewEntry = useMemo(() => getFeaturePreview(pathname), [pathname]);
   const featureInfo = previewEntry ? getFeatureInfo(previewEntry[1].route) : null;
   const [upgrade, setUpgrade] = useState<UpgradeCopy | null>(null);

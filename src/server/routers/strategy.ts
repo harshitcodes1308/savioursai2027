@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, paidProcedure as protectedProcedure } from "../trpc";
+import { createTRPCRouter, featurePreviewProcedure } from "../trpc";
 import { generateStrategy } from "@/lib/strategy-ai";
 import { checkAiRateLimit } from "@/lib/rate-limit";
+
+const protectedProcedure = featurePreviewProcedure("exam-strategy");
 
 export const strategyRouter = createTRPCRouter({
     generate: protectedProcedure

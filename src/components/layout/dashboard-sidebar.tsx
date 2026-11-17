@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
-import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { isLockedRoute } from "@/lib/tier-config";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { getDashboardIcon } from "@/lib/dashboardIcons";
 
@@ -164,11 +163,6 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [upgradeFeature, setUpgradeFeature] = useState<{
-    name: string;
-    description: string;
-    type: "PRO";
-  } | null>(null);
 
   const initials = userName
     ? userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -180,16 +174,6 @@ export default function DashboardSidebar({
     "Free Plan";
 
   const handleNavigation = (href: string) => {
-    if (!isPaid && isLockedRoute(href)) {
-      const info = getFeatureInfo(href);
-      if (info) {
-        // Bundle-only features cannot be unlocked by Pro, so do not offer the
-        // The single Pro plan is shown in the upgrade prompt.
-        setUpgradeFeature({ ...info, type: "PRO" });
-        setIsOpen(false);
-        return;
-      }
-    }
     setIsOpen(false);
     router.push(href);
   };
@@ -373,7 +357,7 @@ export default function DashboardSidebar({
                       {item.label}
                     </span>
                     {(!isPaid && isLockedRoute(item.href)) && (
-                      <span style={{ opacity: 0.45, flexShrink: 0, display: "flex" }}><AppIcon name="lock" size={12} /></span>
+                      <span style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4, color: "var(--accent-gold)", fontSize: 8, fontWeight: 800, letterSpacing: ".06em" }}><AppIcon name="sparkles" size={11} /> TRY</span>
                     )}
                   </button>
                 );
@@ -592,14 +576,6 @@ export default function DashboardSidebar({
         })}
       </nav>
 
-      {upgradeFeature && (
-        <UpgradePrompt
-          featureName={upgradeFeature.name}
-          description={upgradeFeature.description}
-          type={upgradeFeature.type}
-          onClose={() => setUpgradeFeature(null)}
-        />
-      )}
     </>
   );
 }

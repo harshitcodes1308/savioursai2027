@@ -1,14 +1,12 @@
 "use client";
 
 import { trpc } from "@/lib/trpc/client";
-import { usePathname } from "next/navigation";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemedDashboardContent } from "@/components/providers/themed-dashboard";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
-import { isLockedRoute, getFeatureInfo } from "@/lib/tier-config";
 import type { SessionUser } from "@/lib/auth";
 import { DashboardActivity } from "@/components/providers/DashboardActivity";
 import { EbookBundleOffer } from "@/components/ebooks/EbookBundleOffer";
+import { FeaturePreviewGate } from "@/components/FeaturePreviewGate";
 
 export default function DashboardLayout({
     children,
@@ -17,8 +15,6 @@ export default function DashboardLayout({
 }) {
     const { data: profile } = trpc.dashboard.getProfile.useQuery();
     const { data: session } = trpc.auth.getSession.useQuery();
-    const pathname = usePathname();
-
     const user = session?.user as SessionUser | undefined;
     const isDemo = user?.isDemo === true;
 
@@ -29,15 +25,6 @@ export default function DashboardLayout({
         ((planType === "PRO" || planType === "BUNDLE") &&
             paidSource?.subscriptionStatus === "ACTIVE")
     );
-
-    let showUpgrade = false;
-    const upgradeType = "PRO" as const;
-
-    if (!isPaid && isLockedRoute(pathname)) {
-        showUpgrade = true;
-    }
-
-    const featureInfo = showUpgrade ? getFeatureInfo(pathname) : null;
 
     return (
         <ThemeProvider>
@@ -65,13 +52,7 @@ export default function DashboardLayout({
                         email={profile.email}
                     />
                 )}
-                {showUpgrade ? (
-                    <UpgradePrompt
-                        featureName={featureInfo?.name ?? "Premium Feature"}
-                        description={featureInfo?.description ?? "This feature requires an upgrade."}
-                        type={upgradeType}
-                    />
-                ) : children}
+                <FeaturePreviewGate isPaid={isPaid} isDemo={isDemo}>{children}</FeaturePreviewGate>
             </ThemedDashboardContent>
         </ThemeProvider>
     );

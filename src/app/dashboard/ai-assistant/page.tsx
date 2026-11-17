@@ -6,9 +6,10 @@ import ReactMarkdown from "react-markdown";
 import "../markdown-styles.css";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
-import { canAccess, getUserPlan, AI_DOUBT_FREE_LIMIT } from "@/lib/planAccess";
+import { getUserPlan, AI_DOUBT_FREE_LIMIT } from "@/lib/planAccess";
 import { useDemoLimit } from "@/hooks/useDemoMode";
 import { AppIcon } from "@/components/ui/AppIcon";
+import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
 
 interface Message {
     role: "user" | "assistant";
@@ -28,7 +29,7 @@ export default function AIAssistantPage() {
     const { data: session } = trpc.auth.getSession.useQuery();
     const user = session?.user as any;
     const userPlan = getUserPlan(!!user?.isPaid, user?.planType);
-    const canUseAI = canAccess("aiDoubtSolver", userPlan);
+    const { isPreview } = useFeaturePreviewAccess();
     const demoLimit = useDemoLimit("ai-prompts", 3);
 
     const [messages, setMessages] = useState<Message[]>([
@@ -121,7 +122,7 @@ export default function AIAssistantPage() {
         }
     };
 
-    const hitFreeLimit = userPlan === "free" && dailyCount >= AI_DOUBT_FREE_LIMIT;
+    const hitFreeLimit = userPlan === "free" && !isPreview && dailyCount >= AI_DOUBT_FREE_LIMIT;
 
     const handleSend = () => {
         if (!input.trim() || hitFreeLimit) return;
@@ -168,7 +169,7 @@ export default function AIAssistantPage() {
                         }}>
                             {mode === "chat" ? "AI Doubt Solver" : "Flashcard Review"}
                         </div>
-                        {userPlan === "free" && (
+                        {userPlan === "free" && !isPreview && (
                             <div style={{
                                 fontFamily: "var(--font-body)",
                                 fontSize: 11,

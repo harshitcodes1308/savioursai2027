@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { type UserRole } from "@prisma/client";
 import { findDangerousInput } from "@/lib/sanitize";
+import type { FeaturePreviewId } from "@/lib/feature-preview";
 
 /**
  * Create tRPC context
@@ -97,6 +98,22 @@ export const protectedProcedure = t.procedure
  */
 const CUTOFF_DATE = new Date("2026-01-29T00:00:00+05:30");
 
+function hasPaidAccess(user: {
+    isPaid: boolean;
+    planType: string;
+    subscriptionStatus: string;
+    subscriptionExpiry: Date | null;
+    createdAt: Date;
+}) {
+    const isGrandfathered = user.createdAt < CUTOFF_DATE;
+    const hasActiveSub =
+        (user.planType === "PRO" || user.planType === "BUNDLE") &&
+        user.subscriptionStatus === "ACTIVE";
+    const isExpired = user.subscriptionExpiry !== null && user.subscriptionExpiry < new Date();
+
+    return isGrandfathered || user.isPaid || (hasActiveSub && !isExpired);
+}
+
 export const paidProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     const freshUser = await ctx.prisma.user.findUnique({
         where: { id: ctx.user.id },
@@ -113,20 +130,7 @@ export const paidProcedure = protectedProcedure.use(async ({ ctx, next }) => {
         throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
-    // Grandfathered users (created before cutoff) always have access
-    const isGrandfathered = freshUser.createdAt < CUTOFF_DATE;
-
-    // Active subscription check
-    const hasActiveSub =
-        (freshUser.planType === "PRO" || freshUser.planType === "BUNDLE") &&
-        freshUser.subscriptionStatus === "ACTIVE";
-
-    // Check if subscription has expired
-    const isExpired =
-        freshUser.subscriptionExpiry !== null &&
-        new Date(freshUser.subscriptionExpiry) < new Date();
-
-    if (!isGrandfathered && !freshUser.isPaid && (!hasActiveSub || isExpired)) {
+    if (!hasPaidAccess(freshUser)) {
         throw new TRPCError({
             code: "FORBIDDEN",
             message: "This feature requires an active subscription.",
@@ -135,6 +139,44 @@ export const paidProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 
     return next({ ctx });
 });
+
+/**
+ * Premium procedure that also honours an active, server-tracked free preview.
+ * The dashboard starts previews before mounting the feature, so API access and
+ * the visible countdown always share the same expiry time.
+ */
+export const featurePreviewProcedure = (feature: FeaturePreviewId) =>
+    protectedProcedure.use(async ({ ctx, next }) => {
+        if (ctx.user.isDemo) return next({ ctx });
+
+        const freshUser = await ctx.prisma.user.findUnique({
+            where: { id: ctx.user.id },
+            select: {
+                isPaid: true,
+                planType: true,
+                subscriptionStatus: true,
+                subscriptionExpiry: true,
+                createdAt: true,
+            },
+        });
+
+        if (!freshUser) throw new TRPCError({ code: "UNAUTHORIZED" });
+        if (hasPaidAccess(freshUser)) return next({ ctx });
+
+        const preview = await ctx.prisma.featurePreview.findUnique({
+            where: { userId_feature: { userId: ctx.user.id, feature } },
+            select: { expiresAt: true },
+        });
+
+        if (!preview || preview.expiresAt <= new Date()) {
+            throw new TRPCError({
+                code: "FORBIDDEN",
+                message: "Your free preview has ended. Upgrade to Pro or get the Sidekick bundle to continue.",
+            });
+        }
+
+        return next({ ctx });
+    });
 
 /**
  * Role-based procedure

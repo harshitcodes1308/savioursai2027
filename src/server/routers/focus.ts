@@ -1,7 +1,9 @@
 
 import { z } from "zod";
-import { createTRPCRouter, paidProcedure as protectedProcedure } from "@/server/trpc";
+import { createTRPCRouter, featurePreviewProcedure } from "@/server/trpc";
 import { FocusTaskType, FocusModeType, FocusQuality, FocusCompletionStatus } from "@prisma/client";
+
+const protectedProcedure = featurePreviewProcedure("focus-mode");
 
 export const focusRouter = createTRPCRouter({
     /**

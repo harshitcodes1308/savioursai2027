@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, paidProcedure as protectedProcedure } from "@/server/trpc";
+import { createTRPCRouter, featurePreviewProcedure } from "@/server/trpc";
 import { openai } from "@/lib/ai";
 import { checkAiRateLimit } from "@/lib/rate-limit";
+
+const protectedProcedure = featurePreviewProcedure("flip-the-question");
 
 // =============================================
 // SYSTEM PROMPT — Flip the Question Engine v2

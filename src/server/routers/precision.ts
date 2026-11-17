@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { createTRPCRouter, paidProcedure as protectedProcedure } from "../trpc";
+import { createTRPCRouter, featurePreviewProcedure } from "../trpc";
+
+const protectedProcedure = featurePreviewProcedure("competency-test");
 
 export const precisionRouter = createTRPCRouter({
     /**

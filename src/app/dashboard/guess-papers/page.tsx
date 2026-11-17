@@ -7,17 +7,20 @@ import { trpc } from "@/lib/trpc/client";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 import styles from "./GuessPapers.module.css";
+import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
 
 export default function TYQPage() {
   const router = useRouter();
   const [hoveredSubject, setHoveredSubject] = useState<string | null>(null);
   const { data: session } = trpc.auth.getSession.useQuery();
   const isPaid = !!(session?.user as any)?.isPaid;
+  const { isPreview } = useFeaturePreviewAccess();
+  const hasFeatureAccess = isPaid || isPreview;
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   const handleSubjectClick = (subjectId: string) => {
     // Free users can only access Physics
-    if (!isPaid && subjectId !== "physics") {
+    if (!hasFeatureAccess && subjectId !== "physics") {
       setShowUpgrade(true);
       return;
     }
@@ -48,7 +51,7 @@ export default function TYQPage() {
       </div>
 
       {/* Free tier banner */}
-      {!isPaid && (
+      {!hasFeatureAccess && (
         <div className={styles.freeBanner} style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--accent-gold-border)",
@@ -124,7 +127,7 @@ export default function TYQPage() {
       }}>
         {TYQ_SUBJECTS.map((subject) => {
           const isHovered = hoveredSubject === subject.id;
-          const isLocked = !isPaid && subject.id !== "physics";
+          const isLocked = !hasFeatureAccess && subject.id !== "physics";
           return (
             <button
               className={styles.subjectCard}

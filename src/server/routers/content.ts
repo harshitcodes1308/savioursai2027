@@ -1,6 +1,8 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, paidProcedure as protectedProcedure } from "@/server/trpc";
+import { createTRPCRouter, publicProcedure, featurePreviewProcedure } from "@/server/trpc";
 import { refineNotes, generateFlashcards } from '@/lib/notes-ai';
+
+const protectedProcedure = featurePreviewProcedure("smart-notes");
 
 export const contentRouter = createTRPCRouter({
     /**

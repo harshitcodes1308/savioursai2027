@@ -58,6 +58,7 @@ model User {
   dailyPlans                    DailyPlan[]
   doubtConversations            DoubtConversation[]
   focusSessions                 FocusSession[]
+  featurePreviews               FeaturePreview[]
   notes                         Note[]
   revisionPlans                 RevisionPlan[]
   revisionSchedules             RevisionSchedule[]
@@ -74,6 +75,22 @@ model User {
 
   @@index([referredById])
   @@map("users")
+}
+
+model FeaturePreview {
+  id        String   @id @default(cuid())
+  userId    String
+  feature   String
+  startedAt DateTime @default(now())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, feature])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("feature_previews")
 }
 
 model ScholarshipAttempt {

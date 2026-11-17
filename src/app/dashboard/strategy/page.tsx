@@ -7,6 +7,8 @@ import ReactMarkdown from "react-markdown";
 import { ChevronRight, ChevronLeft, Brain, RotateCcw, Copy, ShieldAlert, Target } from "lucide-react";
 import { GenerationLoader } from "@/components/ui/GenerationLoader";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
+import { isFeaturePreviewLimitError } from "@/lib/feature-preview";
 
 // --- Types ---
 type WizardStep = 0 | 1 | 2 | 3 | 4 | 5 | 6; // 6 is result
@@ -66,6 +68,7 @@ const MODES = [
 
 export default function StrategyPage() {
     const { isMobile, isTablet } = useResponsive();
+    const { requestUpgrade } = useFeaturePreviewAccess();
     const [step, setStep] = useState<WizardStep>(0);
     const [data, setData] = useState<StrategyData>(INITIAL_DATA);
     const [generatedStrategy, setGeneratedStrategy] = useState<string | null>(null);
@@ -76,7 +79,8 @@ export default function StrategyPage() {
             setStep(6);
         },
         onError: (err) => {
-            alert(err.message);
+            if (isFeaturePreviewLimitError(err)) requestUpgrade();
+            else alert(err.message);
             setStep(5);
         }
     });

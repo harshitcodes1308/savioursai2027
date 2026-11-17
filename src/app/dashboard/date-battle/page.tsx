@@ -5,6 +5,8 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { CHRONO_DATA } from "@/data/chrono-config";
 import { BATTLE_CONFIG, PERFECT_SCORE, calculateScore, getRankObj } from "@/data/battle-config";
 import { useDemoLimit } from "@/hooks/useDemoMode";
+import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
+import { trpc } from "@/lib/trpc/client";
 
 type GameState = "idle" | "countdown" | "playing" | "ended";
 
@@ -67,6 +69,8 @@ function getLeaderboardWithPlayer(playerScore: number) {
 export default function DateBattleArenaPage() {
     const { isMobile } = useResponsive();
     const demoLimit = useDemoLimit("date-battle-rounds", 1);
+    const { isFreePreview, requestUpgrade } = useFeaturePreviewAccess();
+    const consumePreview = trpc.preview.consume.useMutation();
 
     const [gameState, setGameState] = useState<GameState>("idle");
     const [timeLeft, setTimeLeft] = useState(BATTLE_CONFIG.GAME_DURATION_SEC);
@@ -110,8 +114,12 @@ export default function DateBattleArenaPage() {
         return () => clearInterval(timer);
     }, [gameState, timeLeft, startGameLoop]);
 
-    const startCountdown = () => {
+    const startCountdown = async () => {
         if (!demoLimit.consume()) { window.location.href = "/signup?from=demo"; return; }
+        if (isFreePreview) {
+            const result = await consumePreview.mutateAsync({ feature: "date-battle" });
+            if (!result.allowed) { requestUpgrade(); return; }
+        }
         setGameState("countdown");
         setCountdown(3);
         setScore(0);

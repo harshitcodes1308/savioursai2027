@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { type UserRole } from "@prisma/client";
 import { findDangerousInput } from "@/lib/sanitize";
-import type { FeaturePreviewId } from "@/lib/feature-preview";
+import { FEATURE_PREVIEWS, FEATURE_PREVIEW_LIMIT_MESSAGE, type FeaturePreviewId } from "@/lib/feature-preview";
 
 /**
  * Create tRPC context
@@ -142,10 +142,10 @@ export const paidProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 
 /**
  * Premium procedure that also honours an active, server-tracked free preview.
- * The dashboard starts previews before mounting the feature, so API access and
- * the visible countdown always share the same expiry time.
+ * Free accounts can open premium features, while the specific action that
+ * spends an allowance is enforced atomically on the server.
  */
-export const featurePreviewProcedure = (feature: FeaturePreviewId) =>
+export const featurePreviewProcedure = (feature: FeaturePreviewId, options: { consume?: boolean } = {}) =>
     protectedProcedure.use(async ({ ctx, next }) => {
         if (ctx.user.isDemo) return next({ ctx });
 
@@ -161,17 +161,22 @@ export const featurePreviewProcedure = (feature: FeaturePreviewId) =>
         });
 
         if (!freshUser) throw new TRPCError({ code: "UNAUTHORIZED" });
-        if (hasPaidAccess(freshUser)) return next({ ctx });
+        if (hasPaidAccess(freshUser) || !options.consume) return next({ ctx });
 
-        const preview = await ctx.prisma.featurePreview.findUnique({
+        await ctx.prisma.featurePreview.upsert({
             where: { userId_feature: { userId: ctx.user.id, feature } },
-            select: { expiresAt: true },
+            update: {},
+            create: { userId: ctx.user.id, feature, expiresAt: null },
+        });
+        const consumed = await ctx.prisma.featurePreview.updateMany({
+            where: { userId: ctx.user.id, feature, used: { lt: FEATURE_PREVIEWS[feature].limit } },
+            data: { used: { increment: 1 }, lastUsedAt: new Date() },
         });
 
-        if (!preview || preview.expiresAt <= new Date()) {
+        if (consumed.count === 0) {
             throw new TRPCError({
                 code: "FORBIDDEN",
-                message: "Your free preview has ended. Upgrade to Pro or get the Sidekick bundle to continue.",
+                message: `${FEATURE_PREVIEW_LIMIT_MESSAGE}: Upgrade to Pro or get the Sidekick bundle to continue.`,
             });
         }
 

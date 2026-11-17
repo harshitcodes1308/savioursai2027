@@ -3,11 +3,11 @@
 import { useState, useRef, useEffect, UIEvent } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
 import { CHRONO_DATA } from "@/data/chrono-config";
-import { useDemoMode } from "@/hooks/useDemoMode";
+import { useFeaturePreviewRestriction } from "@/components/FeaturePreviewGate";
 
 export default function ChronoScrollPage() {
     const { isMobile } = useResponsive();
-    const { isDemo } = useDemoMode();
+    const { isLimited, block } = useFeaturePreviewRestriction();
     const [activeIndex, setActiveIndex] = useState(0);
     const [showRecall, setShowRecall] = useState(false);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -50,7 +50,7 @@ export default function ChronoScrollPage() {
         });
 
         if (closestIdx !== activeIndex) {
-            if (isDemo && closestIdx >= 10) { window.location.href = "/signup?from=demo"; return; }
+            if (isLimited && closestIdx >= 10) { block(); return; }
             setActiveIndex(closestIdx);
             setShowRecall(false);
             setSelectedOption(null);
@@ -60,7 +60,7 @@ export default function ChronoScrollPage() {
     };
 
     const scrollToDate = (index: number) => {
-        if (isDemo && index >= 10) { window.location.href = "/signup?from=demo"; return; }
+        if (isLimited && index >= 10) { block(); return; }
         const el = itemRefs.current[index];
         const container = sliderRef.current;
         if (el && container) {

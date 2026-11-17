@@ -6,6 +6,7 @@ import { getSubjectById, READING_TIME_MINUTES, formatTime } from "@/data/tyq-con
 import { getRandomPaper, getAnswerKey, TYQPaper, TYQAnswerKey } from "@/data/tyq-papers";
 import { AppIcon } from "@/components/ui/AppIcon";
 import styles from "../GuessPapers.module.css";
+import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
 
 type Phase = "intro" | "reading" | "transition" | "exam" | "answers" | "questions";
 
@@ -14,6 +15,7 @@ export default function TYQExamPage() {
   const router = useRouter();
   const subjectId = params.subject as string;
   const subject = getSubjectById(subjectId);
+  const { isFreePreview, requestUpgrade } = useFeaturePreviewAccess();
 
   const [phase, setPhase] = useState<Phase>("intro");
   const [paper, setPaper] = useState<TYQPaper | null>(null);
@@ -21,6 +23,10 @@ export default function TYQExamPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isFreePreview && subjectId !== "physics") requestUpgrade();
+  }, [isFreePreview, subjectId, requestUpgrade]);
 
   // Load random paper on mount
   useEffect(() => {
@@ -87,6 +93,10 @@ export default function TYQExamPage() {
     }
     setPhase("intro");
   }, [subjectId]);
+
+  if (isFreePreview && subjectId !== "physics") {
+    return <div style={{ minHeight: "60vh" }} />;
+  }
 
   if (!subject) {
     return (

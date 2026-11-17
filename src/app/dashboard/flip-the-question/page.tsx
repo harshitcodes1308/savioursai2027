@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useDemoLimit } from "@/hooks/useDemoMode";
+import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
+import { isFeaturePreviewLimitError } from "@/lib/feature-preview";
 import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 
 // Dynamically import CodeMirror (client-only, no SSR)
@@ -428,6 +430,7 @@ function FlipMarkdown({ children }: { children: string }) {
 // =============================================
 export default function FlipTheQuestionPage() {
   const demoLimit = useDemoLimit("flip-challenges", 1);
+  const { requestUpgrade } = useFeaturePreviewAccess();
   const [phase, setPhase] = useState<Phase>("idle");
   const [challengeText, setChallengeText] = useState("");
   const [code, setCode] = useState(STARTER_CODE);
@@ -478,10 +481,11 @@ export default function FlipTheQuestionPage() {
       setChallengeText(result.challenge);
       const topicMatch = result.challenge.match(/Topic:\s*(.+)/i);
       if (topicMatch) setLastTopic(topicMatch[1].trim());
-    } catch {
-      setChallengeText("Failed to generate challenge. Please try again.");
+    } catch (error) {
+      if (isFeaturePreviewLimitError(error)) requestUpgrade();
+      else setChallengeText("Failed to generate challenge. Please try again.");
     }
-  }, [demoLimit, generateMutation, lastTopic]);
+  }, [demoLimit, generateMutation, lastTopic, requestUpgrade]);
 
   const handleSubmit = useCallback(async () => {
     if (!code.trim() || code.trim() === STARTER_CODE.trim()) return;

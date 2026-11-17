@@ -3,12 +3,13 @@ import { createTRPCRouter, featurePreviewProcedure } from "../trpc";
 import { generateMCQs, evaluateTest } from "@/lib/test-generator";
 
 const protectedProcedure = featurePreviewProcedure("custom-tests");
+const previewUseProcedure = featurePreviewProcedure("custom-tests", { consume: true });
 
 export const testRouter = createTRPCRouter({
     /**
      * Create new test with AI-generated MCQs
      */
-    createTest: protectedProcedure
+    createTest: previewUseProcedure
         .input(z.object({
             subject: z.string(),
             chapters: z.array(z.string()),

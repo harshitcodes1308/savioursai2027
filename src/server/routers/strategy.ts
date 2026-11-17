@@ -4,9 +4,10 @@ import { generateStrategy } from "@/lib/strategy-ai";
 import { checkAiRateLimit } from "@/lib/rate-limit";
 
 const protectedProcedure = featurePreviewProcedure("exam-strategy");
+const previewUseProcedure = featurePreviewProcedure("exam-strategy", { consume: true });
 
 export const strategyRouter = createTRPCRouter({
-    generate: protectedProcedure
+    generate: previewUseProcedure
         .input(
             z.object({
                 subjects: z.array(z.string()),

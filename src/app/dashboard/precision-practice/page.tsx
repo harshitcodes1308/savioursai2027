@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useResponsive } from "@/hooks/useResponsive";
-import { useDemoMode } from "@/hooks/useDemoMode";
+import { useFeaturePreviewRestriction } from "@/components/FeaturePreviewGate";
 import { physicsQuestions } from "@/data/precision-physics";
 import { mathsQuestions } from "@/data/precision-maths";
 import { chemistryQuestions } from "@/data/precision-chemistry";
@@ -169,7 +169,7 @@ type Phase = "subject" | "chapter" | "countdown" | "test" | "analytics";
 
 export default function CompetencyTestPage() {
   const { isMobile } = useResponsive();
-  const { isDemo } = useDemoMode();
+  const { isLimited, block } = useFeaturePreviewRestriction();
   const [phase, setPhase] = useState<Phase>("subject");
   const [selectedSubject, setSelectedSubject] = useState<PrecisionSubject | null>(null);
   const [selectedChapter, setSelectedChapter] = useState("");
@@ -507,13 +507,13 @@ export default function CompetencyTestPage() {
           {selectedSubject.chapters.map((ch) => {
             const stats = getChapterStats(selectedSubject.id, ch.id);
             const hasQ = stats.count > 0;
-            const demoLocked = isDemo && ch.id !== selectedSubject.chapters[0]?.id;
+            const demoLocked = isLimited && ch.id !== selectedSubject.chapters[0]?.id;
             const isHovered = hoveredChapter === ch.id;
             return (
               <button
                 key={ch.id}
                 onClick={() => {
-                  if (demoLocked) { window.location.href = "/signup?from=demo"; return; }
+                  if (demoLocked) { block(); return; }
                   if (hasQ) startTest(selectedSubject, ch.id);
                 }}
                 onMouseEnter={() => setHoveredChapter(ch.id)}

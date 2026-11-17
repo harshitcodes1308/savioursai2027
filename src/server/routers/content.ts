@@ -3,6 +3,7 @@ import { createTRPCRouter, publicProcedure, featurePreviewProcedure } from "@/se
 import { refineNotes, generateFlashcards } from '@/lib/notes-ai';
 
 const protectedProcedure = featurePreviewProcedure("smart-notes");
+const previewUseProcedure = featurePreviewProcedure("smart-notes", { consume: true });
 
 export const contentRouter = createTRPCRouter({
     /**
@@ -105,7 +106,7 @@ export const contentRouter = createTRPCRouter({
     /**
      * Create a new note
      */
-    createNote: protectedProcedure
+    createNote: previewUseProcedure
         .input(
             z.object({
                 topicId: z.string().optional(),

@@ -4,6 +4,7 @@ import { openai } from "@/lib/ai";
 import { checkAiRateLimit } from "@/lib/rate-limit";
 
 const protectedProcedure = featurePreviewProcedure("flip-the-question");
+const previewUseProcedure = featurePreviewProcedure("flip-the-question", { consume: true });
 
 // =============================================
 // SYSTEM PROMPT — Flip the Question Engine v2
@@ -315,7 +316,7 @@ export const flipRouter = createTRPCRouter({
   /**
    * Generate a new challenge
    */
-  generateChallenge: protectedProcedure
+  generateChallenge: previewUseProcedure
     .input(z.object({ lastTopic: z.string().optional() }))
     .mutation(async ({ input, ctx }) => {
       await checkAiRateLimit(ctx.user.id);

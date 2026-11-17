@@ -10,6 +10,7 @@ import { getUserPlan, AI_DOUBT_FREE_LIMIT } from "@/lib/planAccess";
 import { useDemoLimit } from "@/hooks/useDemoMode";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
+import { isFeaturePreviewLimitError } from "@/lib/feature-preview";
 
 interface Message {
     role: "user" | "assistant";
@@ -29,8 +30,13 @@ export default function AIAssistantPage() {
     const { data: session } = trpc.auth.getSession.useQuery();
     const user = session?.user as any;
     const userPlan = getUserPlan(!!user?.isPaid, user?.planType);
-    const { isPreview } = useFeaturePreviewAccess();
+    const { isFreePreview, requestUpgrade } = useFeaturePreviewAccess();
     const demoLimit = useDemoLimit("ai-prompts", 3);
+    const utils = trpc.useUtils();
+    const { data: previewStatus } = trpc.preview.status.useQuery(
+        { feature: "ai-assistant" },
+        { enabled: isFreePreview },
+    );
 
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -57,6 +63,7 @@ export default function AIAssistantPage() {
 
     const generateFlashcards = trpc.ai.generateFlashcards.useMutation({
         onSuccess: (data) => {
+            void utils.preview.status.invalidate({ feature: "ai-assistant" });
             if (data.flashcards && data.flashcards.length > 0) {
                 setFlashcards(data.flashcards);
                 setMode("flashcards_active");
@@ -66,7 +73,10 @@ export default function AIAssistantPage() {
                 setFeedbackState("idle");
             }
         },
-        onError: (err) => alert(`Error: ${err.message}`),
+        onError: (err) => {
+            if (isFeaturePreviewLimitError(err)) requestUpgrade();
+            else alert(`Error: ${err.message}`);
+        },
     });
 
     const handleOptionClick = (option: string) => {
@@ -96,9 +106,11 @@ export default function AIAssistantPage() {
         onSuccess: (data) => {
             setMessages(prev => [...prev, { role: "assistant", content: data.response, videos: data.videos }]);
             setDailyCount(c => c + 1);
+            void utils.preview.status.invalidate({ feature: "ai-assistant" });
         },
         onError: (err) => {
-            setMessages(prev => [...prev, { role: "assistant", content: `Error: ${err.message}` }]);
+            if (isFeaturePreviewLimitError(err)) requestUpgrade();
+            else setMessages(prev => [...prev, { role: "assistant", content: `Error: ${err.message}` }]);
         },
     });
 
@@ -122,7 +134,12 @@ export default function AIAssistantPage() {
         }
     };
 
-    const hitFreeLimit = userPlan === "free" && !isPreview && dailyCount >= AI_DOUBT_FREE_LIMIT;
+    const previewUsed = previewStatus?.used ?? dailyCount;
+    const hitFreeLimit = userPlan === "free" && previewUsed >= AI_DOUBT_FREE_LIMIT;
+
+    useEffect(() => {
+        if (isFreePreview && hitFreeLimit) requestUpgrade();
+    }, [hitFreeLimit, isFreePreview, requestUpgrade]);
 
     const handleSend = () => {
         if (!input.trim() || hitFreeLimit) return;
@@ -169,13 +186,13 @@ export default function AIAssistantPage() {
                         }}>
                             {mode === "chat" ? "AI Doubt Solver" : "Flashcard Review"}
                         </div>
-                        {userPlan === "free" && !isPreview && (
+                        {userPlan === "free" && (
                             <div style={{
                                 fontFamily: "var(--font-body)",
                                 fontSize: 11,
-                                color: dailyCount >= AI_DOUBT_FREE_LIMIT ? "var(--status-red, #ef4444)" : "var(--text-muted)",
+                                color: previewUsed >= AI_DOUBT_FREE_LIMIT ? "var(--status-red, #ef4444)" : "var(--text-muted)",
                             }}>
-                                {dailyCount}/{AI_DOUBT_FREE_LIMIT} free queries used today
+                                {previewUsed}/{AI_DOUBT_FREE_LIMIT} free preview prompts used
                             </div>
                         )}
                     </div>

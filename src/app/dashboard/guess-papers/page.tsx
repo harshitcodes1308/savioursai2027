@@ -7,15 +7,13 @@ import { trpc } from "@/lib/trpc/client";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { AppIcon, type AppIconName } from "@/components/ui/AppIcon";
 import styles from "./GuessPapers.module.css";
-import { useFeaturePreviewAccess } from "@/components/FeaturePreviewGate";
 
 export default function TYQPage() {
   const router = useRouter();
   const [hoveredSubject, setHoveredSubject] = useState<string | null>(null);
   const { data: session } = trpc.auth.getSession.useQuery();
   const isPaid = !!(session?.user as any)?.isPaid;
-  const { isPreview } = useFeaturePreviewAccess();
-  const hasFeatureAccess = isPaid || isPreview;
+  const hasFeatureAccess = isPaid;
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   const handleSubjectClick = (subjectId: string) => {
@@ -231,6 +229,7 @@ export default function TYQPage() {
         <UpgradePrompt
           featureName="All Guess Papers"
           description="Access specimen papers for all 10 ICSE subjects — Physics, Chemistry, Biology, Maths, English, History, Geography, Computer, and more."
+          type="CHOICE"
           onClose={() => setShowUpgrade(false)}
         />
       )}

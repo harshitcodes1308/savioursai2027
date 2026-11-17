@@ -4,12 +4,13 @@ import { askAI, generateStudyPlan, summarizeContent, generateQuestions } from "@
 import { checkAiRateLimit } from "@/lib/rate-limit";
 
 const protectedProcedure = featurePreviewProcedure("ai-assistant");
+const previewUseProcedure = featurePreviewProcedure("ai-assistant", { consume: true });
 
 export const aiRouter = createTRPCRouter({
     /**
      * Ask a question to the AI assistant
      */
-    askDoubt: protectedProcedure
+    askDoubt: previewUseProcedure
         .input(
             z.object({
                 question: z.string().min(1),
@@ -193,7 +194,7 @@ export const aiRouter = createTRPCRouter({
     /**
      * Generate Flashcards
      */
-    generateFlashcards: protectedProcedure
+    generateFlashcards: previewUseProcedure
         .input(
             z.object({
                 topics: z.string(),

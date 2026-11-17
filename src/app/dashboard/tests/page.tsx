@@ -8,6 +8,8 @@ import type { MCQ } from '@/lib/test-generator';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useDemoLimit } from '@/hooks/useDemoMode';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { useFeaturePreviewAccess } from '@/components/FeaturePreviewGate';
+import { isFeaturePreviewLimitError } from '@/lib/feature-preview';
 
 type Step =
     | 'subject'
@@ -23,6 +25,7 @@ type Step =
 export default function CustomiseTestPage() {
     const { isMobile } = useResponsive();
     const demoLimit = useDemoLimit('custom-tests', 1);
+    const { requestUpgrade } = useFeaturePreviewAccess();
     const [step, setStep] = useState<Step>('subject');
 
     // Config states
@@ -64,17 +67,16 @@ export default function CustomiseTestPage() {
 
     const handleCreateTest = async () => {
         if (!demoLimit.consume()) { window.location.href = '/signup?from=demo'; return; }
-        const result = await createMutation.mutateAsync({
-            subject,
-            chapters: selectedChapters,
-            totalQuestions,
-            duration,
-        });
-
-        setAttemptId(result.attemptId);
-        setQuestions(result.questions as MCQ[]);
-        setTimeRemaining(duration * 60);
-        setStep('test');
+        try {
+            const result = await createMutation.mutateAsync({ subject, chapters: selectedChapters, totalQuestions, duration });
+            setAttemptId(result.attemptId);
+            setQuestions(result.questions as MCQ[]);
+            setTimeRemaining(duration * 60);
+            setStep('test');
+        } catch (error) {
+            if (isFeaturePreviewLimitError(error)) requestUpgrade();
+            else throw error;
+        }
     };
 
     const handleAnswerSelect = (questionId: string, answer: number) => {

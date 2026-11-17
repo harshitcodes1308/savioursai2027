@@ -7,9 +7,12 @@ import ReactMarkdown from 'react-markdown';
 import '../markdown-styles.css';
 import { useResponsive } from '@/hooks/useResponsive';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { useFeaturePreviewAccess } from '@/components/FeaturePreviewGate';
+import { isFeaturePreviewLimitError } from '@/lib/feature-preview';
 
 export default function NotesPage() {
     const { isMobile } = useResponsive();
+    const { requestUpgrade } = useFeaturePreviewAccess();
     const [isCreating, setIsCreating] = useState(false);
     const [title, setTitle] = useState('');
     const [rawContent, setRawContent] = useState('');
@@ -38,12 +41,12 @@ export default function NotesPage() {
 
     const handleCreate = async () => {
         if (!title.trim() || !rawContent.trim()) return;
-
-        await createMutation.mutateAsync({
-            title,
-            content: rawContent,
-            subject: subject,
-        });
+        try {
+            await createMutation.mutateAsync({ title, content: rawContent, subject });
+        } catch (error) {
+            if (isFeaturePreviewLimitError(error)) requestUpgrade();
+            else throw error;
+        }
     };
 
     const hasNotes = notes && notes.length > 0;

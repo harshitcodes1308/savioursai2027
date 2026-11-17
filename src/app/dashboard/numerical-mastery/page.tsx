@@ -6,15 +6,13 @@ import {
   type NumericalChapter,
   type NumericalTopic,
 } from "@/data/numerical-mastery-data";
-import { useDemoMode } from "@/hooks/useDemoMode";
-import { useRouter } from "next/navigation";
+import { useFeaturePreviewRestriction } from "@/components/FeaturePreviewGate";
 import { AppIcon } from "@/components/ui/AppIcon";
 
 type Phase = "chapters" | "topics" | "numerical";
 
 export default function NumericalMasteryPage() {
-  const router = useRouter();
-  const { isDemo } = useDemoMode();
+  const { isLimited, block } = useFeaturePreviewRestriction();
   const [phase, setPhase] = useState<Phase>("chapters");
   const [selectedChapter, setSelectedChapter] = useState<NumericalChapter | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<NumericalTopic | null>(null);
@@ -36,9 +34,9 @@ export default function NumericalMasteryPage() {
     return Math.round((mastered / ch.topics.length) * 100);
   };
 
-  const selectChapter = (ch: NumericalChapter) => { if (isDemo && ch.id !== numericalMasteryData[0]?.id) { router.push("/signup?from=demo"); return; } setSelectedChapter(ch); setPhase("topics"); };
+  const selectChapter = (ch: NumericalChapter) => { if (isLimited && ch.id !== numericalMasteryData[0]?.id) { block(); return; } setSelectedChapter(ch); setPhase("topics"); };
   const selectTopic = (t: NumericalTopic, idx: number) => {
-    if (isDemo && idx > 0) { router.push("/signup?from=demo"); return; }
+    if (isLimited && idx > 0) { block(); return; }
     setSelectedTopic(t); setTopicIndex(idx); setRevealedPYQs({}); setPhase("numerical");
   };
   const goBack = () => {
@@ -46,7 +44,7 @@ export default function NumericalMasteryPage() {
     else if (phase === "topics") { setPhase("chapters"); setSelectedChapter(null); }
   };
   const goToNextTopic = () => {
-    if (isDemo) { router.push("/signup?from=demo"); return; }
+    if (isLimited) { block(); return; }
     if (!selectedChapter) return;
     const isLast = topicIndex >= selectedChapter.topics.length - 1;
     if (isLast) { setPhase("topics"); setShowFormulaRecap(false); return; }

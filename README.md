@@ -39,7 +39,7 @@ Feature visibility is controlled in `src/lib/featureFlags.ts`. The lists below d
 | Profile and Activity | Free and Pro | Manage profile details and review study activity. |
 | Guess Papers | Free preview; Pro/Bundle full access | Subject-wise, PYQ-informed guess-paper preparation with a professional dashboard experience. |
 | Competency Practice | Free preview; Pro/Bundle full access | Timed, PYQ-based question practice with accuracy, timing, chapter-level analysis, and improvement insights. |
-| Customise Test | Free preview; Pro/Bundle full access | Builds tailored MCQ tests from selected subjects, chapters, difficulty, and question counts. |
+| Customise Test | Free preview; Pro/Bundle full access | Builds tailored MCQ tests from the local Competency and Guess Paper banks without using an AI API. |
 | Flip the Question | Free preview; Pro/Bundle full access | A reverse-engineering coding challenge where students reconstruct a question and receive AI evaluation. |
 | Focus Mode | Free preview; Pro/Bundle full access | Pomodoro, deep-focus, and light-focus sessions with logging and recent-session history. |
 | ChronoScroll | Free preview; Pro/Bundle full access | Interactive History and Civics timeline and quick-recall learning cards. |
@@ -83,7 +83,7 @@ The upgrade popup belongs only to the feature whose limit was reached. It closes
 | Feature | Free preview allowance |
 |---|---|
 | AI Doubt Solver | 3 AI prompts in total. Asking a doubt and generating flashcards both use this allowance. |
-| Customise Test | 1 complete generated test. The student can finish and submit that test. |
+| Customise Test | 1 complete customised test built from the saved question banks. The student can finish and submit that test. |
 | Exam Strategy Builder | 1 generated exam strategy. |
 | Smart Notes | 2 AI-refined notes. |
 | ChronoScroll | The first 10 timeline dates. |

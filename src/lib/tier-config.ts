@@ -59,7 +59,7 @@ export const FEATURE_INFO: Record<string, { name: string; description: string }>
     },
     "/dashboard/tests": {
         name: "Custom Test Generator",
-        description: "Generate AI-powered MCQ tests for any subject and chapter. Practice under timed exam conditions with instant results and analytics.",
+        description: "Build MCQ tests from the verified Competency and Guess Paper question banks. Practice under timed exam conditions with instant results and analytics.",
     },
     "/dashboard/precision-practice": {
         name: "Competency Test",

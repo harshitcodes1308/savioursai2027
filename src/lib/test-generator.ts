@@ -1,262 +1,224 @@
-import OpenAI from "openai";
+import type { PrecisionQuestion } from "@/data/precision-config";
+import { physicsQuestions } from "@/data/precision-physics";
+import { mathsQuestions } from "@/data/precision-maths";
+import { chemistryQuestions } from "@/data/precision-chemistry";
+import { PRECISION_BIOLOGY } from "@/data/precision-biology";
+import { computerQuestions } from "@/data/precision-computers";
+import { getAnswerKey, getPaper } from "@/data/tyq-papers";
+import type { MCQ, CustomTestCatalogSubject } from "@/lib/custom-test-types";
 
-const apiKey = process.env.OPENAI_API_KEY;
-const openai = apiKey && !apiKey.startsWith("your_") ? new OpenAI({ apiKey }) : null;
+const COMPETENCY_BANKS: Record<string, PrecisionQuestion[]> = {
+    Physics: physicsQuestions,
+    Mathematics: mathsQuestions,
+    Chemistry: chemistryQuestions,
+    Biology: PRECISION_BIOLOGY,
+    "Computer Applications": computerQuestions,
+};
 
-export interface MCQ {
-    id: string;
-    question: string;
-    options: string[];
-    correctAnswer: number; // 0-3 index
-    explanation: string;
-    chapter: string;
-    difficulty: "easy" | "medium" | "hard";
-}
+const GUESS_PAPER_SUBJECTS: Record<string, string> = {
+    "English Language": "english-language",
+    "English Literature": "english-literature",
+    "History & Civics": "history-civics",
+    Geography: "geography",
+};
 
-function fallbackMCQs(subject: string, chapters: string[], count: number, startAt = 0): MCQ[] {
-    const chapter = chapters[0] || subject;
-    return Array.from({ length: count }, (_, offset) => {
-        const index = startAt + offset;
-        return {
-            id: `q${index + 1}`,
-            question: `ICSE ${subject} practice question ${index + 1} from ${chapter}`,
-            options: ["Option A", "Option B", "Option C", "Option D"],
-            correctAnswer: index % 4,
-            explanation: "This fallback question keeps the test available while AI generation is temporarily unavailable.",
-            chapter,
-            difficulty: "medium" as const,
-        };
-    });
-}
+const SUBJECT_ORDER = [
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "Mathematics",
+    "History & Civics",
+    "Geography",
+    "English Language",
+    "English Literature",
+    "Computer Applications",
+];
 
-function normalizeQuestions(value: unknown, subject: string, chapters: string[], count: number): MCQ[] {
-    const generated = Array.isArray(value) ? value.filter((question) => {
-        if (!question || typeof question !== "object") return false;
-        const candidate = question as Record<string, unknown>;
-        return typeof candidate.question === "string" &&
-            Array.isArray(candidate.options) &&
-            candidate.options.length === 4 &&
-            candidate.options.every(option => typeof option === "string") &&
-            Number.isInteger(candidate.correctAnswer) &&
-            Number(candidate.correctAnswer) >= 0 &&
-            Number(candidate.correctAnswer) <= 3;
-    }).slice(0, count) : [];
+const FULL_SYLLABUS = "Full Syllabus · Guess Paper Bank";
+const ENGLISH_GRAMMAR = "Grammar · Guess Paper Bank";
 
-    const normalized = generated.map((question, index) => {
-        const candidate = question as Record<string, unknown>;
-        return {
-            id: `q${index + 1}`,
-            question: candidate.question as string,
-            options: candidate.options as string[],
-            correctAnswer: Number(candidate.correctAnswer),
-            explanation: typeof candidate.explanation === "string" ? candidate.explanation : "Review the concept and compare each option carefully.",
-            chapter: typeof candidate.chapter === "string" ? candidate.chapter : (chapters[0] || subject),
-            difficulty: candidate.difficulty === "easy" || candidate.difficulty === "medium" ? candidate.difficulty : "hard",
-        } satisfies MCQ;
-    });
-
-    return normalized.length === count
-        ? normalized
-        : [...normalized, ...fallbackMCQs(subject, chapters, count - normalized.length, normalized.length)];
-}
-
-/**
- * Generate ICSE Class 10 MCQs using AI
- */
-export async function generateMCQs(params: {
-    subject: string;
-    chapters: string[];
-    count: number;
-    perChapter?: Record<string, number>;
-}): Promise<MCQ[]> {
-    const { subject, chapters, count } = params;
-
-    if (!openai) return fallbackMCQs(subject, chapters, count);
-
-    const prompt = `You are an ICSE 2026 board exam question paper setter specializing in COMPETENCY-BASED questions.
-
-Generate ${count} EXTREMELY HARD, COMPETENCY-BASED questions for ${subject}.
-
-Chapters: ${chapters.join(", ")}
-
-🚨 CRITICAL REQUIREMENTS - ICSE 2026 COMPETENCY-BASED PATTERN:
-1. ❌ ZERO easy or medium questions - ONLY HARD/VERY HARD
-2. ❌ NO recall/memory questions (definitions, formulas, facts)
-3. ❌ NO single-step or two-step problems
-4. ✅ ONLY multi-step problem solving (3-5 steps minimum)
-5. ✅ ONLY real-world application scenarios
-6. ✅ ONLY analysis, evaluation, synthesis level (Bloom's Taxonomy)
-7. ✅ Questions must test COMPETENCY and CRITICAL THINKING
-8. ✅ Include data interpretation, comparison, decision-making
-9. ✅ Cross-concept integration (combine 2-3 concepts)
-10. ✅ Tricky distractors testing common misconceptions
-
-ICSE 2026 COMPETENCY DISTRIBUTION:
-- Problem Solving: 40%
-- Critical Thinking & Analysis: 30%
-- Application to New Situations: 20%
-- Data Interpretation: 10%
-
-QUESTION COMPLEXITY REQUIREMENTS:
-- Must require understanding of WHY, not just WHAT
-- Must involve decision-making or comparison between options
-- Must test ability to apply concepts to unfamiliar situations
-- Must require multi-step calculations WITH conceptual reasoning
-- All 4 options must be plausible (test partial understanding/misconceptions)
-
-Return STRICT JSON array (NO markdown, NO code blocks, NO extra text):
-[
-  {
-    "question": "Detailed scenario with multiple data points requiring analysis and multi-step solution. Include all necessary values, units, and context.",
-    "options": [
-      "Option testing correct multi-step solution",
-      "Option testing common misconception",
-      "Option testing calculation error",
-      "Option testing conceptual misunderstanding"
-    ],
-    "correctAnswer": 0,
-    "explanation": "Step-by-step solution: Given: ... Step 1: Analyze/Identify... Step 2: Apply concept/formula... Step 3: Calculate... Step 4: Verify/Conclude... Common errors: Option 1 assumes [misconception], Option 2 results from [error], Option 3 misunderstands [concept].",
-    "chapter": "Exact chapter name",
-    "difficulty": "hard"
-  }
-]
-
-EXAMPLE 1 - Chemistry (Mole Concept) - COMPETENCY-BASED:
-[
-  {
-    "question": "A student performs an experiment where 10.6g of anhydrous sodium carbonate (Na₂CO₃) reacts with excess dilute HCl. The CO₂ produced is passed through lime water. If only 80% of the theoretical CO₂ actually reacts with lime water due to experimental losses, what mass of calcium carbonate precipitate is formed? (Na=23, C=12, O=16, Ca=40)",
-    "options": [
-      "8.0 g",
-      "10.0 g",
-      "6.4 g",
-      "8.8 g"
-    ],
-    "correctAnswer": 0,
-    "explanation": "Step 1: Moles of Na₂CO₃ = 10.6/106 = 0.1 mol. Step 2: Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂. Theoretical CO₂ = 0.1 mol. Step 3: Actual CO₂ reacting = 0.1 × 0.8 = 0.08 mol. Step 4: CO₂ + Ca(OH)₂ → CaCO₃ + H₂O. Moles CaCO₃ = 0.08 mol. Step 5: Mass = 0.08 × 100 = 8.0g. Option 1 (10g) ignores 80% efficiency. Option 2 (6.4g) incorrectly applies 80% to final mass. Option 3 (8.8g) uses wrong molar mass.",
-    "chapter": "Mole Concept",
-    "difficulty": "hard"
-  }
-]
-
-EXAMPLE 2 - Physics (Energy) - COMPETENCY-BASED:
-[
-  {
-    "question": "A truck and a car are moving with the same kinetic energy. The mass of the truck is 4 times that of the car. If both vehicles stop in the same distance using brakes, compare the braking forces. If the car requires a braking force of F, what force is required to stop the truck?",
-    "options": [
-      "2F",
-      "4F",
-      "F/2",
-      "F"
-    ],
-    "correctAnswer": 0,
-    "explanation": "Given: KE_truck = KE_car, m_truck = 4m_car. From KE = ½mv²: ½(4m)v_t² = ½(m)v_c², so v_c = 2v_t. Using work-energy: F×d = KE. For same distance d and equal KE, forces should be equal... BUT this ignores that F = ma = m(v²/2d). For car: F = m(v_c²/2d). For truck: F_truck = 4m(v_t²/2d) = 4m((v_c/2)²/2d) = m(v_c²/2d) × 2 = 2F. Option 1 (4F) assumes direct mass proportionality. Option 2 (F/2) inverts relationship. Option 3 (F) ignores velocity difference.",
-    "chapter": "Work, Energy and Power",
-    "difficulty": "hard"
-  }
-]
-
-EXAMPLE 3 - Mathematics (Quadratic Equations) - COMPETENCY-BASED:
-[
-  {
-    "question": "A rectangular park has a walking path of uniform width around it. The park's dimensions are 40m × 30m. If the total area including the path is 1800 m², find the width of the path by forming and solving a quadratic equation.",
-    "options": [
-      "5 m",
-      "10 m",
-      "3 m",
-      "7 m"
-    ],
-    "correctAnswer": 0,
-    "explanation": "Let path width = x. Total dimensions: (40+2x) × (30+2x). Equation: (40+2x)(30+2x) = 1800. Expanding: 1200 + 80x + 60x + 4x² = 1800. Simplifying: 4x² + 140x - 600 = 0, or x² + 35x - 150 = 0. Using quadratic formula: x = (-35 ± √(1225+600))/2 = (-35 ± 42.7)/2. Positive root: x ≈ 5m. Option 1 (10m) gives area 2500m². Option 2 (3m) gives 1656m². Option 3 (7m) gives 2072m².",
-    "chapter": "Quadratic Equations",
-    "difficulty": "hard"
-  }
-]
-
-NOW GENERATE exactly ${count} EXTREMELY HARD, COMPETENCY-BASED ICSE 2026 questions.
-REMEMBER: NO easy, NO medium - ONLY HARD multi-step competency-based questions!`;
-
-    try {
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are an ICSE Class 10 exam expert. Generate only valid JSON arrays of MCQs. NO markdown formatting, NO extra text."
-                },
-                { role: "user", content: prompt }
-            ],
-            temperature: 0.5, // Lower for strict adherence to hard competency-based requirements
-            max_tokens: Math.min(6000, Math.max(1800, count * 500)),
-        }, { signal: AbortSignal.timeout(25_000) });
-
-        const content = completion.choices[0].message.content || "[]";
-
-        // Strip markdown if present
-        const cleanedContent = content
-            .replace(/```json\n?/g, "")
-            .replace(/```\n?/g, "")
-            .trim();
-
-        return normalizeQuestions(JSON.parse(cleanedContent), subject, chapters, count);
-    } catch (error) {
-        console.error("MCQ generation error:", error);
-        return fallbackMCQs(subject, chapters, count);
+function shuffle<T>(values: T[]): T[] {
+    const result = [...values];
+    for (let index = result.length - 1; index > 0; index -= 1) {
+        const swapWith = Math.floor(Math.random() * (index + 1));
+        [result[index], result[swapWith]] = [result[swapWith], result[index]];
     }
+    return result;
 }
 
-/**
- * Evaluate test answers and calculate analytics
- */
-export function evaluateTest(
-    questions: MCQ[],
-    answers: Record<string, number>
-) {
+function chapterName(chapter: string): string {
+    if (chapter !== chapter.toUpperCase()) return chapter;
+    return chapter
+        .toLowerCase()
+        .replace(/\band\b/g, "&")
+        .replace(/\b\w/g, character => character.toUpperCase())
+        .replace(/\bOop\b/g, "OOP")
+        .replace(/\bGst\b/g, "GST");
+}
+
+function competencyQuestions(subject: string): MCQ[] {
+    return (COMPETENCY_BANKS[subject] || []).map(question => ({
+        id: `competency-${question.id}`,
+        question: question.question,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+        explanation: `From the ICSE ${question.year} competency bank. Correct answer: ${question.options[question.correctAnswer]}.`,
+        chapter: question.chapter,
+        difficulty: question.marks >= 3 ? "hard" : "medium",
+    }));
+}
+
+function answerIndex(answer: string | undefined): number | null {
+    const match = answer?.match(/^\s*\(([a-d])\)/i);
+    return match ? match[1].toLowerCase().charCodeAt(0) - 97 : null;
+}
+
+function guessPaperQuestions(subjectId: string): MCQ[] {
+    const questions: MCQ[] = [];
+    for (const paperNumber of [1, 2]) {
+        const paper = getPaper(subjectId, paperNumber);
+        const answerKey = getAnswerKey(subjectId, paperNumber);
+        if (!paper || !answerKey) continue;
+        const answers = new Map(answerKey.answers.map(answer => [answer.questionNumber, answer]));
+
+        for (const section of paper.sections) {
+            for (const question of section.questions) {
+                const candidates = [
+                    ...(question.options?.length === 4 ? [{ number: question.number, text: question.text, options: question.options }] : []),
+                    ...(question.subQuestions || [])
+                        .filter(item => item.options?.length === 4)
+                        .map(item => ({ number: `${question.number}${item.number}`, text: item.text, options: item.options! })),
+                ];
+
+                for (const candidate of candidates) {
+                    const answer = answers.get(candidate.number);
+                    const correctAnswer = answerIndex(answer?.answer);
+                    if (correctAnswer === null || correctAnswer >= candidate.options.length) continue;
+                    questions.push({
+                        id: `guess-${subjectId}-${paperNumber}-${candidate.number.replace(/[^a-z0-9]/gi, "-")}`,
+                        question: candidate.text,
+                        options: candidate.options,
+                        correctAnswer,
+                        explanation: answer?.explanation || `From the ${paper.year} Guess Paper bank. Correct answer: ${candidate.options[correctAnswer]}.`,
+                        chapter: FULL_SYLLABUS,
+                        difficulty: "medium",
+                    });
+                }
+            }
+        }
+    }
+    return questions;
+}
+
+function englishLanguageQuestions(): MCQ[] {
+    const result: MCQ[] = [];
+    const fallbackWords = ["in", "on", "at", "to", "from", "with", "by", "for", "of", "into", "across", "among"];
+
+    for (const paperNumber of [1, 2]) {
+        const paper = getPaper("english-language", paperNumber);
+        const key = getAnswerKey("english-language", paperNumber);
+        const grammar = paper?.sections.flatMap(section => section.questions).find(question => question.number === "5");
+        const answer = key?.answers.find(item => item.questionNumber === "5(b)")?.answer;
+        if (!grammar || !answer) continue;
+
+        const segment = grammar.text.match(/\(b\)[\s\S]*?(?=\n\n\(c\))/)?.[0] || "";
+        const prompts = [...segment.matchAll(/\(([ivx]+)\)\s*([^\n]+)/gi)];
+        const correctWords = new Map([...answer.matchAll(/\(([ivx]+)\)\s*([a-z]+)/gi)].map(match => [match[1].toLowerCase(), match[2]]));
+
+        prompts.forEach((match, index) => {
+            const number = match[1].toLowerCase();
+            const correct = correctWords.get(number);
+            if (!correct) return;
+            const wordPool = [...new Set([...correctWords.values(), ...fallbackWords])].filter(word => word !== correct);
+            const distractors = Array.from({ length: 3 }, (_, offset) => wordPool[(index + offset) % wordPool.length]);
+            const rawOptions = [correct, ...distractors];
+            const shift = index % rawOptions.length;
+            const options = [...rawOptions.slice(shift), ...rawOptions.slice(0, shift)];
+            result.push({
+                id: `guess-english-language-${paperNumber}-${number}`,
+                question: match[2].trim(),
+                options,
+                correctAnswer: options.indexOf(correct),
+                explanation: `From the English Language Guess Paper grammar bank. The correct word is “${correct}”.`,
+                chapter: ENGLISH_GRAMMAR,
+                difficulty: "medium",
+            });
+        });
+    }
+    return result;
+}
+
+function subjectQuestions(subject: string): MCQ[] {
+    if (COMPETENCY_BANKS[subject]) return competencyQuestions(subject);
+    if (subject === "English Language") return englishLanguageQuestions();
+    const subjectId = GUESS_PAPER_SUBJECTS[subject];
+    return subjectId ? guessPaperQuestions(subjectId) : [];
+}
+
+export function getCustomTestCatalog(): CustomTestCatalogSubject[] {
+    return SUBJECT_ORDER.map(subject => {
+        const questions = subjectQuestions(subject);
+        const source = COMPETENCY_BANKS[subject] ? "Competency Bank" as const : "Guess Paper Bank" as const;
+        const counts = new Map<string, number>();
+        questions.forEach(question => counts.set(question.chapter, (counts.get(question.chapter) || 0) + 1));
+        return {
+            id: subject,
+            name: subject,
+            questionCount: questions.length,
+            chapters: [...counts.entries()].map(([id, questionCount]) => ({ id, name: chapterName(id), questionCount, source })),
+        };
+    }).filter(subject => subject.questionCount > 0);
+}
+
+/** Select unique local questions, balanced across all selected chapters. */
+export async function generateMCQs(params: { subject: string; chapters: string[]; count: number }): Promise<MCQ[]> {
+    const available = subjectQuestions(params.subject);
+    const buckets = params.chapters.map(chapter => shuffle(available.filter(question => question.chapter === chapter)));
+    const result: MCQ[] = [];
+
+    while (result.length < params.count) {
+        let found = false;
+        for (const bucket of buckets) {
+            const question = bucket.shift();
+            if (!question) continue;
+            result.push(question);
+            found = true;
+            if (result.length === params.count) break;
+        }
+        if (!found) break;
+    }
+
+    if (result.length === 0) throw new Error("No question-bank questions are available for this selection.");
+    return result;
+}
+
+export function evaluateTest(questions: MCQ[], answers: Record<string, number>) {
     let correct = 0;
     let incorrect = 0;
     let unattempted = 0;
-
     const chapterPerformance: Record<string, { correct: number; total: number }> = {};
 
-    questions.forEach((q) => {
-        const userAnswer = answers[q.id];
-
-        // Initialize chapter tracking
-        if (!chapterPerformance[q.chapter]) {
-            chapterPerformance[q.chapter] = { correct: 0, total: 0 };
-        }
-        chapterPerformance[q.chapter].total++;
-
-        if (userAnswer === undefined || userAnswer === null) {
-            unattempted++;
-        } else if (userAnswer === q.correctAnswer) {
-            correct++;
-            chapterPerformance[q.chapter].correct++;
-        } else {
-            incorrect++;
-        }
+    questions.forEach(question => {
+        const userAnswer = answers[question.id];
+        chapterPerformance[question.chapter] ||= { correct: 0, total: 0 };
+        chapterPerformance[question.chapter].total += 1;
+        if (userAnswer === undefined || userAnswer === null) unattempted += 1;
+        else if (userAnswer === question.correctAnswer) {
+            correct += 1;
+            chapterPerformance[question.chapter].correct += 1;
+        } else incorrect += 1;
     });
 
     const attempted = correct + incorrect;
     const accuracy = attempted > 0 ? (correct / attempted) * 100 : 0;
-
-    // Identify strong chapters (>=70% accuracy)
-    const strongChapters = Object.entries(chapterPerformance)
-        .filter(([_, perf]) => perf.total > 0 && perf.correct / perf.total >= 0.7)
-        .map(([chapter]) => chapter);
-
-    // Identify weak chapters (<50% accuracy)
-    const weakChapters = Object.entries(chapterPerformance)
-        .filter(([_, perf]) => perf.total > 0 && perf.correct / perf.total < 0.5)
-        .map(([chapter]) => chapter);
-
     return {
         correct,
         incorrect,
         unattempted,
         attempted,
         accuracy,
-        strongChapters,
-        weakChapters,
+        strongChapters: Object.entries(chapterPerformance).filter(([, value]) => value.correct / value.total >= 0.7).map(([chapter]) => chapter),
+        weakChapters: Object.entries(chapterPerformance).filter(([, value]) => value.correct / value.total < 0.5).map(([chapter]) => chapter),
         chapterPerformance,
     };
 }

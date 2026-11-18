@@ -3,8 +3,8 @@ import { type NextRequest } from "next/server";
 import { appRouter } from "@/server/routers/_app";
 import { createTRPCContext } from "@/server/trpc";
 
-// AI-backed procedures such as Customise Test can take longer than the
-// platform's short default function window.
+// Some study-generation procedures can take longer than the platform's short
+// default function window. Customise Test itself now uses local question banks.
 export const maxDuration = 60;
 
 const handler = async (req: NextRequest) => {

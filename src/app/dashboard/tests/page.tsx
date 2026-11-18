@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { trpc } from '@/lib/trpc/client';
 import { typography } from '@/lib/typography';
-import { ICSE_SUBJECTS, ICSE_CHAPTERS } from '@/lib/icse-data';
-import type { MCQ } from '@/lib/test-generator';
+import type { MCQ } from '@/lib/custom-test-types';
 import { useResponsive } from '@/hooks/useResponsive';
 import { useDemoLimit } from '@/hooks/useDemoMode';
 import { AppIcon } from '@/components/ui/AppIcon';
@@ -26,6 +25,7 @@ export default function CustomiseTestPage() {
     const { isMobile } = useResponsive();
     const demoLimit = useDemoLimit('custom-tests', 1);
     const { isFreePreview, requestUpgrade } = useFeaturePreviewAccess();
+    const { data: catalog, isLoading: catalogLoading, error: catalogError } = trpc.test.getCatalog.useQuery();
     const [step, setStep] = useState<Step>('subject');
 
     // Config states
@@ -112,6 +112,11 @@ export default function CustomiseTestPage() {
     };
 
     const currentQ = questions[currentQuestion];
+    const selectedSubject = catalog?.find(item => item.id === subject);
+    const chapterOptions = selectedSubject?.chapters ?? [];
+    const availableQuestions = chapterOptions
+        .filter(chapter => selectedChapters.includes(chapter.id))
+        .reduce((total, chapter) => total + chapter.questionCount, 0);
 
     return (
         <div style={{ padding: isMobile ? '16px' : '32px', maxWidth: '1200px', margin: '0 auto', boxSizing: 'border-box' as const, overflowX: 'hidden' as const }}>
@@ -125,12 +130,15 @@ export default function CustomiseTestPage() {
                     <h2 style={{ ...typography.display, fontSize: '24px', marginBottom: '16px' }}>
                         Select  the subject you want to create a test for:
                     </h2>
+                    {catalogLoading && <p style={{ ...typography.text, color: 'var(--text-muted)' }}>Loading verified question banks…</p>}
+                    {catalogError && <p role="alert" style={{ ...typography.text, color: '#FCA5A5' }}>Could not load the question banks. Please refresh and try again.</p>}
                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? '10px' : '16px', marginTop: '24px' }}>
-                        {ICSE_SUBJECTS.map((sub) => (
+                        {(catalog ?? []).map((sub) => (
                             <button
-                                key={sub}
+                                key={sub.id}
                                 onClick={() => {
-                                    setSubject(sub);
+                                    setSubject(sub.id);
+                                    setSelectedChapters([]);
                                     setStep('chapters');
                                 }}
                                 className="btn-gold"
@@ -141,7 +149,7 @@ export default function CustomiseTestPage() {
                                     fontWeight: 600,
                                 }}
                             >
-                                {sub}
+                                {sub.name}
                             </button>
                         ))}
                     </div>
@@ -155,21 +163,21 @@ export default function CustomiseTestPage() {
                         Select chapter(s) for {subject}:
                     </h2>
                     <div style={{ marginTop: '24px' }}>
-                        {ICSE_CHAPTERS[subject]?.map((ch) => (
-                            <label key={ch} style={{ display: 'flex', alignItems: 'center', marginBottom: '12px', cursor: 'pointer' }}>
+                        {chapterOptions.map((ch) => (
+                            <label key={ch.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '12px', cursor: 'pointer' }}>
                                 <input
                                     type="checkbox"
-                                    checked={selectedChapters.includes(ch)}
+                                    checked={selectedChapters.includes(ch.id)}
                                     onChange={(e) => {
                                         if (e.target.checked) {
-                                            setSelectedChapters([...selectedChapters, ch]);
+                                            setSelectedChapters([...selectedChapters, ch.id]);
                                         } else {
-                                            setSelectedChapters(selectedChapters.filter(c => c !== ch));
+                                            setSelectedChapters(selectedChapters.filter(c => c !== ch.id));
                                         }
                                     }}
                                     style={{ width: '20px', height: '20px', marginRight: '12px' }}
                                 />
-                                <span style={{ ...typography.text, fontSize: '16px' }}>{ch}</span>
+                                <span style={{ ...typography.text, fontSize: '16px' }}>{ch.name} <small style={{ color: 'var(--text-muted)' }}>· {ch.questionCount} questions · {ch.source}</small></span>
                             </label>
                         ))}
                     </div>
@@ -185,7 +193,10 @@ export default function CustomiseTestPage() {
                             Back
                         </button>
                         <button
-                            onClick={() => setStep('config')}
+                            onClick={() => {
+                                setTotalQuestions(Math.min(Math.max(1, totalQuestions), Math.min(20, availableQuestions)));
+                                setStep('config');
+                            }}
                             disabled={selectedChapters.length === 0}
                             className="btn-gold"
                             style={{
@@ -216,7 +227,7 @@ export default function CustomiseTestPage() {
                             inputMode="numeric"
                             pattern="[0-9]*"
                             value={totalQuestions || ""}
-                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setTotalQuestions(isNaN(v) ? 0 : Math.min(20, v)); }}
+                            onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')); setTotalQuestions(isNaN(v) ? 0 : Math.min(20, availableQuestions, v)); }}
                             style={{
                                 ...typography.text,
                                 width: '100%',
@@ -228,6 +239,9 @@ export default function CustomiseTestPage() {
                                 fontSize: '16px',
                             }}
                         />
+                        <p style={{ ...typography.text, fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>
+                            {availableQuestions} verified questions available for this selection. Maximum 20 per test.
+                        </p>
                     </div>
                     <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
                         <button
@@ -322,6 +336,7 @@ export default function CustomiseTestPage() {
                         <p><strong>Total Questions:</strong> {totalQuestions}</p>
                         <p><strong>Duration:</strong> {duration} minutes</p>
                         <p><strong>Question Type:</strong> Multiple Choice (MCQ)</p>
+                        <p><strong>Source:</strong> Competency Test and Guess Paper question banks</p>
                         <p><strong>Difficulty:</strong> ICSE Board Standard</p>
                     </div>
                     <div style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
@@ -350,7 +365,7 @@ export default function CustomiseTestPage() {
                                 fontWeight: 600,
                             }}
                         >
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><AppIcon name={createMutation.isPending ? 'hourglass' : 'play'} size={17} /> {createMutation.isPending ? 'Generating questions...' : 'Start test'}</span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><AppIcon name={createMutation.isPending ? 'hourglass' : 'play'} size={17} /> {createMutation.isPending ? 'Preparing your test...' : 'Start test'}</span>
                         </button>
                     </div>
                     {creationError && (

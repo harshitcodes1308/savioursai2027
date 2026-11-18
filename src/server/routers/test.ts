@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { createTRPCRouter, featurePreviewProcedure } from "../trpc";
-import { generateMCQs, evaluateTest } from "@/lib/test-generator";
+import { generateMCQs, evaluateTest, getCustomTestCatalog } from "@/lib/test-generator";
 
 const protectedProcedure = featurePreviewProcedure("custom-tests");
 const previewUseProcedure = featurePreviewProcedure("custom-tests", { consume: true });
 
 export const testRouter = createTRPCRouter({
+    getCatalog: protectedProcedure.query(() => getCustomTestCatalog()),
+
     /**
-     * Create new test with AI-generated MCQs
+     * Create a test from the local Competency and Guess Paper banks.
      */
     createTest: previewUseProcedure
         .input(z.object({
@@ -17,7 +19,7 @@ export const testRouter = createTRPCRouter({
             duration: z.number().int().min(1).max(180),
         }))
         .mutation(async ({ ctx, input }) => {
-            // Generate MCQs
+            // Select balanced, unique questions without an AI/API call.
             const questions = await generateMCQs({
                 subject: input.subject,
                 chapters: input.chapters,
@@ -30,24 +32,13 @@ export const testRouter = createTRPCRouter({
                     studentId: ctx.user.id,
                     subject: input.subject,
                     chapters: input.chapters,
-                    totalQuestions: input.totalQuestions,
+                    totalQuestions: questions.length,
                     duration: input.duration,
                     questions: questions as any,
                     answers: {},
                     status: "IN_PROGRESS",
                 },
             });
-
-            // Analytics must never stop an already-created test from loading.
-            await ctx.prisma.aiUsageLog.create({
-                data: {
-                    userId: ctx.user.id,
-                    feature: "FLASHCARD_GENERATION",
-                    tokens: input.totalQuestions * 150,
-                    cost: 0,
-                    metadata: { subject: input.subject, count: input.totalQuestions },
-                },
-            }).catch(error => console.error("Custom test usage log failed:", error));
 
             return { attemptId: attempt.id, questions };
         }),

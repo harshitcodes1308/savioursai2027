@@ -33,6 +33,14 @@ const STYLES: Record<string, FocusStyle> = {
     CUSTOM: { id: 'CUSTOM', name: 'Custom', focusMinutes: 0, breakMinutes: 0, description: 'Set your own timing' },
 };
 
+const MODE_BY_STYLE: Record<string, FocusModeType> = {
+    POMODORO: 'POMODORO',
+    DEEP_45: 'DEEP_FOCUS',
+    DEEP_60: 'DEEP_FOCUS',
+    LIGHT: 'LIGHT_FOCUS',
+    CUSTOM: 'DEEP_FOCUS',
+};
+
 const TASK_TYPES: { id: FocusTaskType; label: string }[] = [
     { id: 'LEARN', label: 'Learn New Topic' },
     { id: 'REVISE', label: 'Revision' },
@@ -64,6 +72,7 @@ export default function FocusPage() {
     // Reflection
     const [productivity, setProductivity] = useState(3);
     const [notes, setNotes] = useState('');
+    const [saveError, setSaveError] = useState('');
     
     const logSessionMutation = trpc.focus.logSession.useMutation();
     
@@ -124,26 +133,29 @@ export default function FocusPage() {
     const handleFinishSession = async () => {
         const focusBlocks = blocks.filter(b => b.type === 'FOCUS');
         const completedFocusBlocks = focusBlocks.filter((_, i) => i <= Math.floor(currentBlockIndex / 2));
-        
-        await logSessionMutation.mutateAsync({
-            subject,
-            taskType,
-            mode: 'DEEP' as FocusModeType,
-            plannedDuration: totalMinutes,
-            actualDuration: Math.floor((Date.now() - sessionStartTime!) / 60000),
-            completionStatus: 'COMPLETED',
-            quality: productivity >= 4 ? 'GOOD' : productivity >= 3 ? 'OKAY' : 'POOR',
-            notes,
-            // NEW fields
-            totalPlannedMinutes: totalMinutes,
-            focusStyle: selectedStyle.id,
-            customFocusMins: selectedStyle.id === 'CUSTOM' ? customFocus : undefined,
-            customBreakMins: selectedStyle.id === 'CUSTOM' ? customBreak : undefined,
-            blocksPlanned: focusBlocks.length,
-            blocksCompleted: completedFocusBlocks.length,
-        });
-        
-        setState('SUMMARY');
+
+        setSaveError('');
+        try {
+            await logSessionMutation.mutateAsync({
+                subject,
+                taskType,
+                mode: MODE_BY_STYLE[selectedStyle.id] ?? 'DEEP_FOCUS',
+                plannedDuration: totalMinutes,
+                actualDuration: Math.max(0, Math.floor((Date.now() - (sessionStartTime ?? Date.now())) / 60000)),
+                completionStatus: 'COMPLETED',
+                quality: productivity >= 4 ? 'GOOD' : productivity >= 3 ? 'OKAY' : 'POOR',
+                notes,
+                totalPlannedMinutes: totalMinutes,
+                focusStyle: selectedStyle.id,
+                customFocusMins: selectedStyle.id === 'CUSTOM' ? customFocus : undefined,
+                customBreakMins: selectedStyle.id === 'CUSTOM' ? customBreak : undefined,
+                blocksPlanned: focusBlocks.length,
+                blocksCompleted: completedFocusBlocks.length,
+            });
+            setState('SUMMARY');
+        } catch (error) {
+            setSaveError(error instanceof Error ? error.message : 'The session could not be saved. Please try again.');
+        }
     };
     
     const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
@@ -447,8 +459,9 @@ export default function FocusPage() {
                         />
                     </div>
                     
-                    <button onClick={handleFinishSession} className="btn-gold" style={{ width: '100%', padding: '16px', fontWeight: 600, fontSize: '16px' }}>
-                        Finish Session
+                    {saveError && <div role="alert" style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 9, border: '1px solid rgba(248,113,113,.35)', background: 'rgba(248,113,113,.08)', color: '#FCA5A5', fontSize: 13 }}>{saveError}</div>}
+                    <button onClick={handleFinishSession} disabled={logSessionMutation.isPending} className="btn-gold" style={{ width: '100%', padding: '16px', fontWeight: 600, fontSize: '16px', cursor: logSessionMutation.isPending ? 'wait' : 'pointer', opacity: logSessionMutation.isPending ? 0.7 : 1 }}>
+                        {logSessionMutation.isPending ? 'Saving Session…' : 'Finish Session'}
                     </button>
                 </>
             )}

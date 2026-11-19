@@ -5,6 +5,17 @@ import { FocusTaskType, FocusModeType, FocusQuality, FocusCompletionStatus } fro
 
 const protectedProcedure = featurePreviewProcedure("focus-mode");
 
+const focusModeInput = z.union([
+    z.nativeEnum(FocusModeType),
+    z.enum(["DEEP", "DEEP_45", "DEEP_60", "LIGHT", "CUSTOM"]),
+]);
+
+function normalizeFocusMode(mode: z.infer<typeof focusModeInput>): FocusModeType {
+    if (mode === "POMODORO") return FocusModeType.POMODORO;
+    if (mode === "LIGHT" || mode === "LIGHT_FOCUS") return FocusModeType.LIGHT_FOCUS;
+    return FocusModeType.DEEP_FOCUS;
+}
+
 export const focusRouter = createTRPCRouter({
     /**
      * Log a completed focus session
@@ -14,7 +25,7 @@ export const focusRouter = createTRPCRouter({
             z.object({
                 subject: z.string(),
                 taskType: z.nativeEnum(FocusTaskType),
-                mode: z.nativeEnum(FocusModeType),
+                mode: focusModeInput,
                 plannedDuration: z.number(),
                 actualDuration: z.number(),
                 completionStatus: z.nativeEnum(FocusCompletionStatus),
@@ -36,7 +47,7 @@ export const focusRouter = createTRPCRouter({
                     userId: ctx.user.id,
                     subject: input.subject,
                     taskType: input.taskType,
-                    mode: input.mode,
+                    mode: normalizeFocusMode(input.mode),
                     plannedDuration: input.plannedDuration,
                     actualDuration: input.actualDuration,
                     completionStatus: input.completionStatus,
